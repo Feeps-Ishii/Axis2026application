@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>取り寄せ予約作成確認 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		textarea.form-control-textarea { width: 100%; min-height: 100px; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 0.95rem; color: #1e293b; background-color: #f8fafc; resize: none; }
+		.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000; }
+		.modal-overlay.active { display: flex; }
+		.modal-content { background: #fff; padding: 30px 40px; border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); min-width: 300px; }
+		.modal-content h2 { margin-top: 0; margin-bottom: 15px; color: #333; }
+		.modal-content p { margin: 0 0 25px 0; line-height: 1.6; color: #555; }
+	</style>
+</head>
+
+<body>
+	<div id="nav"></div>
+
+	<div class="container">
+		<h1>取り寄せ予約の作成確認</h1>
+
+		<div class="card">
+			<p style="margin-bottom: 20px;">以下の内容で取り寄せ予約を作成します。よろしいですか？</p>
+
+			<div id="root"></div>
+
+			<div class="form-actions" style="border-top: 1px solid #e2e8f0; padding-top: 20px;">
+				<button type="button" class="btn btn-secondary" onclick="history.back();">修正</button>
+				<button type="button" class="btn btn-primary" id="btnConfirm">登録</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="completeModal" class="modal-overlay">
+		<div class="modal-content">
+			<h2>完了</h2>
+			<p>取り寄せ予約を作成しました。<br>相手店舗に通知されます。</p>
+			<button type="button" class="btn btn-primary" style="min-width: 120px;" id="btnOk">OK</button>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		let SESS, DRAFT;
+
+		TeamI.init().then(() => {
+			SESS = TeamI.requireLogin();
+			if (!SESS) return;
+			TeamINav.render("orders");
+
+			DRAFT = TeamI.getDraft("order");
+			if (!DRAFT) {
+				document.getElementById("root").innerHTML = `<p style="color:#dc2626;">入力内容が見つかりません。最初からやり直してください。</p>`;
+				document.querySelector(".form-actions").style.display = "none";
+				return;
+			}
+
+			document.getElementById("root").innerHTML = `
+				<h3>書籍・店舗情報</h3>
+				<div class="form-group">
+					<label>対象書籍</label>
+					<input type="text" value="${TeamI.esc((DRAFT.bookIsbn || "") + " " + (DRAFT.bookTitle || ""))}" disabled>
+				</div>
+				<div class="form-group">
+					<label>要求先 (在庫保有店舗)</label>
+					<input type="text" value="${TeamI.esc(DRAFT.shippingStoreName)}" disabled>
+				</div>
+				<div class="form-group">
+					<label>要求元 (自店舗)</label>
+					<input type="text" value="${TeamI.esc(DRAFT.pickupStoreName)}" disabled>
+				</div>
+				<div class="form-group">
+					<label>予約・取り寄せ冊数</label>
+					<input type="number" value="${TeamI.esc(DRAFT.quantity)}" disabled>
+				</div>
+
+				<h3>顧客情報</h3>
+				<div class="form-group">
+					<label>顧客氏名</label>
+					<input type="text" value="${TeamI.esc(DRAFT.customerName)}" disabled>
+				</div>
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>メールアドレス</label><input type="email" value="${TeamI.esc(DRAFT.customerEmail)}" disabled></div>
+					<div style="flex: 1;"><label>電話番号</label><input type="tel" value="${TeamI.esc(DRAFT.customerPhone)}" disabled></div>
+				</div>
+				<div class="form-group">
+					<label>備考</label>
+					<textarea disabled class="form-control-textarea">${TeamI.esc(DRAFT.note)}</textarea>
+				</div>`;
+
+			document.getElementById("btnConfirm").addEventListener("click", () => {
+				document.getElementById("completeModal").classList.add("active");
+			});
+
+			document.getElementById("btnOk").addEventListener("click", () => {
+				const d = new Date();
+				const p = (n) => String(n).padStart(2, "0");
+				const reservedAt = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " +
+					p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
+				TeamI.addOrder({
+					bookId: DRAFT.bookId,
+					shippingStoreId: DRAFT.shippingStoreId,
+					pickupStoreId: DRAFT.pickupStoreId,
+					quantity: DRAFT.quantity,
+					status: 1,
+					reservedAt: reservedAt,
+					customerName: DRAFT.customerName,
+					customerPhone: DRAFT.customerPhone,
+					customerEmail: DRAFT.customerEmail,
+					note: DRAFT.note || null,
+				});
+				TeamI.clearDraft("order");
+				alert("取り寄せ予約を作成しました。");
+				location.href = "./stocks.html";
+			});
+		});
+	</script>
+</body>
+</html>

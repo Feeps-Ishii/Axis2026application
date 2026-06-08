@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>POP一覧・検索 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		.pagination { display:flex; list-style:none; padding:0; justify-content:center; gap:5px; margin:20px 0; }
+		.pagination li a { display:flex; align-items:center; justify-content:center; min-width:38px; height:38px; padding:0 12px; text-decoration:none; color:#3498db; background:#f8f9fa; border:1px solid #dee2e6; border-radius:4px; font-size:14px; cursor:pointer; }
+		.pagination li.active a { background:#3498db; color:#fff; border-color:#3498db; font-weight:bold; }
+		.pagination li.disabled a { color:#a0a0a0; pointer-events:none; }
+		.badge { padding:4px 8px; border-radius:4px; font-size:.85em; }
+		.badge-arrived { background:#28a745; color:#fff; }
+		.badge-shipping { background:#17a2b8; color:#fff; }
+		.pop-thumbnail { max-width:80px; max-height:120px; object-fit:contain; }
+	</style>
+</head>
+
+<body>
+	<div id="nav"></div>
+	<div class="container">
+		<h1>POP一覧・検索</h1>
+
+		<div class="search-card">
+			<form id="searchForm">
+				<div class="search-grid" style="align-items:center;">
+					<div class="search-item">
+						<select name="contributorType" style="width:100%;">
+							<option value="">全てのPOP</option>
+							<option value="1">店舗のPOP</option>
+							<option value="2">お客様のPOP</option>
+						</select>
+					</div>
+					<div class="search-item"><input type="text" name="title" placeholder="タイトル" style="width:100%;"></div>
+					<div class="search-item"><select name="storeId" id="storeSel" style="width:100%;"><option value="">全ての店舗</option></select></div>
+					<div class="search-item"><input type="text" name="staffNumber" placeholder="社員番号" style="width:100%;"></div>
+					<div class="search-item"><input type="text" name="customerName" placeholder="投稿者名" style="width:100%;"></div>
+					<div class="search-actions" style="margin-top:0;"><button type="submit" class="btn btn-primary">検索</button></div>
+				</div>
+			</form>
+		</div>
+
+		<div id="staffSection">
+			<h2 class="section-title">店員POP一覧 <span id="staffCount"></span></h2>
+			<div class="table-responsive">
+				<table>
+					<thead><tr><th style="width:100px;">画像</th><th>書籍名</th><th>店舗</th><th>社員番号</th><th>ステータス</th><th>登録日</th><th>備考欄</th><th>操作</th></tr></thead>
+					<tbody id="staffBody"></tbody>
+				</table>
+			</div>
+			<ul class="pagination" id="staffPager"></ul>
+		</div>
+
+		<hr class="section-divider" id="divider">
+
+		<div id="customerSection">
+			<h2 class="section-title">お客様投稿POP一覧 <span id="customerCount"></span></h2>
+			<div class="table-responsive">
+				<table>
+					<thead><tr><th style="width:100px;">画像</th><th>書籍名</th><th>投稿者名</th><th>登録日</th><th>ステータス</th><th>メールアドレス</th><th>操作</th></tr></thead>
+					<tbody id="customerBody"></tbody>
+				</table>
+			</div>
+			<ul class="pagination" id="customerPager"></ul>
+		</div>
+
+		<div class="form-actions"><a href="./dashboard.html" class="btn btn-secondary">戻る</a></div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		const PH = "data:image/svg+xml;utf8," + encodeURIComponent(
+			'<svg xmlns="http://www.w3.org/2000/svg" width="80" height="120"><rect width="100%" height="100%" fill="#e2e8f0"/><text x="50%" y="50%" font-size="11" fill="#64748b" text-anchor="middle" dominant-baseline="middle">POP</text></svg>');
+		function imgTag(url) {
+			const src = /^https?:/.test(url || "") ? url : PH;
+			return `<img src="${src}" alt="POP画像" class="pop-thumbnail" onerror="this.src='${PH}'">`;
+		}
+		function statusBadge(st) {
+			return st === 1 ? '<span class="badge badge-arrived">公開中</span>' : '<span class="badge badge-shipping">非公開</span>';
+		}
+
+		function criteria() {
+			const f = document.getElementById("searchForm");
+			return {
+				ct: f.contributorType.value, title: f.title.value.trim(),
+				storeId: f.storeId.value, staffNumber: f.staffNumber.value.trim(),
+				customerName: f.customerName.value.trim(),
+			};
+		}
+		function matchCommon(p, c) {
+			const b = TeamI.book(p.bookId) || {};
+			if (c.title && !String(b.title).includes(c.title)) return false;
+			if (c.storeId && String(p.storeId) !== c.storeId) return false;
+			return true;
+		}
+
+		function renderStaff(page) {
+			const c = criteria();
+			const rows = TeamI.pops().filter(p => p.contributorType === 1 && matchCommon(p, c) && (() => {
+				if (!c.staffNumber) return true;
+				const st = TeamI.staffAll().find(s => s.id === p.staffId);
+				return st && st.staffNumber.includes(c.staffNumber);
+			})());
+			document.getElementById("staffCount").textContent = rows.length + "件";
+			const body = document.getElementById("staffBody");
+			const SIZE = TeamIUI.PAGE_SIZE;
+			const slice = rows.slice((page - 1) * SIZE, page * SIZE);
+			body.innerHTML = slice.length ? slice.map(p => {
+				const b = TeamI.book(p.bookId) || {};
+				const st = TeamI.staffAll().find(s => s.id === p.staffId);
+				return `<tr><td>${imgTag(p.imageUrl)}</td><td>${TeamI.esc(b.title)}</td>
+					<td>${TeamI.esc(TeamI.storeName(p.storeId))}</td><td>${st ? TeamI.esc(st.staffNumber) : "-"}</td>
+					<td>${statusBadge(p.status)}</td><td>${TeamI.fmtDate(p.createdAt)}</td>
+					<td>${TeamI.esc(p.note || "")}</td><td><a href="./pop-edit.html?id=${p.id}" class="btn btn-accent">変更/削除</a></td></tr>`;
+			}).join("") : `<tr><td colspan="8" style="text-align:center; color:#64748b; padding:20px;">該当するPOPがありません。</td></tr>`;
+			TeamIUI.wirePager(document.getElementById("staffPager"), rows.length, page, SIZE, renderStaff);
+			TeamIUI.bindStubs(body);
+		}
+
+		function renderCustomer(page) {
+			const c = criteria();
+			const rows = TeamI.pops().filter(p => p.contributorType === 2 && matchCommon(p, c) &&
+				(!c.customerName || String(p.customerName || "").includes(c.customerName)));
+			document.getElementById("customerCount").textContent = rows.length + "件";
+			const body = document.getElementById("customerBody");
+			const SIZE = TeamIUI.PAGE_SIZE;
+			const slice = rows.slice((page - 1) * SIZE, page * SIZE);
+			body.innerHTML = slice.length ? slice.map(p => {
+				const b = TeamI.book(p.bookId) || {};
+				return `<tr><td>${imgTag(p.imageUrl)}</td><td>${TeamI.esc(b.title)}</td>
+					<td>${TeamI.esc(p.customerName || "")}</td><td>${TeamI.fmtDate(p.createdAt)}</td>
+					<td>${statusBadge(p.status)}</td><td>${TeamI.esc(p.customerEmail || "")}</td>
+					<td><a href="./pop-edit.html?id=${p.id}" class="btn btn-accent">変更/削除</a></td></tr>`;
+			}).join("") : `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:20px;">該当するPOPがありません。</td></tr>`;
+			TeamIUI.wirePager(document.getElementById("customerPager"), rows.length, page, SIZE, renderCustomer);
+			TeamIUI.bindStubs(body);
+		}
+
+		function applyVisibility() {
+			const ct = criteria().ct;
+			document.getElementById("staffSection").style.display = (ct === "" || ct === "1") ? "" : "none";
+			document.getElementById("customerSection").style.display = (ct === "" || ct === "2") ? "" : "none";
+			document.getElementById("divider").style.display = (ct === "") ? "" : "none";
+		}
+
+		function search() { applyVisibility(); renderStaff(1); renderCustomer(1); }
+
+		TeamI.init().then(() => {
+			if (!TeamI.requireLogin()) return;
+			TeamINav.render("pops");
+			const ssel = document.getElementById("storeSel");
+			TeamI.stores().forEach(s => { const o = document.createElement("option"); o.value = s.id; o.textContent = s.storeName; ssel.appendChild(o); });
+			document.getElementById("searchForm").addEventListener("submit", e => { e.preventDefault(); search(); });
+			search();
+		});
+	</script>
+</body>
+</html>

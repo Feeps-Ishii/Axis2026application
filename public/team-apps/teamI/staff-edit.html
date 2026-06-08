@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>店員情報変更・削除 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="nav"></div>
+	<div class="container">
+		<h1>店員情報変更・削除</h1>
+
+		<div class="card" style="max-width: 600px; margin: 0 auto;">
+			<p style="color: #64748b; font-size: 0.95rem; margin-bottom: 20px;">
+				選択した店員情報を変更または削除します。
+			</p>
+
+			<form id="editForm">
+				<div class="form-group">
+					<label for="employeeNo">社員番号</label>
+					<input type="text" id="employeeNo" disabled style="background-color: #f8fafc;">
+				</div>
+
+				<div class="form-group">
+					<label for="name">氏名</label>
+					<input type="text" id="name" name="name">
+					<span class="err" data-for="name" style="color: #dc2626; font-size: 0.85rem;"></span>
+				</div>
+
+				<div class="form-group">
+					<label for="password">パスワード再設定</label>
+					<input type="password" id="password" name="password" placeholder="変更する場合のみ入力">
+					<span class="err" data-for="password" style="color: #dc2626; font-size: 0.85rem;"></span>
+				</div>
+
+				<div class="form-group">
+					<label for="store">所属店舗</label>
+					<select id="store" name="storeId"></select>
+					<span class="err" data-for="storeId" style="color: #dc2626; font-size: 0.85rem;"></span>
+				</div>
+
+				<div class="form-group">
+					<label for="role">役職</label>
+					<select id="role" name="roleId">
+						<option value="1">管理者</option>
+						<option value="2">一般</option>
+					</select>
+					<span class="err" data-for="roleId" style="color: #dc2626; font-size: 0.85rem;"></span>
+				</div>
+
+				<div
+					style="display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+					<div>
+						<button type="button" id="deleteBtn" class="btn btn-danger">削除</button>
+					</div>
+					<div style="display: flex; gap: 10px;">
+						<a href="./staffs.html" class="btn btn-secondary">キャンセル</a>
+						<button type="submit" class="btn btn-primary">確認</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		TeamI.init().then(() => {
+			const sess = TeamI.requireLogin();
+			if (!sess) return;
+			if (sess.staff.roleId !== 1) { location.href = "./dashboard.html"; return; }
+			TeamINav.render("staffs");
+
+			const id = Number(new URLSearchParams(location.search).get("id"));
+			const staff = TeamI.staffAll().find(s => s.id === id && !s.isDeleted);
+			if (!staff) { alert("対象の店員が見つかりません"); location.href = "./staffs.html"; return; }
+
+			const f = document.getElementById("editForm");
+			const ssel = document.getElementById("store");
+			TeamI.stores().forEach(s => { const o = document.createElement("option"); o.value = s.id; o.textContent = s.storeName; ssel.appendChild(o); });
+
+			// 修正で戻ってきた場合は下書きを優先
+			const draft = TeamI.getDraft("staff-edit");
+			const src = (draft && draft.id === id) ? draft : staff;
+
+			document.getElementById("employeeNo").value = staff.staffNumber;
+			f.name.value = src.name || "";
+			f.password.value = (draft && draft.id === id) ? (draft.password || "") : "";
+			f.storeId.value = src.storeId != null ? src.storeId : "";
+			f.roleId.value = src.roleId != null ? src.roleId : "";
+
+			document.getElementById("deleteBtn").addEventListener("click", () => {
+				location.href = "./staff-delete-confirm.html?id=" + id;
+			});
+
+			f.addEventListener("submit", e => {
+				e.preventDefault();
+				f.querySelectorAll(".err").forEach(s => s.textContent = "");
+				const data = {
+					id: id,
+					staffNumber: staff.staffNumber,
+					name: f.name.value.trim(),
+					password: f.password.value,
+					storeId: f.storeId.value ? Number(f.storeId.value) : "",
+					roleId: f.roleId.value ? Number(f.roleId.value) : "",
+				};
+				const errs = {};
+				if (!data.name) errs.name = "氏名を入力してください";
+				if (data.password && data.password.length < 8) errs.password = "8文字以上で入力してください";
+				if (!data.storeId) errs.storeId = "所属店舗を選択してください";
+				if (!data.roleId) errs.roleId = "役職を選択してください";
+				if (Object.keys(errs).length) {
+					Object.keys(errs).forEach(k => { const s = f.querySelector('.err[data-for="' + k + '"]'); if (s) s.textContent = errs[k]; });
+					return;
+				}
+				TeamI.setDraft("staff-edit", data);
+				location.href = "./staff-edit-confirm.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ことのは書房 | コメント削除確認</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=Noto+Serif+JP:wght@700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+		rel="stylesheet">
+	<style>
+		:root {
+			--bg-color: #f7f4eb;
+			--primary-color: #1e3d33;
+			--accent-color: #bd4a30;
+			--text-color: #333333;
+			--paper-bg: #fffbf0;
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Zen Kaku Gothic New', sans-serif;
+			background-color: var(--bg-color);
+			color: var(--text-color);
+			line-height: 1.6;
+		}
+
+		.serif {
+			font-family: 'Noto Serif JP', serif;
+		}
+
+		.pop-font {
+			font-family: 'Kiwi Maru', sans-serif;
+		}
+
+		header {
+			padding: 40px 4% 20px;
+			text-align: center;
+			position: relative;
+		}
+
+		header h1 {
+			color: var(--primary-color);
+			font-size: 1.8rem;
+			margin-bottom: 10px;
+		}
+
+		header p {
+			color: var(--accent-color);
+			font-size: 1.05rem;
+		}
+
+		.container {
+			max-width: 650px;
+			margin: 0 auto;
+			padding: 20px 4% 60px;
+		}
+
+		.delete-card {
+			background-color: #fffdf5;
+			border: 1px solid #ebdcb9;
+			border-radius: 8px;
+			padding: 40px;
+			box-shadow: 3px 5px 15px rgba(0, 0, 0, 0.05);
+		}
+
+		.warn-text {
+			color: #b91c1c;
+			font-weight: bold;
+			margin-bottom: 25px;
+			text-align: center;
+		}
+
+		.form-group {
+			margin-bottom: 25px;
+		}
+
+		.form-group label {
+			display: block;
+			color: var(--primary-color);
+			font-weight: bold;
+			margin-bottom: 8px;
+			font-size: 0.95rem;
+			border-bottom: 1px dashed #ebdcb9;
+			padding-bottom: 5px;
+		}
+
+		.readonly-box {
+			background-color: #fff;
+			color: #475569;
+			border: 1px dashed #ebdcb9;
+			border-radius: 6px;
+			padding: 12px 15px;
+			width: 100%;
+			white-space: pre-wrap;
+			line-height: 1.7;
+		}
+
+		.form-actions {
+			display: flex;
+			justify-content: flex-end;
+			gap: 10px;
+			margin-top: 30px;
+			border-top: 1px dashed #ebdcb9;
+			padding-top: 20px;
+		}
+
+		.btn {
+			padding: 12px 30px;
+			border-radius: 30px;
+			text-decoration: none;
+			font-size: 0.95rem;
+			cursor: pointer;
+			border: none;
+			font-weight: bold;
+			transition: all 0.3s;
+			font-family: 'Zen Kaku Gothic New', sans-serif;
+			display: inline-block;
+		}
+
+		.btn-secondary {
+			background-color: #e2e8f0;
+			color: #475569;
+		}
+
+		.btn-secondary:hover {
+			background-color: #cbd5e1;
+		}
+
+		.btn-danger {
+			background-color: #b91c1c;
+			color: #fff;
+			box-shadow: 0 4px 10px rgba(185, 28, 28, 0.2);
+		}
+
+		.btn-danger:hover {
+			background-color: #991b1b;
+			transform: translateY(-2px);
+		}
+
+		@media (max-width: 768px) {
+			.delete-card {
+				padding: 30px 20px;
+			}
+
+			.form-actions {
+				flex-direction: column-reverse;
+				gap: 15px;
+			}
+
+			.btn {
+				width: 100%;
+				text-align: center;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1 class="serif">コメント削除確認</h1>
+		<p class="pop-font">以下のコメントを削除します。</p>
+	</header>
+
+	<div class="container">
+		<div class="delete-card" id="root"></div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamI.init().then(function () {
+			const root = document.getElementById("root");
+			const params = new URLSearchParams(location.search);
+			const id = Number(params.get("id"));
+			const popId = Number(params.get("popId"));
+
+			const comment = TeamI.comments().find(function (c) { return c.id === id; });
+
+			if (!comment) {
+				root.innerHTML = '<div style="text-align:center; padding:20px; color:#888;" class="pop-font">対象のコメントが見つかりませんでした。<br><a href="./board-detail.html?id=' + popId + '" class="btn btn-secondary pop-font" style="margin-top:20px;">POP詳細へ戻る</a></div>';
+				return;
+			}
+
+			const pop = TeamI.pop(comment.popId) || {};
+			const book = TeamI.book(pop.bookId) || {};
+			const userName = (comment.userName && comment.userName !== "") ? comment.userName : "名無し";
+			const detailUrl = './board-detail.html?id=' + popId;
+
+			root.innerHTML =
+				'<p class="warn-text pop-font">⚠️ 以下のコメントを完全に削除します。この操作は取り消せません。よろしいですか？</p>' +
+				'<div class="form-group">' +
+				'  <label class="serif">対象書籍</label>' +
+				'  <div class="readonly-box pop-font">' + TeamI.esc(book.title || "") + '</div>' +
+				'</div>' +
+				'<div class="form-group">' +
+				'  <label class="serif">投稿者名</label>' +
+				'  <div class="readonly-box pop-font">' + TeamI.esc(userName) + '</div>' +
+				'</div>' +
+				'<div class="form-group">' +
+				'  <label class="serif">コメント内容</label>' +
+				'  <div class="readonly-box pop-font">' + TeamI.esc(comment.content) + '</div>' +
+				'</div>' +
+				'<div class="form-actions">' +
+				'  <a href="' + detailUrl + '" class="btn btn-secondary">戻る</a>' +
+				'  <button type="button" id="deleteBtn" class="btn btn-danger">削除を実行する</button>' +
+				'</div>';
+
+			document.getElementById("deleteBtn").addEventListener("click", function () {
+				TeamI.deleteComment(id);
+				alert("コメントを削除しました。");
+				location.href = detailUrl;
+			});
+		});
+	</script>
+</body>
+
+</html>

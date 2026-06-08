@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ことのは書房 | POP一覧</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=Noto+Serif+JP:wght@700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="./css/board.css">
+</head>
+
+<body>
+	<header>
+		<div class="logo-container"><img src="./assets/logo.png" alt="ロゴ" class="site-logo" onerror="this.style.display='none'"></div>
+		<h1 class="serif">ことのは書房 POP GALLERY</h1>
+		<p>スタッフやお客様が愛を込めて作った、今あなたに読んでほしい本のPOPたち。</p>
+		<div class="news-banner pop-font">
+			<span class="news-label serif">最新情報</span>
+			<div class="news-text-wrapper"><span class="news-text">夏の特別POPコンテスト開催中！素敵なPOPには「ことのは大賞」が贈られます。（8/31まで）</span></div>
+		</div>
+		<div class="header-actions"><a href="./pop-book-select.html" class="btn-create pop-font">＋ 新しいPOPを飾る</a></div>
+	</header>
+
+	<div class="container">
+		<div class="new-arrival-section">
+			<h2 class="new-arrival-title serif">チラ見せPOP</h2>
+			<p class="new-arrival-subtitle pop-font">ほんの一部だけ、こっそりお見せします。どんな本が隠れているか、クリックして確かめてみて！</p>
+			<div class="slider-container"><div class="slider-track pop-font" id="sliderTrack"></div></div>
+		</div>
+
+		<form id="searchForm">
+			<div class="search-card">
+				<div class="search-grid">
+					<div class="search-item"><input type="text" name="query" placeholder="本のタイトル・著者名" class="pop-font"></div>
+					<div class="search-item"><select name="storeId" id="storeSel" class="pop-font"><option value="">すべての店舗</option></select></div>
+					<div class="search-item"><select name="contributorType" class="pop-font"><option value="">すべてのPOP</option><option value="1">店員のおすすめPOP</option><option value="2">お客様の投稿POP</option></select></div>
+				</div>
+				<div class="search-actions"><button type="submit" class="btn-search pop-font">検索する</button></div>
+			</div>
+		</form>
+
+		<div id="emptyMsg" class="no-results-message" style="display:none;"><p class="pop-font">該当するPOPがありませんでした。<br>条件を変えて検索してみてください。</p></div>
+
+		<div id="staffSection">
+			<h2 class="section-heading serif">店員のおすすめPOP</h2>
+			<div class="pop-grid" id="staffGrid"></div>
+			<ul class="pagination pop-font" id="staffPager"></ul>
+		</div>
+
+		<div id="customerSection">
+			<h2 class="section-heading serif" style="margin-top:20px;">お客様の投稿POP</h2>
+			<div class="pop-grid" id="customerGrid"></div>
+			<ul class="pagination pop-font" id="customerPager"></ul>
+		</div>
+	</div>
+
+	<footer><p>© 2026 Kotonoha Books - POP Gallery</p></footer>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		const PH = "data:image/svg+xml;utf8," + encodeURIComponent(
+			'<svg xmlns="http://www.w3.org/2000/svg" width="200" height="280"><rect width="100%" height="100%" fill="#888"/><text x="50%" y="50%" font-size="28" fill="#fff" text-anchor="middle" dominant-baseline="middle">POP</text></svg>');
+		const imgSrc = (u) => /^https?:/.test(u || "") ? u : PH;
+
+		function criteria() {
+			const f = document.getElementById("searchForm");
+			return { q: f.query.value.trim(), storeId: f.storeId.value, ct: f.contributorType.value };
+		}
+		function match(p, c) {
+			const b = TeamI.book(p.bookId) || {};
+			if (c.q && !(String(b.title).includes(c.q) || String(b.author || "").includes(c.q))) return false;
+			if (c.storeId && String(p.storeId) !== c.storeId) return false;
+			return true;
+		}
+		function card(p, isCustomer) {
+			const b = TeamI.book(p.bookId) || {};
+			const tag = isCustomer
+				? `<div class="bookmark pop-font"><span class="bookmark-text">投稿</span></div>`
+				: `<div class="bookmark pop-font"><span class="bookmark-text">${TeamI.esc(TeamI.storeName(p.storeId))}</span></div>`;
+			const writer = isCustomer
+				? `<div class="writer-tag pop-font">── 作成者：${TeamI.esc(p.customerName || "ゲスト")}</div>` : "";
+			return `<a href="./board-detail.html?id=${p.id}" class="pop-card">
+				${tag}
+				<div class="pop-image-container"><img src="${imgSrc(p.imageUrl)}" alt="POP画像" class="pop-image" onerror="this.src='${PH}'"></div>
+				<div><div class="book-info"><div class="book-detail">
+					<div class="book-title">${TeamI.esc(b.title)}</div>
+					<div class="book-author">${TeamI.esc(b.author || "")}</div>
+				</div></div>${writer}</div>
+			</a>`;
+		}
+
+		function renderSection(gridId, pagerId, rows, isCustomer, size, page) {
+			const grid = document.getElementById(gridId);
+			const slice = rows.slice((page - 1) * size, page * size);
+			grid.innerHTML = slice.map(p => card(p, isCustomer)).join("");
+			TeamIUI.bindStubs(grid);
+			TeamIUI.wirePager(document.getElementById(pagerId), rows.length, page, size,
+				(pp) => renderSection(gridId, pagerId, rows, isCustomer, size, pp));
+		}
+
+		function run() {
+			const c = criteria();
+			const staff = TeamI.popsByContributor(1).filter(p => match(p, c));
+			const cust = TeamI.popsByContributor(2).filter(p => match(p, c));
+			const showStaff = (c.ct === "" || c.ct === "1");
+			const showCust = (c.ct === "" || c.ct === "2");
+
+			document.getElementById("staffSection").style.display = (showStaff && staff.length) ? "" : "none";
+			document.getElementById("customerSection").style.display = (showCust && cust.length) ? "" : "none";
+			document.getElementById("emptyMsg").style.display =
+				((!showStaff || !staff.length) && (!showCust || !cust.length)) ? "block" : "none";
+
+			if (showStaff && staff.length) renderSection("staffGrid", "staffPager", staff, false, 4, 1);
+			if (showCust && cust.length) renderSection("customerGrid", "customerPager", cust, true, 12, 1);
+
+			// チラ見せスライダー（先頭から数件）
+			const mix = staff.concat(cust).slice(0, 10);
+			document.getElementById("sliderTrack").innerHTML = mix.map(p =>
+				`<a href="./board-detail.html?id=${p.id}" class="slide-item"><div class="slide-img-wrapper"><img src="${imgSrc(p.imageUrl)}" alt="POP画像" onerror="this.src='${PH}'"></div></a>`).join("");
+		}
+
+		TeamI.init().then(() => {
+			TeamINav.render(""); // セッション無くても閲覧可（公開掲示板）。navは描画しないので何もしない
+			const ssel = document.getElementById("storeSel");
+			TeamI.stores().forEach(s => { const o = document.createElement("option"); o.value = s.id; o.textContent = s.storeName; ssel.appendChild(o); });
+			document.getElementById("searchForm").addEventListener("submit", e => { e.preventDefault(); run(); });
+			TeamIUI.bindStubs();
+			run();
+
+			// スライダー自動送り
+			const track = document.getElementById("sliderTrack");
+			setInterval(() => {
+				const first = track.querySelector(".slide-item");
+				if (!first) return;
+				const w = first.offsetWidth;
+				if (track.scrollLeft >= track.scrollWidth - track.clientWidth - 10) track.scrollTo({ left: 0, behavior: "smooth" });
+				else track.scrollBy({ left: w, behavior: "smooth" });
+			}, 4000);
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>在庫削除確認 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="nav"></div>
+
+	<div class="container">
+		<h1>在庫情報の削除確認</h1>
+		<div class="card">
+			<p style="color: #dc2626; font-weight: bold; margin-bottom: 20px;">
+				⚠️ 以下の在庫情報を完全に削除します。この操作は取り消せません。よろしいですか？
+			</p>
+
+			<form id="deleteConfirmForm">
+				<h3>在庫情報</h3>
+				<div class="form-group">
+					<label id="targetLabel">対象書籍</label>
+					<input type="text" id="bookTitle" disabled>
+				</div>
+
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>在庫数</label><input type="number" id="stockCount" disabled></div>
+					<div style="flex: 1;"><label>発注閾値</label><input type="number" id="alertThreshold" disabled></div>
+					<div style="flex: 1;"><label>棚位置</label><input type="text" id="shelfLocation" disabled></div>
+				</div>
+
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>ジャンル</label><input type="text" id="genreName" disabled></div>
+					<div style="flex: 1;"><label>区分</label><input type="text" id="contractTypeName" disabled></div>
+					<div style="flex: 1;"><label>返品期限</label><input type="date" id="returnDeadline" disabled></div>
+				</div>
+
+				<h3>書籍詳細情報</h3>
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>定価</label><input type="text" id="price" disabled></div>
+					<div style="flex: 1;"><label>取次</label><input type="text" id="agent" disabled></div>
+				</div>
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>配本日</label><input type="date" id="releaseDate" disabled></div>
+					<div style="flex: 1;"><label>初版・重版区分</label><input type="text" id="editionName" disabled></div>
+				</div>
+
+				<div class="form-actions"
+					style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+					<a href="#" class="btn btn-secondary" id="backBtn">戻る</a>
+					<button type="submit" class="btn btn-danger">削除</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		TeamI.init().then(() => {
+			const SESS = TeamI.requireLogin();
+			if (!SESS) return;
+			TeamINav.render("stocks");
+
+			const id = Number(new URLSearchParams(location.search).get("id"));
+			const STOCK = TeamI.stocks().find(s => s.id === id);
+			if (!STOCK) {
+				alert("対象の在庫が見つかりません。");
+				location.href = "./stocks.html";
+				return;
+			}
+			const BOOK = TeamI.book(STOCK.bookId) || {};
+
+			document.getElementById("backBtn").href = "./stock-edit.html?id=" + STOCK.id;
+
+			document.getElementById("targetLabel").textContent = "対象書籍 (ISBN: " + (BOOK.isbn || "") + ")";
+			document.getElementById("bookTitle").value = BOOK.title || "";
+			document.getElementById("stockCount").value = STOCK.stockCount;
+			document.getElementById("alertThreshold").value = STOCK.alertThreshold;
+			document.getElementById("shelfLocation").value = STOCK.shelfLocation || "";
+			document.getElementById("genreName").value = TeamI.categoryName(BOOK.genreId);
+			document.getElementById("contractTypeName").value = TeamI.label.CONTRACT_TYPE[STOCK.contractType] || "";
+			document.getElementById("returnDeadline").value = (STOCK.returnDeadline || "").substring(0, 10);
+			document.getElementById("price").value = (Number(BOOK.price || 0).toLocaleString()) + "円";
+			document.getElementById("agent").value = BOOK.agent || "";
+			document.getElementById("releaseDate").value = (BOOK.releaseDate || "").substring(0, 10);
+			document.getElementById("editionName").value = TeamI.label.EDITION_TYPE[BOOK.editionType] || "";
+
+			document.getElementById("deleteConfirmForm").addEventListener("submit", e => {
+				e.preventDefault();
+				TeamI.deleteStock(STOCK.id);
+				alert("在庫情報を削除しました。");
+				location.href = "./stocks.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

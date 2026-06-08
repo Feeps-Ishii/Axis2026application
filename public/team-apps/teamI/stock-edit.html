@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>在庫変更 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="nav"></div>
+
+	<div class="container">
+		<h1>在庫情報の変更</h1>
+		<div class="card">
+			<form id="stockEditForm">
+
+				<h3>在庫情報</h3>
+				<div class="form-group">
+					<label id="targetLabel">対象書籍</label>
+					<input type="text" id="bookTitle" disabled style="background-color: #f1f5f9;">
+				</div>
+
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>在庫数</label><input type="number" id="stockCount" name="stockCount"></div>
+					<div style="flex: 1;"><label>発注閾値</label><input type="number" id="alertThreshold" name="alertThreshold"></div>
+					<div style="flex: 1;"><label>棚位置</label><input type="text" id="shelfLocation" name="shelfLocation"></div>
+				</div>
+
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;">
+						<label>ジャンル</label>
+						<select id="genreId" name="genreId"></select>
+					</div>
+					<div style="flex: 1;">
+						<label>区分</label>
+						<select id="contractType" name="contractType" onchange="toggleReturnDeadline()">
+							<option value="2">買切</option>
+							<option value="1">委託</option>
+						</select>
+					</div>
+					<div style="flex: 1;">
+						<label>返品期限</label>
+						<input type="date" id="returnDeadline" name="returnDeadline">
+					</div>
+				</div>
+
+				<h3>書籍詳細情報</h3>
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>定価</label><input type="number" id="price" name="price"></div>
+					<div style="flex: 1;"><label>取次</label><input type="text" id="agent" name="agent"></div>
+				</div>
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>配本日</label><input type="date" id="releaseDate" name="releaseDate"></div>
+					<div style="flex: 1;">
+						<label>初版・重版区分</label>
+						<select id="editionType" name="editionType">
+							<option value="1">初版</option>
+							<option value="2">重版</option>
+						</select>
+					</div>
+				</div>
+
+				<div style="display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+					<div>
+						<a href="#" id="deleteBtn" class="btn btn-danger">削除</a>
+					</div>
+					<div style="display: flex; gap: 10px;">
+						<a href="./stocks.html" class="btn btn-secondary">キャンセル</a>
+						<button type="submit" class="btn btn-primary">確認</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		let STOCK, BOOK;
+
+		function toggleReturnDeadline() {
+			const cts = document.getElementById('contractType');
+			const rd = document.getElementById('returnDeadline');
+			if (!cts || !rd) return;
+			if (cts.value === '2') {
+				rd.disabled = true; rd.value = ''; rd.style.backgroundColor = '#f1f5f9';
+			} else {
+				rd.disabled = false; rd.style.backgroundColor = '';
+			}
+		}
+
+		TeamI.init().then(() => {
+			const SESS = TeamI.requireLogin();
+			if (!SESS) return;
+			TeamINav.render("stocks");
+
+			const id = Number(new URLSearchParams(location.search).get("id"));
+			STOCK = TeamI.stocks().find(s => s.id === id);
+			if (!STOCK) {
+				alert("対象の在庫が見つかりません。");
+				location.href = "./stocks.html";
+				return;
+			}
+			BOOK = TeamI.book(STOCK.bookId) || {};
+
+			const gsel = document.getElementById("genreId");
+			TeamI.categories().forEach(c => {
+				const o = document.createElement("option");
+				o.value = c.id; o.textContent = c.category; gsel.appendChild(o);
+			});
+
+			document.getElementById("targetLabel").textContent = "対象書籍 (ISBN: " + (BOOK.isbn || "") + ")";
+			document.getElementById("bookTitle").value = BOOK.title || "";
+			document.getElementById("stockCount").value = STOCK.stockCount;
+			document.getElementById("alertThreshold").value = STOCK.alertThreshold;
+			document.getElementById("shelfLocation").value = STOCK.shelfLocation || "";
+			document.getElementById("genreId").value = BOOK.genreId || "";
+			document.getElementById("contractType").value = STOCK.contractType;
+			document.getElementById("returnDeadline").value = (STOCK.returnDeadline || "").substring(0, 10);
+			document.getElementById("price").value = BOOK.price || "";
+			document.getElementById("agent").value = BOOK.agent || "";
+			document.getElementById("releaseDate").value = (BOOK.releaseDate || "").substring(0, 10);
+			document.getElementById("editionType").value = BOOK.editionType || "";
+
+			toggleReturnDeadline();
+
+			document.getElementById("deleteBtn").addEventListener("click", e => {
+				e.preventDefault();
+				location.href = "./stock-delete-confirm.html?id=" + STOCK.id;
+			});
+
+			document.getElementById("stockEditForm").addEventListener("submit", e => {
+				e.preventDefault();
+				const rd = document.getElementById("returnDeadline");
+				rd.disabled = false;
+				const f = e.target;
+				const data = {
+					id: STOCK.id,
+					bookId: STOCK.bookId,
+					isbn: BOOK.isbn,
+					title: BOOK.title,
+					stockCount: Number(f.stockCount.value),
+					alertThreshold: Number(f.alertThreshold.value),
+					shelfLocation: f.shelfLocation.value.trim(),
+					genreId: Number(f.genreId.value),
+					contractType: Number(f.contractType.value),
+					returnDeadline: f.returnDeadline.value || null,
+					price: Number(f.price.value),
+					agent: f.agent.value.trim(),
+					releaseDate: f.releaseDate.value || null,
+					editionType: Number(f.editionType.value)
+				};
+				TeamI.setDraft('stock-edit', data);
+				location.href = "./stock-edit-confirm.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

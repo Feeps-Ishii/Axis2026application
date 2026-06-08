@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>在庫変更確認 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="nav"></div>
+
+	<div class="container">
+		<h1>在庫情報の変更確認</h1>
+		<div class="card">
+			<p style="margin-bottom: 20px;">以下の内容で在庫情報を更新します。よろしいですか？</p>
+
+			<form id="updateConfirmForm">
+				<h3>在庫情報</h3>
+				<div class="form-group">
+					<label id="targetLabel">対象書籍</label>
+					<input type="text" id="bookTitle" disabled>
+				</div>
+
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>在庫数</label><input type="number" id="stockCount" disabled></div>
+					<div style="flex: 1;"><label>発注閾値</label><input type="number" id="alertThreshold" disabled></div>
+					<div style="flex: 1;"><label>棚位置</label><input type="text" id="shelfLocation" disabled></div>
+				</div>
+
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>ジャンル</label><input type="text" id="genreName" disabled></div>
+					<div style="flex: 1;"><label>区分</label><input type="text" id="contractTypeName" disabled></div>
+					<div style="flex: 1;"><label>返品期限</label><input type="date" id="returnDeadline" disabled></div>
+				</div>
+
+				<h3>書籍詳細情報</h3>
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>定価</label><input type="text" id="price" disabled></div>
+					<div style="flex: 1;"><label>取次</label><input type="text" id="agent" disabled></div>
+				</div>
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>配本日</label><input type="date" id="releaseDate" disabled></div>
+					<div style="flex: 1;"><label>初版・重版区分</label><input type="text" id="editionName" disabled></div>
+				</div>
+
+				<div class="form-actions" style="border-top: 1px solid #e2e8f0; padding-top: 20px;">
+					<a href="./stock-edit.html" class="btn btn-secondary" id="backBtn">戻る</a>
+					<button type="submit" class="btn btn-primary">更新</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		TeamI.init().then(() => {
+			const SESS = TeamI.requireLogin();
+			if (!SESS) return;
+			TeamINav.render("stocks");
+
+			const d = TeamI.getDraft('stock-edit');
+			if (!d) {
+				alert("変更データが見つかりません。最初からやり直してください。");
+				location.href = "./stocks.html";
+				return;
+			}
+
+			document.getElementById("backBtn").href = "./stock-edit.html?id=" + d.id;
+
+			document.getElementById("targetLabel").textContent = "対象書籍 (ISBN: " + (d.isbn || "") + ")";
+			document.getElementById("bookTitle").value = d.title || "";
+			document.getElementById("stockCount").value = d.stockCount;
+			document.getElementById("alertThreshold").value = d.alertThreshold;
+			document.getElementById("shelfLocation").value = d.shelfLocation || "";
+			document.getElementById("genreName").value = TeamI.categoryName(d.genreId);
+			document.getElementById("contractTypeName").value = TeamI.label.CONTRACT_TYPE[d.contractType] || "";
+			document.getElementById("returnDeadline").value = (d.returnDeadline || "").substring(0, 10);
+			document.getElementById("price").value = (Number(d.price).toLocaleString()) + "円";
+			document.getElementById("agent").value = d.agent || "";
+			document.getElementById("releaseDate").value = (d.releaseDate || "").substring(0, 10);
+			document.getElementById("editionName").value = TeamI.label.EDITION_TYPE[d.editionType] || "";
+
+			document.getElementById("updateConfirmForm").addEventListener("submit", e => {
+				e.preventDefault();
+				// 在庫情報を更新
+				TeamI.updateStock(d.id, {
+					stockCount: d.stockCount,
+					alertThreshold: d.alertThreshold,
+					shelfLocation: d.shelfLocation,
+					contractType: d.contractType,
+					returnDeadline: d.returnDeadline
+				});
+				// 書籍マスタ側の情報も更新
+				const all = JSON.parse(localStorage.getItem("teamI:books") || "[]");
+				const idx = all.findIndex(b => b.id === d.bookId);
+				if (idx !== -1) {
+					Object.assign(all[idx], {
+						genreId: d.genreId, price: d.price, agent: d.agent,
+						releaseDate: d.releaseDate, editionType: d.editionType
+					});
+					localStorage.setItem("teamI:books", JSON.stringify(all));
+				}
+				TeamI.clearDraft('stock-edit');
+				alert("変更を確定しました。");
+				location.href = "./stocks.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

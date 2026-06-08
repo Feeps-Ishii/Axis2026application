@@ -1,0 +1,456 @@
+:root {
+			--bg-color: #f7f4eb;
+			--primary-color: #1e3d33;
+			--accent-color: #bd4a30;
+			--text-color: #333333;
+			--paper-bg: #fffbf0;
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		/* =========================================
+		   ベース設定
+		   ========================================= */
+		body {
+			font-family: 'Zen Kaku Gothic New', sans-serif;
+			color: var(--text-color);
+			margin: 0;
+			background-color: var(--bg-color);
+			position: relative;
+			line-height: 1.6;
+		}
+
+		/* コンテナ（グラスモーフィズム） */
+		.container {
+			max-width: 1000px;
+			margin: 40px auto 60px;
+			padding: 40px;
+			background: rgba(255, 255, 255, 0.45);
+			border-radius: 20px;
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+			backdrop-filter: blur(6px);
+			border: 1px solid rgba(255, 255, 255, 0.6);
+		}
+
+		.serif {
+			font-family: 'Noto Serif JP', serif;
+		}
+
+		.pop-font {
+			font-family: 'Kiwi Maru', sans-serif;
+		}
+
+		/* =========================================
+		   ヘッダーと右上の戻るボタン
+		   ========================================= */
+		header {
+			padding: 0 4% 20px;
+			/* 左右に少し余白を持たせる */
+			text-align: center;
+			position: relative;
+			border-bottom: 2px dashed rgba(30, 61, 51, 0.2);
+			margin-bottom: 40px;
+		}
+
+		header h1 {
+			color: var(--primary-color);
+			font-size: 1.8rem;
+			margin-bottom: 5px;
+		}
+
+		.subtitle {
+			color: var(--accent-color);
+			font-size: 1.05rem;
+			margin-bottom: 15px;
+		}
+
+		.header-actions {
+			position: absolute;
+			top: 15px;
+			right: 4%;
+			/* ★ここを0から4%に変更して内側に寄せます */
+		}
+
+		.btn-back {
+			display: inline-block;
+			background-color: transparent;
+			color: var(--primary-color);
+			border: 2px solid var(--primary-color);
+			padding: 8px 25px;
+			border-radius: 30px;
+			text-decoration: none;
+			font-size: 0.95rem;
+			font-weight: bold;
+			transition: all 0.3s;
+		}
+
+		.btn-back:hover {
+			background-color: var(--primary-color);
+			color: #fff;
+		}
+
+		.detail-layout {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 30px;
+		}
+
+		footer {
+			text-align: center;
+			padding: 40px 0;
+			font-size: 0.8rem;
+			color: #888;
+		}
+
+		/* =========================================
+		   開いた本（見開き）風のPOP画像エリア
+		   ========================================= */
+		.open-book-wrapper {
+			position: relative;
+			width: 100%;
+			max-width: 800px;
+		}
+
+		.open-book {
+			position: relative;
+			width: 100%;
+			background: #fdfaf0;
+			border-radius: 6px;
+			border: 1px solid #ebdcb9;
+			padding: 40px 20px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			box-shadow:
+				0 10px 20px rgba(0, 0, 0, 0.08),
+				inset 0 0 30px rgba(220, 210, 190, 0.2);
+			min-height: 400px;
+		}
+
+		.open-book::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 50%;
+			width: 60px;
+			transform: translateX(-50%);
+			background: linear-gradient(to right,
+					transparent 0%,
+					rgba(0, 0, 0, 0.02) 40%,
+					rgba(0, 0, 0, 0.1) 50%,
+					rgba(255, 255, 255, 0.6) 52%,
+					transparent 100%);
+			z-index: 1;
+			pointer-events: none;
+		}
+
+		.open-book::after {
+			content: '';
+			position: absolute;
+			top: 4px;
+			bottom: -8px;
+			left: 4px;
+			right: 4px;
+			background: transparent;
+			border: 1px solid #ebdcb9;
+			border-radius: 6px;
+			box-shadow:
+				0 4px 0 #fdfaf0, 0 5px 0 #ebdcb9,
+				0 8px 0 #fdfaf0, 0 9px 0 #ebdcb9;
+			z-index: -1;
+			pointer-events: none;
+		}
+
+		.pop-image {
+			max-width: 100%;
+			max-height: 500px;
+			object-fit: contain;
+			position: relative;
+			z-index: 2;
+			border-radius: 4px;
+			box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.05);
+		}
+
+		/* =========================================
+		   情報カード枠（共通デザイン）
+		   ========================================= */
+		.info-card {
+			background-color: var(--paper-bg);
+			border: 1px dashed #ebdcb9;
+			border-radius: 8px;
+			padding: 30px;
+			box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.03);
+			width: 100%;
+			max-width: 800px;
+		}
+
+		.book-info-card {
+			text-align: center;
+		}
+
+		.book-info-label {
+			color: var(--accent-color);
+			font-size: 1.05rem;
+			margin-bottom: 8px;
+			font-weight: bold;
+		}
+
+		.detail-box {
+			padding: 15px;
+			background: #fff;
+			border-radius: 4px;
+			border: 1px solid #ebdcb9;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.03);
+			margin-bottom: 5px;
+		}
+
+		.book-title {
+			color: var(--primary-color);
+			font-size: 1.2rem;
+			margin: 0;
+			font-weight: bold;
+		}
+
+		.book-author {
+			color: #444;
+			font-size: 1.2rem;
+			font-weight: bold;
+			margin: 0;
+		}
+
+		/* 在庫リスト */
+		.stock-list {
+			list-style: none;
+			padding: 0;
+		}
+
+		.stock-list li {
+			padding: 15px;
+			background: #fff;
+			margin-bottom: 8px;
+			border-radius: 4px;
+			border: 1px solid #ebdcb9;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 20px;
+			box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.03);
+			font-size: 1.2rem;
+			font-weight: bold;
+			color: #444;
+		}
+
+		.stock-ok {
+			color: #2e7d32;
+			font-weight: bold;
+			font-size: 1.2rem;
+		}
+
+		/* =========================================
+		   コメントリスト
+		   ========================================= */
+		.comment-list {
+			margin-bottom: 20px;
+		}
+
+		.comment-item {
+			padding: 20px;
+			background-color: #fff;
+			border: 1px solid #ebdcb9;
+			border-radius: 8px;
+			margin-bottom: 15px;
+			box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.02);
+		}
+
+		.comment-item:last-child {
+			margin-bottom: 0;
+		}
+
+		.comment-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 10px;
+			padding-bottom: 10px;
+			border-bottom: 1px dashed #f0e6d2;
+			font-size: 0.9rem;
+			color: #999;
+		}
+
+		.comment-name {
+			color: var(--primary-color);
+			font-weight: bold;
+			font-size: 1.05rem;
+		}
+
+		.comment-body {
+			color: #555;
+			font-size: 1rem;
+			white-space: pre-wrap;
+			line-height: 1.7;
+		}
+
+		/* 「続きを読む」ボタン */
+		.btn-load-more {
+			background-color: transparent;
+			color: var(--primary-color);
+			border: 1px solid var(--primary-color);
+			padding: 10px 30px;
+			border-radius: 30px;
+			font-family: inherit;
+			font-size: 0.95rem;
+			font-weight: bold;
+			cursor: pointer;
+			transition: all 0.3s;
+			width: 100%;
+			max-width: 300px;
+		}
+
+		.btn-load-more:hover {
+			background-color: var(--primary-color);
+			color: #fff;
+		}
+
+		/* =========================================
+		   メッセージカード風デザイン
+		   ========================================= */
+		.message-card {
+			background-color: #fffdf5;
+			/* 少し温かみのある便箋色 */
+			border: 1px solid #ebdcb9;
+			/* 実線に変更して紙っぽさを出す */
+			border-radius: 3px;
+			padding: 45px 40px 30px;
+			position: relative;
+			/* 傾き（transform: rotate）を削除し、まっすぐ表示 */
+			box-shadow: 3px 5px 15px rgba(0, 0, 0, 0.05);
+			width: 100%;
+			max-width: 800px;
+			/* 便箋のようなうっすらとした罫線 */
+			background-image: repeating-linear-gradient(transparent,
+					transparent 38px,
+					rgba(235, 220, 185, 0.3) 38px,
+					rgba(235, 220, 185, 0.3) 39px);
+			background-position: 0 12px;
+		}
+
+		/* マスキングテープの装飾 */
+		.message-card::before {
+			content: '';
+			position: absolute;
+			top: -12px;
+			left: 50%;
+			transform: translateX(-50%) rotate(2deg);
+			/* テープのみ少し傾きを残す */
+			width: 120px;
+			height: 30px;
+			background-color: rgba(189, 74, 48, 0.2);
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+			border-left: 2px dashed rgba(189, 74, 48, 0.4);
+			border-right: 2px dashed rgba(189, 74, 48, 0.4);
+			z-index: 10;
+		}
+
+		.message-card-title {
+			text-align: center;
+			color: var(--primary-color);
+			margin-bottom: 25px;
+			font-size: 1.2rem;
+		}
+
+		.message-card-title span {
+			background-color: #fffdf5;
+			/* 罫線と被らないようにテキスト背景を白に */
+			padding: 0 15px;
+		}
+
+		/* コメントフォーム（メッセージカード内専用調整） */
+		.form-group {
+			margin-bottom: 25px;
+		}
+
+		.message-card .form-label {
+			display: block;
+			margin-bottom: 5px;
+			color: var(--primary-color);
+			font-size: 1.05rem;
+			font-weight: bold;
+		}
+
+		.message-card .form-control {
+			width: 100%;
+			padding: 12px 10px;
+			/* 通常の枠線をなくし、下線だけにして便箋の記入欄風に */
+			border: none;
+			border-bottom: 2px dashed #ebdcb9;
+			border-radius: 0;
+			font-family: 'Kiwi Maru', sans-serif;
+			/* 入力文字もアナログ風に */
+			font-size: 1rem;
+			background-color: rgba(255, 255, 255, 0.7);
+			color: #333;
+			transition: border-color 0.3s, background-color 0.3s;
+		}
+
+		.message-card .form-control:focus {
+			outline: none;
+			border-bottom-color: var(--accent-color);
+			background-color: #fff;
+		}
+
+		.message-card textarea.form-control {
+			resize: vertical;
+			min-height: 120px;
+			line-height: 1.8;
+		}
+
+		/* 送信ボタン */
+		.btn-submit {
+			background-color: var(--primary-color);
+			color: #fff;
+			padding: 15px 30px;
+			border-radius: 30px;
+			border: none;
+			font-family: inherit;
+			font-size: 1.05rem;
+			font-weight: bold;
+			cursor: pointer;
+			transition: background-color 0.3s;
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		.btn-submit:hover {
+			background-color: #142a23;
+		}
+
+		@media (max-width: 768px) {
+			.header-actions {
+				position: static;
+				margin-top: 15px;
+				text-align: center;
+			}
+
+			.open-book {
+				padding: 30px 15px;
+				min-height: 250px;
+			}
+
+			.info-card,
+			.message-card {
+				padding: 20px;
+			}
+
+			.container {
+				padding: 20px;
+			}
+		}

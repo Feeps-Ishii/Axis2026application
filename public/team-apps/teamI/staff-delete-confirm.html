@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>店員削除確認 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="nav"></div>
+	<div class="container">
+		<h1>店員削除確認</h1>
+
+		<div class="card" style="max-width: 600px; margin: 0 auto;">
+			<p style="color: #dc2626; font-weight: bold; margin-bottom: 20px;">
+				⚠️ 以下の店員アカウントを削除扱いにします。よろしいですか？
+			</p>
+
+			<form id="confirmForm">
+				<div class="form-group">
+					<label>社員番号</label>
+					<input type="text" id="vStaffNumber" disabled>
+				</div>
+
+				<div class="form-group">
+					<label>氏名</label>
+					<input type="text" id="vName" disabled>
+				</div>
+
+				<div class="form-group">
+					<label>所属店舗</label>
+					<input type="text" id="vStore" disabled>
+				</div>
+
+				<div class="form-group">
+					<label>役職</label>
+					<input type="text" id="vRole" disabled>
+				</div>
+
+				<div class="form-actions"
+					style="border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 30px; justify-content: flex-end; gap: 10px;">
+					<a id="cancelBtn" href="#" class="btn btn-secondary">キャンセル</a>
+					<button type="submit" class="btn btn-danger">削除</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		TeamI.init().then(() => {
+			const sess = TeamI.requireLogin();
+			if (!sess) return;
+			if (sess.staff.roleId !== 1) { location.href = "./dashboard.html"; return; }
+			TeamINav.render("staffs");
+
+			const id = Number(new URLSearchParams(location.search).get("id"));
+			const staff = TeamI.staffAll().find(s => s.id === id && !s.isDeleted);
+			if (!staff) { alert("対象の店員が見つかりません"); location.href = "./staffs.html"; return; }
+
+			document.getElementById("vStaffNumber").value = staff.staffNumber;
+			document.getElementById("vName").value = staff.name;
+			document.getElementById("vStore").value = TeamI.storeName(staff.storeId);
+			document.getElementById("vRole").value = TeamI.label.ROLE[staff.roleId] || "";
+
+			document.getElementById("cancelBtn").href = "./staff-edit.html?id=" + id;
+
+			document.getElementById("confirmForm").addEventListener("submit", e => {
+				e.preventDefault();
+				TeamI.deleteStaff(id);
+				alert("店員情報を削除しました");
+				location.href = "./staffs.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

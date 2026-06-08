@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>取り寄せ予約変更確認 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+		.full-width { grid-column: span 2; }
+		.section-box { border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #f9fafb; }
+		.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000; }
+		.modal-overlay.active { display: flex; }
+		.modal-content { background: #fff; padding: 30px; border-radius: 8px; text-align: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); min-width: 350px; }
+		.modal-content h2 { margin-top: 0; }
+		.form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+	</style>
+</head>
+
+<body>
+	<div id="nav"></div>
+
+	<h1 style="margin-left:20px;">変更内容の確認</h1>
+
+	<div class="card">
+		<p>以下の内容で予約を変更します。よろしいですか？</p>
+
+		<div id="root"></div>
+
+		<div class="form-actions">
+			<a href="./order-edit.html" class="btn btn-secondary" id="btnBack">戻る</a>
+			<button type="button" class="btn btn-accent" id="btnConfirm">確定する</button>
+		</div>
+	</div>
+
+	<div id="completeModal" class="modal-overlay">
+		<div class="modal-content">
+			<h2>完了</h2>
+			<p>変更が完了しました。</p>
+			<button type="button" class="btn btn-primary" id="btnToList">一覧へ戻る</button>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		let SESS, DRAFT;
+
+		function statusLabel(st) {
+			return { 1: "要求中", 2: "移動中", 3: "店舗到着済", 4: "お渡し済み", 5: "キャンセル", 0: "キャンセル" }[st] || "キャンセル";
+		}
+
+		TeamI.init().then(() => {
+			SESS = TeamI.requireLogin();
+			if (!SESS) return;
+			TeamINav.render("orders");
+
+			DRAFT = TeamI.getDraft("order-edit");
+			if (!DRAFT) {
+				document.getElementById("root").innerHTML = `<p style="color:#dc2626;">変更内容が見つかりません。最初からやり直してください。</p>`;
+				document.querySelector(".form-actions").style.display = "none";
+				return;
+			}
+
+			document.getElementById("btnBack").href = "./order-edit.html?id=" + DRAFT.id;
+
+			document.getElementById("root").innerHTML = `
+				<div class="section-box">
+					<h2 class="section-title">予約基本情報</h2>
+					<div class="form-grid">
+						<div class="form-group"><label>予約番号</label><input type="text" value="${TeamI.esc(DRAFT.id)}" disabled></div>
+						<div class="form-group"><label>予約日時</label><input type="text" value="${TeamI.esc(TeamI.fmtDateTime(DRAFT.reservedAt))}" disabled></div>
+						<div class="form-group full-width"><label>書籍タイトル</label><input type="text" value="${TeamI.esc(DRAFT.bookTitle)}" disabled></div>
+						<div class="form-group"><label>注文者名</label><input type="text" value="${TeamI.esc(DRAFT.customerName)}" disabled></div>
+						<div class="form-group"><label>電話番号</label><input type="text" value="${TeamI.esc(DRAFT.customerPhone)}" disabled></div>
+						<div class="form-group full-width"><label>メールアドレス</label><input type="text" value="${TeamI.esc(DRAFT.customerEmail)}" disabled></div>
+						<div class="form-group full-width"><label>出荷元 → 受取先</label><input type="text" value="${TeamI.esc(DRAFT.shippingStoreName + " → " + DRAFT.pickupStoreName)}" disabled></div>
+					</div>
+				</div>
+
+				<div class="section-box" style="background:#fff;border-color:#007bff;">
+					<h2 class="section-title">変更内容</h2>
+					<div class="form-grid">
+						<div class="form-group"><label>予約冊数</label><input type="text" value="${TeamI.esc(DRAFT.quantity)}冊" disabled></div>
+						<div class="form-group"><label>ステータス</label><input type="text" value="${TeamI.esc(statusLabel(DRAFT.status))}" disabled></div>
+						<div class="form-group full-width"><label>備考</label><input type="text" value="${TeamI.esc(DRAFT.note)}" disabled></div>
+					</div>
+				</div>`;
+
+			document.getElementById("btnConfirm").addEventListener("click", () => {
+				document.getElementById("completeModal").classList.add("active");
+			});
+
+			document.getElementById("btnToList").addEventListener("click", () => {
+				TeamI.updateOrder(DRAFT.id, {
+					quantity: DRAFT.quantity,
+					note: DRAFT.note || null,
+					status: DRAFT.status,
+				});
+				TeamI.clearDraft("order-edit");
+				location.href = "./orders.html";
+			});
+		});
+	</script>
+</body>
+</html>

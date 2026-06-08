@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>登録・入荷内容確認 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="nav"></div>
+
+	<div class="container">
+		<h1 id="pageTitle">内容確認</h1>
+
+		<div class="card">
+			<form id="confirmForm">
+				<h3>対象書籍</h3>
+				<table class="table" style="width: 100%; margin-bottom: 20px;">
+					<tr>
+						<th style="background-color: #f1f5f9; width: 30%;">ISBN</th>
+						<td id="cIsbn"></td>
+					</tr>
+					<tr>
+						<th style="background-color: #f1f5f9;">タイトル</th>
+						<td id="cTitle"></td>
+					</tr>
+				</table>
+
+				<h3 id="qtyTitle">数量情報</h3>
+
+				<div id="arrivalBox"
+					style="display: none; gap: 20px; background-color: #f8fafc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+					<div>
+						<label style="display: block; color: #64748b; font-size: 13px;">現在の在庫数</label>
+						<span style="font-size: 20px; font-weight: bold;" id="cCurrent"></span>
+					</div>
+					<div style="font-size: 20px; align-self: center; color: #94a3b8;">＋</div>
+					<div>
+						<label style="display: block; color: #1e40af; font-size: 13px; font-weight: bold;">今回入荷数</label>
+						<span style="font-size: 22px; font-weight: bold; color: #2563eb;" id="cArrival"></span>
+					</div>
+					<div style="font-size: 20px; align-self: center; color: #94a3b8;">＝</div>
+					<div>
+						<label style="display: block; color: #16a34a; font-size: 13px; font-weight: bold;">入荷後の総在庫数</label>
+						<span style="font-size: 22px; font-weight: bold; color: #16a34a;" id="cTotal"></span>
+					</div>
+				</div>
+
+				<table class="table" style="width: 100%; margin-bottom: 20px;" id="registerBox">
+					<tr>
+						<th style="background-color: #f1f5f9; width: 30%;">登録在庫数</th>
+						<td id="cRegister"></td>
+					</tr>
+				</table>
+
+				<div class="form-actions" style="border-top: 1px solid #e2e8f0; padding-top: 20px; display: flex; gap: 10px;">
+					<a href="./stock-new.html" class="btn btn-secondary">修正する</a>
+					<button type="submit" class="btn btn-primary" id="submitBtn">確定</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		TeamI.init().then(() => {
+			const SESS = TeamI.requireLogin();
+			if (!SESS) return;
+			TeamINav.render("stocks");
+
+			const d = TeamI.getDraft('stock');
+			if (!d) {
+				alert("入力データが見つかりません。最初からやり直してください。");
+				location.href = "./stock-new.html";
+				return;
+			}
+
+			const isArrival = d.isArrivalMode;
+			document.getElementById("pageTitle").textContent = isArrival ? "入荷内容の確認" : "新規登録内容の確認";
+			document.getElementById("qtyTitle").textContent = isArrival ? "入荷数量情報" : "在庫管理情報";
+			document.getElementById("submitBtn").textContent = isArrival ? "入荷を確定する" : "新規登録を確定する";
+
+			document.getElementById("cIsbn").textContent = d.isbn;
+			document.getElementById("cTitle").textContent = d.title;
+
+			if (isArrival) {
+				document.getElementById("arrivalBox").style.display = "flex";
+				document.getElementById("registerBox").style.display = "none";
+				document.getElementById("cCurrent").textContent = d.stockCount + " 冊";
+				document.getElementById("cArrival").textContent = d.arrivalCount + " 冊";
+				document.getElementById("cTotal").textContent = (d.stockCount + d.arrivalCount) + " 冊";
+			} else {
+				document.getElementById("arrivalBox").style.display = "none";
+				document.getElementById("registerBox").style.display = "table";
+				document.getElementById("cRegister").textContent = d.stockCount + " 冊";
+			}
+
+			document.getElementById("confirmForm").addEventListener("submit", e => {
+				e.preventDefault();
+
+				if (isArrival) {
+					// 入荷モード: 既存在庫に加算
+					const stock = TeamI.findStockByIsbnStore(d.isbn, d.storeId);
+					if (stock) {
+						const newCount = stock.stockCount + d.arrivalCount;
+						TeamI.updateStock(stock.id, {
+							stockCount: newCount,
+							lastArrivalCount: d.arrivalCount,
+							alertThreshold: d.alertThreshold,
+							shelfLocation: d.shelfLocation,
+							contractType: d.contractType,
+							returnDeadline: d.returnDeadline
+						});
+					}
+				} else {
+					// 新規登録: 書籍マスタ確保 + 在庫追加
+					let book = TeamI.books().find(x => x.isbn === d.isbn);
+					if (!book) {
+						// 簡易: 書籍マスタへ追加（db.jsにaddBookは無いため直接は不可。在庫のみ登録）
+						// bookId はISBN一致書籍がなければ仮想的に新規IDを採番できないため、
+						// 既存マスタが無い場合は books コレクションへ push する。
+						const all = JSON.parse(localStorage.getItem("teamI:books") || "[]");
+						const newId = all.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
+						book = {
+							id: newId, isbn: d.isbn, title: d.title, author: d.author,
+							publisher: d.publisher, price: d.price, agent: d.agent,
+							releaseDate: d.releaseDate, editionType: d.editionType, genreId: d.genreId
+						};
+						all.push(book);
+						localStorage.setItem("teamI:books", JSON.stringify(all));
+					}
+					TeamI.addStock({
+						bookId: book.id,
+						storeId: d.storeId,
+						stockCount: d.stockCount,
+						alertThreshold: d.alertThreshold,
+						shelfLocation: d.shelfLocation,
+						contractType: d.contractType,
+						returnDeadline: d.returnDeadline,
+						lastArrivalCount: d.stockCount
+					});
+				}
+
+				TeamI.clearDraft('stock');
+				alert(isArrival ? "入荷を登録しました。" : "在庫を新規登録しました。");
+				location.href = "./stocks.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

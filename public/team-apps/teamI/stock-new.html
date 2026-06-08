@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>在庫新規登録・入荷 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="nav"></div>
+
+	<div class="container">
+		<h1>在庫新規登録・入荷</h1>
+		<div class="card">
+			<form id="stockForm">
+
+				<input type="hidden" id="isArrivalMode" name="isArrivalMode" value="false">
+
+				<h3>対象書籍</h3>
+				<div class="form-group">
+					<label>ISBN検索</label>
+					<div style="display: flex; gap: 10px;">
+						<input type="text" id="isbn" name="isbn" placeholder="ISBNを入力 (例: 9784167110123)"
+							pattern="^[0-9]{13}$" title="ISBNは13桁の半角数字で入力してください。" required autofocus
+							style="width: 100%;">
+						<button type="button" class="btn btn-primary" onclick="handleSearchButtonClick()"
+							style="white-space: nowrap;">検索・情報取得</button>
+					</div>
+					<div id="isbn-error" style="color: #dc3545; font-size: 0.875rem; margin-top: 5px; display: none;"></div>
+				</div>
+
+				<div class="form-group">
+					<label>タイトル</label>
+					<input type="text" id="title" name="title" required>
+				</div>
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;">
+						<label>著者名</label>
+						<input type="text" id="author" name="author">
+					</div>
+					<div style="flex: 1;">
+						<label>出版社</label>
+						<input type="text" id="publisher" name="publisher" required>
+					</div>
+				</div>
+
+				<h3>在庫管理情報</h3>
+
+				<div class="form-group" id="arrivalInputGroup"
+					style="display: none; background-color: #eff6ff; padding: 15px; border-radius: 6px; border: 1px solid #bfdbfe; margin-bottom: 20px;">
+					<label style="color: #1e40af; font-weight: bold;">【既存在庫あり】今回の入荷数を入力してください</label>
+					<input type="number" id="arrivalCount" name="arrivalCount" value="" min="1"
+						style="border: 2px solid #3b82f6; font-size: 16px; width: 200px;">
+				</div>
+
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;">
+						<label id="stockCountLabel">在庫数</label>
+						<input type="number" id="stockCount" name="stockCount" required>
+					</div>
+					<div style="flex: 1;">
+						<label>発注閾値</label>
+						<input type="number" id="alertThreshold" name="alertThreshold" required>
+					</div>
+					<div style="flex: 1;">
+						<label>棚位置</label>
+						<input type="text" id="shelfLocation" name="shelfLocation" placeholder="例: A-01" required>
+					</div>
+				</div>
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;">
+						<label>ジャンル</label>
+						<select id="genreId" name="genreId" required></select>
+					</div>
+					<div style="flex: 1;">
+						<label>区分</label>
+						<select id="contractType" name="contractType" onchange="toggleReturnDeadline()" required>
+							<option value="1">委託</option>
+							<option value="2">買切</option>
+						</select>
+					</div>
+					<div style="flex: 1;">
+						<label>返品期限</label>
+						<input type="date" id="returnDeadline" name="returnDeadline">
+					</div>
+				</div>
+
+				<h3>書籍詳細情報</h3>
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>定価</label><input type="number" id="price" name="price" required></div>
+					<div style="flex: 1;"><label>取次</label><input type="text" id="agent" name="agent" required></div>
+				</div>
+				<div class="form-group" style="display: flex; gap: 15px;">
+					<div style="flex: 1;"><label>配本日</label><input type="date" id="releaseDate" name="releaseDate" required></div>
+					<div style="flex: 1;">
+						<label>初版・重版区分</label>
+						<select id="editionType" name="editionType" required>
+							<option value="1">初版</option>
+							<option value="2">重版</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="form-actions" style="border-top: 1px solid #e2e8f0; padding-top: 20px;">
+					<a href="./stocks.html" class="btn btn-secondary">キャンセル</a>
+					<button type="submit" class="btn btn-primary">確認</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		let SESS;
+
+		function handleSearchButtonClick() {
+			const isbnInput = document.getElementById('isbn');
+			const errorDiv = document.getElementById('isbn-error');
+			const isbnValue = isbnInput.value.trim();
+			const isbnPattern = /^[0-9]{13}$/;
+			if (!isbnPattern.test(isbnValue)) {
+				errorDiv.innerText = "ISBNは13桁の半角数字で入力してください。";
+				errorDiv.style.display = "block";
+				isbnInput.style.borderColor = "#dc3545";
+				isbnInput.focus();
+				return;
+			}
+			errorDiv.innerText = "";
+			errorDiv.style.display = "none";
+			isbnInput.style.borderColor = "";
+			fetchBookInfo();
+		}
+
+		function fetchBookInfo() {
+			const isbn = document.getElementById('isbn').value.trim();
+			if (!isbn) { alert('ISBNを入力してください。'); return; }
+
+			// 自店舗に既存在庫があるか
+			const stock = TeamI.findStockByIsbnStore(isbn, SESS.store.id);
+			if (stock) {
+				// 入荷モード
+				const b = TeamI.book(stock.bookId) || {};
+				document.getElementById('isArrivalMode').value = "true";
+				document.getElementById('title').value = b.title || "";
+				document.getElementById('author').value = b.author || "";
+				document.getElementById('publisher').value = b.publisher || "";
+				document.getElementById('stockCount').value = stock.stockCount;
+				document.getElementById('price').value = b.price || "";
+				document.getElementById('agent').value = b.agent || "";
+				document.getElementById('shelfLocation').value = stock.shelfLocation || "";
+				if (stock.alertThreshold != null) document.getElementById('alertThreshold').value = stock.alertThreshold;
+				if (b.editionType) document.getElementById('editionType').value = b.editionType;
+				if (b.genreId) document.getElementById('genreId').value = b.genreId;
+				if (stock.contractType) document.getElementById('contractType').value = stock.contractType;
+				document.getElementById('releaseDate').value = (b.releaseDate || "").substring(0, 10);
+				document.getElementById('returnDeadline').value = (stock.returnDeadline || "").substring(0, 10);
+
+				document.getElementById('arrivalInputGroup').style.display = 'block';
+				document.getElementById('stockCountLabel').innerText = '現在の在庫数';
+				toggleReturnDeadline();
+				setFormFieldsDisabled(true);
+			} else {
+				// 完全新規（既存書籍マスタがあれば流用、なければ空）
+				document.getElementById('isArrivalMode').value = "false";
+				document.getElementById('arrivalInputGroup').style.display = 'none';
+				document.getElementById('stockCountLabel').innerText = '在庫数';
+				setFormFieldsDisabled(false);
+
+				const b = TeamI.books().find(x => x.isbn === isbn);
+				if (b) {
+					document.getElementById('title').value = b.title || "";
+					document.getElementById('publisher').value = b.publisher || "";
+					document.getElementById('author').value = b.author || "";
+					document.getElementById('price').value = b.price || "";
+					document.getElementById('agent').value = b.agent || "";
+					document.getElementById('releaseDate').value = (b.releaseDate || "").substring(0, 10);
+					if (b.editionType) document.getElementById('editionType').value = b.editionType;
+					if (b.genreId) document.getElementById('genreId').value = b.genreId;
+				}
+			}
+		}
+
+		function setFormFieldsDisabled(disabled) {
+			const fields = ['title', 'author', 'publisher', 'alertThreshold', 'shelfLocation',
+				'genreId', 'contractType', 'returnDeadline', 'price', 'agent', 'releaseDate', 'editionType', 'stockCount'];
+			fields.forEach(id => {
+				const el = document.getElementById(id);
+				if (el) { el.disabled = disabled; el.style.backgroundColor = disabled ? '#f1f5f9' : ''; }
+			});
+		}
+
+		function enableFieldsBeforeSubmit() {
+			const fields = ['title', 'author', 'publisher', 'alertThreshold', 'shelfLocation',
+				'genreId', 'contractType', 'returnDeadline', 'price', 'agent', 'releaseDate', 'editionType', 'stockCount'];
+			fields.forEach(id => { const el = document.getElementById(id); if (el) el.disabled = false; });
+		}
+
+		function toggleReturnDeadline() {
+			const cts = document.getElementById('contractType');
+			const rd = document.getElementById('returnDeadline');
+			if (!cts || !rd || cts.disabled) return;
+			if (cts.value === '2') {
+				rd.disabled = true; rd.value = ''; rd.style.backgroundColor = '#f1f5f9';
+			} else {
+				rd.disabled = false; rd.style.backgroundColor = '';
+			}
+		}
+
+		TeamI.init().then(() => {
+			SESS = TeamI.requireLogin();
+			if (!SESS) return;
+			TeamINav.render("stocks");
+
+			const gsel = document.getElementById("genreId");
+			TeamI.categories().forEach(c => {
+				const o = document.createElement("option");
+				o.value = c.id; o.textContent = c.category; gsel.appendChild(o);
+			});
+
+			toggleReturnDeadline();
+
+			document.getElementById('isbn').addEventListener('keydown', e => {
+				if (e.key === 'Enter') { e.preventDefault(); handleSearchButtonClick(); }
+			});
+
+			document.getElementById("stockForm").addEventListener("submit", e => {
+				e.preventDefault();
+				enableFieldsBeforeSubmit();
+				const f = e.target;
+				const isArrivalMode = f.isArrivalMode.value === "true";
+				const data = {
+					isArrivalMode: isArrivalMode,
+					arrivalCount: isArrivalMode ? Number(f.arrivalCount.value || 0) : null,
+					storeId: SESS.store.id,
+					isbn: f.isbn.value.trim(),
+					title: f.title.value.trim(),
+					author: f.author.value.trim(),
+					publisher: f.publisher.value.trim(),
+					stockCount: Number(f.stockCount.value),
+					alertThreshold: Number(f.alertThreshold.value),
+					shelfLocation: f.shelfLocation.value.trim(),
+					genreId: Number(f.genreId.value),
+					contractType: Number(f.contractType.value),
+					returnDeadline: f.returnDeadline.value || null,
+					price: Number(f.price.value),
+					agent: f.agent.value.trim(),
+					releaseDate: f.releaseDate.value || null,
+					editionType: Number(f.editionType.value)
+				};
+				if (isArrivalMode && (!data.arrivalCount || data.arrivalCount < 1)) {
+					alert('入荷数を入力してください。');
+					return;
+				}
+				TeamI.setDraft('stock', data);
+				location.href = "./stock-confirm.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

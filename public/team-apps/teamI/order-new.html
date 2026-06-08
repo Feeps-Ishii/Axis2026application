@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>取り寄せ予約作成 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+		.full-width { grid-column: span 2; }
+		.section-box { border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #f9fafb; }
+		.error-message { color: #e74c3c; background-color: #fce4e4; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 0.9rem; }
+	</style>
+</head>
+
+<body>
+	<div id="nav"></div>
+
+	<div class="container">
+		<h1>取り寄せ予約作成</h1>
+
+		<div id="errorBox" class="error-message" style="display:none;"></div>
+
+		<div class="card">
+			<form id="orderForm" novalidate>
+
+				<div class="section-box">
+					<h2 class="section-title">書籍・店舗情報</h2>
+					<div class="form-grid">
+						<div class="form-group full-width">
+							<label>対象書籍名</label>
+							<input type="text" id="bookTitle" disabled placeholder="書籍情報が選択されていません">
+						</div>
+						<div class="form-group">
+							<label>要求先店舗（出荷元）</label>
+							<input type="text" id="shippingStoreName" disabled placeholder="店舗情報が選択されていません">
+						</div>
+						<div class="form-group">
+							<label>受取店舗（自店舗）</label>
+							<input type="text" id="pickupStoreName" disabled>
+						</div>
+					</div>
+				</div>
+
+				<div class="section-box" style="background: #fff; border-color: #007bff;">
+					<h2 class="section-title">予約・顧客情報</h2>
+					<div class="form-grid">
+						<div class="form-group full-width">
+							<label>予約冊数 <span style="color:red">*</span></label>
+							<input type="number" id="quantity" min="1" value="1">
+						</div>
+						<div class="form-group">
+							<label>顧客氏名 <span style="color:red">*</span></label>
+							<input type="text" id="customerName">
+						</div>
+						<div class="form-group">
+							<label>電話番号 <span style="color:red">*</span></label>
+							<input type="text" id="customerPhone">
+						</div>
+						<div class="form-group full-width">
+							<label>メールアドレス <span style="color:red">*</span></label>
+							<input type="email" id="customerEmail">
+						</div>
+						<div class="form-group full-width">
+							<label>備考</label>
+							<textarea id="note" rows="3"></textarea>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-actions" style="display:flex; justify-content:flex-end; gap:10px;">
+					<a href="./orders.html" class="btn btn-secondary">キャンセル</a>
+					<button type="submit" class="btn btn-accent">確認画面へ</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		let SESS, BOOK, SHIPPING;
+
+		function showError(msg) {
+			const box = document.getElementById("errorBox");
+			box.textContent = msg;
+			box.style.display = "block";
+		}
+
+		TeamI.init().then(() => {
+			SESS = TeamI.requireLogin();
+			if (!SESS) return;
+			TeamINav.render("orders");
+
+			const params = new URLSearchParams(location.search);
+			const bookId = Number(params.get("bookId"));
+			const fromStoreId = Number(params.get("fromStoreId"));
+
+			BOOK = TeamI.book(bookId);
+			SHIPPING = TeamI.store(fromStoreId);
+
+			document.getElementById("bookTitle").value = BOOK ? BOOK.title : "";
+			document.getElementById("shippingStoreName").value = SHIPPING ? SHIPPING.storeName : "";
+			document.getElementById("pickupStoreName").value = SESS.store ? SESS.store.storeName : "";
+
+			document.getElementById("orderForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				document.getElementById("errorBox").style.display = "none";
+
+				const quantity = Number(document.getElementById("quantity").value);
+				const customerName = document.getElementById("customerName").value.trim();
+				const customerPhone = document.getElementById("customerPhone").value.trim();
+				const customerEmail = document.getElementById("customerEmail").value.trim();
+				const note = document.getElementById("note").value;
+
+				if (!BOOK) { showError("対象の書籍が選択されていません。"); return; }
+				if (!SHIPPING) { showError("要求先店舗（出荷元）が選択されていません。"); return; }
+				if (!(quantity >= 1)) { showError("予約冊数は1以上で入力してください。"); return; }
+				if (!customerName) { showError("顧客氏名を入力してください。"); return; }
+				if (!customerPhone) { showError("電話番号を入力してください。"); return; }
+				if (!customerEmail) { showError("メールアドレスを入力してください。"); return; }
+
+				const draft = {
+					bookId: BOOK.id,
+					bookTitle: BOOK.title,
+					bookIsbn: BOOK.isbn,
+					shippingStoreId: SHIPPING.id,
+					shippingStoreName: SHIPPING.storeName,
+					pickupStoreId: SESS.store ? SESS.store.id : SESS.staff.storeId,
+					pickupStoreName: SESS.store ? SESS.store.storeName : "",
+					quantity: quantity,
+					customerName: customerName,
+					customerPhone: customerPhone,
+					customerEmail: customerEmail,
+					note: note,
+				};
+				TeamI.setDraft("order", draft);
+				location.href = "./order-confirm.html";
+			});
+		});
+	</script>
+</body>
+</html>

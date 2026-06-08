@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>店員変更確認 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="nav"></div>
+	<div class="container">
+		<h1>店員変更確認</h1>
+
+		<div class="card" style="max-width: 600px; margin: 0 auto;">
+			<p style="color: #64748b; font-size: 0.95rem; margin-bottom: 20px;">
+				以下の内容で店員情報を更新します。よろしいですか？
+			</p>
+
+			<form id="confirmForm">
+				<div class="form-group">
+					<label>社員番号</label>
+					<input type="text" id="vStaffNumber" disabled>
+				</div>
+
+				<div class="form-group">
+					<label>氏名</label>
+					<input type="text" id="vName" disabled>
+				</div>
+
+				<div class="form-group">
+					<label>パスワード</label>
+					<input type="password" value="********" disabled>
+				</div>
+
+				<div class="form-group">
+					<label>所属店舗</label>
+					<input type="text" id="vStore" disabled>
+				</div>
+
+				<div class="form-group">
+					<label>役職</label>
+					<input type="text" id="vRole" disabled>
+				</div>
+
+				<div class="form-actions"
+					style="border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 30px; justify-content: flex-end;">
+					<button type="button" id="backBtn" class="btn btn-secondary">修正する</button>
+					<button type="submit" class="btn btn-primary">更新</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		TeamI.init().then(() => {
+			const sess = TeamI.requireLogin();
+			if (!sess) return;
+			if (sess.staff.roleId !== 1) { location.href = "./dashboard.html"; return; }
+			TeamINav.render("staffs");
+
+			const d = TeamI.getDraft("staff-edit");
+			if (!d) { location.href = "./staffs.html"; return; }
+
+			document.getElementById("vStaffNumber").value = d.staffNumber || "";
+			document.getElementById("vName").value = d.name || "";
+			document.getElementById("vStore").value = TeamI.storeName(d.storeId);
+			document.getElementById("vRole").value = TeamI.label.ROLE[d.roleId] || "";
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./staff-edit.html?id=" + d.id;
+			});
+
+			document.getElementById("confirmForm").addEventListener("submit", e => {
+				e.preventDefault();
+				const patch = {
+					name: d.name,
+					storeId: Number(d.storeId),
+					roleId: Number(d.roleId),
+				};
+				if (d.password) patch.password = d.password; // 空なら変更しない
+				TeamI.updateStaff(d.id, patch);
+				TeamI.clearDraft("staff-edit");
+				alert("店員情報を更新しました");
+				location.href = "./staffs.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

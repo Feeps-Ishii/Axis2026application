@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ことのは書房 | POP詳細</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=Noto+Serif+JP:wght@700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="./css/board-detail.css">
+	<style>
+		.stock-none { color:#b91c1c; font-weight:bold; font-size:1.2rem; }
+		.stock-warn { color:#b45309; font-weight:bold; font-size:1.2rem; }
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1 class="serif">POPの詳細</h1>
+		<p class="pop-font subtitle">〜 想いを紡ぐ、たいせつな一枚 〜</p>
+		<div class="header-actions"><a href="./board.html" class="btn-back">ギャラリーへ戻る</a></div>
+	</header>
+
+	<div class="container" id="root"></div>
+
+	<footer><p>© 2026 Kotonoha Books - POP Gallery</p></footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const PH = "data:image/svg+xml;utf8," + encodeURIComponent(
+			'<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"><rect width="100%" height="100%" fill="#888"/><text x="50%" y="50%" font-size="36" fill="#fff" text-anchor="middle" dominant-baseline="middle">POP</text></svg>');
+		const imgSrc = (u) => /^https?:/.test(u || "") ? u : PH;
+
+		function stockStatus(s) {
+			if (s.stockCount === 0) return '<span class="stock-none">在庫なし✕</span>';
+			if (s.stockCount <= s.alertThreshold) return '<span class="stock-warn">残りわずか△</span>';
+			if (s.stockCount >= s.alertThreshold * 2) return '<span class="stock-ok">在庫あり◎</span>';
+			return '<span class="stock-ok">在庫あり〇</span>';
+		}
+
+		let POP_ID, COMMENTS = [], shown = 0;
+		const PER = 5;
+
+		function renderComments() {
+			const box = document.getElementById("commentList");
+			if (COMMENTS.length === 0) {
+				box.innerHTML = `<div style="text-align:center; color:#888; padding:10px 0;">まだメッセージはありません。<br>最初のメッセージを贈りませんか？</div>`;
+				return;
+			}
+			const slice = COMMENTS.slice(0, shown);
+			box.innerHTML = slice.map(c => `<div class="comment-item">
+				<div class="comment-header"><span class="comment-name">${TeamI.esc(c.userName || "無名のユーザー")}</span><span>${TeamI.fmtDateTime(c.createdAt)} ・ <a href="./comment-delete-confirm.html?id=${c.id}&popId=${POP_ID}" style="color:#bd4a30; text-decoration:none;">削除</a></span></div>
+				<div class="comment-body">${TeamI.esc(c.content)}</div></div>`).join("");
+			document.getElementById("loadMore").style.display = shown < COMMENTS.length ? "block" : "none";
+		}
+
+		TeamI.init().then(() => {
+			const id = Number(new URLSearchParams(location.search).get("id"));
+			const pop = TeamI.pop(id);
+			const root = document.getElementById("root");
+
+			if (!pop || pop.status !== 1) {
+				root.innerHTML = `<div style="text-align:center; padding:40px; color:#888;" class="pop-font">このPOPは削除されたか、現在非公開になっています。</div>`;
+				return;
+			}
+			POP_ID = id;
+			const b = TeamI.book(pop.bookId) || {};
+			const stocks = TeamI.bookStocks(pop.bookId);
+
+			const stockHtml = stocks.length
+				? stocks.map(s => `<li><span>${TeamI.esc(TeamI.storeName(s.storeId))}</span><span class="stock-status" style="margin-left:20px;">${stockStatus(s)}</span></li>`).join("")
+				: `<li style="color:#888;">現在、表示できる店舗情報がありません</li>`;
+
+			root.innerHTML = `
+				<div class="detail-layout">
+					<div class="open-book-wrapper"><div class="open-book">
+						<img src="${imgSrc(pop.imageUrl)}" alt="POP画像" class="pop-image" onerror="this.src='${PH}'">
+					</div></div>
+
+					<div class="info-card book-info-card">
+						<div class="book-info-label">📌 書籍タイトル</div>
+						<div class="detail-box"><h2 class="book-title">${TeamI.esc(b.title)}</h2></div>
+						<div class="book-info-label" style="margin-top:25px;">📌 著者名</div>
+						<div class="detail-box"><div class="book-author">${TeamI.esc(b.author || "")}</div></div>
+						<div class="book-info-label" style="margin-top:40px; margin-bottom:12px;">📌 在庫情報</div>
+						<ul class="stock-list">${stockHtml}</ul>
+					</div>
+
+					<div class="info-card">
+						<h3 class="serif" style="text-align:center; color:var(--primary-color); margin-bottom:30px; font-size:1.2rem;">💬 このPOPへのメッセージ</h3>
+						<div class="comment-list" id="commentList"></div>
+						<div style="text-align:center; margin-top:15px;"><button type="button" id="loadMore" class="btn-load-more" style="display:none;">▼ 続きを読む</button></div>
+					</div>
+
+					<div class="message-card">
+						<h3 class="serif message-card-title"><span>✏️ メッセージをおくる</span></h3>
+						<form id="commentForm" class="comment-form">
+							<div class="form-group">
+								<label class="form-label pop-font">お名前（ニックネーム）</label>
+								<div class="pop-font" style="margin-bottom:10px; font-size:.8rem; color:#888;">※未入力の場合は「無名のユーザー」として投稿されます。</div>
+								<input type="text" name="userName" class="form-control" placeholder="例：ことのは太郎">
+							</div>
+							<div class="form-group">
+								<label class="form-label pop-font">メッセージ<span style="color:var(--accent-color);">*</span></label>
+								<textarea name="content" class="form-control" required placeholder="素敵なPOPですね！"></textarea>
+							</div>
+							<button type="submit" class="btn-submit">投稿する</button>
+						</form>
+					</div>
+				</div>`;
+
+			COMMENTS = TeamI.commentsByPop(id);
+			shown = Math.min(PER, COMMENTS.length);
+			renderComments();
+			document.getElementById("loadMore").addEventListener("click", () => { shown = Math.min(shown + PER, COMMENTS.length); renderComments(); });
+
+			document.getElementById("commentForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				const f = e.target;
+				const content = f.content.value.trim();
+				if (!content) return;
+				// 確認画面フローへ（入力→確認→投稿）
+				TeamI.setDraft("comment", { popId: POP_ID, userName: f.userName.value.trim() || null, content });
+				location.href = "./comment-confirm.html";
+			});
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ことのは書房 | POPを飾る</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=Noto+Serif+JP:wght@700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+		rel="stylesheet">
+
+	<style>
+		:root {
+			--bg-color: #f7f4eb;
+			--primary-color: #1e3d33;
+			--accent-color: #bd4a30;
+			--text-color: #333333;
+			--paper-bg: #fffbf0;
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Zen Kaku Gothic New', sans-serif;
+			background-color: var(--bg-color);
+			color: var(--text-color);
+			line-height: 1.6;
+			margin: 0;
+			position: relative;
+		}
+
+		.serif {
+			font-family: 'Noto Serif JP', serif;
+		}
+
+		.pop-font {
+			font-family: 'Kiwi Maru', sans-serif;
+		}
+
+		header {
+			padding: 40px 4% 20px;
+			text-align: center;
+			position: relative;
+			border-bottom: 2px dashed rgba(30, 61, 51, 0.2);
+			margin-bottom: 40px;
+		}
+
+		header h1 {
+			color: var(--primary-color);
+			font-size: 1.8rem;
+			margin-bottom: 5px;
+		}
+
+		.subtitle {
+			color: var(--accent-color);
+			font-size: 1.05rem;
+			margin-bottom: 15px;
+		}
+
+		.header-actions {
+			position: absolute;
+			top: 35px;
+			right: 4%;
+		}
+
+		.btn-back {
+			display: inline-block;
+			background-color: transparent;
+			color: var(--primary-color);
+			border: 2px solid var(--primary-color);
+			padding: 8px 25px;
+			border-radius: 30px;
+			text-decoration: none;
+			font-size: 0.95rem;
+			font-weight: bold;
+			transition: all 0.3s;
+		}
+
+		.btn-back:hover {
+			background-color: var(--primary-color);
+			color: #fff;
+		}
+
+		.container {
+			max-width: 1000px;
+			margin: 0 auto 60px;
+			padding: 40px;
+			background: rgba(255, 255, 255, 0.45);
+			border-radius: 20px;
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+			backdrop-filter: blur(6px);
+			border: 1px solid rgba(255, 255, 255, 0.6);
+		}
+
+		.form-card {
+			background-color: #fffdf5;
+			border: 1px solid #ebdcb9;
+			padding: 45px 50px 40px;
+			border-radius: 3px;
+			box-shadow: 3px 5px 15px rgba(0, 0, 0, 0.05);
+			max-width: 700px;
+			margin: 0 auto;
+			position: relative;
+		}
+
+		.form-card::before {
+			content: '';
+			position: absolute;
+			top: -12px;
+			left: 50%;
+			transform: translateX(-50%) rotate(2deg);
+			width: 120px;
+			height: 30px;
+			background-color: rgba(189, 74, 48, 0.2);
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+			border-left: 2px dashed rgba(189, 74, 48, 0.4);
+			border-right: 2px dashed rgba(189, 74, 48, 0.4);
+			z-index: 10;
+		}
+
+		.selected-book-container {
+			background-color: #fff;
+			border: 1px dashed #ebdcb9;
+			padding: 20px 25px;
+			border-radius: 8px;
+			margin-bottom: 35px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 15px;
+		}
+
+		.selected-book-info {
+			flex: 1;
+		}
+
+		.selected-book-label {
+			color: var(--accent-color);
+			font-size: 0.95rem;
+			font-weight: bold;
+			margin-bottom: 5px;
+		}
+
+		.selected-book-title {
+			color: var(--primary-color);
+			font-size: 1.2rem;
+			font-weight: bold;
+			line-height: 1.4;
+		}
+
+		.form-group {
+			margin-bottom: 35px;
+		}
+
+		.form-label {
+			display: block;
+			color: var(--accent-color);
+			font-weight: bold;
+			margin-bottom: 8px;
+			font-size: 1.05rem;
+		}
+
+		.required-mark {
+			color: #fff;
+			background-color: var(--accent-color);
+			padding: 2px 6px;
+			border-radius: 4px;
+			margin-left: 10px;
+			font-size: 0.75rem;
+			vertical-align: middle;
+		}
+
+		.form-note {
+			font-size: 0.85rem;
+			color: #777;
+			margin-bottom: 15px;
+			line-height: 1.6;
+			padding: 8px 12px;
+			background-color: rgba(235, 220, 185, 0.15);
+			border-left: 3px solid #ebdcb9;
+			border-radius: 0 4px 4px 0;
+		}
+
+		.form-note span {
+			display: block;
+		}
+
+		.form-control {
+			width: 100%;
+			padding: 12px 10px;
+			border: none;
+			border-bottom: 2px dashed #ebdcb9;
+			border-radius: 0;
+			font-family: 'Kiwi Maru', sans-serif;
+			font-size: 1rem;
+			background-color: rgba(255, 255, 255, 0.7);
+			color: #333;
+			transition: border-color 0.3s, background-color 0.3s;
+		}
+
+		.form-control:focus {
+			outline: none;
+			border-bottom-color: var(--accent-color);
+			background-color: #fff;
+		}
+
+		.upload-area {
+			border: 2px dashed #ebdcb9;
+			border-radius: 8px;
+			padding: 40px 20px;
+			text-align: center;
+			background-color: rgba(255, 255, 255, 0.7);
+			cursor: pointer;
+			transition: all 0.3s;
+			position: relative;
+		}
+
+		.upload-area:hover,
+		.upload-area.dragover {
+			background-color: #fff;
+			border-color: var(--accent-color);
+		}
+
+		.file-input {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			opacity: 0;
+			cursor: pointer;
+			z-index: 10;
+		}
+
+		.upload-icon {
+			font-size: 3rem;
+			margin-bottom: 10px;
+		}
+
+		.upload-text {
+			color: #666;
+			font-size: 0.95rem;
+			margin-bottom: 15px;
+			line-height: 1.6;
+		}
+
+		.btn-choose-img {
+			display: inline-block;
+			background-color: transparent;
+			color: var(--primary-color);
+			border: 1px solid var(--primary-color);
+			padding: 8px 25px;
+			border-radius: 30px;
+			font-family: inherit;
+			font-size: 0.9rem;
+			font-weight: bold;
+			transition: all 0.3s;
+		}
+
+		.upload-area:hover .btn-choose-img {
+			background-color: var(--primary-color);
+			color: #fff;
+		}
+
+		.preview-outer-wrapper {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 15px;
+			margin: 0 auto;
+			position: relative;
+			z-index: 5;
+		}
+
+		.preview-container {
+			position: relative;
+			display: inline-block;
+			max-width: calc(100% - 60px);
+			border-radius: 4px;
+			overflow: hidden;
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+		}
+
+		.image-preview {
+			display: block;
+			max-width: 100%;
+			max-height: 350px;
+		}
+
+		.preview-guide {
+			position: absolute;
+			top: 50%;
+			left: 0;
+			width: 100%;
+			height: 100px;
+			transform: translateY(-50%);
+			border-top: 1px dashed rgba(189, 74, 48, 0.25);
+			border-bottom: 1px dashed rgba(189, 74, 48, 0.25);
+			background-color: transparent;
+			pointer-events: none;
+		}
+
+		.guide-text-outside {
+			writing-mode: vertical-rl;
+			text-orientation: upright;
+			color: rgba(189, 74, 48, 0.8);
+			font-size: 0.8rem;
+			font-weight: bold;
+			letter-spacing: 2px;
+		}
+
+		.form-actions {
+			margin-top: 40px;
+			padding-top: 30px;
+			border-top: 1px dashed #ebdcb9;
+			text-align: center;
+		}
+
+		.btn-submit {
+			background-color: var(--primary-color);
+			color: #fff;
+			padding: 15px 50px;
+			border-radius: 30px;
+			border: none;
+			font-family: inherit;
+			font-size: 1.05rem;
+			font-weight: bold;
+			cursor: pointer;
+			transition: background-color 0.3s;
+			width: 100%;
+		}
+
+		.btn-submit:hover {
+			background-color: #142a23;
+		}
+
+		@media (max-width: 768px) {
+			.header-actions {
+				position: static;
+				margin-top: 15px;
+				text-align: center;
+			}
+
+			.container {
+				padding: 20px;
+			}
+
+			.form-card {
+				padding: 30px 20px;
+			}
+
+			.preview-outer-wrapper {
+				gap: 5px;
+			}
+
+			.guide-text-outside {
+				font-size: 0.7rem;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1 class="serif">POPを飾る</h1>
+		<p class="pop-font subtitle">あなたが作成したPOPの画像をアップロードしてください。</p>
+		<div class="header-actions">
+			<a href="./pop-book-select.html" class="btn-back pop-font">本を選び直す</a>
+		</div>
+	</header>
+
+	<div class="container">
+		<div class="form-card">
+
+			<div class="selected-book-container">
+				<div class="selected-book-info">
+					<div class="selected-book-label serif">📌 選択中の本</div>
+					<div class="selected-book-title serif" id="bookTitle">選択された本のタイトル</div>
+				</div>
+			</div>
+
+			<form id="popForm">
+
+				<div id="errorBox"
+					style="display:none; color: white; background-color: var(--accent-color); padding: 12px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; text-align: center;"
+					class="pop-font"></div>
+
+				<div class="form-group">
+					<label class="form-label serif">📌 POPの画像<span class="required-mark pop-font">必須</span></label>
+
+					<div class="form-note pop-font">
+						<span>※10MB以上のファイルはアップロードできません。</span>
+						<span>※画像ファイル（.jpg, .png等）のみ対応しています。</span>
+					</div>
+
+					<div class="upload-area" id="dropZone">
+						<input type="file" name="imageFile" id="imageInput" class="file-input" accept="image/*">
+
+						<div id="uploadPrompt">
+							<div class="upload-icon"></div>
+							<div class="upload-text pop-font">ここをタップして画像を選択するか、<br>ファイルをドラッグ＆ドロップしてください。</div>
+							<span class="btn-choose-img pop-font">画像を選ぶ</span>
+						</div>
+
+						<div id="previewOuterWrapper" class="preview-outer-wrapper" style="display: none;">
+							<span class="guide-text-outside pop-font">チラ見せ範囲</span>
+
+							<div id="previewContainer" class="preview-container">
+								<img id="imagePreview" class="image-preview" src="#" alt="プレビュー画像">
+								<div class="preview-guide"></div>
+							</div>
+
+							<span class="guide-text-outside pop-font">チラ見せ範囲</span>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="form-label serif">📌 作成者名（ニックネーム）<span class="required-mark pop-font">必須</span></label>
+
+					<div class="form-note pop-font">
+						<span>※個人が特定されるような内容や、著作権・商標権に引っかかるような名前の使用は禁止しております。</span>
+					</div>
+
+					<input type="text" name="customerName" class="form-control pop-font" placeholder="例：ことのは太郎" required>
+				</div>
+
+				<div class="form-group">
+					<label class="form-label serif">📌 メールアドレス<span
+							style="color: #888; font-size: 0.85rem; margin-left: 10px; font-weight: normal;">任意</span></label>
+
+					<div class="form-note pop-font">
+						<span>※サイト上には公開されません。</span>
+						<span>※「ことのは大賞」受賞時のご連絡や、お問い合わせ対応のために使用いたします。</span>
+					</div>
+
+					<input type="email" name="customerEmail" class="form-control pop-font"
+						placeholder="例：info@example.com">
+				</div>
+
+				<div class="form-note pop-font"
+					style="margin-bottom: 30px; border-left: 3px solid var(--accent-color); background-color: rgba(189, 74, 48, 0.05);">
+					<span style="color: var(--accent-color); font-weight: bold;">※登録後の修正・削除について</span>
+					<span>一度登録したPOPは、後からユーザー自身で内容の修正や削除を行うことができません。</span>
+					<span>登録内容に間違いがないか、今一度ご確認の上「確認画面へ進む」ボタンを押してください。</span>
+				</div>
+
+				<div class="form-actions">
+					<button type="submit" class="btn-submit pop-font">確認画面へ進む</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const dropZone = document.getElementById('dropZone');
+		const fileInput = document.getElementById('imageInput');
+		const uploadPrompt = document.getElementById('uploadPrompt');
+		const imagePreview = document.getElementById('imagePreview');
+		const previewOuterWrapper = document.getElementById('previewOuterWrapper');
+		const MAX_BYTES = 10 * 1024 * 1024;
+		let BOOK_ID = null;
+		let uploadedDataUrl = "";
+
+		['dragenter', 'dragover', 'dragleave', 'drop'].forEach(function (eventName) {
+			dropZone.addEventListener(eventName, preventDefaults, false);
+		});
+
+		function preventDefaults(e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+
+		['dragenter', 'dragover'].forEach(function (eventName) {
+			dropZone.addEventListener(eventName, function () { dropZone.classList.add('dragover'); }, false);
+		});
+
+		['dragleave', 'drop'].forEach(function (eventName) {
+			dropZone.addEventListener(eventName, function () { dropZone.classList.remove('dragover'); }, false);
+		});
+
+		dropZone.addEventListener('drop', function (e) {
+			const files = e.dataTransfer.files;
+			fileInput.files = files;
+			handleFiles(files);
+		}, false);
+
+		fileInput.addEventListener('change', function () {
+			handleFiles(this.files);
+		});
+
+		function showError(msg) {
+			const box = document.getElementById('errorBox');
+			box.textContent = msg;
+			box.style.display = msg ? 'block' : 'none';
+		}
+
+		function handleFiles(files) {
+			if (!files || files.length === 0) return;
+			const file = files[0];
+			if (!file.type.startsWith('image/')) {
+				showError('画像ファイル（.jpg, .png等）のみ対応しています。');
+				return;
+			}
+			if (file.size >= MAX_BYTES) {
+				showError('10MB以上のファイルはアップロードできません。');
+				return;
+			}
+			showError('');
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				uploadedDataUrl = e.target.result;
+				imagePreview.src = uploadedDataUrl;
+				previewOuterWrapper.style.display = 'flex';
+				uploadPrompt.style.display = 'none';
+			};
+			reader.readAsDataURL(file);
+		}
+
+		TeamI.init().then(function () {
+			BOOK_ID = Number(new URLSearchParams(location.search).get("bookId"));
+			const book = TeamI.book(BOOK_ID);
+			if (!book) {
+				document.getElementById('bookTitle').textContent = "書籍が見つかりませんでした";
+				document.querySelector('.btn-submit').disabled = true;
+			} else {
+				document.getElementById('bookTitle').textContent = book.title;
+			}
+
+			// 下書きが残っていれば復元（修正で戻ってきた時用）
+			const draft = TeamI.getDraft('custom-pop');
+			if (draft && Number(draft.bookId) === BOOK_ID) {
+				const f = document.getElementById('popForm');
+				if (draft.customerName) f.customerName.value = draft.customerName;
+				if (draft.customerEmail) f.customerEmail.value = draft.customerEmail;
+				if (draft.imageUrl) {
+					uploadedDataUrl = draft.imageUrl;
+					imagePreview.src = uploadedDataUrl;
+					previewOuterWrapper.style.display = 'flex';
+					uploadPrompt.style.display = 'none';
+				}
+			}
+
+			document.getElementById('popForm').addEventListener('submit', function (e) {
+				e.preventDefault();
+				const f = e.target;
+				const customerName = f.customerName.value.trim();
+				const customerEmail = f.customerEmail.value.trim();
+				if (!uploadedDataUrl) {
+					showError('POPの画像を選択してください。');
+					return;
+				}
+				if (!customerName) {
+					showError('作成者名（ニックネーム）を入力してください。');
+					return;
+				}
+				showError('');
+				TeamI.setDraft('custom-pop', {
+					bookId: BOOK_ID,
+					contributorType: 2,
+					status: 1,
+					storeId: null,
+					imageUrl: uploadedDataUrl,
+					customerName: customerName,
+					customerEmail: customerEmail || null,
+					note: null
+				});
+				location.href = './custom-pop-confirm.html';
+			});
+		});
+	</script>
+</body>
+
+</html>

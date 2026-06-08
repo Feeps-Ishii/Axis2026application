@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>取り寄せ予約変更・取消 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+		.full-width { grid-column: span 2; }
+		.section-box { border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #f9fafb; }
+		.error-message { color: #dc2626; font-size: 0.85rem; display: block; margin-top: 4px; }
+		textarea { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; resize: vertical; }
+		.required { color: red; }
+	</style>
+</head>
+
+<body>
+	<div id="nav"></div>
+
+	<div class="container">
+		<h1>取り寄せ予約変更・取消</h1>
+
+		<div class="card">
+			<form id="orderEditForm">
+
+				<div class="section-box">
+					<h2 class="section-title">予約基本情報</h2>
+					<div class="form-grid">
+						<div class="form-group"><label>予約番号</label><input type="text" id="orderId" disabled></div>
+						<div class="form-group"><label>予約日時</label><input type="text" id="reservedAt" disabled></div>
+						<div class="form-group full-width"><label>書籍タイトル</label><input type="text" id="bookTitle" disabled></div>
+						<div class="form-group"><label>注文者名</label><input type="text" id="customerName" disabled></div>
+						<div class="form-group"><label>電話番号</label><input type="text" id="customerPhone" disabled></div>
+						<div class="form-group full-width"><label>メールアドレス</label><input type="text" id="customerEmail" disabled></div>
+						<div class="form-group full-width"><label>出荷元 → 受取先</label><input type="text" id="route" disabled></div>
+					</div>
+				</div>
+
+				<div class="section-box" style="background:#fff;border-color:#007bff;">
+					<h2 class="section-title">変更内容</h2>
+					<div class="form-grid">
+						<div class="form-group">
+							<label>予約冊数 <span class="required">*</span></label>
+							<input type="number" id="quantity" min="1" required>
+						</div>
+						<div class="form-group">
+							<label>ステータス</label>
+							<div id="statusWrap"></div>
+						</div>
+						<div class="form-group full-width">
+							<label>備考</label>
+							<textarea id="note" rows="4" maxlength="1000"></textarea>
+							<small>1000文字以内で入力してください</small>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-actions" style="justify-content: space-between; margin-top:20px;">
+					<div id="deleteWrap"></div>
+					<div style="display:flex; gap:10px;">
+						<a href="./orders.html" class="btn btn-secondary">キャンセル</a>
+						<button type="submit" class="btn btn-accent">変更を保存</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		let SESS, ORDER, VIEW_TYPE;
+
+		function statusLabel(st) {
+			return { 1: "要求中", 2: "移動中", 3: "店舗到着済", 4: "お渡し済み", 5: "キャンセル", 0: "キャンセル" }[st] || "";
+		}
+
+		// テンプレ準拠のステータス選択肢を構築
+		function buildStatusControl() {
+			const st = ORDER.status;
+			const locked = (VIEW_TYPE === "shipping" && (st === 3 || st === 4)) || st === 4 || st === 5 || st === 0;
+			const wrap = document.getElementById("statusWrap");
+
+			if (locked) {
+				wrap.innerHTML = `<select id="status" disabled><option value="${st}">${statusLabel(st)}</option></select>`;
+				return;
+			}
+
+			const opts = [];
+			// 現在値（非表示の保持オプション）
+			opts.push(`<option value="${st}" style="display:none;" selected>${statusLabel(st)}</option>`);
+			if (VIEW_TYPE === "shipping" || VIEW_TYPE === "both") {
+				if (st === 1 || st === 2) opts.push(`<option value="1">要求中</option>`);
+				if (st === 1 || st === 2) opts.push(`<option value="2">移動中</option>`);
+			}
+			if (VIEW_TYPE === "pickup" || VIEW_TYPE === "both") {
+				if (st === 2 || st === 3) opts.push(`<option value="3">店舗到着済</option>`);
+				if (st === 3 || st === 4) opts.push(`<option value="4">お渡し済み</option>`);
+			}
+			wrap.innerHTML = `<select id="status">${opts.join("")}</select>`;
+		}
+
+		TeamI.init().then(() => {
+			SESS = TeamI.requireLogin();
+			if (!SESS) return;
+			TeamINav.render("orders");
+
+			// 管理者のみ操作可。非管理者は一覧へ。
+			if (SESS.staff.roleId !== 1) {
+				location.href = "./orders.html";
+				return;
+			}
+
+			const id = Number(new URLSearchParams(location.search).get("id"));
+			ORDER = TeamI.order(id);
+			if (!ORDER) {
+				document.querySelector(".card").innerHTML = `<p style="color:#dc2626;">対象の予約が見つかりません。</p><div class="form-actions"><a href="./orders.html" class="btn btn-secondary">一覧へ戻る</a></div>`;
+				return;
+			}
+
+			const myStore = SESS.store ? SESS.store.id : SESS.staff.storeId;
+			const isShipping = ORDER.shippingStoreId === myStore;
+			const isPickup = ORDER.pickupStoreId === myStore;
+			VIEW_TYPE = (isShipping && isPickup) ? "both" : isShipping ? "shipping" : isPickup ? "pickup" : "both";
+
+			const book = TeamI.book(ORDER.bookId) || {};
+			document.getElementById("orderId").value = ORDER.id;
+			document.getElementById("reservedAt").value = TeamI.fmtDateTime(ORDER.reservedAt);
+			document.getElementById("bookTitle").value = book.title || "";
+			document.getElementById("customerName").value = ORDER.customerName || "";
+			document.getElementById("customerPhone").value = ORDER.customerPhone || "";
+			document.getElementById("customerEmail").value = ORDER.customerEmail || "";
+			document.getElementById("route").value = TeamI.storeName(ORDER.shippingStoreId) + " → " + TeamI.storeName(ORDER.pickupStoreId);
+			document.getElementById("quantity").value = ORDER.quantity;
+			document.getElementById("note").value = ORDER.note || "";
+
+			buildStatusControl();
+
+			// 要求中(status==1)のみ削除可
+			if (ORDER.status === 1) {
+				document.getElementById("deleteWrap").innerHTML =
+					`<a href="./order-cancel-confirm.html?id=${ORDER.id}" class="btn btn-danger">削除</a>`;
+			}
+
+			document.getElementById("orderEditForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				const quantity = Number(document.getElementById("quantity").value);
+				if (!(quantity >= 1)) { alert("予約冊数は1以上で入力してください。"); return; }
+				const note = document.getElementById("note").value;
+				const statusEl = document.getElementById("status");
+				const status = statusEl ? Number(statusEl.value) : ORDER.status;
+
+				const draft = {
+					id: ORDER.id,
+					quantity: quantity,
+					note: note,
+					status: status,
+					// 表示用
+					reservedAt: ORDER.reservedAt,
+					bookTitle: book.title || "",
+					customerName: ORDER.customerName,
+					customerPhone: ORDER.customerPhone,
+					customerEmail: ORDER.customerEmail,
+					shippingStoreName: TeamI.storeName(ORDER.shippingStoreId),
+					pickupStoreName: TeamI.storeName(ORDER.pickupStoreId),
+				};
+				TeamI.setDraft("order-edit", draft);
+				location.href = "./order-edit-confirm.html";
+			});
+		});
+	</script>
+</body>
+</html>

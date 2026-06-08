@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>取り寄せ予約削除確認 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+		.full-width { grid-column: span 2; }
+		.section-box { border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #f9fafb; }
+		.alert-box { border: 2px solid #dc2626; background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+		.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000; }
+		.modal-overlay.active { display: flex; }
+		.modal-content { background: #fff; padding: 30px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+	</style>
+</head>
+
+<body>
+	<div id="nav"></div>
+
+	<div class="container">
+		<h1>取り寄せ予約削除確認</h1>
+
+		<div class="card">
+			<div class="alert-box">
+				<p style="color:#dc2626;font-weight:bold;margin:0;">
+					⚠️ この操作を実行すると、予約情報は削除されます。この操作は取り消せません。
+				</p>
+			</div>
+
+			<div id="root"></div>
+
+			<div class="form-actions" style="display:flex;justify-content:flex-end;gap:10px;margin-top:30px;border-top:1px solid #e2e8f0;padding-top:20px;">
+				<a href="./orders.html" class="btn btn-secondary" id="btnBack">戻る</a>
+				<button type="button" class="btn btn-danger" id="btnDelete">削除を実行</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="completeModal" class="modal-overlay">
+		<div class="modal-content">
+			<h2>完了</h2>
+			<p>削除完了しました。</p>
+			<div style="display:flex;gap:10px;justify-content:center;margin-top:20px;">
+				<button type="button" class="btn btn-primary" id="btnOk">OK</button>
+			</div>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		let SESS, ORDER;
+
+		TeamI.init().then(() => {
+			SESS = TeamI.requireLogin();
+			if (!SESS) return;
+			TeamINav.render("orders");
+
+			// 管理者のみ操作可。非管理者は一覧へ。
+			if (SESS.staff.roleId !== 1) {
+				location.href = "./orders.html";
+				return;
+			}
+
+			const id = Number(new URLSearchParams(location.search).get("id"));
+			ORDER = TeamI.order(id);
+			if (!ORDER) {
+				document.getElementById("root").innerHTML = `<p style="color:#dc2626;">対象の予約が見つかりません。</p>`;
+				document.querySelector(".form-actions").style.display = "none";
+				return;
+			}
+
+			document.getElementById("btnBack").href = "./order-edit.html?id=" + ORDER.id;
+
+			const book = TeamI.book(ORDER.bookId) || {};
+			document.getElementById("root").innerHTML = `
+				<div class="section-box">
+					<h2 class="section-title">予約基本情報</h2>
+					<div class="form-grid">
+						<div class="form-group"><label>予約番号</label><input type="text" value="${TeamI.esc(ORDER.id)}" disabled></div>
+						<div class="form-group"><label>予約日時</label><input type="text" value="${TeamI.esc(TeamI.fmtDateTime(ORDER.reservedAt))}" disabled></div>
+						<div class="form-group full-width"><label>書籍タイトル</label><input type="text" value="${TeamI.esc(book.title)}" disabled></div>
+						<div class="form-group full-width"><label>出荷店舗 → 受け取り店舗</label><input type="text" value="${TeamI.esc(TeamI.storeName(ORDER.shippingStoreId) + " → " + TeamI.storeName(ORDER.pickupStoreId))}" disabled></div>
+					</div>
+				</div>
+
+				<div class="section-box">
+					<h2 class="section-title">顧客情報</h2>
+					<div class="form-grid">
+						<div class="form-group"><label>注文者名</label><input type="text" value="${TeamI.esc(ORDER.customerName)}" disabled></div>
+						<div class="form-group"><label>電話番号</label><input type="text" value="${TeamI.esc(ORDER.customerPhone)}" disabled></div>
+						<div class="form-group full-width"><label>メールアドレス</label><input type="text" value="${TeamI.esc(ORDER.customerEmail)}" disabled></div>
+					</div>
+				</div>
+
+				<div class="form-group"><label>予約冊数</label><input type="text" value="${TeamI.esc(ORDER.quantity)}冊" disabled></div>
+				<div class="form-group"><label>備考</label><input type="text" value="${TeamI.esc(ORDER.note)}" disabled></div>`;
+
+			document.getElementById("btnDelete").addEventListener("click", () => {
+				document.getElementById("completeModal").classList.add("active");
+			});
+
+			document.getElementById("btnOk").addEventListener("click", () => {
+				TeamI.cancelOrder(ORDER.id);
+				location.href = "./orders.html";
+			});
+		});
+	</script>
+</body>
+</html>

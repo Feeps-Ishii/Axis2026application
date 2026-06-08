@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>店員一覧 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		.pagination { display:flex; list-style:none; padding:0; justify-content:center; gap:5px; margin:20px 0; }
+		.pagination li a { display:flex; align-items:center; justify-content:center; min-width:38px; height:38px; padding:0 12px; text-decoration:none; color:#3498db; background:#f8f9fa; border:1px solid #dee2e6; border-radius:4px; font-size:14px; cursor:pointer; }
+		.pagination li.active a { background:#3498db; color:#fff; border-color:#3498db; font-weight:bold; }
+		.pagination li.disabled a { color:#a0a0a0; pointer-events:none; }
+	</style>
+</head>
+
+<body>
+	<div id="nav"></div>
+	<div class="container">
+		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+			<h1>店員一覧</h1>
+			<a href="./staff-new.html" class="btn btn-primary">+ 新規店員登録</a>
+		</div>
+
+		<div class="search-card">
+			<form id="searchForm">
+				<div class="search-grid" style="align-items:center;">
+					<div class="search-item"><input type="text" name="keyword" placeholder="氏名・社員番号で検索"></div>
+					<div class="search-item"><select name="storeId" id="storeSel"><option value="">全店舗</option></select></div>
+					<div class="search-item"><select name="roleId"><option value="">全役職</option><option value="1">管理者</option><option value="2">一般</option></select></div>
+					<div class="search-actions" style="margin-top:0;">
+						<a href="#" id="clearBtn" class="btn btn-secondary" style="text-align:center; line-height:2;">クリア</a>
+						<button type="submit" class="btn btn-primary">検索</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<div class="table-responsive">
+			<table style="table-layout:fixed; width:100%;">
+				<colgroup><col style="width:16%;"><col style="width:24%;"><col style="width:28%;"><col style="width:14%;"><col style="width:18%;"></colgroup>
+				<thead><tr><th>社員番号</th><th>氏名</th><th>所属店舗</th><th>役職</th><th>操作</th></tr></thead>
+				<tbody id="tbody"></tbody>
+			</table>
+		</div>
+		<ul class="pagination" id="pager"></ul>
+		<div class="form-actions" style="justify-content:flex-end;"><a href="./dashboard.html" class="btn btn-secondary">ダッシュボードに戻る</a></div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		let results = [];
+
+		function criteria() {
+			const f = document.getElementById("searchForm");
+			return { kw: f.keyword.value.trim(), storeId: f.storeId.value, roleId: f.roleId.value };
+		}
+		function search() {
+			const c = criteria();
+			results = TeamI.staffAll().filter(s => {
+				if (s.isDeleted) return false;
+				if (c.kw && !(String(s.name).includes(c.kw) || String(s.staffNumber).includes(c.kw))) return false;
+				if (c.storeId && String(s.storeId) !== c.storeId) return false;
+				if (c.roleId && String(s.roleId) !== c.roleId) return false;
+				return true;
+			});
+			render(1);
+		}
+		function render(page) {
+			const body = document.getElementById("tbody");
+			if (results.length === 0) {
+				body.innerHTML = `<tr><td colspan="5" style="text-align:center;">表示可能な店員情報がありません</td></tr>`;
+				document.getElementById("pager").innerHTML = ""; return;
+			}
+			const SIZE = TeamIUI.PAGE_SIZE;
+			const slice = results.slice((page - 1) * SIZE, page * SIZE);
+			body.innerHTML = slice.map(s => `<tr>
+				<td>${TeamI.esc(s.staffNumber)}</td><td>${TeamI.esc(s.name)}</td>
+				<td>${TeamI.esc(TeamI.storeName(s.storeId))}</td><td>${TeamI.label.ROLE[s.roleId] || ""}</td>
+				<td><a href="./staff-edit.html?id=${s.id}" class="btn btn-accent">変更/削除</a></td></tr>`).join("");
+			TeamIUI.wirePager(document.getElementById("pager"), results.length, page, SIZE, render);
+			TeamIUI.bindStubs(body);
+		}
+
+		TeamI.init().then(() => {
+			const sess = TeamI.requireLogin();
+			if (!sess) return;
+			if (sess.staff.roleId !== 1) { location.href = "./dashboard.html"; return; } // 管理者のみ
+			TeamINav.render("staffs");
+			const ssel = document.getElementById("storeSel");
+			TeamI.stores().forEach(s => { const o = document.createElement("option"); o.value = s.id; o.textContent = s.storeName; ssel.appendChild(o); });
+			document.getElementById("searchForm").addEventListener("submit", e => { e.preventDefault(); search(); });
+			document.getElementById("clearBtn").addEventListener("click", e => { e.preventDefault(); document.getElementById("searchForm").reset(); search(); });
+			TeamIUI.bindStubs();
+			search();
+		});
+	</script>
+</body>
+</html>

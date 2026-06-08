@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>取り寄せ予約一覧 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		.tabs { display:flex; margin-bottom:20px; border-bottom:2px solid #ccc; }
+		.tab-btn { padding:10px 20px; cursor:pointer; border:none; background:#f4f4f4; text-decoration:none; color:#333; }
+		.tab-btn.active { background:#007bff; color:#fff; }
+		.tab-content { display:none; }
+		.tab-content.active { display:block; }
+		.pagination { display:flex; list-style:none; padding:0; justify-content:center; gap:5px; margin:20px 0; }
+		.pagination li a { display:flex; align-items:center; justify-content:center; min-width:38px; height:38px; padding:0 12px; text-decoration:none; color:#3498db; background:#f8f9fa; border:1px solid #dee2e6; border-radius:4px; font-size:14px; cursor:pointer; }
+		.pagination li.active a { background:#3498db; color:#fff; border-color:#3498db; font-weight:bold; }
+		.pagination li.disabled a { color:#a0a0a0; pointer-events:none; }
+		.badge { padding:4px 8px; border-radius:4px; font-size:.85em; }
+		.badge-request { background:#ffc107; color:#000; }
+		.badge-shipping { background:#17a2b8; color:#fff; }
+		.badge-arrived { background:#28a745; color:#fff; }
+		.badge-cancel { background:#6c757d; color:#fff; }
+	</style>
+</head>
+
+<body>
+	<div id="nav"></div>
+	<div class="container">
+		<h1>取り寄せ予約一覧</h1>
+
+		<div class="tabs">
+			<a class="tab-btn active" id="tabShipping">出荷</a>
+			<a class="tab-btn" id="tabPickup">入荷</a>
+		</div>
+
+		<div id="shipping" class="tab-content active">
+			<div class="table-responsive">
+				<table>
+					<thead><tr><th>受け取り店舗</th><th>予約日時</th><th>注文者名</th><th>ステータス</th><th>操作</th></tr></thead>
+					<tbody id="shippingBody"></tbody>
+				</table>
+			</div>
+			<ul class="pagination" id="shippingPager"></ul>
+		</div>
+
+		<div id="pickup" class="tab-content">
+			<div class="table-responsive">
+				<table>
+					<thead><tr><th>出荷店舗</th><th>予約日時</th><th>注文者名</th><th>ステータス</th><th>操作</th></tr></thead>
+					<tbody id="pickupBody"></tbody>
+				</table>
+			</div>
+			<ul class="pagination" id="pickupPager"></ul>
+		</div>
+
+		<div class="form-actions" style="margin-top:20px;"><a href="./dashboard.html" class="btn btn-secondary">戻る</a></div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		let SESS;
+
+		function statusBadge(st) {
+			if (st === 1) return '<span class="badge badge-request">要求中</span>';
+			if (st === 2) return '<span class="badge badge-shipping">移動中</span>';
+			if (st === 3) return '<span class="badge badge-arrived">店舗到着済</span>';
+			if (st === 4) return '<span class="badge badge-arrived">お渡し済み</span>';
+			return '<span class="badge badge-cancel">キャンセル済</span>';
+		}
+
+		function opCell(o) {
+			return SESS.staff.roleId === 1
+				? `<a href="./order-edit.html?id=${o.id}" class="btn btn-accent">変更/削除</a>`
+				: `<span style="color:#a0aec0; font-size:.9em;">操作不可</span>`;
+		}
+
+		function renderTable(bodyId, pagerId, rows, otherStoreField, page) {
+			const body = document.getElementById(bodyId);
+			if (rows.length === 0) {
+				body.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b; padding:20px;">該当する予約はありません。</td></tr>`;
+				document.getElementById(pagerId).innerHTML = ""; return;
+			}
+			const SIZE = TeamIUI.PAGE_SIZE;
+			const slice = rows.slice((page - 1) * SIZE, page * SIZE);
+			body.innerHTML = slice.map(o => `<tr>
+				<td>${TeamI.esc(TeamI.storeName(o[otherStoreField]))}</td>
+				<td>${TeamI.fmtDateTime(o.reservedAt)}</td>
+				<td>${TeamI.esc(o.customerName)}</td>
+				<td>${statusBadge(o.status)}</td>
+				<td>${opCell(o)}</td>
+			</tr>`).join("");
+			TeamIUI.wirePager(document.getElementById(pagerId), rows.length, page, SIZE,
+				(p) => renderTable(bodyId, pagerId, rows, otherStoreField, p));
+		}
+
+		function switchTab(which) {
+			document.getElementById("tabShipping").classList.toggle("active", which === "shipping");
+			document.getElementById("tabPickup").classList.toggle("active", which === "pickup");
+			document.getElementById("shipping").classList.toggle("active", which === "shipping");
+			document.getElementById("pickup").classList.toggle("active", which === "pickup");
+		}
+
+		TeamI.init().then(() => {
+			SESS = TeamI.requireLogin();
+			if (!SESS) return;
+			TeamINav.render("orders");
+
+			const myStore = SESS.store.id;
+			// 出荷タブ＝自店が発送元（相手＝受け取り店舗pickup）／入荷タブ＝自店が受け取り（相手＝出荷店舗shipping）
+			renderTable("shippingBody", "shippingPager", TeamI.ordersByShipping(myStore), "pickupStoreId", 1);
+			renderTable("pickupBody", "pickupPager", TeamI.ordersByPickup(myStore), "shippingStoreId", 1);
+
+			document.getElementById("tabShipping").addEventListener("click", () => switchTab("shipping"));
+			document.getElementById("tabPickup").addEventListener("click", () => switchTab("pickup"));
+		});
+	</script>
+</body>
+</html>

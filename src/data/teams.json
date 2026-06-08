@@ -10,13 +10,14 @@
     "entry": "login.html"
   },
   {
-    "slug": "team2",
-    "name": "グループ2",
-    "appName": "（アプリ名未定）",
-    "description": "チームの成果物を public/team-apps/team2/ に配置してください。",
-    "category": "未分類",
+    "slug": "teamI",
+    "name": "グループI",
+    "appName": "ことのは書房（書籍・POP管理システム）",
+    "description": "書店向けの在庫管理・取り寄せ予約・POP掲示板・店員マスタを JSON + localStorage で擬似再現したモックです。",
+    "category": "業務系",
     "accent": "#16a34a",
-    "ready": false
+    "ready": true,
+    "entry": "login.html"
   },
   {
     "slug": "team3",

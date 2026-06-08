@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ことのは書房 | コメント内容の確認</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&family=Noto+Serif+JP:wght@700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+		rel="stylesheet">
+	<style>
+		:root {
+			--bg-color: #f7f4eb;
+			--primary-color: #1e3d33;
+			--accent-color: #bd4a30;
+			--text-color: #333333;
+			--paper-bg: #fffbf0;
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Zen Kaku Gothic New', sans-serif;
+			background-color: var(--bg-color);
+			color: var(--text-color);
+			line-height: 1.6;
+		}
+
+		.serif {
+			font-family: 'Noto Serif JP', serif;
+		}
+
+		.pop-font {
+			font-family: 'Kiwi Maru', sans-serif;
+		}
+
+		header {
+			padding: 40px 4% 20px;
+			text-align: center;
+			position: relative;
+		}
+
+		header h1 {
+			color: var(--primary-color);
+			font-size: 1.8rem;
+			margin-bottom: 10px;
+		}
+
+		header p {
+			color: var(--accent-color);
+			font-size: 1.05rem;
+		}
+
+		.container {
+			max-width: 650px;
+			margin: 0 auto;
+			padding: 20px 4% 60px;
+		}
+
+		.message-card {
+			background-color: #fffdf5;
+			border: 1px solid #ebdcb9;
+			border-radius: 3px;
+			padding: 45px 50px 40px;
+			position: relative;
+			box-shadow: 3px 5px 15px rgba(0, 0, 0, 0.05);
+			background-image: repeating-linear-gradient(transparent,
+					transparent 38px,
+					rgba(235, 220, 185, 0.3) 38px,
+					rgba(235, 220, 185, 0.3) 39px);
+			background-position: 0 12px;
+		}
+
+		.message-card::before {
+			content: '';
+			position: absolute;
+			top: -12px;
+			left: 50%;
+			transform: translateX(-50%) rotate(2deg);
+			width: 120px;
+			height: 30px;
+			background-color: rgba(189, 74, 48, 0.2);
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+			border-left: 2px dashed rgba(189, 74, 48, 0.4);
+			border-right: 2px dashed rgba(189, 74, 48, 0.4);
+			z-index: 10;
+		}
+
+		.confirm-group {
+			margin-bottom: 30px;
+		}
+
+		.confirm-label {
+			display: inline-block;
+			color: var(--primary-color);
+			font-weight: bold;
+			margin-bottom: 5px;
+			font-size: 1.05rem;
+			background-color: #fffdf5;
+			padding-right: 15px;
+		}
+
+		.confirm-text {
+			font-size: 1.1rem;
+			color: #333;
+			white-space: pre-wrap;
+			line-height: 1.8;
+			padding: 5px 0;
+		}
+
+		.form-actions {
+			display: flex;
+			justify-content: space-between;
+			margin-top: 40px;
+			padding-top: 30px;
+			border-top: 1px dashed rgba(30, 61, 51, 0.2);
+			background-color: #fffdf5;
+			position: relative;
+			z-index: 2;
+		}
+
+		.btn {
+			padding: 12px 30px;
+			border-radius: 30px;
+			text-decoration: none;
+			font-size: 1rem;
+			cursor: pointer;
+			border: none;
+			font-weight: bold;
+			transition: all 0.3s;
+			font-family: 'Zen Kaku Gothic New', sans-serif;
+		}
+
+		.btn-secondary {
+			background-color: #e2e8f0;
+			color: #475569;
+		}
+
+		.btn-secondary:hover {
+			background-color: #cbd5e1;
+		}
+
+		.btn-primary {
+			background-color: var(--accent-color);
+			color: #fff;
+			box-shadow: 0 4px 10px rgba(189, 74, 48, 0.2);
+		}
+
+		.btn-primary:hover {
+			background-color: #a03c25;
+			transform: translateY(-2px);
+			box-shadow: 0 6px 15px rgba(189, 74, 48, 0.3);
+		}
+
+		@media (max-width: 768px) {
+			.message-card {
+				padding: 30px 20px;
+			}
+
+			.form-actions {
+				flex-direction: column-reverse;
+				gap: 15px;
+			}
+
+			.btn {
+				width: 100%;
+				text-align: center;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1 class="serif">入力内容の確認</h1>
+		<p class="pop-font">こちらの内容でメッセージを投函しますか？</p>
+	</header>
+
+	<div class="container">
+		<div class="message-card" id="root"></div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamI.init().then(function () {
+			const root = document.getElementById("root");
+			const d = TeamI.getDraft('comment');
+
+			if (!d || !d.popId) {
+				root.innerHTML = '<div style="text-align:center; padding:20px; color:#888;" class="pop-font">確認するコメントが見つかりませんでした。<br><a href="./board.html" class="btn btn-secondary pop-font" style="margin-top:20px;">ギャラリーへ戻る</a></div>';
+				return;
+			}
+
+			const detailUrl = './board-detail.html?id=' + d.popId;
+			const nameHtml = (d.userName && d.userName !== "")
+				? TeamI.esc(d.userName)
+				: '<span style="color:#888;">無名のユーザー</span>';
+
+			root.innerHTML =
+				'<div class="confirm-group">' +
+				'  <div class="confirm-label pop-font">お名前（ニックネーム）</div>' +
+				'  <div class="confirm-text pop-font">' + nameHtml + '</div>' +
+				'</div>' +
+				'<div class="confirm-group">' +
+				'  <div class="confirm-label pop-font">メッセージ内容</div>' +
+				'  <div class="confirm-text pop-font">' + TeamI.esc(d.content) + '</div>' +
+				'</div>' +
+				'<div style="margin: 40px -20px; width: calc(100% + 50px); padding: 15px; border: 1px dashed #bd4a30; border-radius: 4px; background-color: rgba(189, 74, 48, 0.03);">' +
+				'  <p class="pop-font" style="font-size: 0.85rem; color: #bd4a30; line-height: 1.8; text-align: center; margin: 0;">' +
+				'    ※この内容で投函すると、後から自分自身で削除することはできません。<br>' +
+				'    ※内容にお間違いがないか、今一度ご確認をお願いいたします。' +
+				'  </p>' +
+				'</div>' +
+				'<div class="form-actions">' +
+				'  <button type="button" id="backBtn" class="btn btn-secondary">修正する</button>' +
+				'  <button type="button" id="submitBtn" class="btn btn-primary">この内容で投函する</button>' +
+				'</div>';
+
+			document.getElementById("backBtn").addEventListener("click", function () {
+				location.href = detailUrl;
+			});
+
+			document.getElementById("submitBtn").addEventListener("click", function () {
+				TeamI.addComment(d.popId, d.userName || null, d.content);
+				TeamI.clearDraft('comment');
+				alert("メッセージを投稿しました。");
+				location.href = detailUrl;
+			});
+		});
+	</script>
+</body>
+
+</html>

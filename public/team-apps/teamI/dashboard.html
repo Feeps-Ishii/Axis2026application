@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ダッシュボード | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		.dashboard-hero { background: linear-gradient(135deg,#fff 0%,#f8fafc 100%); border:1px solid #e2e8f0; border-radius:12px; padding:24px 28px; margin-bottom:26px; box-shadow:0 4px 12px rgba(15,23,42,.06); }
+		.dashboard-hero-header { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-bottom:18px; }
+		.dashboard-hero-title { margin:0 0 6px 0; font-size:1.25rem; color:#1e293b; }
+		.dashboard-updated-at { flex:0 0 auto; font-size:.85rem; color:#64748b; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:999px; padding:8px 12px; white-space:nowrap; }
+		.summary-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+		.summary-card { background:#fff; border:1px solid #e2e8f0; border-left:5px solid #0284c7; border-radius:10px; padding:18px; text-decoration:none; color:inherit; box-shadow:0 2px 6px rgba(15,23,42,.05); transition:transform .2s,box-shadow .2s; }
+		.summary-card[href]:hover { transform:translateY(-2px); box-shadow:0 6px 14px rgba(15,23,42,.1); }
+		.summary-label { display:block; font-size:.9rem; font-weight:bold; color:#475569; margin-bottom:8px; }
+		.summary-value { display:block; font-size:1.8rem; font-weight:bold; color:#1e293b; line-height:1.2; margin-bottom:8px; }
+		.summary-number-danger { color:#dc2626; }
+		.dashboard-menu-section { margin-bottom:32px; }
+		.section-heading-row { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; margin-bottom:14px; }
+		.section-heading-row h2 { margin:0; }
+		.section-title-with-icon { display:flex; align-items:center; gap:8px; }
+		.dashboard-menu.dashboard-menu-compact { display:flex; flex-wrap:wrap; justify-content:center; gap:14px; align-items:stretch; }
+		.dashboard-menu.dashboard-menu-compact .menu-card { flex:0 0 calc((100% - 56px)/5); max-width:calc((100% - 56px)/5); min-width:160px; box-sizing:border-box; padding:20px 10px 18px; border-top-width:5px; }
+		.dashboard-menu.dashboard-menu-compact .menu-card h2 { font-size:1rem; line-height:1.4; margin-bottom:8px; }
+		.notice-grid { display:grid; gap:22px; }
+		.dashboard-notice-card { padding:0; overflow:hidden; border-top:5px solid #0284c7; }
+		.notice-card-header { display:flex; justify-content:space-between; align-items:flex-start; gap:18px; padding:24px 28px 18px; border-bottom:1px solid #e2e8f0; background:#fff; }
+		.notice-title-group h3 { margin:0 0 6px; font-size:1.15rem; color:#1e293b; }
+		.notice-description { margin:0; font-size:.9rem; color:#64748b; line-height:1.6; }
+		.notice-count-badge { display:inline-flex; align-items:center; justify-content:center; min-width:72px; padding:8px 12px; border-radius:999px; background:#fee2e2; border:1px solid #fecaca; color:#b91c1c; font-weight:bold; font-size:.95rem; white-space:nowrap; }
+		.notice-card-body { padding:22px 28px 26px; }
+		.notice-empty-message { text-align:center; color:#64748b; background:#f8fafc; font-weight:500; }
+		.stock-count-danger { color:#dc2626; font-weight:bold; }
+		.notice-actions { display:flex; justify-content:flex-end; align-items:center; gap:12px; margin-top:16px; }
+		.pagination { display:flex; list-style:none; padding:0; justify-content:center; gap:5px; margin:20px 0; }
+		.pagination li a, .pagination li span { display:flex; align-items:center; justify-content:center; min-width:38px; height:38px; padding:0 12px; text-decoration:none; color:#3498db; background:#f8f9fa; border:1px solid #dee2e6; border-radius:4px; font-size:14px; cursor:pointer; }
+		.pagination li.active a { background:#3498db; color:#fff; border-color:#3498db; font-weight:bold; }
+		.pagination li.disabled a { color:#a0a0a0; pointer-events:none; }
+		.badge { padding:4px 8px; border-radius:4px; font-size:.85em; }
+		.badge-request { background:#ffc107; color:#000; }
+	</style>
+</head>
+
+<body>
+	<div id="nav"></div>
+
+	<div class="container">
+		<h1>ダッシュボード</h1>
+
+		<section class="dashboard-hero">
+			<div class="dashboard-hero-header">
+				<div><h2 class="dashboard-hero-title"><span id="storeName1">本店</span>の状況</h2></div>
+				<div class="dashboard-updated-at">最終更新：<span id="currentDatetime">画面表示時</span></div>
+			</div>
+			<div class="summary-grid">
+				<a href="#arrival-alert-section" class="summary-card summary-card-warning">
+					<span class="summary-label">入荷タイミング通知</span>
+					<span class="summary-value"><span class="summary-number-danger" id="arrivalCount">0</span><span>件</span></span>
+				</a>
+				<a href="#order-request-section" class="summary-card summary-card-request">
+					<span class="summary-label">他店取り寄せ依頼通知</span>
+					<span class="summary-value"><span class="summary-number-danger" id="orderCount">0</span><span>件</span></span>
+				</a>
+				<div class="summary-card summary-card-store">
+					<span class="summary-label">ログイン店舗</span>
+					<span class="summary-value" id="storeName2">本店</span>
+				</div>
+			</div>
+		</section>
+
+		<section class="dashboard-menu-section">
+			<div class="section-heading-row"><div><h2 class="section-title-with-icon"><span aria-hidden="true">📋</span>機能メニュー</h2></div></div>
+			<div class="dashboard-menu dashboard-menu-compact">
+				<a href="./stocks.html" class="menu-card"><h2>在庫管理</h2></a>
+				<a href="./orders.html" class="menu-card"><h2>取り寄せ予約管理</h2></a>
+				<a href="./pops.html" class="menu-card"><h2>POP管理</h2></a>
+				<a href="./staffs.html" class="menu-card" id="menuStaff"><h2>店員管理</h2></a>
+				<a href="./board.html" target="_blank" class="menu-card"><h2>POP掲示板</h2></a>
+			</div>
+		</section>
+
+		<section>
+			<div class="section-heading-row"><div><h2 class="section-title-with-icon"><span aria-hidden="true">🔔</span>通知</h2></div></div>
+			<div class="notice-grid">
+				<div class="card dashboard-notice-card" id="arrival-alert-section">
+					<div class="notice-card-header">
+						<div class="notice-title-group">
+							<h3>入荷タイミング通知</h3>
+							<p class="notice-description">ログイン中店舗の在庫数が発注閾値以下になった書籍を表示しています。</p>
+						</div>
+						<span class="notice-count-badge warning" id="arrivalBadge">0件</span>
+					</div>
+					<div class="notice-card-body">
+						<div class="table-responsive">
+							<table>
+								<thead><tr><th>ISBN</th><th>タイトル</th><th>著者名</th><th>出版社</th><th>ジャンル</th><th>棚位置</th><th>在庫数</th><th>発注閾値</th></tr></thead>
+								<tbody id="arrivalBody"></tbody>
+							</table>
+						</div>
+						<ul class="pagination" id="arrivalPager"></ul>
+						<div class="notice-actions"><a href="./stocks.html" class="btn btn-primary">在庫を確認</a></div>
+					</div>
+				</div>
+
+				<div class="card dashboard-notice-card" id="order-request-section">
+					<div class="notice-card-header">
+						<div class="notice-title-group">
+							<h3>他店取り寄せ依頼通知</h3>
+							<p class="notice-description">ログイン中店舗に対して他店舗から依頼された取り寄せ予約を表示しています。</p>
+						</div>
+						<span class="notice-count-badge" id="orderBadge">0件</span>
+					</div>
+					<div class="notice-card-body">
+						<div class="table-responsive">
+							<table>
+								<thead><tr><th>ISBN</th><th>タイトル</th><th>著者名</th><th>出版社</th><th>初版・重版区分</th><th>取り寄せ元店舗</th><th style="white-space:nowrap;">注文受付日時</th><th>ステータス</th></tr></thead>
+								<tbody id="orderBody"></tbody>
+							</table>
+						</div>
+						<ul class="pagination" id="orderPager"></ul>
+						<div class="notice-actions"><a href="./orders.html" class="btn btn-primary">取り寄せ予約一覧を確認</a></div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		const PAGE = 10;
+
+		function pager(total, current, onClick) {
+			const pages = Math.ceil(total / PAGE);
+			if (pages <= 1) return "";
+			let html = `<li class="${current === 1 ? "disabled" : ""}"><a data-p="${current - 1}">« 前へ</a></li>`;
+			for (let p = 1; p <= pages; p++) {
+				html += `<li class="${p === current ? "active" : ""}"><a data-p="${p}">${p}</a></li>`;
+			}
+			html += `<li class="${current === pages ? "disabled" : ""}"><a data-p="${current + 1}">次へ »</a></li>`;
+			return html;
+		}
+
+		function renderArrival(rows, page) {
+			const body = document.getElementById("arrivalBody");
+			if (rows.length === 0) {
+				body.innerHTML = `<tr><td colspan="8" class="notice-empty-message">現在、入荷が必要な在庫はありません。</td></tr>`;
+				document.getElementById("arrivalPager").innerHTML = ""; return;
+			}
+			const slice = rows.slice((page - 1) * PAGE, page * PAGE);
+			body.innerHTML = slice.map(a => `<tr>
+				<td>${TeamI.esc(a.isbn)}</td><td>${TeamI.esc(a.title)}</td><td>${TeamI.esc(a.author)}</td>
+				<td>${TeamI.esc(a.publisher)}</td><td>${TeamI.esc(a.genre)}</td><td>${TeamI.esc(a.shelfLocation)}</td>
+				<td><strong class="stock-count-danger">${a.stockCount}</strong>冊</td><td>${a.alertThreshold}冊</td></tr>`).join("");
+			const pg = document.getElementById("arrivalPager");
+			pg.innerHTML = pager(rows.length, page);
+			pg.querySelectorAll("a[data-p]").forEach(a => a.addEventListener("click", () => renderArrival(rows, Number(a.dataset.p))));
+		}
+
+		function renderOrders(rows, page) {
+			const body = document.getElementById("orderBody");
+			if (rows.length === 0) {
+				body.innerHTML = `<tr><td colspan="8" class="notice-empty-message">現在、対応が必要な他店取り寄せ依頼はありません。</td></tr>`;
+				document.getElementById("orderPager").innerHTML = ""; return;
+			}
+			const slice = rows.slice((page - 1) * PAGE, page * PAGE);
+			body.innerHTML = slice.map(o => `<tr>
+				<td>${TeamI.esc(o.isbn)}</td><td>${TeamI.esc(o.title)}</td><td>${TeamI.esc(o.author)}</td>
+				<td>${TeamI.esc(o.publisher)}</td><td>${TeamI.esc(o.editionTypeName)}</td><td>${TeamI.esc(o.pickupStoreName)}</td>
+				<td style="white-space:nowrap;">${TeamI.esc(o.orderAcceptedDatetime)}</td>
+				<td><span class="badge badge-request">${TeamI.esc(o.statusName)}</span></td></tr>`).join("");
+			const pg = document.getElementById("orderPager");
+			pg.innerHTML = pager(rows.length, page);
+			pg.querySelectorAll("a[data-p]").forEach(a => a.addEventListener("click", () => renderOrders(rows, Number(a.dataset.p))));
+		}
+
+		TeamI.init().then(() => {
+			const sess = TeamI.requireLogin();
+			if (!sess) return;
+			TeamINav.render("dashboard");
+
+			const storeId = sess.store.id;
+			const storeName = sess.store.storeName;
+			document.getElementById("storeName1").textContent = storeName;
+			document.getElementById("storeName2").textContent = storeName;
+			if (sess.staff.roleId !== 1) document.getElementById("menuStaff").style.display = "none";
+
+			const arrivals = TeamI.restockAlerts(storeId);
+			const incoming = TeamI.incomingOrders(storeId);
+			document.getElementById("arrivalCount").textContent = arrivals.length;
+			document.getElementById("orderCount").textContent = incoming.length;
+			document.getElementById("arrivalBadge").textContent = arrivals.length + "件";
+			document.getElementById("orderBadge").textContent = incoming.length + "件";
+			renderArrival(arrivals, 1);
+			renderOrders(incoming, 1);
+
+			const now = new Date();
+			const p = n => String(n).padStart(2, "0");
+			document.getElementById("currentDatetime").textContent =
+				now.getFullYear() + "/" + p(now.getMonth() + 1) + "/" + p(now.getDate()) + " " + p(now.getHours()) + ":" + p(now.getMinutes());
+		});
+	</script>
+</body>
+
+</html>

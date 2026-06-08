@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>在庫一覧表示 | ことのは書房</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		.pagination { display:flex; list-style:none; padding:0; justify-content:center; gap:5px; margin:20px 0; }
+		.pagination li a { display:flex; align-items:center; justify-content:center; min-width:38px; height:38px; padding:0 12px; text-decoration:none; color:#3498db; background:#f8f9fa; border:1px solid #dee2e6; border-radius:4px; font-size:14px; cursor:pointer; }
+		.pagination li.active a { background:#3498db; color:#fff; border-color:#3498db; font-weight:bold; }
+		.pagination li.disabled a { color:#a0a0a0; pointer-events:none; }
+	</style>
+</head>
+
+<body>
+	<div id="nav"></div>
+	<div class="container">
+		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+			<h1>在庫一覧表示</h1>
+			<a href="./stock-new.html" class="btn btn-primary" id="addStock">+ 在庫新規追加・入荷</a>
+		</div>
+
+		<div class="search-card">
+			<form id="searchForm">
+				<div class="search-grid">
+					<div class="search-item"><label>タイトル</label><input type="text" name="title" placeholder="書籍名を入力"></div>
+					<div class="search-item"><label>著者名</label><input type="text" name="author" placeholder="著者名を入力"></div>
+					<div class="search-item"><label>出版社</label><input type="text" name="publisher" placeholder="出版社名を入力"></div>
+					<div class="search-item"><label>ジャンル</label><select name="genreId" id="genreSel"><option value="">すべて</option></select></div>
+					<div class="search-item"><label>店舗</label><select name="storeId" id="storeSel"><option value="">全店舗</option></select></div>
+					<div class="search-actions">
+						<a href="#" id="clearBtn" class="btn btn-secondary" style="text-align:center; line-height:2;">クリア</a>
+						<button type="submit" class="btn btn-primary">検索</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<div class="table-responsive">
+			<table>
+				<thead><tr><th>ISBN</th><th>タイトル</th><th>ジャンル</th><th>棚位置</th><th>在庫数</th><th>発注閾値</th><th>区分</th><th>返品期限</th><th>店舗</th><th style="width:170px;">操作</th></tr></thead>
+				<tbody id="tbody"></tbody>
+			</table>
+		</div>
+		<ul class="pagination" id="pager"></ul>
+		<div class="form-actions"><a href="./dashboard.html" class="btn btn-secondary">戻る</a></div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/nav.js"></script>
+	<script>
+		let SESS, results = [];
+
+		function rowsForCriteria() {
+			const f = document.getElementById("searchForm");
+			const title = f.title.value.trim(), author = f.author.value.trim(),
+				publisher = f.publisher.value.trim(), genreId = f.genreId.value, storeId = f.storeId.value;
+			return TeamI.stocks().filter(s => {
+				const b = TeamI.book(s.bookId) || {};
+				if (title && !String(b.title).includes(title)) return false;
+				if (author && !String(b.author || "").includes(author)) return false;
+				if (publisher && !String(b.publisher).includes(publisher)) return false;
+				if (genreId && String(b.genreId) !== genreId) return false;
+				if (storeId && String(s.storeId) !== storeId) return false;
+				return true;
+			});
+		}
+
+		function render(page) {
+			const tbody = document.getElementById("tbody");
+			if (results.length === 0) {
+				tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:#64748b; padding:20px;">該当する在庫情報が見つかりませんでした。</td></tr>`;
+				document.getElementById("pager").innerHTML = ""; return;
+			}
+			const SIZE = TeamIUI.PAGE_SIZE;
+			const slice = results.slice((page - 1) * SIZE, page * SIZE);
+			const myStore = SESS.store.id, isAdmin = SESS.staff.roleId === 1;
+			tbody.innerHTML = slice.map(s => {
+				const b = TeamI.book(s.bookId) || {};
+				const isMy = s.storeId === myStore;
+				const stockCell = s.stockCount <= s.alertThreshold
+					? `<strong style="color:red;">${s.stockCount}</strong>` : `<span>${s.stockCount}</span>`;
+				const ret = (s.contractType === 1 && s.returnDeadline) ? TeamI.fmtDate(s.returnDeadline) : "-";
+				let actions = "";
+				if (isMy && isAdmin) actions += `<a href="./stock-edit.html?id=${s.id}" class="btn btn-accent" style="padding:4px 10px; font-size:.8rem; white-space:nowrap;">変更</a>`;
+				if (isMy) actions += `<a href="./pop-new.html?bookId=${s.bookId}" class="btn btn-primary" style="padding:4px 10px; font-size:.8rem; white-space:nowrap;">POP登録</a>`;
+				if (!isMy && isAdmin && s.stockCount > s.alertThreshold + 1)
+					actions += `<a href="./order-new.html?bookId=${s.bookId}&fromStoreId=${s.storeId}" class="btn btn-primary" style="padding:4px 10px; font-size:.8rem; white-space:nowrap;">取り寄せ予約</a>`;
+				return `<tr>
+					<td>${TeamI.esc(b.isbn)}</td>
+					<td><strong>${TeamI.esc(b.title)}</strong><br><small style="color:#64748b;">著者: ${TeamI.esc(b.author || "")} / 出版: ${TeamI.esc(b.publisher)}</small></td>
+					<td>${TeamI.esc(TeamI.categoryName(b.genreId))}</td>
+					<td>${TeamI.esc(s.shelfLocation)}</td>
+					<td>${stockCell}</td>
+					<td>${s.alertThreshold}</td>
+					<td>${TeamI.label.CONTRACT_TYPE[s.contractType] || ""}</td>
+					<td>${ret}</td>
+					<td><span class="badge badge-default">${TeamI.esc(TeamI.storeName(s.storeId))}</span></td>
+					<td style="vertical-align:middle;"><div style="display:flex; gap:5px; align-items:center; justify-content:center;">${actions}</div></td>
+				</tr>`;
+			}).join("");
+			TeamIUI.wirePager(document.getElementById("pager"), results.length, page, TeamIUI.PAGE_SIZE, render);
+			TeamIUI.bindStubs(tbody);
+		}
+
+		function search() { results = rowsForCriteria(); render(1); }
+
+		TeamI.init().then(() => {
+			SESS = TeamI.requireLogin();
+			if (!SESS) return;
+			TeamINav.render("stocks");
+			if (SESS.staff.roleId !== 1) document.getElementById("addStock").style.display = "none";
+
+			const gsel = document.getElementById("genreSel");
+			TeamI.categories().forEach(c => { const o = document.createElement("option"); o.value = c.id; o.textContent = c.category; gsel.appendChild(o); });
+			const ssel = document.getElementById("storeSel");
+			TeamI.stores().forEach(s => { const o = document.createElement("option"); o.value = s.id; o.textContent = s.storeName; ssel.appendChild(o); });
+
+			// 初回は自店舗で絞り込み（コントローラの挙動を再現）
+			ssel.value = String(SESS.store.id);
+
+			document.getElementById("searchForm").addEventListener("submit", e => { e.preventDefault(); search(); });
+			document.getElementById("clearBtn").addEventListener("click", e => {
+				e.preventDefault(); document.getElementById("searchForm").reset(); results = TeamI.stocks(); render(1);
+			});
+			TeamIUI.bindStubs();
+
+			search();
+		});
+	</script>
+</body>
+</html>
