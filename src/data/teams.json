@@ -1,0 +1,83 @@
+[
+  {
+    "slug": "team1",
+    "name": "グループ1",
+    "appName": "在庫管理アプリ（サンプル）",
+    "description": "共通モックストアの配線サンプル。一覧・追加・削除を JSON + localStorage で再現したテンプレートです。",
+    "category": "サンプル",
+    "accent": "#2563eb",
+    "ready": true
+  },
+  {
+    "slug": "team2",
+    "name": "グループ2",
+    "appName": "（アプリ名未定）",
+    "description": "チームの成果物を public/team-apps/team2/ に配置してください。",
+    "category": "未分類",
+    "accent": "#16a34a",
+    "ready": false
+  },
+  {
+    "slug": "team3",
+    "name": "グループ3",
+    "appName": "（アプリ名未定）",
+    "description": "チームの成果物を public/team-apps/team3/ に配置してください。",
+    "category": "未分類",
+    "accent": "#db2777",
+    "ready": false
+  },
+  {
+    "slug": "team4",
+    "name": "グループ4",
+    "appName": "（アプリ名未定）",
+    "description": "チームの成果物を public/team-apps/team4/ に配置してください。",
+    "category": "未分類",
+    "accent": "#ea580c",
+    "ready": false
+  },
+  {
+    "slug": "team5",
+    "name": "グループ5",
+    "appName": "（アプリ名未定）",
+    "description": "チームの成果物を public/team-apps/team5/ に配置してください。",
+    "category": "未分類",
+    "accent": "#9333ea",
+    "ready": false
+  },
+  {
+    "slug": "team6",
+    "name": "グループ6",
+    "appName": "（アプリ名未定）",
+    "description": "チームの成果物を public/team-apps/team6/ に配置してください。",
+    "category": "未分類",
+    "accent": "#0891b2",
+    "ready": false
+  },
+  {
+    "slug": "team7",
+    "name": "グループ7",
+    "appName": "（アプリ名未定）",
+    "description": "チームの成果物を public/team-apps/team7/ に配置してください。",
+    "category": "未分類",
+    "accent": "#ca8a04",
+    "ready": false
+  },
+  {
+    "slug": "team8",
+    "name": "グループ8",
+    "appName": "（アプリ名未定）",
+    "description": "チームの成果物を public/team-apps/team8/ に配置してください。",
+    "category": "未分類",
+    "accent": "#dc2626",
+    "ready": false
+  },
+  {
+    "slug": "team9",
+    "name": "グループ9",
+    "appName": "（アプリ名未定）",
+    "description": "チームの成果物を public/team-apps/team9/ に配置してください。",
+    "category": "未分類",
+    "accent": "#4f46e5",
+    "ready": false
+  }
+]
