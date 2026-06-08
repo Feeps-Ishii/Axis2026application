@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>安全点検詳細</title>
+	<link rel="stylesheet" href="./css/safety/safetycheckdetail.css">
+</head>
+
+<body>
+
+	<header>
+		<div class="header-top">
+			<div class="logo-area">
+				<a id="homeLink"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+				<div class="pageTitle">安全点検詳細</div>
+			</div>
+			<div class="user-area">
+				<div><span id="userName">ゲスト</span> さん</div>
+				<form id="logoutForm">
+					<button type="submit" class="logout-btn">ログアウト</button>
+				</form>
+			</div>
+		</div>
+		<div class="page-title-bar"></div>
+	</header>
+
+	<div class="container" id="container"></div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamE.init().then(() => {
+			const s = TeamE.requireLogin();
+			if (!s) return;
+			const roll = s.user.roll;
+			document.getElementById("userName").textContent = s.user.userName;
+			document.getElementById("homeLink").href = roll === 0 ? "./list.html" : "./home.html";
+
+			const params = new URLSearchParams(location.search);
+			const id = Number(params.get("id"));
+			const fromList = params.get("fromList");
+			const x = TeamE.safeties().find(v => v.safetyId === id);
+			const c = document.getElementById("container");
+			if (!x) { c.innerHTML = "<p style='padding:40px;'>安全点検が見つかりません。</p>"; return; }
+
+			const site = TeamE.site(x.siteId);
+			const checks = TeamE.label.SAFETY_ITEMS.map(it => {
+				const ok = x[it.key] === 0;
+				return `<div class="check-card">
+					<div class="check-name">${it.label}</div>
+					<div class="${ok ? 'check-status ok' : 'check-status ng'}">${ok ? '良好' : '不備'}</div>
+				</div>`;
+			}).join("");
+
+			c.innerHTML = `
+				<div class="section">
+					<div class="section-title">点検情報</div>
+					<div class="summary-box">
+						<div>登録日時：<span>${TeamE.fmtDateTime(x.sCreatedAt)}</span></div>
+						<div>現場名：<span>${TeamE.esc(site ? site.siteName : "")}</span></div>
+					</div>
+				</div>
+
+				<div class="section">
+					<div class="section-title">点検結果サマリー</div>
+					<div class="summary-box">
+						点検項目：7件<br>
+						良好：${TeamE.safetyGood(x)}件<br>
+						不備：${TeamE.safetyBad(x)}件
+					</div>
+				</div>
+
+				<div class="section">
+					<div class="section-title">点検項目確認</div>
+					<div class="check-list">${checks}</div>
+				</div>
+
+				<div class="btn-area" id="btnArea"></div>
+			`;
+
+			const btn = document.getElementById("btnArea");
+			let html = "";
+			if (fromList) html += `<a href="./safetylist.html" class="btn-gray">一覧へ戻る</a>`;
+			else html += `<a href="${roll === 0 ? './list.html' : './home.html'}" class="btn-gray">ホームへ戻る</a>`;
+
+			if (roll === 1) {
+				html += `<a href="./safetycheck.html?id=${id}" class="btn">編集</a>`;
+			} else if (roll === 0) {
+				html += `<button id="confBtn" class="btn">${x.sStatusFlag === 0 ? "確認完了" : "確認解除"}</button>`;
+			}
+			btn.innerHTML = html;
+
+			const confBtn = document.getElementById("confBtn");
+			if (confBtn) confBtn.addEventListener("click", () => {
+				TeamE.setSafetyStatus(id, x.sStatusFlag === 0 ? 1 : 0);
+				location.reload();
+			});
+
+			document.getElementById("logoutForm").addEventListener("submit", e => {
+				e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+			});
+		});
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,290 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: "Yu Gothic", "Meiryo", sans-serif;
+}
+
+body {
+	background: #f4f6f9;
+	color: #333;
+}
+
+/* =========================
+       ヘッダー
+    ========================= */
+
+header {
+	background-color: #1f3c88;
+	color: white;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15px 25px;
+}
+
+/* 左側 */
+
+/* ロゴエリア */
+.logo-area {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.logo-area a {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	text-decoration: none;
+	color: white;
+}
+
+.logo-img {
+	width: 62px;
+	height: 62px;
+	object-fit: contain;
+	background-color: white;
+	border-radius: 10px;
+	padding: 4px;
+}
+
+.site-system-name {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+/* 右側 */
+
+.user-area {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	font-size: 14px;
+}
+
+.user-name {
+	font-weight: bold;
+}
+
+.logout-btn {
+	background-color: white;
+	color: #1f3c88;
+	padding: 8px 14px;
+	border-radius: 8px;
+	text-decoration: none;
+	font-weight: bold;
+	border: none;
+	cursor: pointer;
+	transition: 0.2s;
+}
+
+.logout-btn:hover {
+	background-color: #dfe6f7;
+}
+
+/* 下段タイトル */
+
+.page-title-bar {
+	background-color: #e9eefc;
+	color: #1f3c88;
+	padding: 12px 25px;
+	font-size: 16px;
+	font-weight: bold;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ===============================
+       コンテナ
+    =============================== */
+
+.container {
+	width: 90%;
+	max-width: 900px;
+	/* 少し縮めて密度UP */
+	margin: 30px auto;
+	padding-bottom: 50px;
+}
+
+/* ===============================
+       セクション
+    =============================== */
+
+.section {
+	background: #fff;
+	border-radius: 12px;
+	padding: 20px;
+	margin-bottom: 18px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+	/* 軽く */
+}
+
+.section-title {
+	font-size: 18px;
+	font-weight: bold;
+	color: #1f3c88;
+	border-left: 5px solid #1f3c88;
+	padding-left: 10px;
+	margin-bottom: 15px;
+}
+
+/* ===============================
+       サマリー
+    =============================== */
+
+.summary-box {
+	background: #eef3ff;
+	border-left: 5px solid #1f3c88;
+	padding: 12px 14px;
+	border-radius: 8px;
+	line-height: 1.6;
+	font-size: 14px;
+}
+
+.summary-title {
+	color: #1f3c88;
+	font-weight: bold;
+	margin-bottom: 8px;
+}
+
+/* ===============================
+       項目
+    =============================== */
+
+.item {
+	margin-bottom: 12px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #eee;
+	/* 区切り線に変更 */
+}
+
+.item:last-child {
+	border-bottom: none;
+}
+
+.label {
+	font-size: 12px;
+	font-weight: bold;
+	color: #777;
+	margin-bottom: 6px;
+}
+
+.value {
+	background: #fafbfd;
+	/* 少し薄く */
+	padding: 10px 12px;
+	border-radius: 8px;
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+/* ===============================
+       バッジ
+    =============================== */
+
+.badge {
+	display: inline-block;
+	padding: 5px 12px;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: bold;
+}
+
+.high {
+	background: #ffe5e5;
+	color: #d63031;
+}
+
+.middle {
+	background: #fff4d6;
+	color: #f39c12;
+}
+
+.low {
+	background: #e6f4ea;
+	color: #27ae60;
+}
+
+/* =======================================================
+   5. ボタン装飾（アニメーション付きリッチ版）
+======================================================= */
+.btn-area {
+    text-align: center;
+    margin-top: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* 通常の確定・保存ボタン（緑） */
+.btn {
+    background: #28a745 !important;
+    color: #fff !important;
+    border: none;
+    padding: 14px 35px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+    display: inline-block;
+}
+.btn:hover {
+    background: #218838 !important;
+    transform: translateY(-2px);
+}
+
+/* グレー用の指定に「.btn.btn-gray」などの重ね書き */
+.btn-gray, .btn-secondary, .btn_h, .btn.btn-gray, .btn.btn-secondary {
+    background: #6c757d !important;
+    color: #fff !important;
+    border: none;
+    padding: 14px 35px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-gray:hover, .btn-secondary:hover, .btn_h:hover {
+    background: #5a6268 !important;
+    transform: translateY(-2px);
+}
+
+/* ===============================
+       レスポンシブ
+    =============================== */
+
+@media (max-width: 768px) {
+
+	.header-top {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 15px;
+	}
+
+	.user-area {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.btn-area {
+		flex-direction: column;
+	}
+
+	.btn {
+		width: 100%;
+	}
+
+}

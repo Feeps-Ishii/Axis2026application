@@ -1,0 +1,293 @@
+ * {
+ 	margin: 0;
+ 	padding: 0;
+ 	box-sizing: border-box;
+ 	font-family: sans-serif;
+ }
+
+ body {
+ 	background: #f4f6f9;
+ 	color: #333;
+ }
+
+ /* =========================
+       ヘッダー
+    ========================= */
+
+ header {
+ 	background-color: #1f3c88;
+ 	color: white;
+ 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+ 	margin-bottom: 32px;
+ 	border-radius: 14px;
+ 	overflow: hidden;
+ }
+
+ .header-top {
+ 	display: flex;
+ 	justify-content: space-between;
+ 	align-items: center;
+ 	padding: 15px 25px;
+ }
+
+ /* 左側 */
+ .logo-area {
+ 	display: flex;
+ 	align-items: center;
+ 	gap: 14px;
+ }
+
+ .logo-area a {
+ 	display: flex;
+ 	align-items: center;
+ 	gap: 14px;
+ 	text-decoration: none;
+ 	color: white;
+ }
+
+ .pageTitle {
+ 	font-size: 24px;
+ 	font-weight: bold;
+ 	color: white;
+ }
+
+ .logo-img {
+ 	width: 62px;
+ 	height: 62px;
+ 	object-fit: contain;
+ 	background: white;
+ 	border-radius: 10px;
+ 	padding: 4px;
+ }
+
+ /* 右側 */
+
+ .user-area {
+ 	display: flex;
+ 	align-items: center;
+ 	gap: 15px;
+ 	font-size: 14px;
+ }
+
+ .logout-btn {
+ 	background-color: white;
+ 	color: #1f3c88;
+ 	padding: 8px 14px;
+ 	border-radius: 8px;
+ 	text-decoration: none;
+ 	font-weight: bold;
+ 	transition: 0.2s;
+ 	border: none;
+ 	cursor: pointer;
+ }
+
+ .logout-btn:hover {
+ 	background-color: #dfe6f7;
+ }
+
+ /* 下段タイトル */
+
+ .page-title-bar {
+ 	background-color: #e9eefc;
+ 	color: #1f3c88;
+ 	padding: 12px 25px;
+ 	font-size: 16px;
+ 	font-weight: bold;
+ 	border-top: 1px solid rgba(255, 255, 255, 0.2);
+ }
+
+ /* =========================
+       コンテナ
+    ========================= */
+
+ .container {
+ 	max-width: 1000px;
+ 	margin: 40px auto;
+ 	padding: 0 20px;
+ }
+
+ /* =========================
+       セクション
+    ========================= */
+
+ .section {
+ 	background: white;
+ 	border-radius: 14px;
+ 	padding: 22px;
+ 	margin-bottom: 20px;
+ 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+ }
+
+ .section-title {
+ 	font-size: 18px;
+ 	font-weight: bold;
+ 	color: #1f3c88;
+ 	margin-bottom: 15px;
+ 	border-left: 5px solid #1f3c88;
+ 	padding-left: 10px;
+ }
+
+ /* =========================
+       点検一覧
+    ========================= */
+
+ .check-list {
+ 	display: grid;
+ 	grid-template-columns: 1fr 1fr;
+ 	gap: 15px;
+ }
+
+ .check-card {
+ 	background: #f7f9fc;
+ 	border-radius: 10px;
+ 	padding: 15px;
+ 	border: 1px solid #e3e8f2;
+ }
+
+ .check-name {
+ 	font-size: 14px;
+ 	font-weight: bold;
+ 	color: #555;
+ 	margin-bottom: 8px;
+ 	line-height: 1.5;
+ }
+
+ .check-status {
+ 	font-size: 16px;
+ 	font-weight: bold;
+ }
+
+ .ok {
+ 	color: #27ae60;
+ }
+
+ .warn {
+ 	color: #f39c12;
+ }
+
+ .ng {
+ 	color: #d63031;
+ }
+
+ /* =========================
+       共通
+    ========================= */
+
+ .item {
+ 	margin-bottom: 12px;
+ }
+
+ .label {
+ 	font-size: 13px;
+ 	font-weight: bold;
+ 	color: #666;
+ 	margin-bottom: 4px;
+ }
+
+ .value {
+ 	font-size: 15px;
+ 	padding: 12px;
+ 	background: #f7f9fc;
+ 	border-radius: 8px;
+ 	white-space: pre-wrap;
+ 	line-height: 1.8;
+ }
+
+ /* =========================
+       サマリー
+    ========================= */
+
+ .summary-box {
+ 	background: #eef3ff;
+ 	border-left: 5px solid #1f3c88;
+ 	padding: 18px;
+ 	border-radius: 10px;
+ 	margin-bottom: 20px;
+ 	line-height: 1.8;
+ }
+
+ .summary-title {
+ 	font-weight: bold;
+ 	margin-bottom: 8px;
+ 	color: #1f3c88;
+ 	font-size: 16px;
+ }
+
+ /* =========================
+       ボタン
+    ========================= */
+
+ .btn-area {
+ 	text-align: right;
+ 	margin-top: 20px;
+ 	display: flex;
+ 	justify-content: flex-end;
+ 	gap: 12px;
+ 	flex-wrap: wrap;
+ }
+
+ .btn {
+ 	background: #1f3c88;
+ 	color: white;
+ 	border: none;
+ 	padding: 14px 24px;
+ 	border-radius: 10px;
+ 	cursor: pointer;
+ 	font-size: 15px;
+ 	font-weight: bold;
+ 	transition: 0.2s;
+ 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+ }
+
+ .btn:hover {
+ 	background: #16306d;
+ 	transform: translateY(-2px);
+ }
+
+ .btn-secondary {
+ 	background: #6c757d;
+ }
+
+ .btn-secondary:hover {
+ 	background: #5a6268;
+ }
+
+ /* =========================
+       スマホ対応
+    ========================= */
+
+ @media(max-width:768px) {
+
+ 	.header-top {
+ 		flex-direction: column;
+ 		align-items: flex-start;
+ 		gap: 15px;
+ 	}
+
+ 	.user-area {
+ 		width: 100%;
+ 		justify-content: space-between;
+ 	}
+
+ 	.logo-img {
+ 		width: 52px;
+ 		height: 52px;
+ 	}
+
+ 	.page-title-bar {
+ 		font-size: 14px;
+ 	}
+
+ 	.check-list {
+ 		grid-template-columns: 1fr;
+ 	}
+
+ 	.btn {
+ 		width: 100%;
+ 	}
+
+ 	.btn-area {
+ 		flex-direction: column;
+ 	}
+
+ }

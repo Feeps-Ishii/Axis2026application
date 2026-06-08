@@ -1,0 +1,312 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: sans-serif;
+}
+
+body {
+	background-color: #f5f6fa;
+	color: #333;
+}
+
+/* ===== ヘッダー ===== */
+
+header {
+	background-color: #1f3c88;
+	color: white;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+	margin-bottom: 32px;
+	border-radius: 14px;
+	overflow: hidden;
+}
+
+.header-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15px 25px;
+}
+
+.logo-area a {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	text-decoration: none;
+	color: white;
+}
+
+.logo-img {
+	width: 62px;
+	height: 62px;
+	object-fit: contain;
+	background-color: white;
+	border-radius: 10px;
+	padding: 4px;
+}
+
+.user-area {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	font-size: 14px;
+}
+
+.logout-btn {
+	background-color: white;
+	color: #1f3c88;
+	padding: 8px 14px;
+	border-radius: 8px;
+	text-decoration: none;
+	font-weight: bold;
+	transition: 0.2s;
+}
+
+.logout-btn:hover {
+	background-color: #dfe6f7;
+}
+
+/* ===== 下段タイトル ===== */
+
+.page-title-bar {
+	background-color: #e9eefc;
+	color: #1f3c88;
+	padding: 12px 25px;
+	font-size: 16px;
+	font-weight: bold;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ===== メイン ===== */
+
+main {
+	max-width: 1100px;
+	margin: 50px auto;
+	padding: 20px;
+}
+
+/* ===== 検索エリア ===== */
+
+.search-area {
+	background: white;
+	border-radius: 14px;
+	padding: 20px;
+	margin-bottom: 25px;
+
+	display: flex;
+	align-items: flex-end;
+	gap: 20px;
+	flex-wrap: wrap;
+
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.search-item {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.search-label {
+	font-size: 13px;
+	font-weight: bold;
+	color: #666;
+}
+
+.search-input,
+.search-select {
+	padding: 10px 12px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	min-width: 180px;
+	font-size: 14px;
+	background: white;
+}
+
+.search-btn-area {
+	display: flex;
+	gap: 10px;
+}
+
+.search-btn {
+	background-color: #1f3c88;
+	color: white;
+	border: none;
+	padding: 11px 24px;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: 0.2s;
+}
+
+.search-btn:hover {
+	background-color: #16316f;
+}
+
+/* ===== テーブル ===== */
+
+.issue-table {
+	width: 100%;
+	border-collapse: collapse;
+	background-color: white;
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.issue-table thead {
+	background-color: #1f3c88;
+	color: white;
+}
+
+.issue-table th,
+.issue-table td {
+	padding: 16px;
+	text-align: left;
+	border-bottom: 1px solid #ddd;
+}
+
+.issue-table tbody tr:hover {
+	background-color: #f0f4ff;
+}
+
+/* ===== 優先度 ===== */
+
+.badge {
+	display: inline-block;
+	padding: 5px 10px;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: bold;
+}
+
+.high {
+	background: #ffe5e5;
+	color: #d63031;
+}
+
+.middle {
+	background: #fff4d6;
+	color: #f39c12;
+}
+
+.low {
+	background: #e6f4ea;
+	color: #27ae60;
+}
+
+/* ===== 詳細ボタン ===== */
+
+.detail-btn {
+	display: inline-block;
+	background-color: #1f3c88;
+	color: white;
+	padding: 8px 14px;
+	border-radius: 8px;
+	text-decoration: none;
+	font-size: 14px;
+	transition: 0.2s;
+}
+
+.detail-btn:hover {
+	background-color: #16316f;
+}
+
+/* ===== 左下ステータス吹き出し ===== */
+
+.status-bubble {
+	position: fixed;
+	left: 20px;
+	bottom: 20px;
+
+	background: #ffffff;
+	border-radius: 18px;
+	padding: 26px 30px;
+
+	min-width: 340px;
+
+	box-shadow: 0 10px 28px rgba(0, 0, 0, 0.20);
+
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+
+	z-index: 999;
+}
+
+.status-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 18px;
+}
+
+.status-title {
+	font-size: 16px;
+	opacity: 0.75;
+}
+
+.done {
+	color: #2ecc71;
+	font-weight: bold;
+}
+
+.not-done {
+	color: #e67e22;
+	font-weight: bold;
+}
+
+.blinking {
+	animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.3;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+/* ===== スマホ ===== */
+
+@media (max-width: 768px) {
+
+	.header-top {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 15px;
+	}
+
+	.user-area {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.search-area {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.search-input,
+	.search-select {
+		width: 100%;
+		min-width: auto;
+	}
+
+	.search-btn {
+		width: 100%;
+	}
+
+	.issue-table th,
+	.issue-table td {
+		padding: 10px;
+		font-size: 14px;
+	}
+}

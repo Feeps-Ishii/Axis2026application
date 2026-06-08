@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>トラブル一覧</title>
+	<link rel="stylesheet" href="./css/trouble.css" />
+</head>
+
+<body>
+
+	<header>
+		<div class="header-top">
+			<div class="logo-area">
+				<a id="homeLink"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+				<div class="site-system-name">トラブル一覧</div>
+			</div>
+			<div class="user-area">
+				<div><span id="userName">ゲスト</span> さん</div>
+				<form id="logoutForm">
+					<button type="submit" class="logout-btn">ログアウト</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="page-title-bar">
+			<div class="page-title-bar" style="display: flex; align-items: center; gap: 40px; padding: 0 20px;">
+				<div class="header-site-name" id="headerSiteName" style="font-weight: bold; font-size: 15px; color: #1f3c88;"></div>
+				<div class="back-area" id="backArea" style="display:none;"><a id="backPortal">現場ポータルへ戻る</a></div>
+			</div>
+		</div>
+	</header>
+
+	<main>
+		<form id="searchForm">
+			<div class="search-area">
+				<div class="search-item">
+					<label class="search-label">日付</label>
+					<input type="date" name="occurredDate" class="search-input">
+				</div>
+				<div class="search-item">
+					<label class="search-label">現場名</label>
+					<select name="siteName" class="search-select" id="siteSelect"><option value="">すべて</option></select>
+				</div>
+				<div class="search-item">
+					<label class="search-label">優先度</label>
+					<select name="priority" class="search-select">
+						<option value="">すべて</option>
+						<option value="3">高</option>
+						<option value="2">中</option>
+						<option value="1">低</option>
+					</select>
+				</div>
+				<div class="search-item">
+					<label class="search-label">トラブル種別</label>
+					<select name="troubleType" class="search-select">
+						<option value="">すべて</option>
+						<option value="1">事故</option>
+						<option value="2">資材不足</option>
+						<option value="3">納品遅れ</option>
+						<option value="4">工程遅延</option>
+						<option value="5">その他</option>
+					</select>
+				</div>
+				<div class="search-item">
+					<label class="search-label">本社対応</label>
+					<select name="statusFlag" class="search-select">
+						<option value="">すべて</option>
+						<option value="0">未対応</option>
+						<option value="1">対応中</option>
+						<option value="2">完了</option>
+					</select>
+				</div>
+				<div class="search-btn-area">
+					<button type="submit" class="search-btn">検索</button>
+					<a id="resetBtn" class="search-btn btn-reset-gray">リセット</a>
+				</div>
+			</div>
+		</form>
+
+		<div class="table-scroll">
+			<table class="issue-table">
+				<thead>
+					<tr><th>登録日</th><th>現場名</th><th>優先度</th><th>種別</th><th>一言</th><th>本社対応</th><th>詳細</th></tr>
+				</thead>
+				<tbody id="tbody"></tbody>
+			</table>
+		</div>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script>
+		let ROLL, SITE_ID, PORTAL_SITE = null;
+
+		function priorityBadge(p) {
+			if (p === 3) return '<span class="badge high"> 高 </span>';
+			if (p === 2) return '<span class="badge middle"> 中 </span>';
+			if (p === 1) return '<span class="badge low"> 低 </span>';
+			return '<span class="badge high"> なし </span>';
+		}
+		function statusLabel(f) { return f === 0 ? "未対応" : f === 1 ? "対応中" : "完了"; }
+
+		function render() {
+			const f = document.getElementById("searchForm");
+			const dateF = f.occurredDate.value;
+			const nameF = f.siteName.value;
+			const prioF = f.priority.value;
+			const typeF = f.troubleType.value;
+			const statF = f.statusFlag.value;
+
+			let rows = TeamE.troubles().filter(t => {
+				const site = TeamE.site(t.siteId);
+				if (ROLL !== 0 && t.siteId !== SITE_ID) return false;
+				if (PORTAL_SITE && t.siteId !== Number(PORTAL_SITE)) return false;
+				if (dateF && String(t.occurredAt).slice(0, 10) !== dateF) return false;
+				if (nameF && site && site.siteName !== nameF) return false;
+				if (prioF && String(t.priority) !== prioF) return false;
+				if (typeF && String(t.troubleType) !== typeF) return false;
+				if (statF !== "" && String(t.tStatusFlag) !== statF) return false;
+				return true;
+			});
+
+			const tb = document.getElementById("tbody");
+			if (rows.length === 0) {
+				tb.innerHTML = `<tr><td colspan="7"> 該当するトラブル情報はありません </td></tr>`;
+				return;
+			}
+			tb.innerHTML = rows.map(t => {
+				const site = TeamE.site(t.siteId);
+				return `<tr>
+					<td>${TeamE.fmtDate(t.occurredAt)}</td>
+					<td>${TeamE.esc(site ? site.siteName : "")}</td>
+					<td>${priorityBadge(t.priority)}</td>
+					<td>${TeamE.esc(TeamE.label.TROUBLE_TYPE[t.troubleType] || "")}</td>
+					<td>${TeamE.esc(t.overview)}</td>
+					<td>${statusLabel(t.tStatusFlag)}</td>
+					<td><a class="detail-btn" href="./troubledetail.html?id=${t.troubleId}${PORTAL_SITE ? '&portalSiteId=' + PORTAL_SITE : ''}">詳細</a></td>
+				</tr>`;
+			}).join("");
+		}
+
+		TeamE.init().then(() => {
+			const s = TeamE.requireLogin();
+			if (!s) return;
+			ROLL = s.user.roll; SITE_ID = s.siteId;
+			document.getElementById("userName").textContent = s.user.userName;
+			document.getElementById("homeLink").href = ROLL === 0 ? "./list.html" : "./home.html";
+
+			const sel = document.getElementById("siteSelect");
+			TeamE.sites().filter(x => !x.officecheck).forEach(site => {
+				const o = document.createElement("option");
+				o.value = site.siteName; o.textContent = site.siteName; sel.appendChild(o);
+			});
+
+			const params = new URLSearchParams(location.search);
+			PORTAL_SITE = params.get("siteId");
+			const occ = params.get("occurredDate");
+			if (occ) document.getElementById("searchForm").occurredDate.value = occ;
+
+			const headerName = document.getElementById("headerSiteName");
+			if (ROLL !== 0) {
+				const site = TeamE.site(SITE_ID);
+				headerName.textContent = site ? site.siteName : "";
+			} else if (PORTAL_SITE) {
+				const site = TeamE.site(PORTAL_SITE);
+				headerName.textContent = site ? site.siteName + "（絞り込み中）" : "";
+				document.getElementById("backArea").style.display = "block";
+				document.getElementById("backPortal").href = "./portal.html?siteId=" + PORTAL_SITE;
+			} else {
+				headerName.textContent = "全現場対象エリア";
+			}
+
+			document.getElementById("searchForm").addEventListener("submit", e => { e.preventDefault(); render(); });
+			document.getElementById("resetBtn").addEventListener("click", () => {
+				document.getElementById("searchForm").reset(); render();
+			});
+			document.getElementById("logoutForm").addEventListener("submit", e => {
+				e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+			});
+
+			render();
+		});
+	</script>
+
+</body>
+</html>

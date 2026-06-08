@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日報一覧</title>
+  <link rel="stylesheet" href="./css/dailyreport.css">
+</head>
+
+<body>
+  <header class="system-header">
+    <div class="header-top">
+      <div class="logo-area">
+        <a id="homeLink"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+        <div class="site-system-name">日報一覧</div>
+      </div>
+
+      <div class="user-area">
+        <div class="user-info-box">
+          <span class="user-name-text"><strong id="userName">田中</strong> さん</span>
+          <form id="logoutForm" style="display: inline;">
+            <button type="submit" class="logout-btn">ログアウト</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-title-bar" style="display: flex; align-items: center; justify-content: flex-start; gap: 40px; padding: 0 20px;">
+      <div class="header-site-name" id="headerSiteName" style="font-weight: bold; font-size: 15px; color: #1f3c88;"></div>
+      <a id="backPortal" class="nav-link" style="color: #1f3c88; font-size: 15px; display:none;">◀ 現場ポータルへ戻る</a>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <form id="searchForm" class="search-area">
+      <div class="search-item">
+        <label class="search-label">日付</label>
+        <input type="date" name="targetDate" class="search-input">
+      </div>
+
+      <div class="search-item" id="siteFilterItem">
+        <label class="search-label">現場名</label>
+        <select name="siteId" class="search-select" id="siteSelect">
+          <option value="">すべて</option>
+        </select>
+      </div>
+
+      <div class="search-item">
+        <label class="search-label">作業内容キーワード</label>
+        <input type="text" name="workDetails" class="search-input" maxlength="50" placeholder="例：コンクリート">
+      </div>
+
+      <div class="search-item">
+        <label class="search-label">本社対応</label>
+        <select name="dStatusFlag" class="search-select">
+          <option value="">すべて</option>
+          <option value="0">未確認</option>
+          <option value="1">確認済み</option>
+        </select>
+      </div>
+
+      <div class="search-btn-area">
+        <button type="submit" class="search-btn">検索</button>
+        <button type="button" id="resetBtn" class="search-btn btn-reset-gray">リセット</button>
+      </div>
+    </form>
+
+    <div class="table-container">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th class="col-site">現場名</th>
+            <th>当日作業内容</th>
+            <th>本社対応</th>
+            <th>詳細</th>
+          </tr>
+        </thead>
+        <tbody id="reportBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script>
+    let ROLL, SITE_ID, FROM_SITE = null;
+
+    function abbreviate(str, n) {
+      str = String(str || "");
+      return str.length > n ? str.slice(0, n - 1) + "…" : str;
+    }
+
+    function render() {
+      const f = document.getElementById("searchForm");
+      const targetDate = f.targetDate.value;
+      const siteIdFilter = ROLL === 0 ? f.siteId.value : String(SITE_ID);
+      const kw = f.workDetails.value.trim();
+      const status = f.dStatusFlag.value;
+
+      let rows = TeamE.reports().filter(r => {
+        const site = TeamE.site(r.siteId);
+        if (site && site.officecheck) return false;
+        if (targetDate && r.targetDate !== targetDate) return false;
+        if (siteIdFilter && String(r.siteId) !== String(siteIdFilter)) return false;
+        if (kw && !String(r.workDetails).includes(kw)) return false;
+        if (status !== "" && String(r.dStatusFlag) !== status) return false;
+        return true;
+      });
+
+      const showSite = ROLL === 0;
+      const body = document.getElementById("reportBody");
+      if (rows.length === 0) {
+        body.innerHTML = `<tr><td colspan="${showSite ? 5 : 4}" style="text-align:center;color:#718096;">該当する日報データが見つかりません。</td></tr>`;
+        return;
+      }
+      body.innerHTML = rows.map(r => {
+        const site = TeamE.site(r.siteId);
+        const badge = r.dStatusFlag === 0
+          ? '<span class="status-badge status-progress">未確認</span>'
+          : '<span class="status-badge status-complete">確認済み</span>';
+        const siteCell = showSite ? `<td>${TeamE.esc(site ? site.siteName : "")}</td>` : "";
+        return `<tr>
+          <td>${TeamE.fmtDate(r.targetDate)}</td>
+          ${siteCell}
+          <td>${TeamE.esc(abbreviate(r.workDetails, 25))}</td>
+          <td>${badge}</td>
+          <td><a href="./dailyreportdetail.html?id=${r.reportId}" class="detail-btn">詳細</a></td>
+        </tr>`;
+      }).join("");
+    }
+
+    TeamE.init().then(() => {
+      const s = TeamE.requireLogin();
+      if (!s) return;
+      ROLL = s.user.roll;
+      SITE_ID = s.siteId;
+
+      document.getElementById("userName").textContent = s.user.userName;
+      document.getElementById("homeLink").href = ROLL === 0 ? "./list.html" : "./home.html";
+
+      // 現場名フィルタは本社のみ
+      if (ROLL === 0) {
+        const sel = document.getElementById("siteSelect");
+        TeamE.sites().filter(x => !x.officecheck).forEach(site => {
+          const o = document.createElement("option");
+          o.value = site.siteId; o.textContent = site.siteName;
+          sel.appendChild(o);
+        });
+        const headerName = document.getElementById("headerSiteName");
+        const params = new URLSearchParams(location.search);
+        const qsSite = params.get("siteId");
+        if (qsSite) {
+          FROM_SITE = qsSite;
+          sel.value = qsSite;
+          const site = TeamE.site(qsSite);
+          headerName.textContent = site ? site.siteName + "（絞り込み中）" : "";
+          const back = document.getElementById("backPortal");
+          back.style.display = "inline";
+          back.href = "./portal.html?siteId=" + qsSite;
+        } else {
+          headerName.textContent = "全現場対象エリア";
+        }
+      } else {
+        document.getElementById("siteFilterItem").style.display = "none";
+        document.querySelectorAll(".col-site").forEach(el => el.remove());
+        const site = TeamE.site(SITE_ID);
+        document.getElementById("headerSiteName").textContent = site ? site.siteName : "";
+      }
+
+      document.getElementById("searchForm").addEventListener("submit", e => { e.preventDefault(); render(); });
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        document.getElementById("searchForm").reset();
+        if (ROLL === 0 && FROM_SITE) document.getElementById("siteSelect").value = FROM_SITE;
+        render();
+      });
+      document.getElementById("logoutForm").addEventListener("submit", e => {
+        e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+      });
+
+      render();
+    });
+  </script>
+
+</body>
+</html>

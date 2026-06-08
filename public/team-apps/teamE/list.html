@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>本社ホーム</title>
+	<link rel="stylesheet" href="css/list.css" />
+</head>
+
+<body>
+
+	<!-- ヘッダー -->
+	<header>
+		<div class="header-top">
+			<div class="logo-area">
+				<a href="./list.html">
+					<img src="./images/icon.png" alt="ロゴ" class="logo-img">
+				</a>
+				<div class="site-system-name">本社ホーム</div>
+			</div>
+
+			<div class="user-area">
+				<div><span id="userName">ゲスト</span> さん</div>
+				<form id="logoutForm">
+					<button type="submit" class="logout-btn">ログアウト</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="page-title-bar">
+			<a href="./dailylist.html">日報一覧</a>
+			<a href="./safetylist.html">安全点検一覧</a>
+			<a href="./troublelist.html">トラブル一覧</a>
+		</div>
+	</header>
+
+	<!-- 優先度高 -->
+	<div class="section">
+		<div class="section-title high">優先度高</div>
+		<div class="site-list" id="section-high"></div>
+	</div>
+
+	<!-- 優先度中 -->
+	<div class="section">
+		<div class="section-title medium">優先度中</div>
+		<div class="site-list" id="section-medium"></div>
+	</div>
+
+	<!-- 優先度低 -->
+	<div class="section">
+		<div class="section-title low">優先度低</div>
+		<div class="site-list" id="section-low"></div>
+	</div>
+
+	<!-- トラブルなし -->
+	<div class="section">
+		<div class="section-title none">トラブルなし</div>
+		<div class="site-list" id="section-none"></div>
+	</div>
+
+	<!-- 通知表示エリア -->
+	<div id="notification-container"></div>
+	<div id="safety-notification-container"></div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		function statusBadge(status) {
+			if (status === "確認済") return '<span class="checked">✔ 確認済</span>';
+			if (status === "未確認") return '<span class="unchecked">▲ 未確認</span>';
+			return '<span class="unchecked">✖ 未提出</span>';
+		}
+
+		// 安全点検の判定（不備=値1 が1つでもあれば「要対応」）
+		function isDefect(safety) {
+			return TeamE.safetyJudgement(safety) === "要対応";
+		}
+
+		function siteCard(view, cls) {
+			const s = view.site;
+			const dailyLink = view.todayReport
+				? `<a href="./dailyreportdetail.html?id=${view.todayReport.reportId}">日報確認</a>`
+				: `<span>日報確認</span>`;
+			const safetyLink = view.todaySafety
+				? `<a href="./safetycheckdetail.html?id=${view.todaySafety.safetyId}">安全点検確認</a>`
+				: `<span>安全点検確認</span>`;
+
+			let troubleHtml;
+			if (cls === "none") {
+				troubleHtml = `<div class="no-trouble">現在トラブルはありません</div>`;
+			} else {
+				const items = view.activeTroubles.map(t =>
+					`<div class="trouble-item"><a href="./troubledetail.html?id=${t.troubleId}">${TeamE.esc(t.overview)}</a></div>`
+				).join("");
+				troubleHtml = `<div class="trouble-section"><div class="trouble-title">トラブル内容</div>${items}</div>`;
+			}
+
+			return `<div class="site-card ${cls}">
+				<a class="site-name" href="./portal.html?siteId=${s.siteId}">${TeamE.esc(s.siteName)}</a>
+				<div class="status">
+					<div class="status-item">
+						<div>${dailyLink}</div>
+						<div>${statusBadge(view.dailyStatus)}</div>
+					</div>
+					<div class="status-item">
+						<div>${safetyLink}</div>
+						<div>${statusBadge(view.safetyStatus)}</div>
+					</div>
+				</div>
+				${troubleHtml}
+			</div>`;
+		}
+
+		TeamE.init().then(() => {
+			const s = TeamE.requireLogin();
+			if (!s) return;
+			if (s.user.roll !== 0) { location.href = "./home.html"; return; }
+
+			document.getElementById("userName").textContent = s.user.userName;
+			const today = TeamE.today();
+
+			const buckets = { high: [], medium: [], low: [], none: [] };
+
+			TeamE.sites().filter(site => !site.officecheck).forEach(site => {
+				const active = TeamE.troublesBySite(site.siteId).filter(t => t.tStatusFlag !== 2);
+				const maxPriority = active.reduce((m, t) => Math.max(m, t.priority), 0);
+				const todayReport = TeamE.reportsBySite(site.siteId).find(r => r.targetDate === today) || null;
+				const todaySafety = TeamE.safetiesBySite(site.siteId).find(x => String(x.sCreatedAt).slice(0, 10) === today) || null;
+
+				const view = {
+					site, activeTroubles: active, maxPriority,
+					dailyStatus: TeamE.dailyStatusForSite(site.siteId),
+					safetyStatus: TeamE.safetyStatusForSite(site.siteId),
+					todayReport, todaySafety,
+				};
+
+				if (active.length === 0) buckets.none.push(view);
+				else if (maxPriority === 3) buckets.high.push(view);
+				else if (maxPriority === 2) buckets.medium.push(view);
+				else buckets.low.push(view);
+			});
+
+			document.getElementById("section-high").innerHTML = buckets.high.map(v => siteCard(v, "high")).join("");
+			document.getElementById("section-medium").innerHTML = buckets.medium.map(v => siteCard(v, "medium")).join("");
+			document.getElementById("section-low").innerHTML = buckets.low.map(v => siteCard(v, "low")).join("");
+			document.getElementById("section-none").innerHTML = buckets.none.map(v => siteCard(v, "none")).join("");
+
+			renderNotifications();
+
+			document.getElementById("logoutForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				TeamE.logout();
+				location.href = "./login.html";
+			});
+		});
+
+		// 通知（本物はWebSocket。ここでは現在のアクティブなトラブル/不備をその場で表示）
+		function renderNotifications() {
+			const tc = document.getElementById("notification-container");
+			const sc = document.getElementById("safety-notification-container");
+
+			const actives = TeamE.troubles().filter(t => t.tStatusFlag !== 2);
+			if (actives.length) {
+				tc.style.display = "flex";
+				actives.sort((a, b) => b.priority - a.priority).forEach(t => {
+					const site = TeamE.site(t.siteId);
+					const cls = t.priority === 3 ? "high" : t.priority === 2 ? "medium" : "low";
+					const n = document.createElement("div");
+					n.className = "notification " + cls;
+					n.innerHTML = `<div class="notice-site">${TeamE.esc(site ? site.siteName : "")}</div>
+						<div class="notice-overview">トラブル：${TeamE.esc(t.overview)}</div>
+						<div class="notice-time">${TeamE.fmtDateTime(t.tCreatedAt)}</div>`;
+					n.onclick = () => location.href = "./troubledetail.html?id=" + t.troubleId;
+					tc.appendChild(n);
+				});
+			}
+
+			const defects = TeamE.safeties().filter(x => isDefect(x) && x.sStatusFlag === 0);
+			if (defects.length) {
+				sc.style.display = "flex";
+				defects.forEach(x => {
+					const site = TeamE.site(x.siteId);
+					const n = document.createElement("div");
+					n.className = "safety-notification";
+					n.innerHTML = `<div class="notice-site">${TeamE.esc(site ? site.siteName : "")}</div>
+						<div class="notice-overview">安全点検で不備があります</div>
+						<div class="notice-time">${TeamE.fmtDateTime(x.sCreatedAt)}</div>`;
+					n.onclick = () => location.href = "./safetycheckdetail.html?id=" + x.safetyId;
+					sc.appendChild(n);
+				});
+			}
+		}
+	</script>
+
+</body>
+
+</html>

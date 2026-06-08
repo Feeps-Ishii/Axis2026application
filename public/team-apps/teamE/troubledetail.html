@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>トラブル詳細</title>
+	<link rel="stylesheet" href="./css/trouble/troubledetail.css" />
+</head>
+
+<body>
+
+	<header>
+		<div class="header-top">
+			<div class="logo-area">
+				<a id="homeLink"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+				<div class="site-system-name">トラブル詳細</div>
+			</div>
+			<div class="user-area">
+				<div><span id="userName">ゲスト</span> さん</div>
+				<form id="logoutForm">
+					<button type="submit" class="logout-btn">ログアウト</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="page-title-bar">
+			<div class="page-title-bar" style="display: flex; align-items: center; gap: 40px; padding: 0 20px;">
+				<div class="header-site-name" id="headerSiteName" style="font-weight: bold; font-size: 15px; color: #1f3c88;"></div>
+				<div class="back-area" id="backArea" style="display:none;"><a id="backPortal">現場ポータルへ戻る</a></div>
+			</div>
+		</div>
+	</header>
+
+	<div class="container" id="container"></div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		function priorityBadge(p) {
+			if (p === 3) return '<span class="badge high">高</span>';
+			if (p === 2) return '<span class="badge middle">中</span>';
+			if (p === 1) return '<span class="badge low">低</span>';
+			return '';
+		}
+
+		TeamE.init().then(() => {
+			const s = TeamE.requireLogin();
+			if (!s) return;
+			const roll = s.user.roll;
+			document.getElementById("userName").textContent = s.user.userName;
+			document.getElementById("homeLink").href = roll === 0 ? "./list.html" : "./home.html";
+
+			const params = new URLSearchParams(location.search);
+			const id = Number(params.get("id"));
+			const portalSite = params.get("portalSiteId");
+			const t = TeamE.troubles().find(v => v.troubleId === id);
+			const c = document.getElementById("container");
+			if (!t) { c.innerHTML = "<p style='padding:40px;'>トラブルが見つかりません。</p>"; return; }
+
+			const site = TeamE.site(t.siteId);
+			document.getElementById("headerSiteName").textContent = site ? site.siteName : "";
+			if (roll === 0 && portalSite) {
+				document.getElementById("backArea").style.display = "block";
+				document.getElementById("backPortal").href = "./portal.html?siteId=" + portalSite;
+			}
+
+			const E = TeamE.esc;
+			c.innerHTML = `
+				<div class="section">
+					<div class="section-title">登録内容サマリー</div>
+					<div class="summary-box">
+						<div class="summary-title">入力内容</div>
+						登録されたトラブル内容を確認してください。<br>
+						問題がなければ「確認完了」を押してください。
+					</div>
+				</div>
+
+				<div class="section">
+					<div class="section-title">トラブル情報</div>
+					<div class="item"><div class="label">緊急度</div><div class="value">${priorityBadge(t.priority)}</div></div>
+					<div class="item"><div class="label">現場名</div><div class="value">${E(site ? site.siteName : "")}</div></div>
+					<div class="item"><div class="label">トラブル種別</div><div class="value">${E(TeamE.label.TROUBLE_TYPE[t.troubleType] || "")}</div></div>
+					<div class="item"><div class="label">発生日</div><div class="value">${TeamE.fmtDateTime(t.occurredAt)}</div></div>
+					<div class="item"><div class="label">一言で表す</div><div class="value">${E(t.overview)}</div></div>
+				</div>
+
+				<div class="section">
+					<div class="section-title">詳細内容</div>
+					<div class="value">${E(t.detail)}</div>
+				</div>
+
+				<div class="section">
+					<div class="section-title">対応メモ</div>
+					<div class="item"><div class="label">現場対応メモ</div><div class="value">${t.siteMemo ? E(t.siteMemo) : "未入力"}</div></div>
+					<div class="item"><div class="label">本社対応メモ</div><div class="value">${t.hqMemo ? E(t.hqMemo) : "未入力"}</div></div>
+				</div>
+
+				<div class="btn-area" id="btnArea"></div>
+			`;
+
+			const btn = document.getElementById("btnArea");
+			const backList = "./troublelist.html" + (portalSite ? "?siteId=" + portalSite : "");
+			let html = `<button type="button" class="btn btn-gray" onclick="location.href='${backList}'">一覧へ戻る</button>`;
+			if (roll !== 2) {
+				html += `<button type="button" class="btn btn" onclick="location.href='./trouble.html?id=${id}'">編集</button>`;
+			}
+			if (roll === 0) {
+				if (t.tStatusFlag === 0) html += `<button id="adv" class="btn btn">確認完了</button>`;
+				else if (t.tStatusFlag === 1) html += `<button id="adv" class="btn btn">対応完了</button>`;
+			}
+			btn.innerHTML = html;
+
+			const adv = document.getElementById("adv");
+			if (adv) adv.addEventListener("click", () => {
+				TeamE.setTroubleStatus(id, t.tStatusFlag + 1);
+				location.reload();
+			});
+
+			document.getElementById("logoutForm").addEventListener("submit", e => {
+				e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+			});
+		});
+	</script>
+
+</body>
+</html>

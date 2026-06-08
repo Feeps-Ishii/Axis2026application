@@ -1,12 +1,13 @@
 [
   {
-    "slug": "team1",
-    "name": "グループ1",
-    "appName": "在庫管理アプリ（サンプル）",
-    "description": "共通モックストアの配線サンプル。一覧・追加・削除を JSON + localStorage で再現したテンプレートです。",
-    "category": "サンプル",
+    "slug": "teamE",
+    "name": "グループE",
+    "appName": "ニシキギ（建設現場 管理システム）",
+    "description": "本社/現場のログイン、現場ポータル、日報・安全点検・トラブル管理、現場チャットを JSON + localStorage で擬似再現したモックです。",
+    "category": "業務系",
     "accent": "#2563eb",
-    "ready": true
+    "ready": true,
+    "entry": "login.html"
   },
   {
     "slug": "team2",

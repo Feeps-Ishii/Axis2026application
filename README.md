@@ -1,40 +1,70 @@
 # Axis2026application
 
 成果発表用の **チーム成果物まとめポータル** です。
-受講生側の環境が動かない場合のフォールバックとして、全9チームの成果物（HTML / CSS）を
-講師側で1つのアプリにまとめて起動できます。DB は使わず、JSON データを `localStorage` に
-保存して擬似的にアプリを動かします（ブラウザを閉じてもデータは残ります）。
+受講生側の環境が動かない場合のフォールバックとして、全9チームの成果物を
+講師側で1つのアプリにまとめ、**Vercel にデプロイして** 起動できます。
+
+各チームは Spring Boot（Java + Thymeleaf + DB）で作られていますが、Vercel では Java も
+DB も動かせないため、**画面（Thymeleaf テンプレート）を静的 HTML + JavaScript に書き換え、
+DB の代わりに JSON データを `localStorage` に載せて擬似的に動かします**
+（ブラウザを閉じるまでデータは残り、本物に近い操作感になります）。
 
 Next.js（App Router）+ TypeScript + Tailwind CSS + ESLint で構築されています。
 
 ## 仕組み
 
 - **ポータル（`/`）**: `src/data/teams.json` を元に9チーム分のカードを表示します。
-- **起動画面（`/apps/<slug>`）**: 各チームの成果物を `iframe` で表示します。
-  成果物の実体は `public/team-apps/<slug>/index.html`（静的ファイル）です。
-- **共通モックストア（`public/mock/store.js`）**: 各チームの HTML から `<script>` で読み込み、
-  JSON データの一覧・追加・更新・削除を `localStorage` 経由で再現します。
-  チームごとに名前空間が分かれるためデータは混ざりません。
-- **サンプル**: `public/team-apps/team1/`（在庫管理アプリ）が配線済みのテンプレートです。
-  新しいチームを追加するときのコピー元として使えます。
+- **起動画面（`/apps/<slug>`）**: 各チームのモックを `iframe` で表示します。
+  実体は `public/team-apps/<slug>/`（静的 HTML/CSS/JS）です。
+- **各チームのモック**: Spring の画面を静的 HTML に変換し、DB アクセスを JavaScript の
+  データ層（`localStorage`）に置き換えたものです。
 
-## チームの成果物を追加する手順
+## 見本（teamE：ニシキギ 建設現場管理システム）
 
-1. git から取得した成果物（`index.html` と CSS など）を
-   `public/team-apps/<slug>/` に置く（例: `public/team-apps/team2/`）。
-2. データを擬似的に動かしたい場合は、HTML に共通モックストアを読み込む:
-   ```html
-   <script src="/mock/store.js"></script>
-   <script>
-     MockStore.seed('items', [ /* 初期データ */ ]);
-     const items = MockStore.list('items');
-     MockStore.add('items', { /* ... */ });
-   </script>
-   ```
-   API は `seed / list / get / add / update / remove / saveAll / reset / clearAll`。
-   詳細は `public/mock/store.js` の冒頭コメントを参照。
-3. `src/data/teams.json` の該当チームの `appName` / `description` / `category` を更新し、
-   `ready` を `true` にする（カードに「起動」ボタンが出ます）。
+`public/team-apps/teamE/` が変換済みの**見本**です。残り8チームはこの構成に倣って作ります。
+
+```
+public/team-apps/teamE/
+├── data/seed.json   … 受領した SQL（スキーマ＋初期データ）を JSON 化したもの
+├── js/db.js         … 擬似データ層（seed を localStorage に投入／クエリ／擬似セッション）
+├── css/ images/     … Spring の static からそのままコピー
+├── login.html       … ログイン（POST→JS 認証）
+├── list.html        … 本社ホーム（現場一覧・優先度分類・通知）
+├── home.html        … 現場ホーム（チャット・ステータス）
+├── portal.html      … 現場ポータル
+├── dailylist/dailyreportdetail/dailyreport.html   … 日報（一覧／詳細／作成・編集）
+├── safetylist/safetycheckdetail/safetycheck.html  … 安全点検
+└── troublelist/troubledetail/trouble.html         … トラブル
+```
+
+変換のポイント（Thymeleaf → 静的）：
+
+- `th:each` → JS で `localStorage` のデータをループ描画
+- `th:text` / `th:if` → JS で textContent 設定・表示制御
+- `th:href="@{/...}"` → 相対パスの `.html` リンク（例 `./dailylist.html`）
+- フォーム POST → JS で `localStorage` に保存し、`location.href` で遷移
+- WebSocket チャット → `localStorage` ベースの擬似チャット
+
+## チームを追加する手順
+
+1. 対象チームのリポジトリを取得し、**実装ブランチ**（teamE は `develop`）を確認する。
+   ※ `master` が空のスケルトンなことがあるので注意。
+2. `src/main/resources/static`（CSS/画像）を `public/team-apps/<slug>/` にコピー。
+3. 受領した SQL を `data/seed.json` に変換（スキーマ＝JSON のキー、INSERT＝初期レコード）。
+4. `js/db.js` 相当のデータ層を用意（seed 投入・クエリ・セッション）。
+5. Thymeleaf テンプレートを上記ポイントに沿って静的 HTML+JS に書き換え。
+6. `src/data/teams.json` の該当チームを更新し `ready` を `true` にする。
+
+### 動作確認（任意）
+
+`scripts/teamE-smoke.mjs` は teamE をブラウザで自動クリックして検証する Playwright スクリプトです。
+利用する場合のみ Playwright を入れて実行します（デプロイには不要）：
+
+```bash
+npm i -D playwright && npx playwright install chromium
+PORT=3010 npm run dev &        # 別ターミナルで
+node scripts/teamE-smoke.mjs
+```
 
 ## 開発サーバーの起動
 

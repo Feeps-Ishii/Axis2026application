@@ -1,0 +1,320 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: sans-serif;
+}
+
+body {
+	background: #f4f6f9;
+	color: #333;
+}
+
+/* =========================
+       ヘッダー
+    ========================= */
+
+header {
+	background-color: #1f3c88;
+	color: white;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+	margin-bottom: 32px;
+	border-radius: 14px;
+	overflow: hidden;
+}
+
+.header-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15px 25px;
+}
+
+/* 左側 */
+.logo-area {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.logo-area a {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	text-decoration: none;
+	color: white;
+}
+
+.pageTitle {
+	font-size: 24px;
+	font-weight: bold;
+	color: white;
+}
+
+.logo-img {
+	width: 62px;
+	height: 62px;
+	object-fit: contain;
+	background: white;
+	border-radius: 10px;
+	padding: 4px;
+}
+
+/* 右側 */
+
+.user-area {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	font-size: 14px;
+}
+
+.logout-btn {
+	background-color: white;
+	color: #1f3c88;
+	padding: 8px 14px;
+	border-radius: 8px;
+	text-decoration: none;
+	font-weight: bold;
+	transition: 0.2s;
+	border: none;
+	cursor: pointer;
+}
+
+.logout-btn:hover {
+	background-color: #dfe6f7;
+}
+
+/* 下段タイトル */
+
+.page-title-bar {
+	background-color: #e9eefc;
+	color: #1f3c88;
+	padding: 12px 25px;
+	font-size: 16px;
+	font-weight: bold;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* =========================
+       コンテナ
+    ========================= */
+
+.container {
+	max-width: 1000px;
+	margin: 40px auto;
+	padding: 0 20px 60px;
+}
+
+/* =========================
+       セクション
+    ========================= */
+
+.section {
+	background: white;
+	border-radius: 14px;
+	padding: 22px;
+	margin-bottom: 20px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.section-title {
+	font-size: 18px;
+	font-weight: bold;
+	color: #1f3c88;
+	margin-bottom: 15px;
+	border-left: 5px solid #1f3c88;
+	padding-left: 10px;
+}
+
+/* =========================
+       サマリー
+    ========================= */
+
+.summary-box {
+	background: #eef3ff;
+	border-left: 5px solid #1f3c88;
+	padding: 16px;
+	border-radius: 10px;
+	line-height: 1.8;
+}
+
+.summary-title {
+	font-weight: bold;
+	color: #1f3c88;
+	margin-bottom: 8px;
+	font-size: 16px;
+}
+
+/* =========================
+       点検一覧
+    ========================= */
+
+.check-list {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px;
+}
+
+.check-card {
+	background: #f7f9fc;
+	border-radius: 10px;
+	padding: 14px;
+	border: 1px solid #e3e8f2;
+}
+
+.check-name {
+	font-size: 14px;
+	font-weight: bold;
+	color: #555;
+	margin-bottom: 8px;
+	line-height: 1.5;
+}
+
+.check-status {
+	font-size: 15px;
+	font-weight: bold;
+}
+
+.ok {
+	color: #27ae60;
+}
+
+.warn {
+	color: #f39c12;
+}
+
+.ng {
+	color: #d63031;
+}
+
+/* =========================
+       共通
+    ========================= */
+
+.item {
+	margin-bottom: 12px;
+}
+
+.label {
+	font-size: 13px;
+	font-weight: bold;
+	color: #666;
+	margin-bottom: 6px;
+}
+
+.value {
+	font-size: 15px;
+	padding: 12px;
+	background: #f7f9fc;
+	border-radius: 8px;
+	white-space: pre-wrap;
+	line-height: 1.8;
+}
+
+/* =======================================================
+   5. ボタン装飾（アニメーション付きリッチ版）
+======================================================= */
+.btn-area {
+    text-align: center;
+    margin-top: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* 通常の確定・保存ボタン（緑） */
+.btn {
+    background: #28a745 !important;
+    color: #fff !important;
+    border: none;
+    padding: 14px 35px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+    display: inline-block;
+}
+.btn:hover {
+    background: #218838 !important;
+    transform: translateY(-2px);
+}
+
+/* グレー用の指定に「.btn.btn-gray」などの重ね書き */
+.btn-gray, .btn-secondary, .btn_h, .btn.btn-gray, .btn.btn-secondary {
+    background: #6c757d !important;
+    color: #fff !important;
+    border: none;
+    padding: 14px 35px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-gray:hover, .btn-secondary:hover, .btn_h:hover {
+    background: #5a6268 !important;
+    transform: translateY(-2px);
+}
+.btn_h {
+	background: #6c757d;
+	color: #fff;
+	border: none;
+	padding: 16px 40px;
+	border-radius: 10px;
+	font-size: 16px;
+	cursor: pointer;
+	transition: 0.2s;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+	font-weight: bold;
+}
+
+.btn_h:hover {
+	background: #5a6268;
+	transform: translateY(-2px);
+}
+
+/* =========================
+       スマホ対応
+    ========================= */
+
+@media(max-width:768px) {
+
+	.header-top {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 15px;
+	}
+
+	.user-area {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.logo-img {
+		width: 52px;
+		height: 52px;
+	}
+
+	.page-title-bar {
+		font-size: 14px;
+	}
+
+	.check-list {
+		grid-template-columns: 1fr;
+	}
+
+	.btn,
+	.btn_h {
+		width: 100%;
+	}
+
+}

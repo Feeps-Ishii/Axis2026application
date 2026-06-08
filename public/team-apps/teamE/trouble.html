@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>トラブル報告作成</title>
+	<link rel="stylesheet" href="./css/trouble/troubledetail.css" />
+	<style>
+		.form-field { margin: 12px 0; }
+		.form-field label { display:block; font-weight:bold; color:#1f3c88; margin-bottom:4px; font-size:14px; }
+		.form-field input, .form-field select, .form-field textarea {
+			width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box; font-size:14px;
+		}
+		.form-field textarea { min-height:80px; }
+	</style>
+</head>
+
+<body>
+
+	<header>
+		<div class="header-top">
+			<div class="logo-area">
+				<a href="./home.html"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+				<div class="site-system-name" id="pageTitle">トラブル報告作成</div>
+			</div>
+			<div class="user-area">
+				<div><span id="userName">ゲスト</span> さん</div>
+				<form id="logoutForm"><button type="submit" class="logout-btn">ログアウト</button></form>
+			</div>
+		</div>
+		<div class="page-title-bar">
+			<div style="padding:0 20px;font-weight:bold;color:#1f3c88;" id="headerSiteName"></div>
+		</div>
+	</header>
+
+	<div class="container">
+		<form id="form">
+			<div class="section">
+				<div class="section-title">トラブル情報</div>
+				<div class="form-field"><label>緊急度</label>
+					<select name="priority"><option value="3">高</option><option value="2" selected>中</option><option value="1">低</option></select>
+				</div>
+				<div class="form-field"><label>トラブル種別</label>
+					<select name="troubleType">
+						<option value="1">事故</option><option value="2">資材不足</option><option value="3">納品遅れ</option>
+						<option value="4">工程遅延</option><option value="5">その他</option>
+					</select>
+				</div>
+				<div class="form-field"><label>発生日時</label><input type="datetime-local" name="occurredAt" required></div>
+				<div class="form-field"><label>一言で表す（概要）</label><input name="overview" maxlength="100" required></div>
+			</div>
+
+			<div class="section">
+				<div class="section-title">詳細内容</div>
+				<div class="form-field"><textarea name="detail" maxlength="500" required></textarea></div>
+			</div>
+
+			<div class="btn-area" style="display:flex;gap:15px;">
+				<a href="./troublelist.html" class="btn btn-gray">一覧へ戻る</a>
+				<button type="submit" class="btn">保存</button>
+			</div>
+		</form>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamE.init().then(() => {
+			const s = TeamE.requireLogin();
+			if (!s) return;
+			if (s.user.roll === 2) { location.href = "./home.html"; return; }
+			document.getElementById("userName").textContent = s.user.userName;
+			const site = TeamE.site(s.siteId);
+			document.getElementById("headerSiteName").textContent = site ? site.siteName : "";
+
+			const id = Number(new URLSearchParams(location.search).get("id"));
+			const editing = id && TeamE.troubles().find(t => t.troubleId === id);
+			const f = document.getElementById("form");
+
+			if (editing) {
+				document.getElementById("pageTitle").textContent = "トラブル編集";
+				f.priority.value = editing.priority;
+				f.troubleType.value = editing.troubleType;
+				f.occurredAt.value = String(editing.occurredAt).slice(0, 16);
+				f.overview.value = editing.overview;
+				f.detail.value = editing.detail;
+			} else {
+				f.occurredAt.value = TeamE.today() + "T09:00";
+			}
+
+			f.addEventListener("submit", e => {
+				e.preventDefault();
+				const data = {
+					siteId: s.siteId,
+					priority: Number(f.priority.value),
+					troubleType: Number(f.troubleType.value),
+					overview: f.overview.value,
+					detail: f.detail.value,
+					occurredAt: f.occurredAt.value + ":00",
+					siteMemo: null, hqMemo: null,
+				};
+				if (editing) {
+					const arr = TeamE.troubles();
+					const idx = arr.findIndex(t => t.troubleId === id);
+					arr[idx] = Object.assign(arr[idx], data);
+					localStorage.setItem("teamE:troubles", JSON.stringify(arr));
+				} else {
+					TeamE.addTrouble(data);
+				}
+				alert("保存しました");
+				location.href = "./troublelist.html";
+			});
+
+			document.getElementById("logoutForm").addEventListener("submit", e => {
+				e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+			});
+		});
+	</script>
+
+</body>
+</html>

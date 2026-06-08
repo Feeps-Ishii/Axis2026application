@@ -1,0 +1,293 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: sans-serif;
+}
+
+body {
+	background: #f4f6f9;
+	color: #333;
+}
+
+/* =========================
+       ヘッダー
+    ========================= */
+
+header {
+	background-color: #1f3c88;
+	color: white;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+	margin-bottom: 32px;
+	border-radius: 14px;
+	overflow: hidden;
+}
+
+.header-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15px 25px;
+}
+
+/* 左側 */
+.logo-area {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.logo-area a {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	text-decoration: none;
+	color: white;
+}
+
+.pageTitle {
+	font-size: 24px;
+	font-weight: bold;
+	color: white;
+}
+
+.logo-img {
+	width: 62px;
+	height: 62px;
+	object-fit: contain;
+	background: white;
+	border-radius: 10px;
+	padding: 4px;
+}
+
+/* 右側 */
+
+.user-area {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	font-size: 14px;
+}
+
+.logout-btn {
+	background-color: white;
+	color: #1f3c88;
+	padding: 8px 14px;
+	border-radius: 8px;
+	text-decoration: none;
+	font-weight: bold;
+	transition: 0.2s;
+	border: none;
+	cursor: pointer;
+}
+
+.logout-btn:hover {
+	background-color: #dfe6f7;
+}
+
+/* 下段タイトル */
+
+.page-title-bar {
+	background-color: #e9eefc;
+	color: #1f3c88;
+	padding: 12px 25px;
+	font-size: 16px;
+	font-weight: bold;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* =========================
+       コンテンツ
+    ========================= */
+
+.container {
+	max-width: 1100px;
+	margin: 35px auto;
+	padding: 0 20px 60px;
+}
+
+.section {
+	background: #fff;
+	border-radius: 14px;
+	padding: 24px;
+	margin-bottom: 22px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.section-title {
+	font-size: 20px;
+	font-weight: bold;
+	color: #1f3c88;
+	border-left: 6px solid #1f3c88;
+	padding-left: 12px;
+	margin-bottom: 20px;
+}
+
+/* =========================
+       レイアウト
+    ========================= */
+
+.grid-2 {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+
+.item {
+	margin-bottom: 16px;
+}
+
+.label {
+	font-size: 13px;
+	color: #666;
+	font-weight: bold;
+	margin-bottom: 6px;
+}
+
+.value {
+	background: #f7f9fc;
+	border-radius: 10px;
+	padding: 12px;
+	font-size: 15px;
+	line-height: 1.7;
+	white-space: pre-wrap;
+}
+
+/* =========================
+       サマリー
+    ========================= */
+
+.summary-box {
+	background: #eef3ff;
+	border-left: 5px solid #1f3c88;
+	padding: 16px;
+	border-radius: 10px;
+	line-height: 1.8;
+	font-size: 15px;
+}
+
+/* =========================
+       テーブル
+    ========================= */
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+	overflow: hidden;
+	border-radius: 10px;
+}
+
+.table th {
+	background: #1f3c88;
+	color: #fff;
+	padding: 12px;
+	text-align: left;
+	font-size: 14px;
+}
+
+.table td {
+	padding: 12px;
+	border-bottom: 1px solid #ddd;
+	background: #fff;
+	vertical-align: top;
+	line-height: 1.6;
+}
+
+/* =========================
+       ステータス
+    ========================= */
+
+.status-ok {
+	color: #27ae60;
+	font-weight: bold;
+}
+
+.status-warn {
+	color: #f39c12;
+	font-weight: bold;
+}
+
+.status-ng {
+	color: #d63031;
+	font-weight: bold;
+}
+
+/* =========================
+       ボタン
+    ========================= */
+
+.btn-area {
+	text-align: center;
+	margin-top: 40px;
+	display: flex;
+	justify-content: center;
+	gap: 20px;
+	flex-wrap: wrap;
+}
+
+.btn {
+	background: #1f3c88;
+	color: #fff;
+	border: none;
+	padding: 16px 34px;
+	border-radius: 10px;
+	cursor: pointer;
+	font-size: 15px;
+	transition: 0.2s;
+	font-weight: bold;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn:hover {
+	background: #16306d;
+	transform: translateY(-2px);
+}
+
+.btn-secondary {
+	background: #777;
+}
+
+.btn-secondary:hover {
+	background: #555;
+}
+
+/* =========================
+       レスポンシブ
+    ========================= */
+
+@media(max-width:768px) {
+
+	.header-top {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 15px;
+	}
+
+	.user-area {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.logo-img {
+		width: 52px;
+		height: 52px;
+	}
+
+	.page-title-bar {
+		font-size: 14px;
+	}
+
+	.grid-2 {
+		grid-template-columns: 1fr;
+	}
+
+	.table {
+		display: block;
+		overflow-x: auto;
+	}
+
+	.btn {
+		width: 100%;
+	}
+
+}

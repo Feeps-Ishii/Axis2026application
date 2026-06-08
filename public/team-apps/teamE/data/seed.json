@@ -1,0 +1,70 @@
+{
+  "users": [
+    { "userId": 1, "userName": "田中", "password": "pass1234", "roll": 0 },
+    { "userId": 2, "userName": "高橋", "password": "pass2345", "roll": 1 },
+    { "userId": 3, "userName": "中野", "password": "pass3456", "roll": 2 }
+  ],
+  "sites": [
+    { "siteId": 1, "officecheck": true, "siteName": "錦木建設" },
+    { "siteId": 2, "officecheck": false, "siteName": "新宿第一ビルディング新築工事" },
+    { "siteId": 3, "officecheck": false, "siteName": "渋谷三丁目商業店舗ビル新築工事" },
+    { "siteId": 4, "officecheck": false, "siteName": "豊洲データセンター(TDC-3)増築工事" },
+    { "siteId": 5, "officecheck": false, "siteName": "府中駅前商業複合テナントビル新築工事" },
+    { "siteId": 6, "officecheck": false, "siteName": "川崎大師前メディカルクリニック新設工事" },
+    { "siteId": 7, "officecheck": false, "siteName": "目黒南テラスレジデンス新築工事" },
+    { "siteId": 8, "officecheck": false, "siteName": "世田谷桜新町マンションプロジェクト" },
+    { "siteId": 9, "officecheck": false, "siteName": "グランドメゾン吉祥寺フォレスト新築" },
+    { "siteId": 10, "officecheck": false, "siteName": "ジオ神戸三宮東レジデンス新築工事" },
+    { "siteId": 11, "officecheck": false, "siteName": "戸塚スマートロジスティクス免震倉庫" },
+    { "siteId": 12, "officecheck": false, "siteName": "世田谷区立桜が丘小学校校舎増築本体工事" },
+    { "siteId": 13, "officecheck": false, "siteName": "県立多摩北高校体育館改築大規模改修工事" },
+    { "siteId": 14, "officecheck": false, "siteName": "緑が丘北小学校校舎増築及び長寿命化工事" },
+    { "siteId": 15, "officecheck": false, "siteName": "調布市立中央公民館耐震補強・大規模改修" },
+    { "siteId": 16, "officecheck": false, "siteName": "都立多摩中央リハビリセンター本館新築" },
+    { "siteId": 17, "officecheck": false, "siteName": "県立中央病院第二駐車場立体化整備工事" },
+    { "siteId": 18, "officecheck": false, "siteName": "国道16号線（八王子拡幅地区）路盤舗装及び舗装改良工事" },
+    { "siteId": 19, "officecheck": false, "siteName": "多摩川水系浅川護岸激甚災害対策特別緊急工事" },
+    { "siteId": 20, "officecheck": false, "siteName": "都道18号線多摩大橋橋梁下部工補強耐震対策工事" }
+  ],
+  "managers": [
+    { "managerId": 1, "siteId": 2, "userId": 2 },
+    { "managerId": 2, "siteId": 3, "userId": 3 }
+  ],
+  "dailyreports": [
+    {
+      "reportId": 1,
+      "siteId": 2,
+      "projectNumber": "A-1024",
+      "targetDate": "2026-06-08",
+      "weather": 1,
+      "temperature": 25,
+      "workDetails": "型枠工事",
+      "workerDetails": [{ "company": "A協力会社", "count": 2, "names": "佐藤、鈴木" }],
+      "progressPercent": 65,
+      "safetyKy": "安全帯の不備がないか相互確認する。",
+      "safetyMeasure": "親綱を完全に張り、フックを2丁掛け。",
+      "safetyEducation": "新規入場者に対して危険箇所を周知。",
+      "nearMiss": "足場上で躓きそうになったが手摺で回避。",
+      "materials": "コンクリート資材、鉄筋材、型枠材。",
+      "equipments": "バックホウ、生コン車。",
+      "designChange": "なし",
+      "customerRequest": "なし",
+      "partnerCoordination": "明日朝の調整について協力会社と調整。",
+      "nextDaySchedule": "明日は鉄筋の組み立ておよび配筋検査。",
+      "notes": "特記事項なし",
+      "dStatusFlag": 0,
+      "dCreatedAt": "2026-06-08T08:00:00"
+    }
+  ],
+  "safeties": [
+    { "safetyId": 1, "siteId": 2, "scaffolding": 1, "protectingOpenings": 1, "safetyHarness": 1, "equipmentInspection": 1, "fireExtinguisher": 1, "organization": 1, "electricalInsulation": 1, "photo": null, "sStatusFlag": 0, "sCreatedAt": "2026-06-08T07:30:00" },
+    { "safetyId": 2, "siteId": 3, "scaffolding": 0, "protectingOpenings": 1, "safetyHarness": 1, "equipmentInspection": 0, "fireExtinguisher": 1, "organization": 1, "electricalInsulation": 0, "photo": null, "sStatusFlag": 0, "sCreatedAt": "2026-06-08T07:45:00" },
+    { "safetyId": 3, "siteId": 4, "scaffolding": 0, "protectingOpenings": 0, "safetyHarness": 1, "equipmentInspection": 0, "fireExtinguisher": 1, "organization": 1, "electricalInsulation": 1, "photo": null, "sStatusFlag": 0, "sCreatedAt": "2026-06-08T07:50:00" }
+  ],
+  "troubles": [
+    { "troubleId": 1, "siteId": 2, "priority": 2, "troubleType": 1, "overview": "設備故障", "detail": "エアコンが停止し冷房が効かない状態", "siteMemo": null, "hqMemo": null, "occurredAt": "2026-06-05T14:30:00", "tStatusFlag": 0, "tCreatedAt": "2026-06-05T14:30:00" }
+  ],
+  "chats": [
+    { "chatId": 1, "siteId": 2, "senderSiteId": 2, "message": "こんにちは", "dateTime": "2026-06-11T12:00:00" }
+  ]
+}

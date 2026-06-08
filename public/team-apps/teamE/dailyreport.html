@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>日報作成</title>
+  <link rel="stylesheet" href="./css/dailyreport.css">
+  <style>
+    .form-field { margin: 12px 0; }
+    .form-field label { display:block; font-weight:bold; color:#1f3c88; margin-bottom:4px; font-size:14px; }
+    .form-field input, .form-field select, .form-field textarea {
+      width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box; font-size:14px;
+    }
+    .form-field textarea { min-height:60px; }
+  </style>
+</head>
+
+<body>
+
+  <header class="system-header">
+    <div class="header-top">
+      <div class="logo-area">
+        <a href="./home.html"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+        <div class="site-system-name" id="pageTitle">日報作成</div>
+      </div>
+      <div class="user-area">
+        <div class="user-info-box">
+          <span class="user-name-text"><strong id="userName">田中</strong> さん</span>
+          <form id="logoutForm" style="display:inline;"><button type="submit" class="logout-btn">ログアウト</button></form>
+        </div>
+      </div>
+    </div>
+    <div class="page-title-bar" style="padding:0 20px;">
+      <div class="header-site-name" id="headerSiteName" style="font-weight:bold;font-size:15px;color:#1f3c88;"></div>
+    </div>
+  </header>
+
+  <div class="container">
+    <form id="form">
+      <div class="section">
+        <div class="section-title">基本情報</div>
+        <div class="grid-2">
+          <div class="form-field"><label>工事番号</label><input name="projectNumber" required></div>
+          <div class="form-field"><label>日付</label><input type="date" name="targetDate" required></div>
+          <div class="form-field"><label>天候</label>
+            <select name="weather"><option value="1">晴れ</option><option value="2">曇り</option><option value="3">雨</option><option value="0">雪</option></select>
+          </div>
+          <div class="form-field"><label>気温（℃）</label><input type="number" name="temperature" value="20" required></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">作業内容</div>
+        <div class="form-field"><label>本日の作業</label><textarea name="workDetails" required></textarea></div>
+        <div class="form-field"><label>全体進捗率（%）</label><input type="number" name="progressPercent" min="0" max="100" value="0"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">出面情報（1社分）</div>
+        <div class="grid-2">
+          <div class="form-field"><label>協力会社</label><input name="company"></div>
+          <div class="form-field"><label>人数</label><input type="number" name="count" value="0"></div>
+          <div class="form-field"><label>作業員氏名</label><input name="names"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">安全管理</div>
+        <div class="grid-2">
+          <div class="form-field"><label>KY項目</label><textarea name="safetyKy"></textarea></div>
+          <div class="form-field"><label>安全対策</label><textarea name="safetyMeasure"></textarea></div>
+          <div class="form-field"><label>新規入場者教育</label><textarea name="safetyEducation"></textarea></div>
+          <div class="form-field"><label>ヒヤリハット</label><textarea name="nearMiss"></textarea></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">資材・機材・調整</div>
+        <div class="form-field"><label>搬入物</label><textarea name="materials"></textarea></div>
+        <div class="form-field"><label>使用機材</label><textarea name="equipments"></textarea></div>
+        <div class="grid-2">
+          <div class="form-field"><label>設計変更指示</label><input name="designChange" value="なし"></div>
+          <div class="form-field"><label>客先追加要望</label><input name="customerRequest" value="なし"></div>
+          <div class="form-field"><label>協力会社調整</label><input name="partnerCoordination"></div>
+          <div class="form-field"><label>翌日予定</label><input name="nextDaySchedule"></div>
+        </div>
+        <div class="form-field"><label>現場コメント</label><textarea name="notes"></textarea></div>
+      </div>
+
+      <div class="btn-area" style="display:flex;gap:15px;">
+        <a href="./dailylist.html" class="btn_h">一覧へ戻る</a>
+        <button type="submit" class="btn">保存</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script>
+    TeamE.init().then(() => {
+      const s = TeamE.requireLogin();
+      if (!s) return;
+      if (s.user.roll === 2) { location.href = "./home.html"; return; } // 閲覧は不可
+      document.getElementById("userName").textContent = s.user.userName;
+      const site = TeamE.site(s.siteId);
+      document.getElementById("headerSiteName").textContent = site ? site.siteName : "";
+
+      const id = Number(new URLSearchParams(location.search).get("id"));
+      const editing = id && TeamE.reports().find(r => r.reportId === id);
+      const f = document.getElementById("form");
+
+      if (editing) {
+        document.getElementById("pageTitle").textContent = "日報編集";
+        const r = editing;
+        ["projectNumber","targetDate","weather","temperature","workDetails","progressPercent",
+         "safetyKy","safetyMeasure","safetyEducation","nearMiss","materials","equipments",
+         "designChange","customerRequest","partnerCoordination","nextDaySchedule","notes"].forEach(k => {
+          if (f[k] != null && r[k] != null) f[k].value = r[k];
+        });
+        const w = (r.workerDetails && r.workerDetails[0]) || {};
+        f.company.value = w.company || ""; f.count.value = w.count || 0; f.names.value = w.names || "";
+      } else {
+        f.targetDate.value = TeamE.today();
+      }
+
+      f.addEventListener("submit", e => {
+        e.preventDefault();
+        const data = {
+          siteId: s.siteId,
+          projectNumber: f.projectNumber.value,
+          targetDate: f.targetDate.value,
+          weather: Number(f.weather.value),
+          temperature: Number(f.temperature.value),
+          workDetails: f.workDetails.value,
+          workerDetails: [{ company: f.company.value, count: Number(f.count.value), names: f.names.value }],
+          progressPercent: Number(f.progressPercent.value),
+          safetyKy: f.safetyKy.value, safetyMeasure: f.safetyMeasure.value,
+          safetyEducation: f.safetyEducation.value, nearMiss: f.nearMiss.value,
+          materials: f.materials.value, equipments: f.equipments.value,
+          designChange: f.designChange.value, customerRequest: f.customerRequest.value,
+          partnerCoordination: f.partnerCoordination.value, nextDaySchedule: f.nextDaySchedule.value,
+          notes: f.notes.value,
+        };
+        if (editing) {
+          const list = TeamE.reports();
+          const idx = list.findIndex(r => r.reportId === id);
+          list[idx] = Object.assign(list[idx], data);
+          localStorage.setItem("teamE:dailyreports", JSON.stringify(list));
+        } else {
+          TeamE.addReport(data);
+        }
+        alert("保存しました");
+        location.href = "./dailylist.html";
+      });
+
+      document.getElementById("logoutForm").addEventListener("submit", e => {
+        e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+      });
+    });
+  </script>
+
+</body>
+</html>

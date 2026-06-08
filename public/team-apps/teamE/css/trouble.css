@@ -1,0 +1,602 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   1. ベーススタイル & 全体共通
+   ========================================================================== */
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	font-family: "Yu Gothic", "Meiryo", sans-serif;
+}
+
+body {
+	background-color: #f4f6f9;
+	color: #333;
+}
+
+main {
+	max-width: 1100px;
+	margin: 50px auto;
+	padding: 20px;
+}
+
+.container {
+	width: 90%;
+	max-width: 900px;
+	margin: 40px auto;
+	padding: 0 20px 60px;
+}
+
+/* 登録・編集などのカード型レイアウト用 */
+.container.card-layout {
+	max-width: 700px;
+	background: white;
+	padding: 30px;
+	border-radius: 14px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.section {
+	background: white;
+	border-radius: 14px;
+	padding: 24px;
+	margin-bottom: 22px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.section-title {
+	font-size: 20px;
+	font-weight: bold;
+	color: #1f3c88;
+	border-left: 6px solid #1f3c88;
+	padding-left: 12px;
+	margin-bottom: 20px;
+}
+
+/* タイトル見出し */
+h1 {
+	margin-bottom: 25px;
+	color: #1f3c88;
+	text-align: center;
+	font-size: 28px;
+}
+
+
+/* ==========================================================================
+   2. ヘッダー共通スタイル
+   ========================================================================== */
+header {
+	background-color: #1f3c88;
+	color: white;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+	margin-bottom: 32px;
+	border-radius: 14px;
+	overflow: hidden;
+}
+
+.header-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15px 25px;
+	gap: 20px;
+	flex-wrap: wrap;
+}
+
+/* ロゴエリア */
+.logo-area {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.logo-area a {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	text-decoration: none;
+	color: white;
+}
+
+.logo-img {
+	width: 62px;
+	height: 62px;
+	object-fit: contain;
+	background-color: white;
+	border-radius: 10px;
+	padding: 4px;
+}
+
+.site-system-name {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+/* ユーザーエリア */
+.user-area {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	font-size: 14px;
+	flex-wrap: wrap;
+}
+
+/* 表記の揺れ(username と user-name)を共通化 */
+.username,
+.user-name {
+	font-weight: bold;
+}
+
+.logout-btn {
+	background-color: white;
+	color: #1f3c88;
+	padding: 8px 14px;
+	border-radius: 8px;
+	text-decoration: none;
+	font-weight: bold;
+	transition: 0.2s;
+	border: none;
+	cursor: pointer;
+}
+
+.logout-btn:hover {
+	background-color: #dfe6f7;
+}
+
+/* 下段タイトルバー */
+.page-title-bar {
+	background-color: #e9eefc;
+	color: #1f3c88;
+	padding: 12px 25px;
+	font-size: 16px;
+	font-weight: bold;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+
+/* ==========================================================================
+   3. フォーム・ボタン・バッジ共通
+   ========================================================================== */
+.form-group,
+.item {
+	margin-bottom: 20px;
+}
+
+label,
+.label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: bold;
+	font-size: 14px;
+	color: #555;
+}
+
+/* 入力項目 */
+input[type="text"],
+input[type="password"],
+textarea,
+select {
+	width: 100%;
+	padding: 12px;
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	font-size: 14px;
+	background: #fff;
+}
+
+textarea {
+	resize: vertical;
+	min-height: 140px;
+	line-height: 1.6;
+}
+
+/* 値の表示（確認画面・詳細画面用） */
+.value {
+	font-size: 15px;
+	padding: 12px;
+	background: #f7f9fc;
+	border-radius: 8px;
+	white-space: pre-wrap;
+	line-height: 1.6;
+}
+
+/* エラーメッセージ */
+.error {
+	color: red;
+	font-size: 14px;
+	margin-top: 4px;
+}
+
+/* 優先度バッジ */
+.badge,
+.badge-preview {
+	display: inline-block;
+	padding: 6px 12px;
+	border-radius: 8px;
+	font-size: 13px;
+	font-weight: bold;
+}
+
+.high {
+	background: #ffe5e5;
+	color: #d63031;
+}
+
+.middle {
+	background: #fff4d6;
+	color: #f39c12;
+}
+
+.low {
+	background: #e6f4ea;
+	color: #27ae60;
+}
+
+/* ボタンエリア */
+.btn-area {
+	text-align: center;
+	margin-top: 40px;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 15px;
+}
+
+/* 共通ボタンの基本スタイル */
+.btn,
+.btn-gray,
+.btn-secondary,
+.btn_h {
+	display: inline-block;
+	padding: 14px 35px;
+	border: none;
+	border-radius: 10px;
+	font-size: 16px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: 0.2s;
+	text-decoration: none;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+	text-align: center;
+}
+
+.detail-btn {
+	display: inline-block;
+	background-color: #1f3c88;
+	color: white;
+	padding: 8px 14px;
+	border-radius: 8px;
+	text-decoration: none;
+	font-size: 14px;
+	transition: 0.2s;
+}
+
+.detail-btn:hover {
+	background-color: #16316f;
+}
+
+/* 各種ボタンカラー */
+.btn {
+	background: #28a745 !important;
+	color: #fff !important;
+}
+
+/* 通常の確定・保存・緑 */
+.btn:hover {
+	background: #218838 !important;
+	transform: translateY(-2px);
+}
+
+.btn-primary-blue {
+	background: #1f3c88 !important;
+	color: #fff !important;
+}
+
+/* 案内・詳細用青ボタン */
+.btn-primary-blue:hover {
+	background: #16306d !important;
+	transform: translateY(-2px);
+}
+
+.btn-gray,
+.btn-secondary,
+.btn_h {
+	background: #6c757d !important;
+	color: #fff !important;
+}
+
+/* 戻る・修正・グレー */
+.btn-gray:hover,
+.btn-secondary:hover,
+.btn_h:hover {
+	background: #5a6268 !important;
+	transform: translateY(-2px);
+}
+
+
+/* ==========================================================================
+   4. 各画面固有のスタイル
+   ========================================================================== */
+
+/* --- 登録・編集画面固有 --- */
+.grid-2 {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+
+/* --- 確認・詳細画面固有 --- */
+.summary-box {
+	background: #eef3ff;
+	border-left: 5px solid #1f3c88;
+	padding: 16px;
+	border-radius: 10px;
+	line-height: 1.8;
+}
+
+.summary-title {
+	font-weight: bold;
+	margin-bottom: 8px;
+	color: #1f3c88;
+}
+
+/* 詳細画面用：項目の下線区切り */
+.section .item.border-style {
+	margin-bottom: 12px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #eee;
+}
+
+.section .item.border-style:last-child {
+	border-bottom: none;
+}
+
+/* --- 一覧（List）画面固有 --- */
+/* 検索エリア */
+.search-area {
+	background: white;
+	border-radius: 14px;
+	padding: 20px;
+	margin-bottom: 25px;
+	display: flex;
+	align-items: flex-end;
+	gap: 20px;
+	flex-wrap: wrap;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.search-item {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.search-label {
+	font-size: 13px;
+	font-weight: bold;
+	color: #666;
+}
+
+.search-input,
+.search-select {
+	padding: 10px 12px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	min-width: 180px;
+	font-size: 14px;
+	background: white;
+}
+
+.search-btn-area {
+	display: flex;
+	gap: 10px;
+}
+
+
+
+/* 🌟 dailyreport.css から移植した検索ボタン（メインの濃い青） */
+.search-btn {
+	background-color: #1f3c88 !important;
+	color: #ffffff !important;
+	border: none !important;
+	padding: 11px 24px !important;
+	border-radius: 8px !important;
+	cursor: pointer !important;
+	font-size: 14px !important;
+	font-weight: bold !important;
+	transition: 0.2s !important;
+	display: inline-block;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+	text-decoration: none;
+	text-align: center;
+}
+
+.search-btn:hover {
+	background-color: #16316f !important;
+}
+
+/* 🌟 dailyreport.css から移植したリセットボタン（補助の薄いグレー） */
+.search-btn.btn-reset-gray {
+	background-color: #e2e8f0 !important;
+	/* 薄いグレー */
+	color: #4a5568 !important;
+	/* 濃いグレーの文字 */
+	border: 1px solid #cbd5e0 !important;
+	/* 軽い枠線 */
+}
+
+.search-btn.btn-reset-gray:hover {
+	background-color: #cbd5e0 !important;
+	/* ホバー時に少し暗く */
+	color: #2d3748 !important;
+}
+
+/* トラブル一覧テーブル */
+/*.issue-table {*/
+/*	width: 100%;*/
+/*	border-collapse: collapse;*/
+/*	background-color: white;*/
+/*	border-radius: 12px;*/
+/*	overflow: hidden;*/
+/*	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);*/
+/*}*/
+
+.issue-table {
+	width: 100%;
+	border-collapse: collapse;
+	background-color: white;
+	border-radius: 12px;
+	/* 🌟 stickyやスクロールの邪魔をしないように visible に変更するか、削除します */
+	overflow: visible !important; 
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.issue-table thead {
+	background-color: #1f3c88;
+	color: white;
+	position: sticky;
+		top: 0;
+}
+
+.issue-table th,
+.issue-table td {
+	padding: 16px;
+	text-align: left;
+	border-bottom: 1px solid #ddd;
+}
+
+.issue-table tbody tr:hover {
+	background-color: #f0f4ff;
+}
+
+/*.table-scroll {*/
+/*	max-height: 550px;*/
+/*	overflow-y: auto;*/
+/*	border-radius: 12px;*/
+/*}*/
+
+.table-scroll {
+	/* 🌟テスト用：一時的に高さを「200px」など低くして、確実にデータがはみ出るか試してみてください */
+	max-height: 550px; 
+	
+	/* 🌟「auto」から「scroll」に変えることで、件数が少なくても常にスクロール用の溝を表示させます */
+	overflow-y: scroll; 
+	border-radius: 12px;
+}
+
+/* 左下ステータス吹き出し */
+.status-bubble {
+	position: fixed;
+	left: 20px;
+	bottom: 20px;
+	background: #ffffff;
+	border-radius: 18px;
+	padding: 26px 30px;
+	min-width: 340px;
+	box-shadow: 0 10px 28px rgba(0, 0, 0, 0.20);
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	z-index: 999;
+}
+
+.status-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 18px;
+}
+
+.status-title {
+	font-size: 16px;
+	opacity: 0.75;
+}
+
+.done {
+	color: #2ecc71;
+	font-weight: bold;
+}
+
+.not-done {
+	color: #e67e22;
+	font-weight: bold;
+}
+
+.blinking {
+	animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.3;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+
+/* ==========================================================================
+   5. レスポンシブ（全画面共通のスマートフォン対応）
+   ========================================================================== */
+@media(max-width:768px) {
+	.header-top {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 15px;
+	}
+
+	.user-area {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.container {
+		width: calc(100% - 30px);
+		padding: 24px 20px;
+	}
+
+	h1 {
+		font-size: 24px;
+	}
+
+	.grid-2 {
+		grid-template-columns: 1fr;
+	}
+
+	.btn,
+	.btn-gray,
+	.btn-secondary,
+	.btn_h {
+		width: 100%;
+		margin: 8px 0;
+	}
+
+	/* 一覧画面用スマホ対応 */
+	.search-area {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.search-input,
+	.search-select {
+		width: 100%;
+		min-width: auto;
+	}
+
+	.search-btn {
+		width: 100%;
+	}
+
+	.issue-table th,
+	.issue-table td {
+		padding: 10px;
+		font-size: 14px;
+	}
+}

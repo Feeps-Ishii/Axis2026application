@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>日報詳細</title>
+  <link rel="stylesheet" href="./css/dailyreport.css">
+</head>
+
+<body>
+
+  <header class="system-header">
+    <div class="header-top">
+      <div class="logo-area">
+        <a id="homeLink"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+        <div class="site-system-name">日報詳細</div>
+      </div>
+      <div class="user-area">
+        <div class="user-info-box">
+          <span class="user-name-text"><strong id="userName">田中</strong> さん</span>
+          <form id="logoutForm" style="display: inline;">
+            <button type="submit" class="logout-btn">ログアウト</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-title-bar" style="display: flex; align-items: center; gap: 40px; padding: 0 20px;">
+      <div class="header-site-name" id="headerSiteName" style="font-weight: bold; font-size: 15px; color: #1f3c88;"></div>
+      <a href="./dailylist.html" class="nav-link active">日報一覧</a>
+    </div>
+  </header>
+
+  <div class="container" id="container"></div>
+
+  <script src="./js/db.js"></script>
+  <script>
+    function weatherLabel(w) {
+      return w === 1 ? "晴れ" : w === 2 ? "曇り" : w === 3 ? "雨" : "雪";
+    }
+
+    TeamE.init().then(() => {
+      const s = TeamE.requireLogin();
+      if (!s) return;
+      const roll = s.user.roll;
+      document.getElementById("userName").textContent = s.user.userName;
+      document.getElementById("homeLink").href = roll === 0 ? "./list.html" : "./home.html";
+
+      const id = Number(new URLSearchParams(location.search).get("id"));
+      const r = TeamE.reports().find(x => x.reportId === id);
+      const c = document.getElementById("container");
+      if (!r) { c.innerHTML = "<p style='padding:40px;'>日報が見つかりません。</p>"; return; }
+
+      const site = TeamE.site(r.siteId);
+      document.getElementById("headerSiteName").textContent = site ? site.siteName : "";
+
+      const workers = Array.isArray(r.workerDetails) ? r.workerDetails : [];
+      const workerRows = workers.length
+        ? workers.map(w => `<tr><td><strong>${TeamE.esc(w.company || "未入力")}</strong></td><td>${w.count || 0} 名</td><td>${TeamE.esc(w.names || "未入力")}</td></tr>`).join("")
+        : `<tr><td colspan="3" style="text-align:center; color:#718096;">出面情報なし</td></tr>`;
+
+      const E = TeamE.esc;
+      c.innerHTML = `
+        <div class="section">
+          <div class="section-title">基本情報</div>
+          <div class="grid-2">
+            <div class="item"><div class="label">現場名</div><div class="value">${E(site ? site.siteName : "")}</div></div>
+            <div class="item"><div class="label">工事番号</div><div class="value">${E(r.projectNumber)}</div></div>
+            <div class="item"><div class="label">日付</div><div class="value">${E(r.targetDate)}</div></div>
+            <div class="item"><div class="label">天候</div><div class="value">${weatherLabel(r.weather)}</div></div>
+            <div class="item"><div class="label">気温</div><div class="value">${E(r.temperature)} ℃</div></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">作業内容</div>
+          <div class="item"><div class="label">本日の作業</div><div class="value" style="white-space: pre-wrap;">${E(r.workDetails)}</div></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">出面情報</div>
+          <table class="table">
+            <thead><tr><th>協力会社</th><th>人数</th><th>作業員氏名</th></tr></thead>
+            <tbody>${workerRows}</tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <div class="section-title">工程進捗</div>
+          <div class="item"><div class="label">全体進捗率</div><div class="value">${E(r.progressPercent)} %</div></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">安全管理</div>
+          <div class="grid-2">
+            <div class="item"><div class="label">KY項目</div><div class="value" style="white-space: pre-wrap;">${E(r.safetyKy)}</div></div>
+            <div class="item"><div class="label">安全対策</div><div class="value" style="white-space: pre-wrap;">${E(r.safetyMeasure)}</div></div>
+            <div class="item"><div class="label">新規入場者教育</div><div class="value" style="white-space: pre-wrap;">${E(r.safetyEducation)}</div></div>
+            <div class="item"><div class="label">ヒヤリハット</div><div class="value" style="white-space: pre-wrap;">${E(r.nearMiss)}</div></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">資材・機材</div>
+          <div class="item"><div class="label">搬入物</div><div class="value" style="white-space: pre-wrap;">${E(r.materials)}</div></div>
+          <div class="item"><div class="label">使用機材</div><div class="value" style="white-space: pre-wrap;">${E(r.equipments)}</div></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">問題・調整事項</div>
+          <div class="value">
+            <p>【設計変更指示】 ${E(r.designChange)}</p>
+            <p>【客先追加要望】 ${E(r.customerRequest)}</p>
+            <p>【協力会社調整】 ${E(r.partnerCoordination)}</p>
+            <p>【翌日予定】 ${E(r.nextDaySchedule)}</p>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">現場コメント</div>
+          <div class="value" style="white-space: pre-wrap;">${E(r.notes)}</div>
+        </div>
+
+        <div class="btn-area" id="btnArea"></div>
+      `;
+
+      // ロール別ボタン
+      const btn = document.getElementById("btnArea");
+      btn.style.display = "flex";
+      btn.style.gap = "15px";
+      if (roll === 0) {
+        const confirmed = r.dStatusFlag === 1;
+        btn.innerHTML = `<a href="./list.html" class="btn_h">本社ホームへ</a>
+          <a href="./dailylist.html" class="btn_h">一覧へ戻る</a>
+          <button id="confirmBtn" class="btn">${confirmed ? "確認解除" : "確認完了"}</button>`;
+        document.getElementById("confirmBtn").addEventListener("click", () => {
+          TeamE.setReportStatus(id, confirmed ? 0 : 1);
+          location.reload();
+        });
+      } else if (roll === 1) {
+        btn.innerHTML = `<a href="./dailylist.html" class="btn_h">一覧画面へ戻る</a>
+          <a href="./dailyreport.html?id=${id}" class="btn" style="background-color:#3182ce;">編集</a>`;
+      } else {
+        btn.innerHTML = `<a href="./dailylist.html" class="btn_h">一覧画面へ戻る</a>`;
+      }
+
+      document.getElementById("logoutForm").addEventListener("submit", e => {
+        e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+      });
+    });
+  </script>
+
+</body>
+</html>

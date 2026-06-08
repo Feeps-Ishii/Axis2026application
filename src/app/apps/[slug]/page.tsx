@@ -40,7 +40,7 @@ export default async function AppHostPage({
 
       {team.ready ? (
         <iframe
-          src={`/team-apps/${team.slug}/index.html`}
+          src={`/team-apps/${team.slug}/${team.entry ?? "index.html"}`}
           title={team.appName}
           className="min-h-0 flex-1 border-0 bg-white"
         />

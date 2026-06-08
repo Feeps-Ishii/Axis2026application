@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>業務管理システム</title>
+	<link rel="stylesheet" href="./css/home.css">
+</head>
+
+<body>
+
+	<!-- ヘッダー -->
+	<header>
+		<div class="header-top">
+			<div class="logo-area">
+				<a href="./home.html">
+					<img src="./images/icon.png" alt="ロゴ" class="logo-img">
+					<div class="site-system-name">現場ホーム</div>
+				</a>
+			</div>
+
+			<div class="user-area">
+				<div><span id="userName">ゲスト</span> さん</div>
+				<form id="logoutForm">
+					<button type="submit" class="logout-btn">ログアウト</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="page-title-bar">
+			<p id="siteName"></p>
+		</div>
+	</header>
+
+	<!-- メイン -->
+	<main>
+		<!-- 左メニュー -->
+		<div class="button-area">
+			<div class="menu-group">
+				<a href="./dailyreport.html" class="menu-button" data-create>日報作成</a>
+				<a href="./dailylist.html" class="sub-button">日報一覧</a>
+			</div>
+			<div class="menu-group">
+				<a href="./safetycheck.html" class="menu-button" data-create>安全点検作成</a>
+				<a href="./safetylist.html" class="sub-button">安全点検一覧</a>
+			</div>
+			<div class="menu-group">
+				<a href="./trouble.html" class="menu-button" data-create>トラブル報告作成</a>
+				<a href="./troublelist.html" class="sub-button">トラブル一覧</a>
+			</div>
+		</div>
+
+		<!-- チャット -->
+		<div class="chat-panel">
+			<div class="chat-header">現場チャット</div>
+			<div class="chat-messages" id="chatMessages"></div>
+			<div class="chat-input" id="chatInput">
+				<textarea id="messageInput" placeholder="メッセージを入力" rows="3"></textarea>
+				<button type="button" onclick="sendMessage()">送信</button>
+			</div>
+		</div>
+	</main>
+
+	<!-- 左下ステータス -->
+	<div class="status-bubble">
+		<div class="status-item">
+			<span class="status-title">日報</span>
+			<span id="dailyStatus"></span>
+		</div>
+		<div class="status-item">
+			<span class="status-title">安全点検</span>
+			<span id="safetyStatus"></span>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		let SITE_ID, ROLL;
+
+		function statusBadge(status) {
+			if (status === "確認済") return '<span class="checked">✔ 確認済</span>';
+			if (status === "未確認") return '<span class="unchecked">▲ 未確認</span>';
+			return '<span class="unchecked">✖ 未提出</span>';
+		}
+
+		function renderChat() {
+			const list = TeamE.chatsBySite(SITE_ID);
+			document.getElementById("chatMessages").innerHTML = list.map(c => {
+				const me = c.senderSiteId === SITE_ID;
+				return `<div class="message-row ${me ? 'me' : 'other'}">
+					<div class="message-wrapper">
+						<div class="message">${TeamE.esc(c.message)}</div>
+						<div class="message-time">${TeamE.fmtDateTime(c.dateTime)}</div>
+					</div>
+				</div>`;
+			}).join("");
+			const area = document.querySelector(".chat-messages");
+			if (area) area.scrollTop = area.scrollHeight;
+		}
+
+		function sendMessage() {
+			const input = document.getElementById("messageInput");
+			const text = input.value.trim();
+			if (!text) return;
+			TeamE.addChat({ siteId: SITE_ID, senderSiteId: SITE_ID, message: text });
+			input.value = "";
+			renderChat();
+		}
+
+		TeamE.init().then(() => {
+			const s = TeamE.requireLogin();
+			if (!s) return;
+			SITE_ID = s.siteId;
+			ROLL = s.user.roll;
+
+			document.getElementById("userName").textContent = s.user.userName;
+			const site = TeamE.site(SITE_ID);
+			document.getElementById("siteName").textContent = site ? site.siteName : "";
+
+			document.getElementById("dailyStatus").innerHTML =
+				statusBadge(TeamE.dailyStatusForSite(SITE_ID));
+			document.getElementById("safetyStatus").innerHTML =
+				statusBadge(TeamE.safetyStatusForSite(SITE_ID));
+
+			// 閲覧ロール(2)は作成ボタン・チャット入力を隠す
+			if (ROLL === 2) {
+				document.querySelectorAll("[data-create]").forEach(el => el.remove());
+				document.getElementById("chatInput").style.display = "none";
+			}
+
+			renderChat();
+
+			document.getElementById("logoutForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				TeamE.logout();
+				location.href = "./login.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

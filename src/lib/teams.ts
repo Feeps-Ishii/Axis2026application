@@ -15,6 +15,8 @@ export type Team = {
   accent: string;
   /** 成果物を配置済みか。false の場合は「未配置」と表示します。 */
   ready: boolean;
+  /** iframe で最初に開くファイル名。省略時は index.html。 */
+  entry?: string;
 };
 
 const teams = teamsData as Team[];

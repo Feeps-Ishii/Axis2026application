@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>現場ポータル</title>
+	<link rel="stylesheet" href="./css/portal.css" />
+</head>
+
+<body>
+
+	<!-- ヘッダー -->
+	<header>
+		<div class="header-top">
+			<div class="logo-area">
+				<a href="./list.html">
+					<img src="./images/icon.png" alt="ロゴ" class="logo-img">
+				</a>
+				<div class="site-system-name">現場ポータル</div>
+			</div>
+
+			<div class="user-area">
+				<div><span id="userName">ゲスト</span> さん</div>
+				<form id="logoutForm">
+					<button type="submit" class="logout-btn">ログアウト</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="page-title-bar">
+			<span id="siteName"></span>
+			<a id="linkDaily" href="#">日報一覧</a>
+			<a id="linkSafety" href="#">安全点検一覧</a>
+			<a id="linkTrouble" href="#">トラブル一覧</a>
+		</div>
+	</header>
+
+	<main>
+		<!-- 左メニュー -->
+		<div class="button-area">
+			<div class="menu-group">
+				<a id="todayReport" class="menu-button">今日の日報</a>
+				<a id="subDaily" class="sub-button">日報一覧</a>
+			</div>
+			<div class="menu-group">
+				<a id="todaySafety" class="menu-button">今日の安全点検</a>
+				<a id="subSafety" class="sub-button">安全点検一覧</a>
+			</div>
+			<div class="menu-group">
+				<a id="todayTrouble" class="menu-button">今日のトラブル</a>
+				<a id="subTrouble" class="sub-button">トラブル一覧</a>
+			</div>
+		</div>
+
+		<!-- チャット -->
+		<div class="chat-panel">
+			<div class="chat-header">現場チャット</div>
+			<div class="chat-messages" id="chatMessages"></div>
+			<div class="chat-input">
+				<textarea id="messageInput" placeholder="メッセージを入力" rows="3"></textarea>
+				<button type="button" onclick="sendMessage()">送信</button>
+			</div>
+		</div>
+	</main>
+
+	<!-- 左下ステータス -->
+	<div class="status-bubble">
+		<div class="status-item">
+			<span class="status-title">日報</span>
+			<span id="dailyStatus"></span>
+		</div>
+		<div class="status-item">
+			<span class="status-title">安全点検</span>
+			<span id="safetyStatus"></span>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		let SITE_ID;
+		const OFFICE_SENDER = 1; // 本社の送信元ID
+
+		function statusBadge(status) {
+			if (status === "確認済") return '<span class="checked">✔ 確認済</span>';
+			if (status === "未確認") return '<span class="unchecked">▲ 未確認</span>';
+			return '<span class="unchecked">✖ 未提出</span>';
+		}
+
+		function renderChat() {
+			const list = TeamE.chatsBySite(SITE_ID);
+			document.getElementById("chatMessages").innerHTML = list.map(c => {
+				// 本社視点：現場からのメッセージを other、本社発を me として表示
+				const me = c.senderSiteId === OFFICE_SENDER;
+				return `<div class="message-row ${me ? 'me' : 'other'}">
+					<div class="message-wrapper">
+						<div class="message">${TeamE.esc(c.message)}</div>
+						<div class="message-time">${TeamE.fmtDateTime(c.dateTime)}</div>
+					</div>
+				</div>`;
+			}).join("");
+			const area = document.querySelector(".chat-messages");
+			if (area) area.scrollTop = area.scrollHeight;
+		}
+
+		function sendMessage() {
+			const input = document.getElementById("messageInput");
+			const text = input.value.trim();
+			if (!text) return;
+			TeamE.addChat({ siteId: SITE_ID, senderSiteId: OFFICE_SENDER, message: text });
+			input.value = "";
+			renderChat();
+		}
+
+		TeamE.init().then(() => {
+			const s = TeamE.requireLogin();
+			if (!s) return;
+			if (s.user.roll !== 0) { location.href = "./home.html"; return; }
+
+			const params = new URLSearchParams(location.search);
+			SITE_ID = Number(params.get("siteId"));
+			const site = TeamE.site(SITE_ID);
+			if (!site) { location.href = "./list.html"; return; }
+
+			document.getElementById("userName").textContent = s.user.userName;
+			document.getElementById("siteName").textContent = site.siteName;
+
+			// 一覧リンク（現場で絞り込み）
+			document.getElementById("linkDaily").href = "./dailylist.html?siteId=" + SITE_ID;
+			document.getElementById("subDaily").href = "./dailylist.html?siteId=" + SITE_ID;
+			document.getElementById("linkSafety").href = "./safetylist.html?siteId=" + SITE_ID;
+			document.getElementById("subSafety").href = "./safetylist.html?siteId=" + SITE_ID;
+			document.getElementById("linkTrouble").href = "./troublelist.html?siteId=" + SITE_ID;
+			document.getElementById("subTrouble").href = "./troublelist.html?siteId=" + SITE_ID;
+
+			// 今日のデータ
+			const today = TeamE.today();
+			const todayReport = TeamE.reportsBySite(SITE_ID).find(r => r.targetDate === today);
+			const todaySafety = TeamE.safetiesBySite(SITE_ID).find(x => String(x.sCreatedAt).slice(0, 10) === today);
+
+			const tr = document.getElementById("todayReport");
+			if (todayReport) tr.href = "./dailyreportdetail.html?id=" + todayReport.reportId;
+			else { tr.replaceWith(Object.assign(document.createElement("span"), { className: "menu-button", textContent: "今日の日報" })); }
+
+			const ts = document.getElementById("todaySafety");
+			if (todaySafety) ts.href = "./safetycheckdetail.html?id=" + todaySafety.safetyId;
+			else { ts.replaceWith(Object.assign(document.createElement("span"), { className: "menu-button", textContent: "今日の安全点検" })); }
+
+			document.getElementById("todayTrouble").href = "./troublelist.html?siteId=" + SITE_ID + "&occurredDate=" + today;
+
+			document.getElementById("dailyStatus").innerHTML = statusBadge(TeamE.dailyStatusForSite(SITE_ID));
+			document.getElementById("safetyStatus").innerHTML = statusBadge(TeamE.safetyStatusForSite(SITE_ID));
+
+			renderChat();
+
+			document.getElementById("logoutForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				TeamE.logout();
+				location.href = "./login.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

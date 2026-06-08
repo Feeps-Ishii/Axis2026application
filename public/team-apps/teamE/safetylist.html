@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>安全点検一覧</title>
+	<link rel="stylesheet" href="./css/safety/safetylist.css">
+</head>
+
+<body>
+
+	<header>
+		<div class="header-top">
+			<div class="logo-area">
+				<a id="homeLink"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+				<div class="pageTitle">安全点検一覧</div>
+			</div>
+			<div class="user-area">
+				<div><span id="userName">ゲスト</span> さん</div>
+				<form id="logoutForm">
+					<button type="submit" class="logout-btn">ログアウト</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="page-title-bar" style="display: flex; align-items: center; gap: 40px; padding: 0 20px;">
+			<div class="header-site-name" id="headerSiteName" style="font-weight: bold; font-size: 15px; color: #1f3c88;"></div>
+			<a id="backPortal" class="btn_back" style="display:none;">現場ポータルへ戻る</a>
+		</div>
+	</header>
+
+	<main>
+		<form id="searchForm">
+			<div class="search-box">
+				<div class="search-title">検索条件</div>
+				<div class="search-grid">
+					<div class="search-item">
+						<label>登録日</label>
+						<input type="date" name="sCreatedAt">
+					</div>
+					<div class="search-item" id="siteFilterItem">
+						<label>現場名</label>
+						<select name="siteId" id="siteSelect"><option value="">すべて</option></select>
+					</div>
+					<div class="search-item">
+						<label>判定</label>
+						<select name="judgement">
+							<option value="">すべて</option>
+							<option value="良好">良好</option>
+							<option value="要対応">要対応</option>
+						</select>
+					</div>
+					<button type="submit" class="search-btn">検索</button>
+					<a id="resetBtn" class="search-btn">リセット</a>
+				</div>
+			</div>
+		</form>
+
+		<div class="table-wrap">
+			<table class="check-table">
+				<thead>
+					<tr>
+						<th>登録日</th><th>現場名</th><th>点検項目数</th><th>良好</th><th>不備</th><th>判定</th><th>本社対応</th><th>詳細</th>
+					</tr>
+				</thead>
+				<tbody id="tbody"></tbody>
+			</table>
+		</div>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script>
+		let ROLL, SITE_ID, FROM_SITE = null;
+
+		function render() {
+			const f = document.getElementById("searchForm");
+			const dateF = f.sCreatedAt.value;
+			const siteF = ROLL === 0 ? f.siteId.value : String(SITE_ID);
+			const judgeF = f.judgement.value;
+
+			let rows = TeamE.safeties().filter(x => {
+				if (dateF && String(x.sCreatedAt).slice(0, 10) !== dateF) return false;
+				if (siteF && String(x.siteId) !== String(siteF)) return false;
+				if (judgeF && TeamE.safetyJudgement(x) !== judgeF) return false;
+				return true;
+			});
+
+			const tb = document.getElementById("tbody");
+			if (rows.length === 0) {
+				tb.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#718096;">該当する安全点検データが見つかりません。</td></tr>`;
+				return;
+			}
+			tb.innerHTML = rows.map(x => {
+				const site = TeamE.site(x.siteId);
+				return `<tr>
+					<td>${TeamE.fmtDate(x.sCreatedAt)}</td>
+					<td>${TeamE.esc(site ? site.siteName : "")}</td>
+					<td>7件</td>
+					<td class="status-ok">${TeamE.safetyGood(x)}件</td>
+					<td class="status-ng">${TeamE.safetyBad(x)}件</td>
+					<td>${TeamE.safetyJudgement(x)}</td>
+					<td>${x.sStatusFlag === 0 ? "提出済み" : "確認済み"}</td>
+					<td><a href="./safetycheckdetail.html?id=${x.safetyId}&fromList=1" class="detail-btn">詳細</a></td>
+				</tr>`;
+			}).join("");
+		}
+
+		TeamE.init().then(() => {
+			const s = TeamE.requireLogin();
+			if (!s) return;
+			ROLL = s.user.roll; SITE_ID = s.siteId;
+			document.getElementById("userName").textContent = s.user.userName;
+			document.getElementById("homeLink").href = ROLL === 0 ? "./list.html" : "./home.html";
+
+			if (ROLL === 0) {
+				const sel = document.getElementById("siteSelect");
+				TeamE.sites().filter(x => !x.officecheck).forEach(site => {
+					const o = document.createElement("option");
+					o.value = site.siteId; o.textContent = site.siteName; sel.appendChild(o);
+				});
+				const params = new URLSearchParams(location.search);
+				const qsSite = params.get("siteId");
+				const headerName = document.getElementById("headerSiteName");
+				if (qsSite) {
+					FROM_SITE = qsSite; sel.value = qsSite;
+					const site = TeamE.site(qsSite);
+					headerName.textContent = site ? site.siteName + "（絞り込み中）" : "";
+					const back = document.getElementById("backPortal");
+					back.style.display = "inline"; back.href = "./portal.html?siteId=" + qsSite;
+				} else {
+					headerName.textContent = "全現場対象エリア";
+				}
+			} else {
+				document.getElementById("siteFilterItem").style.display = "none";
+				const site = TeamE.site(SITE_ID);
+				document.getElementById("headerSiteName").textContent = site ? site.siteName : "";
+			}
+
+			document.getElementById("searchForm").addEventListener("submit", e => { e.preventDefault(); render(); });
+			document.getElementById("resetBtn").addEventListener("click", () => {
+				document.getElementById("searchForm").reset();
+				if (ROLL === 0 && FROM_SITE) document.getElementById("siteSelect").value = FROM_SITE;
+				render();
+			});
+			document.getElementById("logoutForm").addEventListener("submit", e => {
+				e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+			});
+
+			render();
+		});
+	</script>
+
+</body>
+</html>

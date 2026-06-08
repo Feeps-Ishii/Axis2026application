@@ -1,0 +1,499 @@
+@charset "UTF-8";
+
+/* =======================================================
+   1. 全体共通・縦並び（左右配置の強制解除）
+======================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+html, body {
+    display: block !important; /* 横並びフレックスを完全に無効化 */
+    height: auto !important;
+    overflow-y: auto !important;
+    background-color: #f5f6fa;
+    color: #333;
+}
+
+/* =======================================================
+   2. 新・3段リンク付きヘッダー専用スタイル（home.cssの色合いを完全再現）
+======================================================= */
+header.system-header {
+    display: block !important;
+    width: 100% !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    background-color: #1f3c88 !important; /* ★home.cssのヘッダー上部の濃い青 */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+header.system-header .header-top {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 15px 25px !important;
+    box-sizing: border-box !important;
+}
+
+/* 左側：ロゴ ＆ システム名 */
+header.system-header .logo-area {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+}
+
+header.system-header .logo-img {
+    width: 62px !important;
+    height: 62px !important;
+    object-fit: contain !important;
+    background: white !important;
+    border-radius: 10px !important;
+    padding: 4px !important;
+}
+
+header.system-header .site-system-name {
+    font-size: 22px !important;
+    font-weight: bold !important;
+    color: white !important; /* ★白文字 */
+}
+
+/* 右側：ユーザー ＆ ログアウト */
+header.system-header .user-area {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    color: white !important; /* ★白文字 */
+    font-size: 14px !important;
+}
+
+header.system-header .user-info-box {
+    color: white !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+}
+
+header.system-header .logout-btn {
+    background-color: white !important; /* ★白背景 */
+    color: #1f3c88 !important;          /* ★濃い青文字 */
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    cursor: pointer !important;
+    font-weight: bold !important;
+    transition: 0.2s !important;
+    font-size: 14px !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+}
+
+header.system-header .logout-btn:hover {
+    background-color: #dfe6f7 !important; /* ★ホバー時の淡い青 */
+}
+
+/* 🌟 下段：ナビゲーションバー（home.cssの水色背景を完全再現） */
+header.system-header .page-title-bar {
+    position: static !important;
+    background-color: #e9eefc !important; /* ★home.cssの下段タイトルの薄い水色 */
+    padding: 12px 25px !important;
+    display: flex !important;
+    gap: 20px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* リンクをシンプル文字リンクに変更 */
+header.system-header .page-title-bar a {
+    display: inline-block !important;
+    color: #1f3c88 !important;     /* ★水色背景に映える濃い青文字 */
+    text-decoration: none !important;
+    font-size: 16px !important;
+    font-weight: bold !important;  
+    padding: 2px 0 !important;
+    transition: 0.2s !important;
+    background: none !important;
+    border: none !important;
+}
+
+/* マウスを乗せたとき（ホバー）はシンプルに下線（アンダーライン）を表示 */
+header.system-header .page-title-bar a:hover {
+    color: #16316f !important;             
+    text-decoration: underline !important; 
+}
+
+
+/* =======================================================
+   3. お気に入りのリッチなコンテンツ・フォーム装飾（100%維持）
+======================================================= */
+.container {
+    display: block !important;
+    width: 100% !important;
+    max-width: 1100px; /* テーブルやグリッドがゆったり入る幅 */
+    margin: 30px auto !important; /* ヘッダーの下に適切な余白を開けて中央配置 */
+    padding: 0 20px 80px 20px;
+    box-sizing: border-box;
+}
+
+/* 白いセクションカードの立体感・影 */
+.section {
+    background: white;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 22px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1f3c88;
+    border-left: 6px solid #1f3c88; /* 左側の太い綺麗な青線 */
+    padding-left: 12px;
+    margin-bottom: 20px;
+}
+
+/* フォーム入力欄の綺麗な装飾（丸みと内余白） */
+label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #333;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px; /* 高級感の出る丸み */
+    border: 1px solid #ccc;
+    font-size: 15px;
+    background: white;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #1f3c88;
+    outline: none;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+/* 詳細画面などのグレー背景の値ボックス */
+.value {
+    font-size: 15px;
+    padding: 12px;
+    background: #f7f9fc;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+/* 配置用レイアウト */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.item {
+    margin-bottom: 16px;
+}
+
+.sub-box {
+    background: #f7f9fc;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+}
+
+.worker-row {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+}
+
+/* =======================================================
+   4. テーブル ＆ 検索エリア装飾（100%維持・太字強化）
+======================================================= */
+.search-area {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.search-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.search-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #666;
+}
+
+.search-input, .search-select {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    min-width: 200px;
+    font-size: 14px;
+    background: white;
+    margin-bottom: 0;
+}
+
+/* 一覧・詳細のテーブル */
+.report-table, .table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    margin-top: 10px;
+}
+
+.report-table th, .report-table td, .table th, .table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+/* テーブルの見出し：ご要望通り、確実に真っ黒な太字にする設定 */
+.report-table th, .table th {
+    background-color: #edf2f7 !important;
+    color: #1a202c !important;   
+    font-weight: bold !important; 
+    font-size: 0.95rem;
+}
+
+.report-table tbody tr:hover {
+    background-color: #f0f4ff; /* 行ホバー時の綺麗な薄青 */
+}
+
+/* バッジ ＆ タグ */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    display: inline-block;
+}
+.status-progress { background-color: #feebc8; color: #c05621; }
+.status-complete { background-color: #c6f6d5; color: #22543d; }
+
+.checkbox-list, .tag-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag {
+    background: #e8eefc;
+    color: #1f3c88;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* =======================================================
+   5. ボタン装飾（アニメーション付きリッチ版）
+======================================================= */
+.btn-area {
+    text-align: center;
+    margin-top: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* 通常の確定・保存ボタン（緑） */
+.btn {
+    background: #28a745 !important;
+    color: #fff !important;
+    border: none;
+    padding: 14px 35px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+    display: inline-block;
+}
+
+/* 🔍 検索ボタン（メイン）：システムのテーマカラーである濃い青で、パッと目を引く */
+.search-btn {
+    background-color: #1f3c88 !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 11px 24px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    transition: 0.2s !important;
+    display: inline-block;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.search-btn:hover {
+    background-color: #16316f !important;
+}
+
+/* 🔄 リセットボタン（補助）：一歩引いたグレー（灰色）にして、誤操作を防ぐ */
+.search-btn.btn-reset-gray {
+    background-color: #e2e8f0 !important; /* 薄いグレー */
+    color: #4a5568 !important;            /* 濃いグレーの文字 */
+    border: 1px solid #cbd5e0 !important; /* 軽い枠線 */
+}
+
+.search-btn.btn-reset-gray:hover {
+    background-color: #cbd5e0 !important; /* ホバー時に少し暗く */
+    color: #2d3748 !important;
+}
+
+.btn:hover {
+    background: #218838 !important;
+    transform: translateY(-2px);
+}
+
+/* グレー用の指定に「.btn.btn-gray」などの重ね書き */
+.btn-gray, .btn-secondary, .btn_h, .btn.btn-gray, .btn.btn-secondary {
+    background: #6c757d !important;
+    color: #fff !important;
+    border: none;
+    padding: 14px 35px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-gray:hover, .btn-secondary:hover, .btn_h:hover {
+    background: #5a6268 !important;
+    transform: translateY(-2px);
+}
+
+/* 詳細へ進む用の小さなリンクボタン（青） */
+.detail-btn {
+    display: inline-block;
+    background-color: #1f3c88;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.detail-btn:hover {
+    background-color: #16316f;
+}
+
+/* =======================================================
+   6. 左下ステータス吹き出し ＆ 完了画面専用（100%維持）
+====================================================== */
+.status-bubble {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 26px 30px;
+    min-width: 340px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.20);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    z-index: 999;
+}
+
+.done { color: #2ecc71; font-weight: bold; }
+.not-done { color: #e67e22; font-weight: bold; }
+.blinking { animation: blink 1.2s infinite; }
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+/* 完了画面カード */
+main {
+    max-width: 800px;
+    margin: 80px auto;
+    padding: 20px;
+    text-align: center;
+}
+.complete-card {
+    background-color: white;
+    border-radius: 14px;
+    padding: 50px 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.check-mark {
+    font-size: 60px;
+    color: #2ecc71;
+    margin-bottom: 20px;
+}
+.title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #1f3c88;
+}
+.message {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+/* テーブルを囲むコンテナのスクロール設定 */
+.table-container {
+    border-radius: 12px;     
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); 
+    
+    /* 🌟対策1: テスト用に、最大高さを一度「300px」など低く設定してみてください */
+    max-height: 500px; 
+    
+    /* 🌟対策2: 「auto」から「scroll」に変更すると、データが少なくても常に右側にスクロールバー（または溝）が表示されるようになります */
+    overflow-y: scroll; 
+}
+
+/* スクロールしてもテーブルの「見出し（ヘッダー）」を一番上に固定する設定 */
+.report-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* 既存の .report-table から不要になった設定をクリア */
+.report-table {
+    margin-top: 0 !important; 
+    box-shadow: none !important;
+    
+    /* 🌟対策3: 既存のCSS（239行目付近）にある「overflow: hidden;」がスクロールを邪魔しないように上書き */
+    overflow: visible !important; 
+}
