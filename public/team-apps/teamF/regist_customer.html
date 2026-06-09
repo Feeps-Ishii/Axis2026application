@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 - 予約登録</title>
+	<link rel="stylesheet" href="./cus.css">
+</head>
+
+<body>
+	<header>
+		<div class="logo">
+			<h2>花あかりの湯</h2>
+			<small>HANA AKARI NO YU</small>
+		</div>
+		<nav>
+			<ul>
+				<li><a href="./customer_top.html">ご予約トップ</a></li>
+				<li><a class="active" href="./regist_customer.html">予約登録</a></li>
+				<li><a href="./upcus_search.html">予約変更</a></li>
+				<li><a href="./cancus_search.html">予約キャンセル</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<section class="hero">
+		<div class="hero-tag">ONLINE RESERVATION</div>
+		<h1>花あかりの湯</h1>
+		<p>山の静けさと温泉のぬくもり。特別なひとときをオンラインでご予約いただけます。</p>
+	</section>
+
+	<main class="container">
+		<section class="page-header">
+			<h2>予約登録</h2>
+			<p>ご宿泊日時、プラン、お客様情報を入力してください。</p>
+		</section>
+
+		<div class="progress-bar">
+			<div class="progress-step active">
+				<div class="step-circle">1</div>
+				<div class="step-label">日時・プラン・お客様情報</div>
+			</div>
+			<div class="progress-step">
+				<div class="step-circle">2</div>
+				<div class="step-label">お支払い</div>
+			</div>
+			<div class="progress-step">
+				<div class="step-circle">3</div>
+				<div class="step-label">確認・完了</div>
+			</div>
+		</div>
+
+		<form id="registForm">
+			<div class="error-message" id="errorBox" style="display:none"></div>
+
+			<section class="card">
+				<h3>ご宿泊日時</h3>
+				<div class="form-grid">
+					<div class="form-group">
+						<label>チェックイン日 <span class="req">*</span></label>
+						<input type="date" name="checkinDate" id="checkinDate" required>
+					</div>
+					<div class="form-group">
+						<label>チェックアウト日 <span class="req">*</span></label>
+						<input type="date" name="checkoutDate" id="checkoutDate" required>
+					</div>
+					<div class="form-group">
+						<label>チェックイン時間 <span class="req">*</span></label>
+						<select name="checkinTime" id="checkinTime">
+							<option value="15:00">15:00</option>
+							<option value="16:00">16:00</option>
+							<option value="17:00">17:00</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>人数 <span class="req">*</span></label>
+						<select name="people" id="people">
+							<option value="1名">1名</option>
+							<option value="2名">2名</option>
+							<option value="3名">3名</option>
+							<option value="4名">4名</option>
+							<option value="5名">5名</option>
+							<option value="6名">6名</option>
+							<option value="7名">7名</option>
+							<option value="8名">8名</option>
+						</select>
+					</div>
+				</div>
+			</section>
+
+			<section class="card">
+				<h3>宿泊プラン</h3>
+				<div class="plan-grid" id="planGrid"></div>
+			</section>
+
+			<section class="card">
+				<h3>お客様情報</h3>
+				<div class="form-grid">
+					<div class="form-group">
+						<label>お名前（姓）<span class="req">*</span></label>
+						<input type="text" name="lastName" required>
+					</div>
+					<div class="form-group">
+						<label>お名前（名）<span class="req">*</span></label>
+						<input type="text" name="firstName" required>
+					</div>
+					<div class="form-group">
+						<label>フリガナ（姓）<span class="req">*</span></label>
+						<input type="text" name="lastKana" required>
+					</div>
+					<div class="form-group">
+						<label>フリガナ（名）<span class="req">*</span></label>
+						<input type="text" name="firstKana" required>
+					</div>
+					<div class="form-group">
+						<label>電話番号 <span class="req">*</span></label>
+						<input type="tel" name="phone" maxlength="11" pattern="[0-9]{11}" inputmode="numeric"
+							placeholder="09012345678" title="電話番号は半角数字11桁で入力してください" required>
+					</div>
+					<div class="form-group">
+						<label>メールアドレス</label>
+						<input type="email" name="email">
+					</div>
+					<div class="form-group full">
+						<label>アレルギー</label>
+						<textarea name="allergyInfo" placeholder="食物アレルギーなどがあればご記入ください"></textarea>
+					</div>
+					<div class="form-group full">
+						<label>ご要望</label>
+						<textarea name="request" placeholder="記念日やその他のご要望があればご記入ください"></textarea>
+					</div>
+				</div>
+			</section>
+
+			<div class="button-area">
+				<a class="btn-secondary" href="./customer_top.html">トップへ戻る</a>
+				<button type="submit" class="btn-primary">決済情報入力へ</button>
+			</div>
+		</form>
+	</main>
+
+	<footer>
+		<div class="footer-title">花あかりの湯</div>
+		<p>〒XXX-XXXX　〇〇県〇〇市〇〇町1-1　TEL: 0120-XXX-XXX</p>
+		<p>Copyright © 2026 花あかりの湯. All Rights Reserved.</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const form = document.getElementById("registForm");
+		const checkinDate = document.getElementById("checkinDate");
+		const checkoutDate = document.getElementById("checkoutDate");
+		const checkinTime = document.getElementById("checkinTime");
+		const people = document.getElementById("people");
+		const planGrid = document.getElementById("planGrid");
+		const errorBox = document.getElementById("errorBox");
+
+		// plans() の roomType「露天風呂付き客室」「和室」を seed rooms.roomType
+		//「客室露天風呂付」「和室」に対応づける。
+		function roomTypeForPlan(plan) {
+			return plan.roomType === "露天風呂付き客室" ? "客室露天風呂付" : "和室";
+		}
+		function parsePeople(p) {
+			const n = parseInt(String(p || "").replace(/[^0-9]/g, ""), 10);
+			return isNaN(n) ? 1 : n;
+		}
+
+		let selectedPlanId = null;
+
+		function renderPlans() {
+			const inD = checkinDate.value;
+			const outD = checkoutDate.value;
+			const num = parsePeople(people.value);
+			const plans = TeamF.plans().filter((p) => p.isActive);
+			const validDates = inD && outD && outD > inD;
+			let html = "";
+			let anyShown = false;
+			let firstShownId = null;
+
+			plans.forEach((p) => {
+				if (num > 6 && p.roomType !== "和室") return; // 7〜8名は和室プランのみ
+				if (!validDates) return;
+				const rooms = TeamF.availableRooms(inD, outD, roomTypeForPlan(p));
+				if (rooms.length === 0) return; // 空室があるプランのみ
+				anyShown = true;
+				if (firstShownId === null) firstShownId = p.planId;
+				const selected = String(selectedPlanId) === String(p.planId);
+				html +=
+					'<label class="plan-card' + (selected ? " selected" : "") + '" data-plan="' + p.planId + '">' +
+					'<input type="radio" name="plan" value="' + p.planId + '"' + (selected ? " checked" : "") + ">" +
+					"<h4>" + TeamF.esc(p.planName) + "</h4>" +
+					'<p class="room-type">' + TeamF.esc(p.roomType) + "</p>" +
+					'<p class="price">お一人様 ' + Number(p.basePrice).toLocaleString("ja-JP") + "円（一泊二食）</p>" +
+					"<p>" + TeamF.esc(p.description) + "</p>" +
+					"</label>";
+			});
+
+			if (!anyShown) {
+				html = '<div class="no-plan-message">選択された日程で予約可能なプランがありません。別の日付を選択してください。</div>';
+			}
+			planGrid.innerHTML = html;
+
+			if (anyShown) {
+				const stillThere = planGrid.querySelector('input[name="plan"][value="' + selectedPlanId + '"]');
+				if (!stillThere && firstShownId !== null) {
+					selectedPlanId = firstShownId;
+					const first = planGrid.querySelector('input[name="plan"]');
+					if (first) {
+						first.checked = true;
+						first.closest(".plan-card").classList.add("selected");
+					}
+				}
+			}
+
+			planGrid.querySelectorAll(".plan-card").forEach((card) => {
+				card.addEventListener("click", () => {
+					planGrid.querySelectorAll(".plan-card").forEach((c) => c.classList.remove("selected"));
+					card.classList.add("selected");
+					const radio = card.querySelector('input[type="radio"]');
+					radio.checked = true;
+					selectedPlanId = radio.value;
+				});
+			});
+		}
+
+		function syncCheckoutMin() {
+			if (checkinDate.value) {
+				const next = new Date(checkinDate.value + "T00:00:00");
+				next.setDate(next.getDate() + 1);
+				const min = next.toISOString().split("T")[0];
+				checkoutDate.min = min;
+				if (checkoutDate.value && checkoutDate.value < min) checkoutDate.value = "";
+			}
+		}
+
+		[checkinDate, checkoutDate, people].forEach((el) =>
+			el.addEventListener("change", () => {
+				if (el === checkinDate) syncCheckoutMin();
+				renderPlans();
+			})
+		);
+
+		form.addEventListener("submit", (e) => {
+			e.preventDefault();
+			const errs = [];
+			const data = Object.fromEntries(new FormData(form).entries());
+			if (!data.checkinDate) errs.push("チェックイン日");
+			if (!data.checkoutDate) errs.push("チェックアウト日");
+			const today = TeamF.today();
+			if (data.checkinDate && data.checkinDate < today) errs.push("チェックイン日は本日以降を選択してください");
+			if (data.checkoutDate && data.checkoutDate < today) errs.push("チェックアウト日は本日以降を選択してください");
+			if (data.checkinDate && data.checkoutDate && !(data.checkoutDate > data.checkinDate))
+				errs.push("チェックアウト日はチェックイン日より後の日付を選択してください");
+			if (!data.checkinTime) data.checkinTime = "15:00";
+			if (!data.lastName) errs.push("お名前（姓）");
+			if (!data.firstName) errs.push("お名前（名）");
+			if (!data.lastKana) errs.push("フリガナ（姓）");
+			if (!data.firstKana) errs.push("フリガナ（名）");
+			if (!data.phone) errs.push("電話番号");
+			else if (!/^\d{11}$/.test(data.phone)) errs.push("電話番号は11桁で入力してください");
+			if (!data.plan) errs.push("プラン");
+
+			if (errs.length) {
+				errorBox.textContent = errs.join(" / ");
+				errorBox.style.display = "block";
+				window.scrollTo(0, 0);
+				return;
+			}
+
+			const planId = Number(data.plan);
+			const plan = TeamF.plan(planId);
+			const numPeople = parsePeople(data.people);
+			let nights = Math.round((new Date(data.checkoutDate) - new Date(data.checkinDate)) / 86400000);
+			if (nights <= 0) nights = 1;
+			const amount = plan.basePrice * numPeople * nights;
+
+			const prev = TeamF.getPending("regcus") || {};
+			TeamF.setPending("regcus", {
+				input: data,
+				customer: {
+					name: data.lastName + data.firstName,
+					nameKana: data.lastKana + data.firstKana,
+					phone: data.phone,
+					email: data.email || "",
+					allergyInfo: data.allergyInfo || "",
+					hospitalityNote: data.request || "",
+					visitCount: 0,
+					karteStatus: "予約中"
+				},
+				reservation: {
+					planId: planId,
+					routeId: 1,
+					stayDate: data.checkinDate,
+					checkoutDate: data.checkoutDate,
+					checkinTime: data.checkinTime + ":00",
+					numPeople: numPeople,
+					status: "予約済",
+					requestNote: data.request || "",
+					allergyInfo: data.allergyInfo || ""
+				},
+				display: {
+					checkinDate: data.checkinDate,
+					checkoutDate: data.checkoutDate,
+					checkinTime: data.checkinTime,
+					people: data.people,
+					planName: plan.planName,
+					roomType: plan.roomType,
+					lastName: data.lastName,
+					firstName: data.firstName,
+					phone: data.phone,
+					email: data.email || "",
+					nights: nights,
+					amount: amount
+				},
+				payment: prev.payment || null
+			});
+
+			location.href = "./payment.html";
+		});
+
+		function restore() {
+			const pending = TeamF.getPending("regcus");
+			const d = pending && pending.input;
+			if (!d) return;
+			checkinDate.value = d.checkinDate || "";
+			syncCheckoutMin();
+			checkoutDate.value = d.checkoutDate || "";
+			if (d.checkinTime) checkinTime.value = d.checkinTime;
+			if (d.people) people.value = d.people;
+			form.lastName.value = d.lastName || "";
+			form.firstName.value = d.firstName || "";
+			form.lastKana.value = d.lastKana || "";
+			form.firstKana.value = d.firstKana || "";
+			form.phone.value = d.phone || "";
+			form.email.value = d.email || "";
+			form.allergyInfo.value = d.allergyInfo || "";
+			form.request.value = d.request || "";
+			if (d.plan) selectedPlanId = d.plan;
+		}
+
+		TeamF.init().then(() => {
+			const params = new URLSearchParams(location.search);
+			if (params.get("restore") === "1") {
+				restore();
+			} else {
+				const today = TeamF.today();
+				const next = new Date(today + "T00:00:00");
+				next.setDate(next.getDate() + 1);
+				checkinDate.value = today;
+				checkoutDate.value = next.toISOString().split("T")[0];
+			}
+			checkinDate.min = TeamF.today();
+			syncCheckoutMin();
+			renderPlans();
+		});
+	</script>
+</body>
+
+</html>

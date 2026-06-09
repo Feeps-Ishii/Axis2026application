@@ -1,0 +1,742 @@
+{
+  "accounts": [
+    {
+      "loginId": "staff001",
+      "passwordHash": "1111",
+      "accountName": "従業員",
+      "accountId": 1
+    }
+  ],
+  "rooms": [
+    {
+      "roomNo": "桜",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 1
+    },
+    {
+      "roomNo": "梅",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 2
+    },
+    {
+      "roomNo": "椿",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 3
+    },
+    {
+      "roomNo": "菊",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 4
+    },
+    {
+      "roomNo": "牡丹",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 5
+    },
+    {
+      "roomNo": "藤",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 6
+    },
+    {
+      "roomNo": "紫陽花",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 7
+    },
+    {
+      "roomNo": "百合",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 8
+    },
+    {
+      "roomNo": "撫子",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 9
+    },
+    {
+      "roomNo": "朝顔",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 10
+    },
+    {
+      "roomNo": "雪椿",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 11
+    },
+    {
+      "roomNo": "紅葉",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 12
+    },
+    {
+      "roomNo": "菫",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 13
+    },
+    {
+      "roomNo": "萩",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 14
+    },
+    {
+      "roomNo": "桔梗",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 15
+    },
+    {
+      "roomNo": "山吹",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 16
+    },
+    {
+      "roomNo": "水仙",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 17
+    },
+    {
+      "roomNo": "鈴蘭",
+      "roomType": "和室",
+      "capacity": 8,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 18
+    },
+    {
+      "roomNo": "花霞",
+      "roomType": "客室露天風呂付",
+      "capacity": 6,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 19
+    },
+    {
+      "roomNo": "花筏",
+      "roomType": "客室露天風呂付",
+      "capacity": 6,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 20
+    },
+    {
+      "roomNo": "花灯",
+      "roomType": "客室露天風呂付",
+      "capacity": 6,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 21
+    },
+    {
+      "roomNo": "花月",
+      "roomType": "客室露天風呂付",
+      "capacity": 6,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 22
+    },
+    {
+      "roomNo": "花宴",
+      "roomType": "客室露天風呂付",
+      "capacity": 6,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 23
+    },
+    {
+      "roomNo": "花明",
+      "roomType": "客室露天風呂付",
+      "capacity": 6,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 24
+    },
+    {
+      "roomNo": "花あかり",
+      "roomType": "客室露天風呂付",
+      "capacity": 6,
+      "roomStatus": "空室",
+      "isActive": 1,
+      "roomId": 25
+    }
+  ],
+  "plans": [
+    {
+      "planName": "月あかり懐石",
+      "roomType": "露天風呂付き客室",
+      "minPeople": 1,
+      "maxPeople": 6,
+      "basePrice": 45000,
+      "description": "全7室の露天風呂付き客室にご宿泊いただく当館おすすめプラン。板長特選懐石をご提供。伊勢海老や黒毛和牛など季節の最上食材を使用。",
+      "isActive": 1,
+      "planId": 1
+    },
+    {
+      "planName": "花あかり懐石",
+      "roomType": "和室",
+      "minPeople": 1,
+      "maxPeople": 8,
+      "basePrice": 30000,
+      "description": "全18室の和室スタンダードプラン。ご家族・ご友人向け。季節の懐石料理をお部屋食またはお食事処でご提供。",
+      "isActive": 1,
+      "planId": 2
+    },
+    {
+      "planName": "和室記念日プラン",
+      "roomType": "和室",
+      "minPeople": 1,
+      "maxPeople": 8,
+      "basePrice": 40000,
+      "description": "還暦・銀婚式・誕生日向け記念日プラン。お花、お赤飯、鯛の塩焼きをご用意。サプライズ演出対応可能。",
+      "isActive": 1,
+      "planId": 3
+    },
+    {
+      "planName": "露天風呂付き客室記念日プラン",
+      "roomType": "露天風呂付き客室",
+      "minPeople": 1,
+      "maxPeople": 6,
+      "basePrice": 55000,
+      "description": "露天風呂付き客室で過ごす記念日プラン。お花、お赤飯、鯛の塩焼きをご用意。サプライズ演出対応可能。",
+      "isActive": 1,
+      "planId": 4
+    },
+    {
+      "planName": "平日のんびりプラン",
+      "roomType": "和室",
+      "minPeople": 1,
+      "maxPeople": 8,
+      "basePrice": 25000,
+      "description": "2月・6月・9月の平日限定プラン。通常懐石料理付き。和室利用。",
+      "isActive": 1,
+      "planId": 5
+    }
+  ],
+  "routes": [
+    {
+      "routeId": 1,
+      "routeCode": "OWN",
+      "routeName": "自社サイト",
+      "routeType": "自社サイト",
+      "commissionRate": 0,
+      "isActive": 1,
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00"
+    },
+    {
+      "routeId": 2,
+      "routeCode": "TEL",
+      "routeName": "電話受付",
+      "routeType": "電話",
+      "commissionRate": 0,
+      "isActive": 1,
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00"
+    },
+    {
+      "routeId": 3,
+      "routeCode": "JALAN",
+      "routeName": "じゃらん",
+      "routeType": "OTA",
+      "commissionRate": 10,
+      "isActive": 1,
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00"
+    },
+    {
+      "routeId": 4,
+      "routeCode": "RAKUTEN",
+      "routeName": "楽天トラベル",
+      "routeType": "OTA",
+      "commissionRate": 10,
+      "isActive": 1,
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00"
+    },
+    {
+      "routeId": 5,
+      "routeCode": "IKYU",
+      "routeName": "一休.com",
+      "routeType": "OTA",
+      "commissionRate": 10,
+      "isActive": 1,
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00"
+    },
+    {
+      "routeId": 6,
+      "routeCode": "EXPEDIA",
+      "routeName": "Expedia",
+      "routeType": "OTA",
+      "commissionRate": 12,
+      "isActive": 1,
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00"
+    },
+    {
+      "routeId": 7,
+      "routeCode": "TRIP",
+      "routeName": "Trip.com",
+      "routeType": "OTA",
+      "commissionRate": 12,
+      "isActive": 1,
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00"
+    }
+  ],
+  "customers": [
+    {
+      "name": "鈴木太郎",
+      "nameKana": "スズキタロウ",
+      "birthDate": "1990-05-15",
+      "phone": "09012345678",
+      "email": "suzuki@example.com",
+      "allergyInfo": "えび、かに",
+      "hospitalityNote": "結婚記念日のため、夕食時に記念写真サービスを実施",
+      "memo": "露天風呂付き客室を好む。静かな部屋を希望。",
+      "visitCount": 5,
+      "karteStatus": "来館済",
+      "isDeleted": 0,
+      "customerId": 1
+    },
+    {
+      "name": "田中幸子",
+      "nameKana": "タナカサチコ",
+      "birthDate": "1970-06-18",
+      "phone": "09022334455",
+      "email": "tanaka@example.com",
+      "allergyInfo": "牛乳",
+      "hospitalityNote": "友達の誕生日のため、飾り付けがほしい",
+      "memo": "日本酒をとても好まれていた。",
+      "visitCount": 1,
+      "karteStatus": "来館済",
+      "isDeleted": 0,
+      "customerId": 2
+    },
+    {
+      "name": "佐藤誠",
+      "nameKana": "サトウマコト",
+      "birthDate": "2000-01-30",
+      "phone": "08056565656",
+      "email": "sarou@example.com",
+      "allergyInfo": "",
+      "hospitalityNote": "子供も食べやすいものがほしい",
+      "memo": "",
+      "visitCount": 1,
+      "karteStatus": "来館済",
+      "isDeleted": 0,
+      "customerId": 3
+    },
+    {
+      "name": "鈴木 健",
+      "nameKana": "スズキ ケン",
+      "birthDate": "1985-05-12",
+      "phone": "09011112222",
+      "email": "suzuki@example.com",
+      "allergyInfo": "そば",
+      "hospitalityNote": "記念日利用です",
+      "memo": "",
+      "visitCount": 2,
+      "karteStatus": "来館済",
+      "isDeleted": 0,
+      "customerId": 4
+    },
+    {
+      "name": "高橋 美咲",
+      "nameKana": "タカハシ ミサキ",
+      "birthDate": "1992-08-20",
+      "phone": "08033334444",
+      "email": "takahashi@example.com",
+      "allergyInfo": "",
+      "hospitalityNote": "静かな部屋を希望",
+      "memo": "",
+      "visitCount": 0,
+      "karteStatus": "新規",
+      "isDeleted": 0,
+      "customerId": 5
+    },
+    {
+      "name": "田中 一郎",
+      "nameKana": "タナカ イチロウ",
+      "birthDate": "1970-11-03",
+      "phone": "07055556666",
+      "email": "tanaka@example.com",
+      "allergyInfo": "甲殻類",
+      "hospitalityNote": "還暦のお祝いです",
+      "memo": "",
+      "visitCount": 5,
+      "karteStatus": "来館済",
+      "isDeleted": 0,
+      "customerId": 6
+    },
+    {
+      "name": "伊藤 恵子",
+      "nameKana": "イトウ ケイコ",
+      "birthDate": "1988-02-15",
+      "phone": "09077778888",
+      "email": "ito@example.com",
+      "allergyInfo": "",
+      "hospitalityNote": "和食を好む",
+      "memo": "",
+      "visitCount": 1,
+      "karteStatus": "来館済",
+      "isDeleted": 0,
+      "customerId": 7
+    },
+    {
+      "name": "中村 拓也",
+      "nameKana": "ナカムラ タクヤ",
+      "birthDate": "1995-09-09",
+      "phone": "08099990000",
+      "email": "nakamura@example.com",
+      "allergyInfo": "卵",
+      "hospitalityNote": "一人旅です",
+      "memo": "",
+      "visitCount": 0,
+      "karteStatus": "新規",
+      "isDeleted": 0,
+      "customerId": 8
+    },
+    {
+      "name": "小林 志保",
+      "nameKana": "コバヤシ シホ",
+      "birthDate": "1982-12-25",
+      "phone": "07022223333",
+      "email": "kobayashi@example.com",
+      "allergyInfo": "",
+      "hospitalityNote": "サプライズ希望",
+      "memo": "",
+      "visitCount": 3,
+      "karteStatus": "来館済",
+      "isDeleted": 0,
+      "customerId": 9
+    },
+    {
+      "name": "山本 健二",
+      "nameKana": "ヤマモト ケンジ",
+      "birthDate": "1975-04-05",
+      "phone": "09044445555",
+      "email": "yamamoto@example.com",
+      "allergyInfo": "乳製品",
+      "hospitalityNote": "ビジネス利用",
+      "memo": "",
+      "visitCount": 1,
+      "karteStatus": "来館済",
+      "isDeleted": 0,
+      "customerId": 10
+    }
+  ],
+  "reservations": [
+    {
+      "customerId": 1,
+      "planId": 2,
+      "routeId": 1,
+      "stayDate": "2026-06-12",
+      "checkoutDate": "2026-06-13",
+      "checkinTime": "15:00:00",
+      "numPeople": 2,
+      "status": "予約済",
+      "requestNote": "結婚記念日のため、夕食時に記念写真サービスを実施",
+      "allergyInfo": "えび、かに",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationId": 1
+    },
+    {
+      "customerId": 2,
+      "planId": 2,
+      "routeId": 2,
+      "stayDate": "2026-06-09",
+      "checkoutDate": "2026-06-10",
+      "checkinTime": "16:00:00",
+      "numPeople": 3,
+      "status": "予約済",
+      "requestNote": "友達の誕生日のため、飾り付けがほしい",
+      "allergyInfo": "牛乳",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationId": 2
+    },
+    {
+      "customerId": 3,
+      "planId": 5,
+      "routeId": 3,
+      "stayDate": "2026-06-21",
+      "checkoutDate": "2026-06-23",
+      "checkinTime": "16:00:00",
+      "numPeople": 3,
+      "status": "予約済",
+      "requestNote": "子供も食べやすいものがほしい",
+      "allergyInfo": "",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationId": 3
+    },
+    {
+      "customerId": 4,
+      "planId": 1,
+      "routeId": 1,
+      "stayDate": "2026-06-15",
+      "checkoutDate": "2026-06-16",
+      "checkinTime": "15:00:00",
+      "numPeople": 2,
+      "status": "予約済",
+      "requestNote": "窓側の席希望",
+      "allergyInfo": "そば",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationId": 4
+    },
+    {
+      "customerId": 5,
+      "planId": 2,
+      "routeId": 2,
+      "stayDate": "2026-06-25",
+      "checkoutDate": "2026-06-26",
+      "checkinTime": "14:30:00",
+      "numPeople": 1,
+      "status": "予約済",
+      "requestNote": "読書をしたいので静かに過ごしたい",
+      "allergyInfo": "",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationId": 5
+    },
+    {
+      "customerId": 6,
+      "planId": 4,
+      "routeId": 3,
+      "stayDate": "2026-06-10",
+      "checkoutDate": "2026-06-12",
+      "checkinTime": "15:00:00",
+      "numPeople": 4,
+      "status": "予約済",
+      "requestNote": "ちゃんちゃんこの貸出はありますか？",
+      "allergyInfo": "甲殻類",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationId": 6
+    },
+    {
+      "customerId": 7,
+      "planId": 3,
+      "routeId": 4,
+      "stayDate": "2026-06-28",
+      "checkoutDate": "2026-06-30",
+      "checkinTime": "16:00:00",
+      "numPeople": 2,
+      "status": "予約済",
+      "requestNote": "夕食の時間を遅めにしたい",
+      "allergyInfo": "",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationId": 7
+    },
+    {
+      "customerId": 8,
+      "planId": 5,
+      "routeId": 5,
+      "stayDate": "2026-07-01",
+      "checkoutDate": "2026-07-02",
+      "checkinTime": "15:30:00",
+      "numPeople": 1,
+      "status": "予約済",
+      "requestNote": "温泉をゆっくり楽しみたい",
+      "allergyInfo": "卵",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationId": 8
+    },
+    {
+      "customerId": 9,
+      "planId": 1,
+      "routeId": 1,
+      "stayDate": "2026-06-12",
+      "checkoutDate": "2026-06-14",
+      "checkinTime": "14:00:00",
+      "numPeople": 2,
+      "status": "予約済",
+      "requestNote": "ケーキの持ち込みについて相談",
+      "allergyInfo": "",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationId": 9
+    },
+    {
+      "customerId": 10,
+      "planId": 2,
+      "routeId": 2,
+      "stayDate": "2026-06-18",
+      "checkoutDate": "2026-06-19",
+      "checkinTime": "17:00:00",
+      "numPeople": 1,
+      "status": "予約済",
+      "requestNote": "Wi-Fi環境について",
+      "allergyInfo": "乳製品",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationId": 10
+    }
+  ],
+  "reservationRooms": [
+    {
+      "reservationId": 1,
+      "roomId": 1,
+      "assignedFrom": "2026-06-12",
+      "assignedTo": "2026-06-13",
+      "assignStatus": "割当済",
+      "assignmentMethod": "AUTO",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationRoomId": 1
+    },
+    {
+      "reservationId": 2,
+      "roomId": 19,
+      "assignedFrom": "2026-06-09",
+      "assignedTo": "2026-06-10",
+      "assignStatus": "割当済",
+      "assignmentMethod": "AUTO",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationRoomId": 2
+    },
+    {
+      "reservationId": 3,
+      "roomId": 2,
+      "assignedFrom": "2026-06-21",
+      "assignedTo": "2026-06-23",
+      "assignStatus": "割当済",
+      "assignmentMethod": "AUTO",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationRoomId": 3
+    },
+    {
+      "reservationId": 4,
+      "roomId": 19,
+      "assignedFrom": "2026-06-15",
+      "assignedTo": "2026-06-16",
+      "assignStatus": "割当済",
+      "assignmentMethod": "AUTO",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationRoomId": 4
+    },
+    {
+      "reservationId": 5,
+      "roomId": 5,
+      "assignedFrom": "2026-06-25",
+      "assignedTo": "2026-06-26",
+      "assignStatus": "割当済",
+      "assignmentMethod": "AUTO",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationRoomId": 5
+    },
+    {
+      "reservationId": 6,
+      "roomId": 22,
+      "assignedFrom": "2026-06-10",
+      "assignedTo": "2026-06-12",
+      "assignStatus": "割当済",
+      "assignmentMethod": "AUTO",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationRoomId": 6
+    },
+    {
+      "reservationId": 7,
+      "roomId": 12,
+      "assignedFrom": "2026-06-28",
+      "assignedTo": "2026-06-30",
+      "assignStatus": "割当済",
+      "assignmentMethod": "AUTO",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationRoomId": 7
+    },
+    {
+      "reservationId": 8,
+      "roomId": 3,
+      "assignedFrom": "2026-07-01",
+      "assignedTo": "2026-07-02",
+      "assignStatus": "割当済",
+      "assignmentMethod": "AUTO",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationRoomId": 8
+    },
+    {
+      "reservationId": 9,
+      "roomId": 25,
+      "assignedFrom": "2026-06-12",
+      "assignedTo": "2026-06-14",
+      "assignStatus": "割当済",
+      "assignmentMethod": "AUTO",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationRoomId": 9
+    },
+    {
+      "reservationId": 10,
+      "roomId": 8,
+      "assignedFrom": "2026-06-18",
+      "assignedTo": "2026-06-19",
+      "assignStatus": "割当済",
+      "assignmentMethod": "AUTO",
+      "createdAt": "2026-06-09T10:00:00",
+      "updatedAt": "2026-06-09T10:00:00",
+      "reservationRoomId": 10
+    }
+  ]
+}

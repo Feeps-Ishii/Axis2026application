@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 - キャンセル確認</title>
+	<link rel="stylesheet" href="./cus.css">
+</head>
+
+<body>
+	<header>
+		<div class="logo">
+			<h2>花あかりの湯</h2>
+			<small>HANA AKARI NO YU</small>
+		</div>
+		<nav>
+			<ul>
+				<li><a class="" href="./customer_top.html">ご予約トップ</a></li>
+				<li><a class="" href="./regist_customer.html">予約登録</a></li>
+				<li><a class="" href="./upcus_search.html">予約変更</a></li>
+				<li><a class="active" href="./cancus_search.html">予約キャンセル</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<section class="hero">
+		<div class="hero-tag">ONLINE RESERVATION</div>
+		<h1>花あかりの湯</h1>
+		<p>ご予約サイト<br>山の静けさと温泉の温もりが灯る、特別なひとときをオンラインでかんたんにご予約いただけます。</p>
+	</section>
+
+	<main class="container">
+		<section class="page-header">
+			<h2>キャンセル確認</h2>
+			<p>以下の予約をキャンセルします。内容をご確認ください。</p>
+		</section>
+		<section class="confirm-box">
+			<h3>キャンセル内容</h3>
+			<table class="confirm-table">
+				<tr>
+					<th>お名前</th>
+					<td id="customerName"></td>
+				</tr>
+
+				<tr>
+					<th>宿泊日</th>
+					<td id="stayDate"></td>
+				</tr>
+
+				<tr>
+					<th>チェックアウト日</th>
+					<td id="checkoutDate"></td>
+				</tr>
+
+				<tr>
+					<th>プラン</th>
+					<td id="planPeople"></td>
+				</tr>
+
+				<tr>
+					<th>合計金額</th>
+					<td id="amount"></td>
+				</tr>
+
+				<tr>
+					<th>理由</th>
+					<td id="cancelReason"></td>
+				</tr>
+			</table>
+			<div class="notice"><strong>キャンセル確定前のご確認</strong><br>確定後、この予約は取り消されます。再予約が必要な場合はトップページから新規予約を行ってください。</div>
+		</section>
+
+		<div class="error-message" id="cancelLimitMessage" style="display:none">
+			<span id="cancelLimitText"></span>
+		</div>
+		<form id="completeForm" class="button-area">
+			<a class="btn-secondary" id="backBtn" href="./cancus_search.html">戻る</a>
+			<button type="submit" class="btn-primary" id="submitBtn">
+				キャンセル確定
+			</button>
+		</form>
+	</main>
+
+	<footer>
+		<div class="footer-title">花あかりの湯</div>
+		<p>〒XXX-XXXX　○○県○○市○○町1-1　｜　TEL: 0120-XXX-XXX</p>
+		<p>Copyright © 2026 花あかりの湯. All Rights Reserved.</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		// 元サービス price(planId)：1→45000,2→30000,3→40000,4→55000,5→25000
+		const PRICE = { 1: 45000, 2: 30000, 3: 40000, 4: 55000, 5: 25000 };
+
+		TeamF.init().then(() => {
+			const pending = TeamF.getPending("cancus");
+			// 直打ち・データ無しは照合画面へ
+			if (!pending || !pending.id) {
+				location.href = "./cancus_search.html";
+				return;
+			}
+
+			const id = Number(pending.id);
+			const view = TeamF.reservationView(id);
+			if (!view) {
+				location.href = "./cancus_search.html";
+				return;
+			}
+
+			const r = view.reservation;
+			const customer = view.customer;
+			const planName = view.plan ? view.plan.planName : "";
+			// amount(planId, numPeople) = price * people（泊数なし）
+			const amount = (PRICE[r.planId] || 45000) * (r.numPeople || 1);
+
+			document.getElementById("customerName").textContent = (customer ? customer.name : "") + " 様";
+			document.getElementById("stayDate").textContent = r.stayDate;
+			document.getElementById("checkoutDate").textContent = r.checkoutDate;
+			document.getElementById("planPeople").textContent = planName + " / " + r.numPeople + "名";
+			document.getElementById("amount").textContent = "¥" + amount;
+			document.getElementById("cancelReason").textContent = pending.reason;
+
+			// 戻る → 理由フォーム（復元）
+			document.getElementById("backBtn").href = "./cancel_customer.html?id=" + id + "&restore=1";
+
+			// キャンセル可否：宿泊日の7日前まで（days > 7）。基準日 today()。
+			const days = daysBetween(TeamF.today(), r.stayDate);
+			const canCancel = days > 7;
+			if (!canCancel) {
+				document.getElementById("cancelLimitText").textContent =
+					"キャンセルは宿泊日の7日前まで可能です。";
+				document.getElementById("cancelLimitMessage").style.display = "";
+				document.getElementById("submitBtn").disabled = true;
+			}
+
+			document.getElementById("completeForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				if (!canCancel) return;
+				// db.js 経由でキャンセル（お客様キャンセル）
+				TeamF.cancelReservation(id, pending.reason, "customer");
+				TeamF.clearPending("cancus");
+				location.href = "./cancus_complete.html?id=" + id;
+			});
+		});
+
+		function daysBetween(fromStr, toStr) {
+			const a = new Date(String(fromStr).slice(0, 10) + "T00:00:00");
+			const b = new Date(String(toStr).slice(0, 10) + "T00:00:00");
+			return Math.round((b - a) / 86400000);
+		}
+	</script>
+</body>
+
+</html>

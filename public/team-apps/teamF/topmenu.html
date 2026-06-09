@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 - 従業員用サイト</title>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+		rel="stylesheet">
+
+	<style>
+		:root {
+			--gold: #b8912a;
+			--gold-l: #e6c96a;
+			--gold-p: #f7f0e0;
+			--ink: #1a1208;
+			--ash: #5c4a36;
+			--cream: #f0ebe3;
+			--moss: #4a6741;
+			--rust: #9b3a2a;
+			--slate: #2c3e50;
+			--sidebar: #1e1610;
+			--sw: 220px;
+			--hh: 56px;
+			--border: #e8dece;
+			--bg: #f2ece4;
+		}
+
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+
+		body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+		#app { min-height: 100vh; }
+
+		.sidebar { position: fixed; top: 0; left: 0; width: var(--sw); height: 100vh; background: var(--sidebar); display: flex; flex-direction: column; z-index: 100; border-right: 1px solid rgba(184, 145, 42, .15); }
+		.sb-brand { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255, 255, 255, .06); }
+		.sb-brand .en { font-size: 9px; color: rgba(255, 255, 255, .3); letter-spacing: 3px; text-transform: uppercase; }
+		.sb-brand .ja { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--gold-l); letter-spacing: 2px; margin-top: 4px; }
+		.sb-badge { font-size: 10px; background: var(--gold); color: var(--ink); padding: 2px 6px; border-radius: 10px; margin-top: 6px; display: inline-block; font-weight: 700; }
+		nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+		.ns { font-size: 9px; color: rgba(255, 255, 255, .25); letter-spacing: 3px; padding: 12px 20px 6px; text-transform: uppercase; }
+		nav a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: rgba(255, 255, 255, .55); text-decoration: none; font-size: 13px; transition: all .15s; cursor: pointer; border-left: 2px solid transparent; }
+		nav a:hover { color: #fff; background: rgba(255, 255, 255, .04); }
+		nav a.active { color: var(--gold-l); border-left-color: var(--gold); background: rgba(184, 145, 42, .08); }
+		nav a .ic { font-size: 15px; width: 18px; text-align: center; }
+		.sb-footer { padding: 16px 20px; border-top: 1px solid rgba(255, 255, 255, .06); }
+		.sb-user { font-size: 12px; color: rgba(255, 255, 255, .4); margin-bottom: 10px; }
+		.sb-user strong { color: rgba(255, 255, 255, .7); display: block; }
+		.logout-btn { width: 100%; padding: 8px; background: transparent; border: 1px solid rgba(255, 255, 255, .12); border-radius: 2px; color: rgba(255, 255, 255, .4); font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: all .2s; font-family: 'Noto Sans JP', sans-serif; }
+		.logout-btn:hover { border-color: var(--rust); color: #e07070; }
+
+		.main { margin-left: var(--sw); min-height: 100vh; display: flex; flex-direction: column; }
+		.topbar { height: var(--hh); background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 16px; position: sticky; top: 0; z-index: 50; }
+		.topbar-title { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--ash); flex: 1; }
+		.topbar-date { font-size: 12px; color: #999; }
+		.badge-pill { font-size: 11px; background: var(--moss); color: #fff; padding: 3px 10px; border-radius: 12px; }
+
+		.content { padding: 28px; flex: 1; }
+		.g2 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+		.g2>.card:last-child .btn { width: 100%; display: block; }
+		.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+		.card { background: #fff; border-radius: 4px; border: 1px solid var(--border); padding: 24px; margin-bottom: 20px; }
+		.card-title { font-family: 'Noto Serif JP', serif; font-size: 15px; color: var(--ash); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0ebe3; display: flex; align-items: center; gap: 8px; }
+		.stat-card { background: #fff; border: 1px solid var(--border); border-radius: 4px; padding: 20px 22px; position: relative; overflow: hidden; }
+		.stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; }
+		.stat-card.gold::before { background: var(--gold); }
+		.stat-card.moss::before { background: var(--moss); }
+		.stat-card.slate::before { background: var(--slate); }
+		.stat-lbl { font-size: 11px; color: #999; letter-spacing: 1px; margin-bottom: 8px; }
+		.stat-val { font-family: 'Noto Serif JP', serif; font-size: 32px; color: var(--ink); line-height: 1; }
+		.stat-unit { font-size: 13px; color: #aaa; margin-left: 4px; }
+		.stat-sub { font-size: 11px; color: #bbb; margin-top: 6px; }
+		table { width: 100%; border-collapse: collapse; font-size: 13px; }
+		.table-scroll { max-height: 320px; overflow-y: auto; }
+		thead th { background: #f7f2eb; padding: 10px 14px; text-align: left; font-weight: 500; color: var(--ash); font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+		tbody tr { border-bottom: 1px solid #f0ebe3; transition: background .15s; cursor: pointer; }
+		tbody tr:hover { background: #faf7f3; }
+		tbody td { padding: 12px 14px; color: #3a3028; }
+		.pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; text-align: center }
+		.pill.confirmed { background: #e8f4e8; color: var(--moss) }
+		.pill.checkin { background: #e8f0f8; color: var(--slate) }
+		.pill.cancelled { background: #fce8e8; color: var(--rust) }
+		.pill.done { background: #ece8f8; color: #5a438a }
+		.btn { padding: 10px 22px; border: none; border-radius: 2px; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; letter-spacing: .5px; }
+		.btn-gold { background: var(--gold); color: var(--ink); }
+		.btn-gold:hover { background: var(--gold-l); }
+		.btn-out { background: transparent; border: 1px solid #ccc; color: var(--ash); }
+		.btn-out:hover { border-color: var(--gold); color: var(--gold); }
+		.btn-moss { background: var(--moss); color: #fff; }
+		.btn-moss:hover { background: #3a5432; }
+	</style>
+</head>
+
+<body>
+
+	<div id="app">
+
+		<aside class="sidebar">
+			<div class="sb-brand">
+				<div class="en">Hana Akari no Yu</div>
+				<div class="ja">花あかりの湯</div>
+				<span class="sb-badge">管理サイト</span>
+			</div>
+			<nav>
+				<div class="ns">メイン</div>
+				<a href="./topmenu.html" class="active"><span class="ic">🏠</span>ダッシュボード</a>
+				<a href="./list.html"><span class="ic">📋</span>全予約一覧</a>
+				<a href="./regist.html"><span class="ic">➕</span>予約登録</a>
+				<div class="ns">管理</div>
+				<a href="./room.html"><span class="ic">🛏</span>空室確認</a>
+				<a href="./record.html"><span class="ic">👤</span>顧客カルテ</a>
+				<a href="./okami_bot.html"><span class="ic">🤖</span>女将ボット</a>
+			</nav>
+			<div class="sb-footer">
+				<div class="sb-user">ログイン中<br><strong id="sbUser">staff001</strong></div>
+				<a href="#" id="logoutLink"><button class="logout-btn">ログアウト</button></a>
+			</div>
+		</aside>
+
+		<main class="main">
+			<div class="topbar">
+				<span class="topbar-title">ダッシュボード</span>
+				<span class="topbar-date" id="todayDate"></span>
+				<span class="badge-pill">本日の予約 <span id="todayCount2">0</span> 件</span>
+			</div>
+
+			<div class="content">
+				<div class="g3" style="margin-bottom:24px">
+					<div class="stat-card gold">
+						<div class="stat-lbl">本日の予約</div>
+						<div class="stat-val"><span id="todayCount">0</span><span class="stat-unit">件</span></div>
+						<div class="stat-sub">チェックイン <span id="remainingCount">0</span> 件残り</div>
+					</div>
+					<div class="stat-card moss">
+						<div class="stat-lbl">空室数</div>
+						<div class="stat-val"><span id="vacantRoomCount">0</span><span class="stat-unit">室</span></div>
+						<div class="stat-sub">全25室中（露天7・和室18）</div>
+					</div>
+					<div class="stat-card slate">
+						<div class="stat-lbl">本日チェックイン</div>
+						<div class="stat-val"><span id="checkedInCount">0</span><span class="stat-unit">組</span></div>
+						<div class="stat-sub">今日のキャンセル <span id="todayCancelledCount">0</span>件</div>
+					</div>
+				</div>
+
+				<div class="g2">
+					<div class="card">
+						<div class="card-title">📅 本日チェックイン予定</div>
+						<div class="table-scroll">
+							<table>
+								<thead>
+									<tr><th>お客様名</th><th>プラン</th><th>部屋</th><th>状態</th></tr>
+								</thead>
+								<tbody id="todayTbody"></tbody>
+							</table>
+						</div>
+					</div>
+
+					<div class="card">
+						<div class="card-title">⚡ クイックアクション</div>
+						<div style="display:flex;flex-direction:column;gap:10px">
+							<a href="./regist.html" style="text-decoration:none;"><button class="btn btn-gold" style="padding:14px 16px">➕ 電話予約を登録する</button></a>
+							<a href="./room.html" style="text-decoration:none;"><button class="btn btn-out" style="padding:14px 16px">🛏 空室状況を確認する</button></a>
+							<a href="./record.html" style="text-decoration:none;"><button class="btn btn-out" style="padding:14px 16px">👤 顧客カルテを開く</button></a>
+							<a href="./okami_bot.html" style="text-decoration:none;"><button class="btn btn-moss">🤖 女将ボットに聞く</button></a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		function pillClass(status) {
+			if (status === '予約済') return 'pill confirmed';
+			if (status === 'チェックイン済' || status === '宿泊中') return 'pill checkin';
+			if (status === 'チェックアウト済') return 'pill done';
+			if (status === 'キャンセル') return 'pill cancelled';
+			return 'pill';
+		}
+		TeamF.init().then(() => {
+			const s = TeamF.requireLogin();
+			if (!s) return;
+
+			document.getElementById("sbUser").textContent = s.account.loginId;
+			document.getElementById("todayDate").textContent = TeamF.fmtJpDate(TeamF.today());
+			document.getElementById("logoutLink").addEventListener("click", (e) => {
+				e.preventDefault();
+				TeamF.logout();
+				location.href = "./login.html";
+			});
+
+			const today = TeamF.today();
+			const todayRes = TeamF.reservations().filter(r => r.stayDate === today);
+
+			const todayCount = TeamF.todayReservationCount();
+			document.getElementById("todayCount").textContent = todayCount;
+			document.getElementById("todayCount2").textContent = todayCount;
+
+			document.getElementById("remainingCount").textContent = todayRes.filter(r => r.status === '予約済').length;
+			document.getElementById("checkedInCount").textContent = todayRes.filter(r => r.status === 'チェックイン済' || r.status === '宿泊中').length;
+			document.getElementById("todayCancelledCount").textContent = todayRes.filter(r => r.status === 'キャンセル').length;
+			document.getElementById("vacantRoomCount").textContent = TeamF.rooms().filter(rm => rm.roomStatus === '空室').length;
+
+			const tbody = document.getElementById("todayTbody");
+			const rows = todayRes.filter(r => r.status !== 'キャンセル');
+			if (rows.length === 0) {
+				tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;cursor:default;">本日のチェックイン予定はありません</td></tr>';
+			} else {
+				tbody.innerHTML = rows.map(r => {
+					const v = TeamF.reservationView(r.reservationId);
+					const name = v.customer ? v.customer.name : '不明';
+					const plan = v.plan ? v.plan.planName : '';
+					return '<tr onclick="location.href=\'./detail.html?id=' + r.reservationId + '\'">' +
+						'<td>' + TeamF.esc(name) + '</td>' +
+						'<td>' + TeamF.esc(plan) + '</td>' +
+						'<td>' + TeamF.esc(v.roomLabel) + '</td>' +
+						'<td><span class="' + pillClass(r.status) + '">' + TeamF.esc(r.status) + '</span></td>' +
+						'</tr>';
+				}).join('');
+			}
+		});
+	</script>
+
+</body>
+
+</html>

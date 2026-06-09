@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 | 女将ボット</title>
+
+	<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+		rel="stylesheet">
+
+	<style>
+		:root {
+			--gold: #b8912a;
+			--gold-l: #e6c96a;
+			--gold-p: #f7f0e0;
+			--ink: #1a1208;
+			--ash: #5c4a36;
+			--moss: #4a6741;
+			--rust: #9b3a2a;
+			--sidebar: #1e1610;
+			--sw: 220px;
+			--hh: 56px;
+			--border: #e8dece;
+			--bg: #f2ece4;
+		}
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-family: 'Noto Sans JP', sans-serif;
+			background: var(--bg);
+			color: var(--ink);
+			min-height: 100vh;
+		}
+
+		.sidebar {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: var(--sw);
+			height: 100vh;
+			background: var(--sidebar);
+			display: flex;
+			flex-direction: column;
+			z-index: 100;
+			border-right: 1px solid rgba(184, 145, 42, .15);
+		}
+
+		.sb-brand {
+			padding: 22px 20px 18px;
+			border-bottom: 1px solid rgba(255, 255, 255, .06);
+		}
+
+		.sb-brand .en {
+			font-size: 9px;
+			color: rgba(255, 255, 255, .3);
+			letter-spacing: 3px;
+			text-transform: uppercase;
+		}
+
+		.sb-brand .ja {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 16px;
+			color: var(--gold-l);
+			letter-spacing: 2px;
+			margin-top: 4px;
+		}
+
+		.sb-badge {
+			font-size: 10px;
+			background: var(--gold);
+			color: var(--ink);
+			padding: 2px 6px;
+			border-radius: 10px;
+			margin-top: 6px;
+			display: inline-block;
+			font-weight: 700;
+		}
+
+		nav {
+			flex: 1;
+			padding: 16px 0;
+			overflow-y: auto;
+		}
+
+		.ns {
+			font-size: 9px;
+			color: rgba(255, 255, 255, .25);
+			letter-spacing: 3px;
+			padding: 12px 20px 6px;
+			text-transform: uppercase;
+		}
+
+		nav a {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 10px 20px;
+			color: rgba(255, 255, 255, .55);
+			text-decoration: none;
+			font-size: 13px;
+			transition: all .15s;
+			cursor: pointer;
+			border-left: 2px solid transparent;
+		}
+
+		nav a:hover {
+			color: #fff;
+			background: rgba(255, 255, 255, .04);
+		}
+
+		nav a.active {
+			color: var(--gold-l);
+			border-left-color: var(--gold);
+			background: rgba(184, 145, 42, .08);
+		}
+
+		nav a .ic {
+			font-size: 15px;
+			width: 18px;
+			text-align: center;
+		}
+
+		.sb-footer {
+			padding: 16px 20px;
+			border-top: 1px solid rgba(255, 255, 255, .06);
+		}
+
+		.sb-user {
+			font-size: 12px;
+			color: rgba(255, 255, 255, .4);
+			margin-bottom: 10px;
+		}
+
+		.sb-user strong {
+			color: rgba(255, 255, 255, .7);
+			display: block;
+		}
+
+		.logout-btn {
+			width: 100%;
+			padding: 8px;
+			background: transparent;
+			border: 1px solid rgba(255, 255, 255, .12);
+			border-radius: 2px;
+			color: rgba(255, 255, 255, .4);
+			font-size: 11px;
+			letter-spacing: 1px;
+			cursor: pointer;
+			font-family: 'Noto Sans JP', sans-serif;
+		}
+
+		.logout-btn:hover {
+			border-color: var(--rust);
+			color: #e07070;
+		}
+
+		.main {
+			margin-left: var(--sw);
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.topbar {
+			height: var(--hh);
+			background: #fff;
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			align-items: center;
+			padding: 0 28px;
+			gap: 16px;
+			position: sticky;
+			top: 0;
+			z-index: 50;
+		}
+
+		.topbar-title {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 16px;
+			color: var(--ash);
+			flex: 1;
+		}
+
+		.topbar-date {
+			font-size: 12px;
+			color: #999;
+		}
+
+		.content {
+			padding: 28px;
+			flex: 1;
+		}
+
+		.page-hd {
+			margin-bottom: 24px;
+			padding-bottom: 16px;
+			border-bottom: 1px solid var(--border);
+		}
+
+		.page-hd h2 {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 20px;
+			color: var(--ash);
+			font-weight: 400;
+			margin-bottom: 4px;
+		}
+
+		.page-hd p {
+			font-size: 12px;
+			color: #999;
+		}
+
+		.sc-id {
+			font-size: 10px;
+			color: #aaa;
+			letter-spacing: 1px;
+		}
+
+		.card {
+			background: #fff;
+			border-radius: 4px;
+			border: 1px solid var(--border);
+			padding: 24px;
+			margin-bottom: 20px;
+		}
+
+		.card-title {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 15px;
+			color: var(--ash);
+			margin-bottom: 16px;
+			padding-bottom: 12px;
+			border-bottom: 1px solid #f0ebe3;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.btn-new {
+			background: transparent;
+			border: 1px solid #ccc;
+			color: var(--ash);
+			border-radius: 2px;
+			padding: 6px 14px;
+			font-size: 12px;
+			font-family: 'Noto Sans JP', sans-serif;
+			cursor: pointer;
+			transition: all .15s;
+		}
+
+		.btn-new:hover {
+			border-color: var(--gold);
+			color: var(--gold);
+		}
+
+		.current-customer {
+			background: #fef8e8;
+			border: 1px solid #e8d880;
+			color: #7a5c1a;
+			border-radius: 3px;
+			padding: 10px 14px;
+			font-size: 13px;
+			margin-bottom: 12px;
+		}
+
+		.current-customer strong {
+			color: var(--ash);
+		}
+
+		.chat-wrap {
+			display: flex;
+			flex-direction: column;
+			height: 460px;
+		}
+
+		.chat-msgs {
+			flex: 1;
+			overflow-y: auto;
+			padding: 20px;
+			background: #faf7f3;
+			border-radius: 3px;
+			border: 1px solid var(--border);
+			display: flex;
+			flex-direction: column;
+			gap: 14px;
+		}
+
+		.cmsg {
+			display: flex;
+			gap: 10px;
+			align-items: flex-start;
+		}
+
+		.cmsg.user {
+			flex-direction: row-reverse;
+		}
+
+		.cavatar {
+			width: 32px;
+			height: 32px;
+			border-radius: 50%;
+			background: var(--sidebar);
+			color: var(--gold-l);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 13px;
+			flex-shrink: 0;
+		}
+
+		.cmsg.user .cavatar {
+			background: var(--gold);
+			color: var(--ink);
+		}
+
+		.cbubble {
+			max-width: 72%;
+			padding: 11px 14px;
+			border-radius: 3px;
+			font-size: 13px;
+			line-height: 1.7;
+			white-space: pre-line;
+			word-break: break-word;
+		}
+
+		.cmsg.bot .cbubble {
+			background: #fff;
+			border: 1px solid var(--border);
+			color: var(--ink);
+		}
+
+		.cmsg.user .cbubble {
+			background: var(--gold);
+			color: var(--ink);
+			font-weight: 500;
+		}
+
+		.chat-in {
+			display: flex;
+			gap: 10px;
+			margin-top: 12px;
+			align-items: center;
+		}
+
+		.chat-in input {
+			flex: 1;
+			border: 1px solid #ddd;
+			border-radius: 2px;
+			padding: 10px 14px;
+			font-family: 'Noto Sans JP', sans-serif;
+			font-size: 13px;
+			outline: none;
+			transition: border-color .2s, background .2s;
+		}
+
+		.chat-in input:focus {
+			border-color: var(--gold);
+		}
+
+		.chat-in input.loading {
+			background: #f8f5ef;
+			color: #777;
+		}
+
+		.char-count {
+			font-size: 11px;
+			color: #999;
+			min-width: 48px;
+			text-align: right;
+		}
+
+		.btn {
+			padding: 10px 22px;
+			border: none;
+			border-radius: 2px;
+			font-family: 'Noto Sans JP', sans-serif;
+			font-size: 13px;
+			font-weight: 500;
+			cursor: pointer;
+			text-decoration: none;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 88px;
+		}
+
+		.btn-gold {
+			background: var(--gold);
+			color: var(--ink);
+		}
+
+		.btn-gold:hover {
+			background: var(--gold-l);
+		}
+
+		.btn:disabled {
+			opacity: .65;
+			cursor: not-allowed;
+		}
+
+		.waiting-message {
+			display: none;
+			margin-top: 10px;
+			padding: 12px 14px;
+			border-radius: 3px;
+			border: 1px solid #e8dece;
+			background: var(--gold-p);
+			color: var(--ash);
+			font-size: 13px;
+		}
+
+		.waiting-dot {
+			display: inline-block;
+			width: 6px;
+			height: 6px;
+			margin-left: 3px;
+			border-radius: 50%;
+			background: var(--gold);
+			animation: blink 1.2s infinite ease-in-out;
+		}
+
+		.waiting-dot:nth-child(2) {
+			animation-delay: .2s;
+		}
+
+		.waiting-dot:nth-child(3) {
+			animation-delay: .4s;
+		}
+
+		@keyframes blink {
+
+			0%,
+			80%,
+			100% {
+				opacity: .25;
+			}
+
+			40% {
+				opacity: 1;
+			}
+		}
+
+		@media(max-width:900px) {
+			.sidebar {
+				display: none;
+			}
+
+			.main {
+				margin-left: 0;
+			}
+
+			.topbar {
+				padding: 0 16px;
+			}
+
+			.content {
+				padding: 20px;
+			}
+
+			.chat-in {
+				flex-direction: column;
+			}
+
+			.cbubble {
+				max-width: 88%;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<aside class="sidebar">
+
+		<div class="sb-brand">
+			<div class="en">Hana Akari no Yu</div>
+			<div class="ja">花あかりの湯</div>
+			<span class="sb-badge">管理サイト</span>
+		</div>
+
+		<nav>
+			<div class="ns">メイン</div>
+
+
+			<a href="./topmenu.html">
+				<span class="ic">🏠</span>
+				ダッシュボード
+			</a>
+
+			<a href="./list.html">
+				<span class="ic">📋</span>
+				全予約一覧
+			</a>
+
+			<a href="./regist.html">
+				<span class="ic">➕</span>
+				予約登録
+			</a>
+
+			<div class="ns">管理</div>
+
+			<a href="./room.html">
+				<span class="ic">🛏</span>
+				空室確認
+			</a>
+
+			<a href="./record.html">
+				<span class="ic">👤</span>
+				顧客カルテ
+			</a>
+
+
+			<a href="./okami_bot.html" class="active" id="navNew">
+				<span class="ic">🤖</span>
+				女将ボット
+			</a>
+
+		</nav>
+
+		<div class="sb-footer">
+			<div class="sb-user">
+				ログイン中<br>
+				<strong id="sbUser">staff001</strong>
+			</div>
+
+			<button class="logout-btn" id="logoutBtn">
+				ログアウト
+			</button>
+		</div>
+
+	</aside>
+
+	<main class="main">
+
+		<div class="topbar">
+			<span class="topbar-title">
+				女将ボット
+			</span>
+
+			<span class="topbar-date" id="todayDate"></span>
+		</div>
+
+		<div class="content">
+
+			<div class="page-hd">
+				<h2>女将ボット</h2>
+				<p>顧客情報と過去のおもてなし内容をもとに、従業員向けの接客アドバイスを確認できます。</p>
+				<p class="sc-id">OKAMI BOT</p>
+			</div>
+
+			<div class="card">
+				<div class="card-title">
+					女将ボット
+					<button type="button" class="btn-new" id="newBtn">新しい相談</button>
+				</div>
+
+				<div class="current-customer" id="currentCustomer" style="display:none;">
+					現在確認中：
+					<strong id="currentCustomerName"></strong>
+					様
+				</div>
+
+				<div class="chat-wrap">
+
+					<div class="chat-msgs" id="chatMsgs"></div>
+
+					<form class="chat-in" id="okamiForm">
+						<input type="text" name="message" id="messageInput" maxlength="200"
+							placeholder="例：鈴木太郎様のおもてなし内容を教えてください" autocomplete="off" required>
+						<div class="char-count">
+							<span id="charCount">0</span>/200
+						</div>
+						<button type="submit" class="btn btn-gold" id="sendButton">
+							送信
+						</button>
+					</form>
+
+
+					<div class="waiting-message" id="waitingMessage">
+						女将が顧客カルテと過去のおもてなし内容を確認中です。少々お待ちくださいませ
+						<span class="waiting-dot"></span>
+						<span class="waiting-dot"></span>
+						<span class="waiting-dot"></span>
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamF.init().then(() => {
+			const s = TeamF.requireLogin();
+			if (!s) return;
+
+			const acc = s.account || {};
+			document.getElementById('sbUser').textContent = acc.loginId || 'staff001';
+			document.getElementById('logoutBtn').addEventListener('click', () => {
+				TeamF.logout();
+				location.href = './login.html';
+			});
+
+			document.getElementById('todayDate').textContent = TeamF.fmtJpDate(TeamF.today());
+
+			// ?customerId=ID があれば「現在確認中の顧客」として表示
+			const params = new URLSearchParams(location.search);
+			const custId = params.get('customerId');
+			let currentCustomer = null;
+			if (custId) {
+				currentCustomer = TeamF.customer(custId);
+				if (currentCustomer) {
+					document.getElementById('currentCustomer').style.display = 'block';
+					document.getElementById('currentCustomerName').textContent = currentCustomer.name;
+				}
+			}
+
+			const chatMsgs = document.getElementById('chatMsgs');
+			const okamiForm = document.getElementById('okamiForm');
+			const messageInput = document.getElementById('messageInput');
+			const sendButton = document.getElementById('sendButton');
+			const waitingMessage = document.getElementById('waitingMessage');
+			const charCount = document.getElementById('charCount');
+
+			function renderHistory() {
+				chatMsgs.innerHTML = '';
+				const history = TeamF.okamiHistory();
+				if (!history || history.length === 0) {
+					const div = document.createElement('div');
+					div.className = 'cmsg bot';
+					div.innerHTML = '<div class="cavatar">女</div>' +
+						'<div class="cbubble">いらっしゃいませ。顧客名、ふりがな、または電話番号を入力していただければ、顧客カルテや過去のおもてなし内容をもとに助言いたします。</div>';
+					chatMsgs.appendChild(div);
+				} else {
+					history.forEach(chat => {
+						const div = document.createElement('div');
+						div.className = chat.role === 'user' ? 'cmsg user' : 'cmsg bot';
+						div.innerHTML =
+							'<div class="cavatar">' + (chat.role === 'user' ? '従' : '女') + '</div>' +
+							'<div class="cbubble">' + TeamF.esc(chat.message) + '</div>';
+						chatMsgs.appendChild(div);
+					});
+				}
+				chatMsgs.scrollTop = chatMsgs.scrollHeight;
+			}
+
+			renderHistory();
+
+			messageInput.addEventListener('input', function () {
+				charCount.textContent = messageInput.value.length;
+			});
+
+			okamiForm.addEventListener('submit', function (e) {
+				e.preventDefault();
+				const msg = messageInput.value.trim();
+				if (!msg) return; // 空送信は無視
+
+				sendButton.disabled = true;
+				sendButton.textContent = '返答待ち';
+				messageInput.readOnly = true;
+				messageInput.classList.add('loading');
+				waitingMessage.style.display = 'block';
+
+				// 従業員の発言 → 女将の助言（クライアント側生成）
+				TeamF.addOkamiMessage('user', msg);
+				const advice = TeamF.okamiAdvice(msg, currentCustomer);
+				TeamF.addOkamiMessage('bot', advice);
+
+				// 短い待機演出のあと再描画
+				setTimeout(() => {
+					renderHistory();
+					messageInput.value = '';
+					charCount.textContent = '0';
+					messageInput.readOnly = false;
+					messageInput.classList.remove('loading');
+					sendButton.disabled = false;
+					sendButton.textContent = '送信';
+					waitingMessage.style.display = 'none';
+					messageInput.focus();
+				}, 500);
+			});
+
+			// 「新しい相談」: 履歴を消去して現在の顧客もリセット
+			function startNew(e) {
+				if (e) e.preventDefault();
+				TeamF.clearOkami();
+				location.href = './okami_bot.html';
+			}
+			document.getElementById('newBtn').addEventListener('click', startNew);
+			document.getElementById('navNew').addEventListener('click', startNew);
+		});
+	</script>
+
+</body>
+
+</html>

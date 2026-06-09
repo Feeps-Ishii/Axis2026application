@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約登録確認 - 花あかりの湯</title>
+
+	<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+		rel="stylesheet">
+
+	<style>
+		:root {
+			--gold: #b8912a;
+			--gold-l: #e6c96a;
+			--ink: #1a1208;
+			--ash: #5c4a36;
+			--moss: #4a6741;
+			--rust: #9b3a2a;
+			--sidebar: #1e1610;
+			--sw: 220px;
+			--hh: 56px;
+			--border: #e8dece;
+			--bg: #f2ece4;
+		}
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-family: 'Noto Sans JP', sans-serif;
+			background: var(--bg);
+			color: var(--ink);
+			min-height: 100vh;
+		}
+
+		#app {
+			min-height: 100vh;
+		}
+
+		.sidebar {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: var(--sw);
+			height: 100vh;
+			background: var(--sidebar);
+			display: flex;
+			flex-direction: column;
+			z-index: 100;
+			border-right: 1px solid rgba(184, 145, 42, .15);
+		}
+
+		.sb-brand {
+			padding: 22px 20px 18px;
+			border-bottom: 1px solid rgba(255, 255, 255, .06);
+		}
+
+		.sb-brand .en {
+			font-size: 9px;
+			color: rgba(255, 255, 255, .3);
+			letter-spacing: 3px;
+			text-transform: uppercase;
+		}
+
+		.sb-brand .ja {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 16px;
+			color: var(--gold-l);
+			letter-spacing: 2px;
+			margin-top: 4px;
+		}
+
+		.sb-badge {
+			font-size: 10px;
+			background: var(--gold);
+			color: var(--ink);
+			padding: 2px 6px;
+			border-radius: 10px;
+			margin-top: 6px;
+			display: inline-block;
+			font-weight: 700;
+		}
+
+		nav {
+			flex: 1;
+			padding: 16px 0;
+			overflow-y: auto;
+		}
+
+		.ns {
+			font-size: 9px;
+			color: rgba(255, 255, 255, .25);
+			letter-spacing: 3px;
+			padding: 12px 20px 6px;
+			text-transform: uppercase;
+		}
+
+		nav a {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 10px 20px;
+			color: rgba(255, 255, 255, .55);
+			text-decoration: none;
+			font-size: 13px;
+			transition: all .15s;
+			cursor: pointer;
+			border-left: 2px solid transparent;
+		}
+
+		nav a:hover {
+			color: #fff;
+			background: rgba(255, 255, 255, .04);
+		}
+
+		nav a.active {
+			color: var(--gold-l);
+			border-left-color: var(--gold);
+			background: rgba(184, 145, 42, .08);
+		}
+
+		nav a .ic {
+			font-size: 15px;
+			width: 18px;
+			text-align: center;
+		}
+
+		.sb-footer {
+			padding: 16px 20px;
+			border-top: 1px solid rgba(255, 255, 255, .06);
+		}
+
+		.sb-user {
+			font-size: 12px;
+			color: rgba(255, 255, 255, .4);
+			margin-bottom: 10px;
+		}
+
+		.sb-user strong {
+			color: rgba(255, 255, 255, .7);
+			display: block;
+		}
+
+		.logout-btn {
+			width: 100%;
+			padding: 8px;
+			background: transparent;
+			border: 1px solid rgba(255, 255, 255, .12);
+			border-radius: 2px;
+			color: rgba(255, 255, 255, .4);
+			font-size: 11px;
+			letter-spacing: 1px;
+			cursor: pointer;
+			transition: all .2s;
+			font-family: 'Noto Sans JP', sans-serif;
+		}
+
+		.logout-btn:hover {
+			border-color: var(--rust);
+			color: #e07070;
+		}
+
+		.main {
+			margin-left: var(--sw);
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.topbar {
+			height: var(--hh);
+			background: #fff;
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			align-items: center;
+			padding: 0 28px;
+			gap: 16px;
+			position: sticky;
+			top: 0;
+			z-index: 50;
+		}
+
+		.topbar-title {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 16px;
+			color: var(--ash);
+			flex: 1;
+		}
+
+		.topbar-date {
+			font-size: 12px;
+			color: #999;
+		}
+
+		.badge-pill {
+			font-size: 11px;
+			background: var(--moss);
+			color: #fff;
+			padding: 3px 10px;
+			border-radius: 12px;
+		}
+
+		.content {
+			padding: 28px;
+			flex: 1;
+			max-width: 1000px;
+			width: 100%;
+			margin: 0 auto;
+		}
+
+		.page-title {
+			margin-bottom: 22px;
+		}
+
+		.page-title h2 {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 22px;
+			font-weight: 500;
+			color: var(--ash);
+			margin-bottom: 6px;
+		}
+
+		.page-title p {
+			font-size: 12px;
+			color: #999;
+		}
+
+		.card {
+			background: #fff;
+			border-radius: 4px;
+			border: 1px solid var(--border);
+			padding: 24px;
+			margin-bottom: 20px;
+		}
+
+		.card-title {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 15px;
+			color: var(--ash);
+			margin-bottom: 16px;
+			padding-bottom: 12px;
+			border-bottom: 1px solid #f0ebe3;
+		}
+
+		.confirm-head {
+			display: flex;
+			gap: 16px;
+			align-items: center;
+			margin-bottom: 22px;
+		}
+
+		.kavatar {
+			width: 56px;
+			height: 56px;
+			background: #f0ebe3;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-family: 'Noto Serif JP', serif;
+			font-size: 20px;
+			color: var(--ash);
+			flex-shrink: 0;
+		}
+
+		.customer-name {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 18px;
+			color: #3a3028;
+		}
+
+		.customer-note {
+			font-size: 12px;
+			color: #999;
+			margin-top: 4px;
+		}
+
+		.memo-box {
+			background: #faf7f3;
+			border: 1px solid var(--border);
+			border-radius: 3px;
+			padding: 16px;
+			font-size: 13px;
+			line-height: 1.9;
+			color: #3a3028;
+			margin-bottom: 18px;
+		}
+
+		.confirm-list {
+			display: grid;
+			grid-template-columns: 150px 1fr;
+			border-top: 1px solid #f0ebe3;
+		}
+
+
+		.confirm-label,
+		.confirm-value {
+			padding: 12px 16px;
+			border-bottom: 1px solid #f0ebe3;
+			font-size: 13px;
+			display: flex;
+			align-items: center;
+			min-height: 48px;
+		}
+
+		.confirm-label {
+			color: #999;
+		}
+
+		.confirm-value {
+			color: #3a3028;
+			white-space: pre-line;
+		}
+
+		.btn-row {
+			display: flex;
+			gap: 10px;
+			margin-top: 20px;
+			flex-wrap: wrap;
+		}
+
+		.btn {
+			padding: 10px 22px;
+			border: none;
+			border-radius: 2px;
+			font-family: 'Noto Sans JP', sans-serif;
+			font-size: 13px;
+			font-weight: 500;
+			cursor: pointer;
+			text-decoration: none;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			transition: all .15s;
+			flex: 0 0 auto;
+			min-width: 120px;
+		}
+
+		.btn-gold {
+			background: var(--gold);
+			color: var(--ink);
+		}
+
+		.btn-gold:hover {
+			background: var(--gold-l);
+		}
+
+		.btn-out {
+			background: transparent;
+			border: 1px solid #ccc;
+			color: var(--ash);
+		}
+
+		.btn-out:hover {
+			border-color: var(--gold);
+			color: var(--gold);
+		}
+
+		@media(max-width:900px) {
+			.sidebar {
+				display: none;
+			}
+
+			.main {
+				margin-left: 0;
+			}
+
+			.topbar {
+				padding: 0 16px;
+			}
+
+			.content {
+				padding: 20px;
+			}
+
+			.confirm-list {
+				grid-template-columns: 1fr;
+			}
+
+			.confirm-label {
+				padding-bottom: 2px;
+				border-bottom: none;
+			}
+
+			.confirm-value {
+				padding-top: 0;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="app">
+
+		<aside class="sidebar">
+
+			<div class="sb-brand">
+				<div class="en">Hana Akari no Yu</div>
+				<div class="ja">花あかりの湯</div>
+				<span class="sb-badge">管理サイト</span>
+			</div>
+
+			<nav>
+				<div class="ns">メイン</div>
+
+
+				<a href="./topmenu.html">
+					<span class="ic">🏠</span>
+					ダッシュボード
+				</a>
+
+				<a href="./list.html">
+					<span class="ic">📋</span>
+					全予約一覧
+				</a>
+
+				<a href="./regist.html" class="active">
+					<span class="ic">➕</span>
+					予約登録
+				</a>
+
+				<div class="ns">管理</div>
+
+				<a href="./room.html">
+					<span class="ic">🛏</span>
+					空室確認
+				</a>
+
+				<a href="./record.html">
+					<span class="ic">👤</span>
+					顧客カルテ
+				</a>
+
+
+				<a href="./okami_bot.html">
+					<span class="ic">🤖</span>
+					女将ボット
+				</a>
+
+			</nav>
+
+			<div class="sb-footer">
+				<div class="sb-user">
+					ログイン中<br>
+					<strong id="sbUser">staff001</strong>
+				</div>
+
+				<button class="logout-btn" id="logoutBtn">
+					ログアウト
+				</button>
+			</div>
+
+		</aside>
+
+		<main class="main">
+
+			<div class="topbar">
+				<span class="topbar-title">予約登録確認</span>
+				<span class="topbar-date">従業員管理画面</span>
+				<span class="badge-pill">予約管理</span>
+			</div>
+
+			<div class="content">
+
+				<div class="page-title">
+					<h2>予約登録確認</h2>
+					<p>以下の内容で予約を登録します。内容をご確認ください。</p>
+				</div>
+
+				<div class="card">
+					<div class="card-title">登録内容の確認</div>
+
+					<div class="confirm-head">
+						<div class="kavatar" id="kavatar">客</div>
+
+						<div>
+							<div class="customer-name">
+								<span id="hdName">鈴木太郎</span> 様
+							</div>
+							<div class="customer-note">
+								この内容で予約を登録します。
+							</div>
+						</div>
+					</div>
+
+					<div class="memo-box">
+						内容を確認し、問題がなければ「登録を完了する」を押してください。
+					</div>
+
+					<div class="confirm-list">
+
+						<div class="confirm-label">お客様名</div>
+						<div class="confirm-value" id="vName"></div>
+
+						<div class="confirm-label">フリガナ</div>
+						<div class="confirm-value" id="vKana"></div>
+
+						<div class="confirm-label">生年月日</div>
+						<div class="confirm-value" id="vBirthday"></div>
+
+						<div class="confirm-label">電話番号</div>
+						<div class="confirm-value" id="vPhone"></div>
+
+						<div class="confirm-label">メール</div>
+						<div class="confirm-value" id="vEmail"></div>
+
+						<div class="confirm-label">宿泊日</div>
+						<div class="confirm-value" id="vStayDate"></div>
+
+						<div class="confirm-label">チェックアウト日</div>
+						<div class="confirm-value" id="vCheckoutDate"></div>
+
+						<div class="confirm-label">チェックイン時刻</div>
+						<div class="confirm-value" id="vCheckinTime"></div>
+
+						<div class="confirm-label">人数</div>
+						<div class="confirm-value"><span id="vNumPeople"></span>名</div>
+
+						<div class="confirm-label">プラン</div>
+						<div class="confirm-value" id="vPlan"></div>
+
+						<div class="confirm-label">予約経路</div>
+						<div class="confirm-value" id="vRoute"></div>
+
+						<div class="confirm-label">アレルギー</div>
+						<div class="confirm-value" id="vAllergy"></div>
+
+						<div class="confirm-label">おもてなし内容</div>
+						<div class="confirm-value" id="vRequest"></div>
+
+					</div>
+					<div class="btn-row">
+						<button type="button" class="btn btn-gold" id="executeBtn">
+							登録を完了する
+						</button>
+
+						<button type="button" class="btn btn-out" id="backBtn">
+							戻って修正する
+						</button>
+					</div>
+
+				</div>
+
+			</div>
+		</main>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const PLAN_NAMES = {
+			1: '月あかり懐石', 2: '花あかり会席', 3: '和室記念日プラン',
+			4: '露天風呂付き客室記念日プラン', 5: '平日のんびりプラン'
+		};
+		const ROUTE_NAMES = {
+			1: '自社サイト', 2: '電話受付', 3: 'じゃらん', 4: '楽天トラベル',
+			5: '一休.com', 6: 'Expedia', 7: 'Trip.com'
+		};
+
+		TeamF.init().then(() => {
+			const s = TeamF.requireLogin();
+			if (!s) return;
+
+			const acc = s.account || {};
+			document.getElementById('sbUser').textContent = acc.loginId || 'staff001';
+			document.getElementById('logoutBtn').addEventListener('click', () => {
+				TeamF.logout();
+				location.href = './login.html';
+			});
+
+			const p = TeamF.getPending('regist');
+			if (!p) {
+				location.href = './regist.html';
+				return;
+			}
+
+			document.getElementById('kavatar').textContent = p.customerName ? p.customerName.charAt(0) : '客';
+			document.getElementById('hdName').textContent = p.customerName || '';
+			document.getElementById('vName').textContent = p.customerName || '';
+			document.getElementById('vKana').textContent = p.kana || '';
+			document.getElementById('vBirthday').textContent = p.birthday || '';
+			document.getElementById('vPhone').textContent = p.phone || '';
+			document.getElementById('vEmail').textContent = p.email ? p.email : '登録なし';
+			document.getElementById('vStayDate').textContent = p.stayDate || '';
+			document.getElementById('vCheckoutDate').textContent = p.checkoutDate || '';
+			document.getElementById('vCheckinTime').textContent = p.checkinTime ? p.checkinTime : '未定';
+			document.getElementById('vNumPeople').textContent = p.numPeople != null ? p.numPeople : '';
+			document.getElementById('vPlan').textContent = PLAN_NAMES[p.planId] || '未選択';
+			document.getElementById('vRoute').textContent = ROUTE_NAMES[p.routeId] || '未設定';
+			document.getElementById('vAllergy').textContent = p.allergyInfo ? p.allergyInfo : '登録なし';
+			document.getElementById('vRequest').textContent = p.requestNote ? p.requestNote : '登録なし';
+
+			document.getElementById('backBtn').addEventListener('click', () => {
+				location.href = './regist.html?restore=1';
+			});
+
+			document.getElementById('executeBtn').addEventListener('click', function () {
+				this.disabled = true;
+
+				// 顧客の確定：一致顧客があればそのID、なければ新規作成
+				let customerId = p.matchedCustomerId;
+				if (!customerId) {
+					const created = TeamF.addCustomer({
+						name: p.customerName,
+						nameKana: p.kana,
+						birthDate: p.birthday || null,
+						phone: p.phone,
+						email: p.email || null,
+						allergyInfo: p.allergyInfo || null,
+						hospitalityNote: p.requestNote || null
+					});
+					customerId = created.customerId;
+				}
+
+				const res = TeamF.addReservation({
+					customerId: customerId,
+					planId: p.planId,
+					routeId: p.routeId,
+					stayDate: p.stayDate,
+					checkoutDate: p.checkoutDate,
+					checkinTime: p.checkinTime,
+					numPeople: p.numPeople,
+					status: '予約済',
+					requestNote: p.requestNote || null,
+					allergyInfo: p.allergyInfo || null
+				}, p.roomIds || []);
+
+				TeamF.clearPending('regist');
+				location.href = './complete.html?mode=regist&id=' + res.reservationId;
+			});
+		});
+	</script>
+
+</body>
+
+</html>

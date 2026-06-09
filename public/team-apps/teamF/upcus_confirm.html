@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 - 変更確認</title>
+	<link rel="stylesheet" href="./cus.css">
+</head>
+
+<body>
+	<header>
+		<div class="logo">
+			<h2>花あかりの湯</h2><small>HANA AKARI NO YU</small>
+		</div>
+		<nav>
+			<ul>
+				<li><a href="./customer_top.html">ご予約トップ</a></li>
+				<li><a href="./regist_customer.html">予約登録</a></li>
+				<li><a class="active" href="./upcus_search.html">予約変更</a></li>
+				<li><a href="./cancus_search.html">予約キャンセル</a></li>
+			</ul>
+		</nav>
+	</header>
+	<section class="hero">
+		<div class="hero-tag">ONLINE RESERVATION</div>
+		<h1>花あかりの湯</h1>
+		<p>ご予約サイト<br>山の静けさと温泉の温もりが灯る、特別なひとときをオンラインでかんたんにご予約いただけます。</p>
+	</section>
+	<main class="container">
+		<section class="page-header">
+			<h2>変更確認</h2>
+			<p>以下の内容で予約を変更します。</p>
+		</section>
+		<section class="confirm-box">
+			<h3>変更内容</h3>
+			<table class="confirm-table">
+				<tr>
+					<th>お名前</th>
+					<td id="customerName"></td>
+				</tr>
+				<tr>
+					<th>現在の予約</th>
+					<td id="currentRes"></td>
+				</tr>
+				<tr>
+					<th>新しい宿泊日</th>
+					<td id="newDate"></td>
+				</tr>
+				<tr>
+					<th>新しいチェックアウト日</th>
+					<td id="newCheckoutDate"></td>
+				</tr>
+				<tr>
+					<th>チェックイン</th>
+					<td id="newTime"></td>
+				</tr>
+				<tr>
+					<th>人数</th>
+					<td id="people"></td>
+				</tr>
+				<tr>
+					<th>プラン</th>
+					<td id="planName"></td>
+				</tr>
+				<tr>
+					<th>変更理由</th>
+					<td id="changeReason"></td>
+				</tr>
+				<tr>
+					<th>ご要望</th>
+					<td id="request"></td>
+				</tr>
+			</table>
+		</section>
+		<div class="error-message" id="updateLimitMessage" style="display:none">
+			<span id="updateLimitText"></span>
+		</div>
+		<form id="completeForm" class="button-area">
+			<a class="btn-secondary" id="backBtn" href="./upcus_search.html">戻る</a>
+			<button type="submit" class="btn-primary" id="submitBtn">変更を確定する</button>
+		</form>
+	</main>
+	<footer>
+		<div class="footer-title">花あかりの湯</div>
+		<p>〒XXX-XXXX　○○県○○市○○町1-1　｜　TEL: 0120-XXX-XXX</p>
+		<p>Copyright © 2026 花あかりの湯. All Rights Reserved.</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const PLAN_NAME = {
+			tsukiakari_kaiseki: "月あかり懐石",
+			hanaakari_kaiseki: "花あかり懐石",
+			washitsu_anniversary: "和室記念日プラン",
+			roten_anniversary: "露天風呂付き客室記念日プラン",
+			weekday_relax: "平日のんびりプラン",
+		};
+
+		TeamF.init().then(() => {
+			const pending = TeamF.getPending("upcus");
+			// 直打ち・データ無しは照合画面へ
+			if (!pending || !pending.id || !pending.form) {
+				location.href = "./upcus_search.html";
+				return;
+			}
+
+			const id = Number(pending.id);
+			const view = TeamF.reservationView(id);
+			if (!view) {
+				location.href = "./upcus_search.html";
+				return;
+			}
+
+			const r = view.reservation;
+			const customer = view.customer;
+			const f = pending.form;
+
+			document.getElementById("customerName").textContent = (customer ? customer.name : "") + " 様";
+			document.getElementById("currentRes").textContent = r.stayDate + " / " + r.numPeople + "名";
+			document.getElementById("newDate").textContent = f.newDate;
+			document.getElementById("newCheckoutDate").textContent = f.newCheckoutDate;
+			document.getElementById("newTime").textContent = f.newTime;
+			document.getElementById("people").textContent = f.people;
+			document.getElementById("planName").textContent = PLAN_NAME[f.plan] || "月あかり懐石";
+			document.getElementById("changeReason").textContent = f.changeReason ? f.changeReason : "なし";
+			document.getElementById("request").textContent = f.request ? f.request : "なし";
+
+			// 戻る → 変更フォーム（復元）
+			document.getElementById("backBtn").href = "./update_customer.html?id=" + id + "&restore=1";
+
+			// 変更可否：宿泊日の3日前まで（days > 3）。基準日 today()。
+			const days = daysBetween(TeamF.today(), r.stayDate);
+			const canUpdate = days > 3;
+			if (!canUpdate) {
+				document.getElementById("updateLimitText").textContent =
+					"予約変更は宿泊日の3日前まで可能です。現在は変更できません。";
+				document.getElementById("updateLimitMessage").style.display = "";
+				document.getElementById("submitBtn").disabled = true;
+			}
+
+			document.getElementById("completeForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				if (!canUpdate) return;
+				// db.js 経由で予約を更新
+				TeamF.updateReservation(id, pending.patch);
+				TeamF.clearPending("upcus");
+				location.href = "./upcus_complete.html?id=" + id;
+			});
+		});
+
+		function daysBetween(fromStr, toStr) {
+			const a = new Date(String(fromStr).slice(0, 10) + "T00:00:00");
+			const b = new Date(String(toStr).slice(0, 10) + "T00:00:00");
+			return Math.round((b - a) / 86400000);
+		}
+	</script>
+</body>
+
+</html>

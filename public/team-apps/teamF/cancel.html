@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>予約キャンセル - 花あかりの湯</title>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+		rel="stylesheet">
+	<style>
+		:root { --gold: #af8b3d; --gold-light: #f5efe6; --gold-border: #dcd3c5; --ink: #1c140e; --sidebar-bg: #1e1610; --sidebar-active: rgba(184, 145, 42, .08); --bg: #f4ede4; --card-border: #e2d9cd; --success-green: #2e5129; --gold-menu: #b8912a; --gold-menu-light: #e6c96a; --rust: #9b3a2a; }
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; display: flex; }
+		.sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; background: var(--sidebar-bg); display: flex; flex-direction: column; z-index: 100; border-right: 1px solid rgba(184, 145, 42, .15); }
+		.sb-brand { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255, 255, 255, .06); }
+		.sb-brand .en { font-size: 9px; color: rgba(255, 255, 255, .3); letter-spacing: 3px; text-transform: uppercase; }
+		.sb-brand .ja { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--gold-menu-light); letter-spacing: 2px; margin-top: 4px; }
+		.sb-badge { font-size: 10px; background: var(--gold-menu); color: #1a1208; padding: 2px 6px; border-radius: 10px; margin-top: 6px; display: inline-block; font-weight: 700; }
+		nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+		.ns { font-size: 9px; color: rgba(255, 255, 255, .25); letter-spacing: 3px; padding: 12px 20px 6px; text-transform: uppercase; }
+		nav a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: rgba(255, 255, 255, .55); text-decoration: none; font-size: 13px; transition: all .15s; cursor: pointer; border-left: 2px solid transparent; }
+		nav a:hover { color: #fff; background: rgba(255, 255, 255, .04); }
+		nav a.active { color: var(--gold-menu-light); border-left-color: var(--gold-menu); background: var(--sidebar-active); }
+		nav a .ic { font-size: 15px; width: 18px; text-align: center; }
+		.sb-footer { padding: 16px 20px; border-top: 1px solid rgba(255, 255, 255, .06); }
+		.sb-user { font-size: 12px; color: rgba(255, 255, 255, .4); margin-bottom: 10px; }
+		.sb-user strong { color: rgba(255, 255, 255, .7); display: block; }
+		.logout-btn { width: 100%; padding: 8px; background: transparent; border: 1px solid rgba(255, 255, 255, .12); border-radius: 2px; color: rgba(255, 255, 255, .4); font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: all .2s; font-family: 'Noto Sans JP', sans-serif; }
+		.logout-btn:hover { border-color: var(--rust); color: #e07070; }
+		.main-panel { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-width: 0; }
+		.topbar { height: 60px; background: #fff; border-bottom: 1px solid var(--card-border); display: flex; align-items: center; padding: 0 32px; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+		.topbar-left { font-family: 'Noto Serif JP', serif; font-size: 14px; color: #555; }
+		.topbar-right { display: flex; align-items: center; gap: 16px; font-size: 12px; color: #777; }
+		.content { padding: 32px; max-width: 1100px; width: 100%; margin: 0 auto; }
+		.page-header { margin-bottom: 24px; }
+		.page-header h2 { font-family: 'Noto Serif JP', serif; font-size: 22px; font-weight: 500; color: #333; }
+		.page-header .sc-id { font-size: 11px; color: #999; margin-top: 4px; letter-spacing: 0.5px; }
+		.card { background: #fff; border: 1px solid var(--card-border); border-radius: 6px; padding: 32px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02); }
+		.card-title { font-family: 'Noto Serif JP', serif; font-size: 15px; font-weight: 600; color: #444; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f5f0e8; padding-bottom: 12px; }
+		.reservation-summary { background: #fdfaf7; border: 1px solid #e2d9cd; padding: 16px; border-radius: 4px; margin-bottom: 24px; }
+		.reservation-summary strong { font-size: 14px; color: var(--gold); }
+		.reservation-summary .detail { margin-top: 8px; font-size: 13px; color: #666; line-height: 1.8; }
+		.form-group { display: flex; flex-direction: column; gap: 6px; }
+		.form-group.full { width: 100%; }
+		.form-group label { font-size: 12px; color: #666; font-weight: 500; }
+		.form-group label span { color: #c0392b; margin-left: 2px; }
+		.form-group textarea { width: 100%; border: 1px solid var(--gold-border); padding: 10px 14px; font-size: 13px; font-family: inherit; border-radius: 4px; color: var(--ink); background-color: #fff; outline: none; transition: border-color 0.2s; resize: vertical; min-height: 100px; line-height: 1.8; }
+		.form-group textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(175, 139, 61, 0.1); }
+		.btn-group { display: flex; gap: 12px; margin-top: 24px; }
+		.btn { padding: 12px 24px; font-size: 13px; font-weight: 600; border-radius: 4px; cursor: pointer; transition: all 0.2s; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; border: none; }
+		.btn-gold { background: var(--gold); color: #fff; }
+		.btn-gold:hover { background: #967631; }
+		.btn-white { background: #fff; color: #666; border: 1px solid #ccc; }
+		.btn-white:hover { background: #f9f9f9; border-color: #999; }
+	</style>
+</head>
+
+<body>
+
+	<aside class="sidebar">
+		<div class="sb-brand">
+			<div class="en">Hana Akari no Yu</div>
+			<div class="ja">花あかりの湯</div>
+			<span class="sb-badge">管理サイト</span>
+		</div>
+		<nav>
+			<div class="ns">メイン</div>
+			<a href="./topmenu.html"><span class="ic">🏠</span>ダッシュボード</a>
+			<a href="./list.html" class="active"><span class="ic">📋</span>全予約一覧</a>
+			<a href="./regist.html"><span class="ic">➕</span>予約登録</a>
+			<div class="ns">管理</div>
+			<a href="./room.html"><span class="ic">🛏</span>空室確認</a>
+			<a href="./record.html"><span class="ic">👤</span>顧客カルテ</a>
+			<a href="./okami_bot.html"><span class="ic">🤖</span>女将ボット</a>
+		</nav>
+		<div class="sb-footer">
+			<div class="sb-user">ログイン中<br><strong id="sbUser">staff001</strong></div>
+			<a href="#" id="logoutLink"><button class="logout-btn">ログアウト</button></a>
+		</div>
+	</aside>
+
+	<div class="main-panel">
+		<div class="topbar">
+			<div class="topbar-left">予約キャンセル（従業員用）</div>
+			<div class="topbar-right"><span id="todayDate"></span></div>
+		</div>
+
+		<div class="content">
+			<div class="page-header">
+				<h2>予約キャンセル</h2>
+				<p class="sc-id">SC-009</p>
+			</div>
+
+			<div class="card">
+				<div class="card-title">キャンセル情報の入力</div>
+
+				<div class="reservation-summary">
+					<strong id="custName"></strong>
+					<div class="detail">
+						<span id="stayDate"></span> /
+						<span id="planName"></span> /
+						<span id="roomNo"></span> /
+						<span id="numPeople"></span>名
+					</div>
+				</div>
+
+				<form id="cancelForm">
+					<div class="form-group full">
+						<label>キャンセル理由 <span>*</span></label>
+						<textarea id="cancelReason" placeholder="例：お客様都合によるキャンセル" required></textarea>
+					</div>
+					<div class="btn-group">
+						<button type="submit" class="btn btn-gold">確認へ進む</button>
+						<button type="button" class="btn btn-white" id="backBtn">戻る</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		function qs(name) { return new URLSearchParams(location.search).get(name); }
+		const resId = qs("id");
+		const restore = qs("restore") === "1";
+
+		TeamF.init().then(() => {
+			const s = TeamF.requireLogin();
+			if (!s) return;
+
+			document.getElementById("sbUser").textContent = s.account.loginId;
+			document.getElementById("todayDate").textContent = TeamF.fmtJpDate(TeamF.today());
+			document.getElementById("logoutLink").addEventListener("click", (e) => {
+				e.preventDefault();
+				TeamF.logout();
+				location.href = "./login.html";
+			});
+
+			const v = TeamF.reservationView(resId);
+			if (!v) {
+				document.querySelector(".content").innerHTML = '<div class="card">該当する予約が見つかりませんでした。<a href="./list.html">一覧へ戻る</a></div>';
+				return;
+			}
+			const r = v.reservation;
+			const c = v.customer;
+			document.getElementById("custName").textContent = (c ? c.name : '未登録') + ' 様';
+			document.getElementById("stayDate").textContent = r.stayDate ? TeamF.fmtDate(r.stayDate) : '未設定';
+			document.getElementById("planName").textContent = v.plan ? v.plan.planName : '';
+			document.getElementById("roomNo").textContent = v.roomLabel || '未割当';
+			document.getElementById("numPeople").textContent = r.numPeople;
+
+			if (restore) {
+				const pend = TeamF.getPending("cancel");
+				if (pend && pend.reason) document.getElementById("cancelReason").value = pend.reason;
+			}
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./detail.html?id=" + r.reservationId;
+			});
+
+			document.getElementById("cancelForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				const reason = document.getElementById("cancelReason").value.trim();
+				if (!reason) { alert("キャンセル理由を入力してください。"); return; }
+				TeamF.setPending("cancel", { id: r.reservationId, reason: reason });
+				location.href = "./cancel_confirm.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

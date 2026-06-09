@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 - 変更完了</title>
+	<link rel="stylesheet" href="./cus.css">
+</head>
+
+<body>
+	<header>
+		<div class="logo">
+			<h2>花あかりの湯</h2>
+			<small>HANA AKARI NO YU</small>
+		</div>
+		<nav>
+			<ul>
+				<li><a class="" href="./customer_top.html">ご予約トップ</a></li>
+				<li><a class="" href="./regist_customer.html">予約登録</a></li>
+				<li><a class="active" href="./upcus_search.html">予約変更</a></li>
+				<li><a class="" href="./cancus_search.html">予約キャンセル</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<section class="hero">
+		<div class="hero-tag">ONLINE RESERVATION</div>
+		<h1>花あかりの湯</h1>
+		<p>ご予約サイト<br>山の静けさと温泉の温もりが灯る、特別なひとときをオンラインでかんたんにご予約いただけます。</p>
+	</section>
+
+	<main class="container">
+		<section class="card complete-box">
+			<div class="complete-icon">完了</div>
+			<h2>予約変更が完了しました</h2>
+			<p>予約内容の変更を受け付けました。変更内容をメールにてお送りします。</p>
+			<div class="button-area" style="justify-content:center"><a class="btn-primary"
+					href="./customer_top.html">トップへ戻る</a></div>
+		</section>
+	</main>
+
+	<footer>
+		<div class="footer-title">花あかりの湯</div>
+		<p>〒XXX-XXXX　○○県○○市○○町1-1　｜　TEL: 0120-XXX-XXX</p>
+		<p>Copyright © 2026 花あかりの湯. All Rights Reserved.</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		// 完了画面。確認画面で更新済み。直打ち時もメッセージ表示のみ。
+		TeamF.init().then(() => { });
+	</script>
+</body>
+
+</html>

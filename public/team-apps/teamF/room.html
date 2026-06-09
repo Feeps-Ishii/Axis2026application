@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 - 空室確認</title>
+
+	<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+		rel="stylesheet">
+
+	<style>
+		:root {
+			--gold: #b8912a;
+			--gold-l: #e6c96a;
+			--ink: #1a1208;
+			--ash: #5c4a36;
+			--moss: #4a6741;
+			--rust: #9b3a2a;
+			--slate: #2c3e50;
+			--sidebar: #1e1610;
+			--sw: 220px;
+			--hh: 56px;
+			--border: #e8dece;
+			--bg: #f2ece4;
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Noto Sans JP', sans-serif;
+			background: var(--bg);
+			color: var(--ink);
+		}
+
+		#app {
+			min-height: 100vh;
+		}
+
+		.sidebar {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: var(--sw);
+			height: 100vh;
+			background: var(--sidebar);
+			display: flex;
+			flex-direction: column;
+			z-index: 100;
+			border-right: 1px solid rgba(184, 145, 42, .15);
+		}
+
+		.sb-brand {
+			padding: 22px 20px 18px;
+			border-bottom: 1px solid rgba(255, 255, 255, .06);
+		}
+
+		.sb-brand .en {
+			font-size: 9px;
+			color: rgba(255, 255, 255, .3);
+			letter-spacing: 3px;
+			text-transform: uppercase;
+		}
+
+		.sb-brand .ja {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 16px;
+			color: var(--gold-l);
+			letter-spacing: 2px;
+			margin-top: 4px;
+		}
+
+		.sb-badge {
+			font-size: 10px;
+			background: var(--gold);
+			color: var(--ink);
+			padding: 2px 6px;
+			border-radius: 10px;
+			margin-top: 6px;
+			display: inline-block;
+			font-weight: 700;
+		}
+
+		nav {
+			flex: 1;
+			padding: 16px 0;
+			overflow-y: auto;
+		}
+
+		.ns {
+			font-size: 9px;
+			color: rgba(255, 255, 255, .25);
+			letter-spacing: 3px;
+			padding: 12px 20px 6px;
+			text-transform: uppercase;
+		}
+
+		nav a {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 10px 20px;
+			color: rgba(255, 255, 255, .55);
+			text-decoration: none;
+			font-size: 13px;
+			transition: all .15s;
+			cursor: pointer;
+			border-left: 2px solid transparent;
+		}
+
+		nav a:hover {
+			color: #fff;
+			background: rgba(255, 255, 255, .04);
+		}
+
+		nav a.active {
+			color: var(--gold-l);
+			border-left-color: var(--gold);
+			background: rgba(184, 145, 42, .08);
+		}
+
+		nav a .ic {
+			font-size: 15px;
+			width: 18px;
+			text-align: center;
+		}
+
+		.sb-footer {
+			padding: 16px 20px;
+			border-top: 1px solid rgba(255, 255, 255, .06);
+		}
+
+		.sb-user {
+			font-size: 12px;
+			color: rgba(255, 255, 255, .4);
+			margin-bottom: 10px;
+		}
+
+		.sb-user strong {
+			color: rgba(255, 255, 255, .7);
+			display: block;
+		}
+
+		.logout-btn {
+			width: 100%;
+			padding: 8px;
+			background: transparent;
+			border: 1px solid rgba(255, 255, 255, .12);
+			border-radius: 2px;
+			color: rgba(255, 255, 255, .4);
+			font-size: 11px;
+			letter-spacing: 1px;
+			cursor: pointer;
+			transition: all .2s;
+			font-family: 'Noto Sans JP', sans-serif;
+		}
+
+		.logout-btn:hover {
+			border-color: var(--rust);
+			color: #e07070;
+		}
+
+		.main {
+			margin-left: var(--sw);
+			min-height: 100vh;
+		}
+
+		.topbar {
+			height: var(--hh);
+			background: #fff;
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			align-items: center;
+			padding: 0 28px;
+		}
+
+		.topbar-title {
+			font-family: 'Noto Serif JP', serif;
+			color: var(--ash);
+			font-size: 16px;
+		}
+
+		.content {
+			padding: 28px;
+		}
+
+		.page-hd {
+			margin-bottom: 24px;
+			padding-bottom: 16px;
+			border-bottom: 1px solid var(--border);
+		}
+
+		.page-hd h2 {
+			font-family: 'Noto Serif JP', serif;
+			color: var(--ash);
+			font-weight: 400;
+		}
+
+		.sc-id {
+			font-size: 12px;
+			color: #999;
+		}
+
+		.card {
+			background: #fff;
+			border: 1px solid var(--border);
+			border-radius: 4px;
+			padding: 24px;
+			margin-bottom: 20px;
+		}
+
+		.card-title {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 15px;
+			color: var(--ash);
+			margin-bottom: 16px;
+			padding-bottom: 12px;
+			border-bottom: 1px solid #f0ebe3;
+		}
+
+		.srow {
+			display: flex;
+			gap: 12px;
+			align-items: flex-end;
+			flex-wrap: wrap;
+		}
+
+		.fg {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		.fg label {
+			font-size: 11px;
+			color: #888;
+		}
+
+		.fg input {
+			border: 1px solid #ddd;
+			padding: 9px 12px;
+			border-radius: 2px;
+		}
+
+		.btn {
+			padding: 10px 22px;
+			border: none;
+			border-radius: 2px;
+			font-family: 'Noto Sans JP', sans-serif;
+			font-size: 13px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all .15s;
+			letter-spacing: .5px;
+			text-decoration: none;
+			display: inline-block
+		}
+
+		.btn-gold {
+			background: var(--gold);
+			color: var(--ink);
+		}
+
+		.btn-gold:hover {
+			background: var(--gold-l);
+		}
+
+		.btn-moss {
+			background: var(--moss);
+			color: #fff;
+		}
+
+		.btn-out {
+			background: transparent;
+			border: 1px solid #ccc;
+			color: var(--ash)
+		}
+
+		.btn-out:hover {
+			border-color: var(--gold);
+			color: var(--gold)
+		}
+
+		.room-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+			gap: 12px;
+		}
+
+		.room-cell {
+			border-radius: 3px;
+			padding: 14px;
+			text-align: center;
+			border: 1px solid;
+			min-height: 120px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+
+		.room-cell.vacant {
+			background: #f0f7f0;
+			border-color: #aac9a8;
+			color: var(--moss);
+		}
+
+		.room-cell.reserved {
+			background: #eef4ff;
+			border-color: #9bb8f5;
+			color: #2563eb;
+		}
+
+		.room-cell.occupied {
+			background: #f8ecea;
+			border-color: #b85a4a;
+			color: #8f2f23;
+		}
+
+		.room-cell.cleaning {
+			background: #faf5e7;
+			border-color: #b8912a;
+			color: #7a6200;
+		}
+
+		.room-cell.stopped {
+			background: #eceff3;
+			border-color: #b8c0c8;
+			color: #4f5b66;
+		}
+
+		.room-num {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 20px;
+			font-weight: 600;
+		}
+
+		.room-type {
+			font-size: 11px;
+			margin-top: 4px;
+		}
+
+		.room-status {
+			font-size: 10px;
+			margin-top: 6px;
+			font-weight: 600;
+		}
+
+		.notice {
+			background: #fef9f0;
+			border: 1px solid #f0ddb0;
+			border-radius: 3px;
+			padding: 14px;
+			font-size: 12px;
+			margin-top: 16px;
+			line-height: 1.8;
+		}
+
+		.customer-name {
+			margin-top: 8px;
+			min-height: 24px;
+			font-size: 12px;
+		}
+
+		.btn-cleaning {
+			background: rgba(255, 255, 255, 0.7);
+			border: 1px solid #b8912a;
+			color: #7a6200;
+			border-radius: 3px;
+			padding: 6px 12px;
+			font-size: 11px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: .15s;
+		}
+
+		.btn-cleaning:hover {
+			background: #b8912a;
+			color: white;
+		}
+
+		.legend-box {
+			margin-top: 20px;
+			padding: 16px 20px;
+			background: #fff;
+			border: 1px solid var(--border);
+			border-radius: 4px;
+
+			display: flex;
+			justify-content: center;
+			gap: 28px;
+			flex-wrap: wrap;
+		}
+
+		.legend-item {
+			font-size: 13px;
+			font-weight: 500;
+		}
+
+		.legend-item.vacant {
+			color: var(--moss);
+		}
+
+		.legend-item.reserved {
+			color: #2563eb;
+		}
+
+		.legend-item.occupied {
+			color: var(--rust);
+		}
+
+		.legend-item.cleaning {
+			color: #7a6200;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- サイドバー -->
+	<aside class="sidebar">
+
+		<div class="sb-brand">
+			<div class="en">Hana Akari no Yu</div>
+			<div class="ja">花あかりの湯</div>
+			<span class="sb-badge">管理サイト</span>
+		</div>
+
+		<nav>
+			<div class="ns">メイン</div>
+
+
+			<a href="./topmenu.html">
+				<span class="ic">🏠</span>
+				ダッシュボード
+			</a>
+
+			<a href="./list.html">
+				<span class="ic">📋</span>
+				全予約一覧
+			</a>
+
+			<a href="./regist.html">
+				<span class="ic">➕</span>
+				予約登録
+			</a>
+
+			<div class="ns">管理</div>
+
+			<a href="./room.html" class="active">
+				<span class="ic">🛏</span>
+				空室確認
+			</a>
+
+			<a href="./record.html">
+				<span class="ic">👤</span>
+				顧客カルテ
+			</a>
+
+
+			<a href="./okami_bot.html">
+				<span class="ic">🤖</span>
+				女将ボット
+			</a>
+
+		</nav>
+
+		<div class="sb-footer">
+			<div class="sb-user">
+				ログイン中<br>
+				<strong id="sbUser">staff001</strong>
+			</div>
+
+			<button class="logout-btn" id="logoutBtn">
+				ログアウト
+			</button>
+		</div>
+
+	</aside>
+
+	<!-- Main -->
+
+	<main class="main">
+
+		<div class="topbar">
+			<div class="topbar-title">空室確認</div>
+		</div>
+
+		<div class="content">
+
+			<!-- 検索 -->
+
+			<div class="card">
+
+				<div class="card-title">🔍 日付を指定して確認</div>
+
+				<form id="searchForm">
+
+					<div class="srow">
+
+						<div class="fg">
+							<label>検索期間</label>
+							<input type="date" name="stayDate" id="stayDate" required>
+						</div>
+
+						<div class="fg">
+							<input type="date" name="checkoutDate" id="checkoutDate" required>
+						</div>
+
+						<button type="submit" class="btn btn-gold">
+							空室確認
+						</button>
+
+						<a href="./room.html" class="btn btn-out" id="clearBtn">クリア</a>
+
+
+						<a href="./regist.html" class="btn btn-moss">
+							予約登録
+						</a>
+
+
+					</div>
+
+				</form>
+
+			</div>
+
+			<!-- 空室状況 -->
+
+			<div class="card">
+
+				<div class="card-title">
+					🛏 空室状況
+					<span id="rangeLabel"></span>
+				</div>
+
+				<div class="room-grid" id="roomGrid"></div>
+
+			</div>
+
+		</div>
+
+		<!-- 凡例 -->
+		<div class="legend-box">
+
+			<div class="legend-item vacant">
+				■ 空室：予約可
+			</div>
+
+			<div class="legend-item reserved">
+				■ 予約中：予約不可
+			</div>
+
+			<div class="legend-item occupied">
+				■ 在室：予約不可
+			</div>
+
+			<div class="legend-item cleaning">
+				■ 清掃中：予約可
+			</div>
+
+		</div>
+
+		<div class="notice"></div>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script>
+		// yyyy/M/d 形式（元テンプレ #temporals.format 準拠）
+		function fmtSlash(d) {
+			if (!d) return '';
+			const p = String(d).slice(0, 10).split('-');
+			return p[0] + '/' + Number(p[1]) + '/' + Number(p[2]);
+		}
+		function addDays(ymd, n) {
+			const dt = new Date(ymd + 'T00:00:00');
+			dt.setDate(dt.getDate() + n);
+			const p = (x) => String(x).padStart(2, '0');
+			return dt.getFullYear() + '-' + p(dt.getMonth() + 1) + '-' + p(dt.getDate());
+		}
+		const FINISHED_RES = ['キャンセル', 'キャンセル済', 'チェックアウト済'];
+		const FINISHED_ASSIGN = ['キャンセル', 'キャンセル済', 'チェックアウト済'];
+		const CHECKED_IN = ['チェックイン済', '宿泊中'];
+
+		// RoomService.searchRoomStatus 相当の状態導出
+		function deriveStatus(room, stayDate, checkoutDate) {
+			const out = { roomStatus: room.roomStatus, customerName: '', reservationId: null };
+			const physical = room.roomStatus;
+			if (physical === '休止' || physical === '清掃中') {
+				return out; // 物理状態をそのまま使用
+			}
+			// 期間が重なるアクティブな割当を探す
+			const rrs = TeamF.reservationRooms().filter(rr => {
+				if (rr.roomId !== room.roomId) return false;
+				if (FINISHED_ASSIGN.indexOf(rr.assignStatus) >= 0) return false;
+				const res = TeamF.reservation(rr.reservationId);
+				if (!res) return false;
+				if (FINISHED_RES.indexOf(res.status) >= 0) return false;
+				// 期間重なり（[stay, checkout)）
+				const from = rr.assignedFrom || res.stayDate;
+				const to = rr.assignedTo || res.checkoutDate;
+				return !(to <= stayDate || from >= checkoutDate);
+			});
+
+			let active = null, checkedIn = false;
+			for (const rr of rrs) {
+				const res = TeamF.reservation(rr.reservationId);
+				if (!active) active = rr;
+				if (CHECKED_IN.indexOf(res.status) >= 0) { checkedIn = true; break; }
+			}
+			if (!active) {
+				out.roomStatus = '空室';
+				return out;
+			}
+			const res = TeamF.reservation(active.reservationId);
+			out.reservationId = res.reservationId;
+			out.roomStatus = checkedIn ? '在室' : '予約中';
+			const c = TeamF.customer(res.customerId);
+			out.customerName = (c && !c.isDeleted) ? c.name : '';
+			return out;
+		}
+
+		function statusClass(st) {
+			if (st === '空室') return 'vacant';
+			if (st === '予約中') return 'reserved';
+			if (st === '在室') return 'occupied';
+			if (st === '清掃中') return 'cleaning';
+			return 'stopped';
+		}
+
+		let curStay, curCheckout;
+
+		function render() {
+			const grid = document.getElementById('roomGrid');
+			grid.innerHTML = '';
+			const rooms = TeamF.rooms().filter(r => r.isActive);
+			rooms.forEach(room => {
+				const d = deriveStatus(room, curStay, curCheckout);
+				const cell = document.createElement('div');
+				cell.className = 'room-cell ' + statusClass(d.roomStatus);
+
+				let html =
+					'<div class="room-num">' + TeamF.esc(room.roomNo) + '</div>' +
+					'<div class="room-type">' + TeamF.esc(room.roomType) + '</div>' +
+					'<div class="room-status">' + TeamF.esc(d.roomStatus) + '</div>';
+
+				if (d.customerName) {
+					html += '<div class="customer-name">' +
+						'<a href="./detail.html?id=' + d.reservationId + '" style="color:inherit;text-decoration:none;">' +
+						'👤 <span>' + TeamF.esc(d.customerName) + '</span></a></div>';
+				}
+
+				if (d.roomStatus === '清掃中') {
+					html += '<div style="margin-top:8px;">' +
+						'<button type="button" class="btn btn-cleaning cleaning-btn" data-room="' + room.roomId + '" style="padding:6px 12px;font-size:11px;">清掃完了</button>' +
+						'</div>';
+				}
+
+				cell.innerHTML = html;
+				grid.appendChild(cell);
+			});
+
+			grid.querySelectorAll('.cleaning-btn').forEach(btn => {
+				btn.addEventListener('click', () => {
+					TeamF.setRoomStatus(Number(btn.dataset.room), '空室');
+					render();
+				});
+			});
+
+			document.getElementById('rangeLabel').textContent =
+				'（' + fmtSlash(curStay) + ' ～ ' + fmtSlash(curCheckout) + '）';
+		}
+
+		TeamF.init().then(() => {
+			const s = TeamF.requireLogin();
+			if (!s) return;
+
+			const acc = s.account || {};
+			document.getElementById('sbUser').textContent = acc.loginId || 'staff001';
+			document.getElementById('logoutBtn').addEventListener('click', () => {
+				TeamF.logout();
+				location.href = './login.html';
+			});
+
+			const stayInput = document.getElementById('stayDate');
+			const checkoutInput = document.getElementById('checkoutDate');
+
+			// 初期表示：今日〜翌日（RoomController 初期表示準拠）
+			const today = TeamF.today();
+			curStay = today;
+			curCheckout = addDays(today, 1);
+
+			stayInput.setAttribute('min', today);
+			stayInput.value = curStay;
+			checkoutInput.setAttribute('min', addDays(curStay, 1));
+			checkoutInput.value = curCheckout;
+
+			stayInput.addEventListener('change', function () {
+				if (!this.value) return;
+				const next = addDays(this.value, 1);
+				checkoutInput.setAttribute('min', next);
+				if (!checkoutInput.value || this.value >= checkoutInput.value) {
+					checkoutInput.value = next;
+				}
+			});
+
+			document.getElementById('searchForm').addEventListener('submit', function (e) {
+				e.preventDefault();
+				curStay = stayInput.value || today;
+				curCheckout = checkoutInput.value || addDays(curStay, 1);
+				render();
+			});
+
+			render();
+		});
+	</script>
+
+</body>
+
+</html>

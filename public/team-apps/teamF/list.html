@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 ― 予約一覧</title>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+		rel="stylesheet">
+
+	<style>
+		:root { --gold: #b8912a; --gold-l: #e6c96a; --gold-p: #f7f0e0; --ink: #1a1208; --ash: #5c4a36; --cream: #f0ebe3; --moss: #4a6741; --rust: #9b3a2a; --slate: #2c3e50; --sidebar: #1e1610; --sw: 220px; --hh: 56px; --border: #e8dece; --bg: #f2ece4; }
+		* { box-sizing: border-box; margin: 0; padding: 0 }
+		body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh }
+		#app { display: flex; min-height: 100vh }
+		.sidebar { position: fixed; top: 0; left: 0; width: var(--sw); height: 100vh; background: var(--sidebar); display: flex; flex-direction: column; z-index: 100; border-right: 1px solid rgba(184, 145, 42, .15) }
+		.sb-brand { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255, 255, 255, .06) }
+		.sb-brand .en { font-size: 9px; color: rgba(255, 255, 255, .3); letter-spacing: 3px; text-transform: uppercase }
+		.sb-brand .ja { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--gold-l); letter-spacing: 2px; margin-top: 4px }
+		.sb-badge { font-size: 10px; background: var(--gold); color: var(--ink); padding: 2px 6px; border-radius: 10px; margin-top: 6px; display: inline-block; font-weight: 700 }
+		nav { flex: 1; padding: 16px 0; overflow-y: auto }
+		.ns { font-size: 9px; color: rgba(255, 255, 255, .25); letter-spacing: 3px; padding: 12px 20px 6px; text-transform: uppercase }
+		nav a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: rgba(255, 255, 255, .55); text-decoration: none; font-size: 13px; transition: all .15s; cursor: pointer; border-left: 2px solid transparent }
+		nav a:hover { color: #fff; background: rgba(255, 255, 255, .04) }
+		nav a.active { color: var(--gold-l); border-left-color: var(--gold); background: rgba(184, 145, 42, .08) }
+		nav a .ic { font-size: 15px; width: 18px; text-align: center }
+		.sb-footer { padding: 16px 20px; border-top: 1px solid rgba(255, 255, 255, .06) }
+		.sb-user { font-size: 12px; color: rgba(255, 255, 255, .4); margin-bottom: 10px }
+		.sb-user strong { color: rgba(255, 255, 255, .7); display: block }
+		.logout-btn { width: 100%; padding: 8px; background: transparent; border: 1px solid rgba(255, 255, 255, .12); border-radius: 2px; color: rgba(255, 255, 255, .4); font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: all .2s; font-family: 'Noto Sans JP', sans-serif }
+		.logout-btn:hover { border-color: var(--rust); color: #e07070 }
+		.main { margin-left: var(--sw); min-height: 100vh; display: flex; flex-direction: column; width: calc(100% - var(--sw)); }
+		.topbar { height: var(--hh); background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 16px; position: sticky; top: 0; z-index: 50 }
+		.topbar-title { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--ash); flex: 1 }
+		.topbar-date { font-size: 12px; color: #999 }
+		.content { padding: 28px; flex: 1 }
+		.page-hd { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-end }
+		.page-hd h2 { font-family: 'Noto Serif JP', serif; font-size: 20px; color: var(--ash); font-weight: 400; margin-bottom: 4px }
+		.sc-id { font-size: 10px; color: #ccc; letter-spacing: 1px }
+		.card { background: #fff; border-radius: 4px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px }
+		.card-title { font-family: 'Noto Serif JP', serif; font-size: 14px; color: var(--ash); margin-bottom: 16px; font-weight: 600; letter-spacing: 1px }
+		.f-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 16px }
+		.fg { display: flex; flex-direction: column; gap: 6px }
+		.fg label { font-size: 11px; color: var(--ash); font-weight: 500 }
+		.fg input, .fg select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 2px; font-size: 13px; color: var(--ink); background: #fcfbf9; font-family: inherit }
+		.fg input:focus, .fg select:focus { outline: none; border-color: var(--gold); background: #fff }
+		.btn { padding: 10px 22px; border: none; border-radius: 2px; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; letter-spacing: .5px }
+		.btn-gold { background: var(--gold); color: var(--ink) }
+		.btn-gold:hover { background: var(--gold-l) }
+		.btn-out { background: transparent; border: 1px solid #ccc; color: var(--ash) }
+		.btn-out:hover { border-color: var(--gold); color: var(--gold) }
+		.btn-row { display: flex; gap: 10px; justify-content: flex-start }
+		.result-meta { font-size: 13px; color: var(--ash); margin-bottom: 10px; font-weight: 500 }
+		.result-count { color: var(--gold); font-size: 16px; font-weight: 700; margin: 0 2px }
+		.table-wrapper { background: #fff; border: 1px solid var(--border); border-radius: 4px; overflow: hidden }
+		table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left }
+		th { background: #f7f4ee; color: var(--ash); font-weight: 600; padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 12px }
+		td { padding: 14px 14px; border-bottom: 1px solid #f2ece4; color: #3a3028; vertical-align: middle }
+		tr:last-child td { border-bottom: none }
+		tr:hover td { background: #faf8f5 }
+		.pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; text-align: center }
+		.pill.confirmed { background: #e8f4e8; color: var(--moss) }
+		.pill.checkin { background: #e8f0f8; color: var(--slate) }
+		.pill.cancelled { background: #fce8e8; color: var(--rust) }
+		.pill.done { background: #ece8f8; color: #5a438a }
+		.tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: #fce8e8; color: var(--rust); display: inline-block }
+		.empty-msg { padding: 40px; text-align: center; color: #999; font-size: 14px }
+	</style>
+</head>
+
+<body>
+
+	<div id="app">
+		<aside class="sidebar">
+			<div class="sb-brand">
+				<div class="en">Hana Akari no Yu</div>
+				<div class="ja">花あかりの湯</div>
+				<span class="sb-badge">管理サイト</span>
+			</div>
+			<nav>
+				<div class="ns">メイン</div>
+				<a href="./topmenu.html"><span class="ic">🏠</span>ダッシュボード</a>
+				<a href="./list.html" class="active"><span class="ic">📋</span>全予約一覧</a>
+				<a href="./regist.html"><span class="ic">➕</span>予約登録</a>
+				<div class="ns">管理</div>
+				<a href="./room.html"><span class="ic">🛏</span>空室確認</a>
+				<a href="./record.html"><span class="ic">👤</span>顧客カルテ</a>
+				<a href="./okami_bot.html"><span class="ic">🤖</span>女将ボット</a>
+			</nav>
+			<div class="sb-footer">
+				<div class="sb-user">ログイン中<br><strong id="sbUser">staff001</strong></div>
+				<a href="#" id="logoutLink"><button class="logout-btn">ログアウト</button></a>
+			</div>
+		</aside>
+
+		<div class="main">
+			<div class="topbar">
+				<div class="topbar-title">予約管理システム</div>
+				<div class="topbar-date" id="todayDate"></div>
+			</div>
+
+			<div class="content">
+				<div class="page-hd">
+					<div><h2>全予約一覧</h2></div>
+				</div>
+
+				<div class="card">
+					<div class="card-title">🔍 検索条件指定</div>
+					<form id="searchForm" autocomplete="off">
+						<div class="f-grid">
+							<div class="fg">
+								<label>お客様名</label>
+								<input type="text" name="customerName" id="customerName" placeholder="氏名（部分一致）" />
+							</div>
+							<div class="fg">
+								<label>電話番号</label>
+								<input type="text" name="phone" id="phone" placeholder="ハイフンなし"
+									oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+							</div>
+							<div class="fg">
+								<label>宿泊日</label>
+								<input type="date" name="stayDate" id="stayDate" />
+							</div>
+							<div class="fg">
+								<label>プラン</label>
+								<select name="planName" id="planName">
+									<option value="">全プラン</option>
+									<option value="月あかり懐石">月あかり懐石</option>
+									<option value="花あかり懐石">花あかり懐石</option>
+									<option value="和室記念日プラン">和室記念日プラン</option>
+									<option value="露天風呂付き客室記念日プラン">露天風呂付き客室記念日プラン</option>
+									<option value="平日のんびりプラン">平日のんびりプラン</option>
+								</select>
+							</div>
+							<div class="fg">
+								<label>部屋名</label>
+								<select name="roomNo" id="roomNo">
+									<option value="">全客室</option>
+									<optgroup label="和室">
+										<option value="桜">桜</option>
+										<option value="梅">梅</option>
+										<option value="椿">椿</option>
+										<option value="菊">菊</option>
+										<option value="牡丹">牡丹</option>
+										<option value="藤">藤</option>
+										<option value="紫陽花">紫陽花</option>
+										<option value="百合">百合</option>
+										<option value="撫子">撫子</option>
+										<option value="朝顔">朝顔</option>
+										<option value="雪椿">雪椿</option>
+										<option value="紅葉">紅葉</option>
+										<option value="菫">菫</option>
+										<option value="萩">萩</option>
+										<option value="桔梗">桔梗</option>
+										<option value="山吹">山吹</option>
+										<option value="水仙">水仙</option>
+										<option value="鈴蘭">鈴蘭</option>
+									</optgroup>
+									<optgroup label="客室露天風呂付">
+										<option value="花霞">花霞</option>
+										<option value="花筏">花筏</option>
+										<option value="花灯">花灯</option>
+										<option value="花月">花月</option>
+										<option value="花宴">花宴</option>
+										<option value="花明">花明</option>
+										<option value="花あかり">花あかり</option>
+									</optgroup>
+								</select>
+							</div>
+							<div class="fg">
+								<label>期間指定</label>
+								<select name="dateRange" id="dateRange">
+									<option value="">指定なし</option>
+									<option value="today">今日</option>
+									<option value="3days">3日以内</option>
+									<option value="1week">1週間以内</option>
+									<option value="1month">1ヶ月以内</option>
+								</select>
+							</div>
+							<div class="fg">
+								<label>ステータス</label>
+								<select name="status" id="status">
+									<option value="">全ステータス</option>
+									<option value="予約済">予約済</option>
+									<option value="チェックイン済">チェックイン済</option>
+									<option value="チェックアウト済">チェックアウト済</option>
+									<option value="キャンセル">キャンセル</option>
+								</select>
+							</div>
+						</div>
+						<div class="btn-row">
+							<button type="submit" class="btn btn-gold">検索</button>
+							<button type="button" id="clearBtn" class="btn btn-out">クリア</button>
+						</div>
+					</form>
+				</div>
+
+				<div class="result-meta">検索結果：<span class="result-count" id="resultCount">0</span>件</div>
+
+				<div class="table-wrapper">
+					<table id="resultTable" style="display:none;">
+						<thead>
+							<tr>
+								<th style="width: 90px;">宿泊日</th>
+								<th style="width: 70px;">時刻</th>
+								<th>お客様名</th>
+								<th style="width: 50px;">人数</th>
+								<th>ご利用プラン</th>
+								<th style="width: 100px;">予約経路</th>
+								<th style="width: 120px;">ステータス</th>
+							</tr>
+						</thead>
+						<tbody id="resultBody"></tbody>
+					</table>
+					<div class="empty-msg" id="emptyMsg" style="display:none;">
+						該当する予約データが見つかりませんでした。条件を変えて再度検索してください。
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const SEARCH_KEY = "teamF:emp:listSearch";
+
+		function pillClass(status) {
+			if (status === '予約済') return 'pill confirmed';
+			if (status === 'チェックイン済' || status === '宿泊中') return 'pill checkin';
+			if (status === 'チェックアウト済') return 'pill done';
+			if (status === 'キャンセル') return 'pill cancelled';
+			return 'pill';
+		}
+
+		// M/d（曜）形式
+		function fmtMd(d) {
+			if (!d) return '';
+			const dt = new Date(String(d).slice(0, 10) + "T00:00:00");
+			const w = ["日","月","火","水","木","金","土"][dt.getDay()];
+			return (dt.getMonth() + 1) + "/" + dt.getDate() + "（" + w + "）";
+		}
+
+		function routeName(routeId) {
+			const r = TeamF.route(routeId);
+			return r ? r.routeName : '';
+		}
+
+		function readForm() {
+			return {
+				customerName: document.getElementById("customerName").value.trim(),
+				phone: document.getElementById("phone").value.trim(),
+				stayDate: document.getElementById("stayDate").value,
+				planName: document.getElementById("planName").value,
+				roomNo: document.getElementById("roomNo").value,
+				dateRange: document.getElementById("dateRange").value,
+				status: document.getElementById("status").value,
+			};
+		}
+
+		function writeForm(c) {
+			if (!c) return;
+			document.getElementById("customerName").value = c.customerName || "";
+			document.getElementById("phone").value = c.phone || "";
+			document.getElementById("stayDate").value = c.stayDate || "";
+			document.getElementById("planName").value = c.planName || "";
+			document.getElementById("roomNo").value = c.roomNo || "";
+			document.getElementById("dateRange").value = c.dateRange || "";
+			document.getElementById("status").value = c.status || "";
+		}
+
+		// dateRange を stayFrom/stayTo に変換（基準日 = today）
+		function rangeBounds(dateRange) {
+			if (!dateRange) return {};
+			const base = new Date(TeamF.today() + "T00:00:00");
+			const iso = (dt) => {
+				const p = (n) => String(n).padStart(2, "0");
+				return dt.getFullYear() + "-" + p(dt.getMonth() + 1) + "-" + p(dt.getDate());
+			};
+			const from = iso(base);
+			const to = new Date(base);
+			if (dateRange === 'today') { /* to = base */ }
+			else if (dateRange === '3days') to.setDate(to.getDate() + 3);
+			else if (dateRange === '1week') to.setDate(to.getDate() + 7);
+			else if (dateRange === '1month') to.setMonth(to.getMonth() + 1);
+			return { stayFrom: from, stayTo: iso(to) };
+		}
+
+		function render(cond) {
+			// プラン名→planId
+			let planId = null;
+			if (cond.planName) {
+				const p = TeamF.plans().find(x => x.planName === cond.planName);
+				if (p) planId = p.planId;
+			}
+			const rb = rangeBounds(cond.dateRange);
+			let views = TeamF.searchReservations({
+				status: cond.status || undefined,
+				customerName: cond.customerName || undefined,
+				phone: cond.phone || undefined,
+				stayFrom: rb.stayFrom,
+				stayTo: rb.stayTo,
+				planId: planId || undefined,
+			});
+			// 部屋名フィルタ（割当客室の roomNo 部分一致）
+			if (cond.roomNo) {
+				views = views.filter(v => v.assignedRooms.some(rm => rm.roomNo === cond.roomNo));
+			}
+			// 宿泊日（単日）フィルタ
+			if (cond.stayDate) {
+				views = views.filter(v => v.reservation.stayDate === cond.stayDate);
+			}
+
+			document.getElementById("resultCount").textContent = views.length;
+			const tbody = document.getElementById("resultBody");
+			const table = document.getElementById("resultTable");
+			const empty = document.getElementById("emptyMsg");
+
+			if (views.length === 0) {
+				table.style.display = "none";
+				empty.style.display = "block";
+				tbody.innerHTML = "";
+				return;
+			}
+			table.style.display = "table";
+			empty.style.display = "none";
+			tbody.innerHTML = views.map(v => {
+				const r = v.reservation;
+				const name = v.customer ? v.customer.name : '顧客名';
+				const plan = v.plan ? v.plan.planName : '';
+				const allergyTag = (r.allergyInfo && r.allergyInfo.length)
+					? ' <span class="tag al">⚠️アレルギー有</span>' : '';
+				return '<tr style="cursor:pointer;" onclick="location.href=\'./detail.html?id=' + r.reservationId + '\'">' +
+					'<td>' + fmtMd(r.stayDate) + '</td>' +
+					'<td>' + TeamF.esc(TeamF.fmtTime(r.checkinTime)) + '</td>' +
+					'<td><span style="font-weight:500;">' + TeamF.esc(name) + ' 様</span>' + allergyTag + '</td>' +
+					'<td>' + TeamF.esc(r.numPeople) + '名</td>' +
+					'<td>' + TeamF.esc(plan) + '</td>' +
+					'<td>' + TeamF.esc(routeName(r.routeId)) + '</td>' +
+					'<td><span class="' + pillClass(r.status) + '">' + TeamF.esc(r.status) + '</span></td>' +
+					'</tr>';
+			}).join('');
+		}
+
+		TeamF.init().then(() => {
+			const s = TeamF.requireLogin();
+			if (!s) return;
+
+			document.getElementById("sbUser").textContent = s.account.loginId;
+			document.getElementById("todayDate").textContent = TeamF.fmtJpDate(TeamF.today());
+			document.getElementById("logoutLink").addEventListener("click", (e) => {
+				e.preventDefault();
+				TeamF.logout();
+				location.href = "./login.html";
+			});
+
+			// セッション保存された検索条件を復元
+			let saved = null;
+			try { saved = JSON.parse(sessionStorage.getItem(SEARCH_KEY)); } catch (e) {}
+			if (saved) writeForm(saved);
+			render(saved || {});
+
+			document.getElementById("searchForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				const cond = readForm();
+				sessionStorage.setItem(SEARCH_KEY, JSON.stringify(cond));
+				render(cond);
+			});
+
+			document.getElementById("clearBtn").addEventListener("click", () => {
+				sessionStorage.removeItem(SEARCH_KEY);
+				writeForm({});
+				render({});
+			});
+		});
+	</script>
+
+</body>
+
+</html>

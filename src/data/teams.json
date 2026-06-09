@@ -20,13 +20,14 @@
     "entry": "login.html"
   },
   {
-    "slug": "team3",
-    "name": "グループ3",
-    "appName": "（アプリ名未定）",
-    "description": "チームの成果物を public/team-apps/team3/ に配置してください。",
-    "category": "未分類",
+    "slug": "teamF",
+    "name": "グループF",
+    "appName": "花あかりの湯（旅館 予約管理システム）",
+    "description": "従業員の予約管理・客室管理・顧客カルテ・女将ボット、お客様の予約/変更/キャンセルを JSON + localStorage で擬似再現したモックです。",
+    "category": "業務系",
     "accent": "#db2777",
-    "ready": false
+    "ready": true,
+    "entry": "login.html"
   },
   {
     "slug": "team4",

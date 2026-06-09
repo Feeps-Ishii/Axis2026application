@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 - 予約キャンセル（お客様照合）</title>
+	<link rel="stylesheet" href="./cus.css">
+</head>
+
+<body>
+	<header>
+		<div class="logo">
+			<h2>花あかりの湯</h2><small>HANA AKARI NO YU</small>
+		</div>
+		<nav>
+			<ul>
+				<li><a href="./customer_top.html">ご予約トップ</a></li>
+				<li><a href="./regist_customer.html">予約登録</a></li>
+				<li><a href="./upcus_search.html">予約変更</a></li>
+				<li><a class="active" href="./cancus_search.html">予約キャンセル</a></li>
+			</ul>
+		</nav>
+	</header>
+	<section class="hero">
+		<div class="hero-tag">ONLINE RESERVATION</div>
+		<h1>花あかりの湯</h1>
+		<p>ご予約サイト<br>山の静けさと温泉の温もりが灯る、特別なひとときをオンラインでかんたんにご予約いただけます。</p>
+	</section>
+	<main class="container">
+		<section class="page-header">
+			<h2>予約キャンセル（お客様照合）</h2>
+			<p>予約番号とご予約時の電話番号で予約を照合します。</p>
+		</section>
+		<div class="error-message" id="errorMessage" style="display:none">
+			<span id="errorText"></span>
+		</div>
+		<form id="searchForm">
+			<section class="card">
+				<h3>予約の照合</h3>
+				<div class="form-grid">
+					<div class="form-group">
+						<label>お名前 <span class="req">*</span></label>
+						<input type="text" name="customerName" id="customerName">
+					</div>
+
+					<div class="form-group">
+						<label>電話番号 ハイフンなし半角数字<span class="req">*</span></label>
+						<input type="tel" name="phone" id="phone" pattern="[0-9]{11}" maxlength="11" placeholder="09012345678">
+					</div>
+				</div>
+			</section>
+			<div class="button-area"><a class="btn-secondary" href="./customer_top.html">戻る</a><button type="submit"
+					class="btn-primary">予約を検索する</button></div>
+		</form>
+	</main>
+	<footer>
+		<div class="footer-title">花あかりの湯</div>
+		<p>〒XXX-XXXX　○○県○○市○○町1-1　｜　TEL: 0120-XXX-XXX</p>
+		<p>Copyright © 2026 花あかりの湯. All Rights Reserved.</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamF.init().then(() => {
+			const form = document.getElementById("searchForm");
+			const errBox = document.getElementById("errorMessage");
+			const errText = document.getElementById("errorText");
+
+			function showError(msg) {
+				errText.textContent = msg;
+				errBox.style.display = "";
+			}
+
+			form.addEventListener("submit", (e) => {
+				e.preventDefault();
+				const customerName = document.getElementById("customerName").value.trim();
+				const phone = document.getElementById("phone").value.trim();
+
+				if (!customerName || !phone) {
+					showError("電話番号とお名前を両方ご入力ください。");
+					return;
+				}
+
+				const results = TeamF.searchReservations({ customerName, phone })
+					.filter((v) => v.reservation.status !== "キャンセル")
+					.sort((a, b) => a.reservation.stayDate < b.reservation.stayDate ? -1 : 1);
+
+				if (results.length === 0) {
+					showError("お名前または電話番号が一致しません");
+					return;
+				}
+
+				sessionStorage.setItem("teamF:cancusSearch", JSON.stringify({ customerName, phone }));
+				location.href = "./cancel_customer.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

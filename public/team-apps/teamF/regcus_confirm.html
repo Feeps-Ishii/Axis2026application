@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 - 登録確認</title>
+	<link rel="stylesheet" href="./cus.css">
+</head>
+
+<body>
+	<header>
+		<div class="logo">
+			<h2>花あかりの湯</h2><small>HANA AKARI NO YU</small>
+		</div>
+		<nav>
+			<ul>
+				<li><a href="./customer_top.html">ご予約トップ</a></li>
+				<li><a class="active" href="./regist_customer.html">予約登録</a></li>
+				<li><a href="./upcus_search.html">予約変更</a></li>
+				<li><a href="./cancus_search.html">予約キャンセル</a></li>
+			</ul>
+		</nav>
+	</header>
+	<section class="hero">
+		<div class="hero-tag">ONLINE RESERVATION</div>
+		<h1>花あかりの湯</h1>
+		<p>ご予約サイト<br>山の静けさと温泉の温もりが灯る、特別なひとときをオンラインでかんたんにご予約いただけます。</p>
+	</section>
+	<main class="container">
+		<section class="page-header">
+			<h2>登録確認</h2>
+			<p>内容をご確認の上、「予約を確定する」ボタンを押してください。</p>
+		</section>
+		<div class="progress-bar">
+			<div class="progress-step done">
+				<div class="step-circle">✓</div>
+				<div class="step-label">日時・プラン・お客様情報</div>
+			</div>
+			<div class="progress-step done">
+				<div class="step-circle">✓</div>
+				<div class="step-label">お支払い</div>
+			</div>
+			<div class="progress-step active">
+				<div class="step-circle">3</div>
+				<div class="step-label">確認・完了</div>
+			</div>
+		</div>
+		<section class="confirm-box">
+			<h3>ご予約内容</h3>
+			<table class="confirm-table">
+				<tr><th>チェックイン</th><td id="c-checkin"></td></tr>
+				<tr><th>チェックアウト</th><td id="c-checkout"></td></tr>
+				<tr><th>人数</th><td id="c-people"></td></tr>
+				<tr><th>プラン</th><td id="c-plan"></td></tr>
+				<tr><th>お名前</th><td id="c-name"></td></tr>
+				<tr><th>電話番号</th><td id="c-phone"></td></tr>
+				<tr><th>メール</th><td id="c-email"></td></tr>
+				<tr><th>お支払い</th><td id="c-pay"></td></tr>
+				<tr class="price-row"><th>合計金額</th><td id="c-amount"></td></tr>
+			</table>
+			<div class="notice"><strong>ご確認ください</strong><br>キャンセルはご宿泊日の7日前まで承ります。それ以降はキャンセル料が発生する場合があります。</div>
+		</section>
+		<div class="button-area">
+			<a class="btn-secondary" href="./payment.html?restore=1">戻る</a>
+			<button type="button" id="confirmBtn" class="btn-primary">予約を確定する</button>
+		</div>
+	</main>
+	<footer>
+		<div class="footer-title">花あかりの湯</div>
+		<p>〒XXX-XXXX　○○県○○市○○町1-1　｜　TEL: 0120-XXX-XXX</p>
+		<p>Copyright © 2026 花あかりの湯. All Rights Reserved.</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		function roomTypeForPlan(plan) {
+			return plan.roomType === "露天風呂付き客室" ? "客室露天風呂付" : "和室";
+		}
+
+		TeamF.init().then(() => {
+			const pending = TeamF.getPending("regcus");
+			if (!pending || !pending.display || !pending.payment) {
+				location.href = "./regist_customer.html";
+				return;
+			}
+			const d = pending.display;
+			document.getElementById("c-checkin").textContent = TeamF.fmtDate(d.checkinDate) + " " + (d.checkinTime || "");
+			document.getElementById("c-checkout").textContent = TeamF.fmtDate(d.checkoutDate);
+			document.getElementById("c-people").textContent = d.people;
+			document.getElementById("c-plan").textContent = d.planName;
+			document.getElementById("c-name").textContent = d.lastName + " " + d.firstName + " 様";
+			document.getElementById("c-phone").textContent = d.phone;
+			document.getElementById("c-email").textContent = d.email || "";
+			document.getElementById("c-pay").textContent = pending.payment.paymentMethodName;
+			document.getElementById("c-amount").textContent = TeamF.yen(d.amount);
+
+			document.getElementById("confirmBtn").addEventListener("click", () => {
+				const cur = TeamF.getPending("regcus");
+				if (!cur) { location.href = "./regist_customer.html"; return; }
+
+				// 顧客を作成
+				const customer = TeamF.addCustomer(Object.assign({}, cur.customer));
+
+				// プランに合う空室から1室自動割当
+				const plan = TeamF.plan(cur.reservation.planId);
+				const roomType = plan ? roomTypeForPlan(plan) : null;
+				const rooms = TeamF.availableRooms(
+					cur.reservation.stayDate,
+					cur.reservation.checkoutDate,
+					roomType
+				);
+				const roomIds = rooms.length ? [rooms[0].roomId] : [];
+
+				// 予約を作成（customerId を紐づけ）
+				const resObj = Object.assign({}, cur.reservation, { customerId: customer.customerId });
+				const created = TeamF.addReservation(resObj, roomIds);
+
+				TeamF.clearPending("regcus");
+				location.href = "./regcus_complete.html?id=" + created.reservationId;
+			});
+		});
+	</script>
+</body>
+
+</html>

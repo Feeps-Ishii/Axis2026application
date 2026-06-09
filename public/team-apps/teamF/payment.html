@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 - 決済情報登録</title>
+	<link rel="stylesheet" href="./cus.css">
+</head>
+
+<body>
+	<header>
+		<div class="logo">
+			<h2>花あかりの湯</h2>
+			<small>HANA AKARI NO YU</small>
+		</div>
+		<nav>
+			<ul>
+				<li><a class="" href="./customer_top.html">ご予約トップ</a></li>
+				<li><a class="active" href="./regist_customer.html">予約登録</a></li>
+				<li><a class="" href="./upcus_search.html">予約変更</a></li>
+				<li><a class="" href="./cancus_search.html">予約キャンセル</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<section class="hero">
+		<div class="hero-tag">ONLINE RESERVATION</div>
+		<h1>花あかりの湯</h1>
+		<p>ご予約サイト<br>山の静けさと温泉の温もりが灯る、特別なひとときをオンラインでかんたんにご予約いただけます。</p>
+	</section>
+
+	<main class="container">
+		<section class="page-header">
+			<h2>決済情報登録</h2>
+			<p>お支払い方法を選択してください。</p>
+		</section>
+
+		<div class="progress-bar">
+			<div class="progress-step done">
+				<div class="step-circle">✓</div>
+				<div class="step-label">日時・プラン・お客様情報</div>
+			</div>
+			<div class="progress-step active">
+				<div class="step-circle">2</div>
+				<div class="step-label">お支払い</div>
+			</div>
+			<div class="progress-step">
+				<div class="step-circle">3</div>
+				<div class="step-label">確認・完了</div>
+			</div>
+		</div>
+
+		<form id="payForm">
+			<div class="error-message" id="errorBox" style="display:none"></div>
+			<section class="card">
+				<h3>お支払い方法</h3>
+
+				<div class="payment-options">
+					<label class="pay-option selected" onclick="selectPay(this,'card')">
+						<input type="radio" name="paymentMethod" value="card" checked>
+						<div class="pay-icon">CARD</div>
+						<div class="pay-name">クレジットカード（事前決済）</div>
+						<div class="pay-desc">Visa・Mastercard・JCB対応</div>
+					</label>
+
+					<label class="pay-option" onclick="selectPay(this,'local')">
+						<input type="radio" name="paymentMethod" value="local">
+						<div class="pay-icon">LOCAL</div>
+						<div class="pay-name">現地でのお支払い</div>
+						<div class="pay-desc">チェックアウト時にフロントにて</div>
+					</label>
+				</div>
+
+				<div id="card-form">
+					<div class="cc-visual">
+						<div class="cc-chip"></div>
+						<div class="cc-num" id="cc-display">•••• •••• •••• ••••</div>
+						<div class="cc-meta">
+							<div>有効期限<span id="cc-exp-display">MM / YY</span></div>
+							<div>カード名義<span id="cc-name-display">YOUR NAME</span></div>
+						</div>
+					</div>
+
+					<div class="form-grid">
+						<div class="form-group full">
+							<label>カード番号 <span class="req">*</span></label>
+							<input type="text" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19"
+								inputmode="numeric" oninput="formatCardNumber(this)">
+						</div>
+
+						<div class="form-group">
+							<label>有効期限 <span class="req">*</span></label>
+							<input type="text" name="expiry" placeholder="MM / YY" maxlength="5" inputmode="numeric"
+								oninput="formatExpiry(this)">
+						</div>
+
+						<div class="form-group">
+							<label>セキュリティコード <span class="req">*</span></label>
+							<input type="text" name="securityCode" placeholder="CVV" maxlength="3" inputmode="numeric"
+								oninput="formatSecurityCode(this)">
+						</div>
+
+						<div class="form-group full">
+							<label>カード名義（ローマ字） <span class="req">*</span></label>
+							<input type="text" name="cardName" placeholder="HANAKO YAMADA" maxlength="30"
+								oninput="formatCardName(this)">
+						</div>
+					</div>
+				</div>
+
+				<div id="local-pay-msg" class="local-pay-msg">
+					チェックアウト時にフロントにてお支払いいただけます。<br>
+					現金・クレジットカード・電子マネーがご利用いただけます。
+				</div>
+			</section>
+
+			<div class="button-area">
+				<a class="btn-secondary" href="./regist_customer.html?restore=1">戻る</a>
+				<button type="submit" class="btn-primary">予約を確認する →</button>
+			</div>
+		</form>
+	</main>
+
+	<script>
+		function selectPay(el, type) {
+			document.querySelectorAll('.pay-option').forEach(o => o.classList.remove('selected'));
+			el.classList.add('selected');
+			el.querySelector('input').checked = true;
+			document.getElementById('card-form').style.display = type === 'card' ? 'block' : 'none';
+			document.getElementById('local-pay-msg').style.display = type === 'local' ? 'block' : 'none';
+		}
+		function formatCardNumber(input) {
+			let value = input.value.replace(/\D/g, '').substring(0, 16);
+			const formatted = value.replace(/(.{4})/g, '$1 ').trim();
+			input.value = formatted;
+			document.getElementById('cc-display').textContent = formatted || '•••• •••• •••• ••••';
+		}
+		function formatExpiry(input) {
+			let value = input.value.replace(/\D/g, '').substring(0, 4);
+			if (value.length >= 3) value = value.substring(0, 2) + '/' + value.substring(2);
+			input.value = value;
+			document.getElementById('cc-exp-display').textContent = value || 'MM / YY';
+		}
+		function formatCardName(input) {
+			let value = input.value.replace(/[^a-zA-Z\s]/g, '').toUpperCase();
+			input.value = value;
+			document.getElementById('cc-name-display').textContent = value || 'YOUR NAME';
+		}
+		function formatSecurityCode(input) {
+			input.value = input.value.replace(/\D/g, '').substring(0, 3);
+		}
+	</script>
+
+	<footer>
+		<div class="footer-title">花あかりの湯</div>
+		<p>〒XXX-XXXX　○○県○○市○○町1-1　｜　TEL: 0120-XXX-XXX</p>
+		<p>Copyright © 2026 花あかりの湯. All Rights Reserved.</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const payForm = document.getElementById("payForm");
+		const errorBox = document.getElementById("errorBox");
+
+		function last4(cardNumber) {
+			const digits = String(cardNumber || "").replace(/[^0-9]/g, "");
+			return digits.length <= 4 ? digits : digits.slice(-4);
+		}
+
+		payForm.addEventListener("submit", (e) => {
+			e.preventDefault();
+			const pending = TeamF.getPending("regcus");
+			if (!pending) {
+				location.href = "./regist_customer.html";
+				return;
+			}
+			const data = Object.fromEntries(new FormData(payForm).entries());
+			const method = data.paymentMethod;
+
+			// 事前決済の場合はカード情報必須（PaymentService.save 相当）
+			if (method === "card") {
+				const errs = [];
+				if (!data.cardNumber || !data.cardNumber.trim()) errs.push("カード番号");
+				if (!data.expiry || !data.expiry.trim()) errs.push("有効期限");
+				if (!data.securityCode || !data.securityCode.trim()) errs.push("セキュリティコード");
+				if (!data.cardName || !data.cardName.trim()) errs.push("カード名義");
+				if (errs.length) {
+					errorBox.textContent = "決済情報を入力してください。";
+					errorBox.style.display = "block";
+					window.scrollTo(0, 0);
+					return;
+				}
+			}
+
+			// Payment entity: paymentMethod, paymentTiming, amount, cardLast4
+			const payment = {
+				paymentMethod: method === "card" ? "クレジットカード" : "現地支払い",
+				paymentTiming: method === "card" ? "事前決済" : "現地",
+				paymentMethodName: method === "card" ? "クレジットカード（事前決済）" : "現地支払い",
+				paymentStatus: "未払い",
+				amount: pending.display ? pending.display.amount : 0,
+			};
+			if (method === "card") {
+				payment.cardLast4 = last4(data.cardNumber);
+				payment.cardName = data.cardName;
+				payment.expiry = data.expiry;
+			}
+
+			pending.payment = payment;
+			TeamF.setPending("regcus", pending);
+			location.href = "./regcus_confirm.html";
+		});
+
+		TeamF.init().then(() => {
+			const pending = TeamF.getPending("regcus");
+			if (!pending) {
+				// 直接アクセスは入力画面へ
+				location.href = "./regist_customer.html";
+				return;
+			}
+			// 戻り（restore）の場合は前回の支払い方法を復元
+			const p = pending.payment;
+			if (p) {
+				const card = p.paymentMethod === "クレジットカード";
+				const radio = document.querySelector(
+					'input[name="paymentMethod"][value="' + (card ? "card" : "local") + '"]'
+				);
+				if (radio) selectPay(radio.closest(".pay-option"), card ? "card" : "local");
+				if (card) {
+					if (p.cardName) { payForm.cardName.value = p.cardName; formatCardName(payForm.cardName); }
+					if (p.expiry) { payForm.expiry.value = p.expiry; }
+				}
+			}
+		});
+	</script>
+</body>
+
+</html>

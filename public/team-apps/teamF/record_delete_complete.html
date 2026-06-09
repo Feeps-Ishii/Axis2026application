@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>顧客カルテ削除完了 | 花あかりの湯</title>
+
+	<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+		rel="stylesheet">
+
+	<style>
+		:root {
+			--gold: #b8912a;
+			--gold-l: #e6c96a;
+			--ink: #1a1208;
+			--ash: #5c4a36;
+			--moss: #4a6741;
+			--rust: #9b3a2a;
+			--sidebar: #1e1610;
+			--sw: 220px;
+			--hh: 56px;
+			--border: #e8dece;
+			--bg: #f2ece4;
+		}
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-family: 'Noto Sans JP', sans-serif;
+			background: var(--bg);
+			color: var(--ink);
+			min-height: 100vh;
+		}
+
+		.sidebar {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: var(--sw);
+			height: 100vh;
+			background: var(--sidebar);
+			display: flex;
+			flex-direction: column;
+			z-index: 100;
+			border-right: 1px solid rgba(184, 145, 42, .15);
+		}
+
+		.sb-brand {
+			padding: 22px 20px 18px;
+			border-bottom: 1px solid rgba(255, 255, 255, .06);
+		}
+
+		.sb-brand .en {
+			font-size: 9px;
+			color: rgba(255, 255, 255, .3);
+			letter-spacing: 3px;
+			text-transform: uppercase;
+		}
+
+		.sb-brand .ja {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 16px;
+			color: var(--gold-l);
+			letter-spacing: 2px;
+			margin-top: 4px;
+		}
+
+		.sb-badge {
+			font-size: 10px;
+			background: var(--gold);
+			color: var(--ink);
+			padding: 2px 6px;
+			border-radius: 10px;
+			margin-top: 6px;
+			display: inline-block;
+			font-weight: 700;
+		}
+
+		nav {
+			flex: 1;
+			padding: 16px 0;
+			overflow-y: auto;
+		}
+
+		.ns {
+			font-size: 9px;
+			color: rgba(255, 255, 255, .25);
+			letter-spacing: 3px;
+			padding: 12px 20px 6px;
+			text-transform: uppercase;
+		}
+
+		nav a {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 10px 20px;
+			color: rgba(255, 255, 255, .55);
+			text-decoration: none;
+			font-size: 13px;
+			transition: all .15s;
+			cursor: pointer;
+			border-left: 2px solid transparent;
+		}
+
+		nav a:hover {
+			color: #fff;
+			background: rgba(255, 255, 255, .04);
+		}
+
+		nav a.active {
+			color: var(--gold-l);
+			border-left-color: var(--gold);
+			background: rgba(184, 145, 42, .08);
+		}
+
+		nav a .ic {
+			font-size: 15px;
+			width: 18px;
+			text-align: center;
+		}
+
+		.sb-footer {
+			padding: 16px 20px;
+			border-top: 1px solid rgba(255, 255, 255, .06);
+		}
+
+		.sb-user {
+			font-size: 12px;
+			color: rgba(255, 255, 255, .4);
+			margin-bottom: 10px;
+		}
+
+		.sb-user strong {
+			color: rgba(255, 255, 255, .7);
+			display: block;
+		}
+
+		.logout-btn {
+			width: 100%;
+			padding: 8px;
+			background: transparent;
+			border: 1px solid rgba(255, 255, 255, .12);
+			border-radius: 2px;
+			color: rgba(255, 255, 255, .4);
+			font-size: 11px;
+			letter-spacing: 1px;
+			cursor: pointer;
+			font-family: 'Noto Sans JP', sans-serif;
+		}
+
+		.logout-btn:hover {
+			border-color: var(--rust);
+			color: #e07070;
+		}
+
+		.main {
+			margin-left: var(--sw);
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.topbar {
+			height: var(--hh);
+			background: #fff;
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			align-items: center;
+			padding: 0 28px;
+			gap: 16px;
+			position: sticky;
+			top: 0;
+			z-index: 50;
+		}
+
+		.topbar-title {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 16px;
+			color: var(--ash);
+			flex: 1;
+		}
+
+		.topbar-date {
+			font-size: 12px;
+			color: #999;
+		}
+
+		.content {
+			padding: 28px;
+			flex: 1;
+		}
+
+		.card {
+			background: #fff;
+			border-radius: 4px;
+			border: 1px solid var(--border);
+			padding: 24px;
+			margin-bottom: 20px;
+		}
+
+		.complete-box {
+			background: #faf7f3;
+			border: 1px solid var(--border);
+			border-radius: 3px;
+			padding: 26px;
+			text-align: center;
+		}
+
+		.complete-mark {
+			width: 58px;
+			height: 58px;
+			border-radius: 50%;
+			background: var(--moss);
+			color: #fff;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin: 0 auto 16px;
+			font-size: 26px;
+			font-family: 'Noto Serif JP', serif;
+		}
+
+		.complete-title {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 20px;
+			color: var(--ash);
+			margin-bottom: 10px;
+			font-weight: 400;
+		}
+
+		.complete-text {
+			font-size: 13px;
+			color: #3a3028;
+			line-height: 1.9;
+		}
+
+		.customer-name {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 18px;
+			color: var(--ink);
+		}
+
+		.btn {
+			padding: 10px 22px;
+			border: none;
+			border-radius: 2px;
+			font-family: 'Noto Sans JP', sans-serif;
+			font-size: 13px;
+			font-weight: 500;
+			cursor: pointer;
+			text-decoration: none;
+			display: inline-block;
+		}
+
+		.btn-gold {
+			background: var(--gold);
+			color: var(--ink);
+		}
+
+		.btn-gold:hover {
+			background: var(--gold-l);
+		}
+
+		.btn-out {
+			background: transparent;
+			border: 1px solid #ccc;
+			color: var(--ash);
+		}
+
+		.btn-out:hover {
+			border-color: var(--gold);
+			color: var(--gold);
+		}
+
+		.btn-row {
+			display: flex;
+			gap: 10px;
+			margin-top: 20px;
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+
+		@media(max-width:900px) {
+			.sidebar {
+				display: none;
+			}
+
+			.main {
+				margin-left: 0;
+			}
+
+			.topbar {
+				padding: 0 16px;
+			}
+
+			.content {
+				padding: 20px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<aside class="sidebar">
+
+		<div class="sb-brand">
+			<div class="en">Hana Akari no Yu</div>
+			<div class="ja">花あかりの湯</div>
+			<span class="sb-badge">管理サイト</span>
+		</div>
+
+		<nav>
+			<div class="ns">メイン</div>
+
+
+			<a href="./topmenu.html">
+				<span class="ic">🏠</span>
+				ダッシュボード
+			</a>
+
+			<a href="./list.html">
+				<span class="ic">📋</span>
+				全予約一覧
+			</a>
+
+			<a href="./regist.html">
+				<span class="ic">➕</span>
+				予約登録
+			</a>
+
+			<div class="ns">管理</div>
+
+			<a href="./room.html">
+				<span class="ic">🛏</span>
+				空室確認
+			</a>
+
+			<a href="./record.html" class="active">
+				<span class="ic">👤</span>
+				顧客カルテ
+			</a>
+
+
+			<a href="./okami_bot.html">
+				<span class="ic">🤖</span>
+				女将ボット
+			</a>
+
+		</nav>
+
+		<div class="sb-footer">
+			<div class="sb-user">
+				ログイン中<br>
+				<strong>staff001</strong>
+			</div>
+
+			<a id="logoutLink">
+				<button class="logout-btn">
+					ログアウト
+				</button>
+			</a>
+		</div>
+
+	</aside>
+
+	<main class="main">
+
+		<div class="topbar">
+			<span class="topbar-title">顧客カルテ削除完了</span>
+			<span class="topbar-date" id="todayDate"></span>
+		</div>
+
+		<div class="content">
+
+			<div class="card">
+				<div class="complete-box">
+					<div class="complete-mark">✓</div>
+
+					<div class="complete-title">
+						顧客カルテの削除が完了しました
+					</div>
+
+					<div class="complete-text">
+						<span class="customer-name" id="custName"></span>
+						様の顧客カルテを一覧から非表示にしました。
+					</div>
+
+					<div class="btn-row">
+						<a class="btn btn-gold" href="./record.html">
+							顧客一覧へ戻る
+						</a>
+
+						<a class="btn btn-out" href="./topmenu.html">
+							ダッシュボードへ戻る
+						</a>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamF.init().then(() => {
+			const s = TeamF.requireLogin();
+			if (!s) return;
+
+			document.getElementById("todayDate").textContent = TeamF.fmtJpDate(TeamF.today());
+
+			document.getElementById("logoutLink").addEventListener("click", function (e) {
+				e.preventDefault();
+				TeamF.logout();
+				location.href = "./login.html";
+			});
+
+			const name = new URLSearchParams(location.search).get("name") || "";
+			document.getElementById("custName").textContent = name;
+		});
+	</script>
+
+</body>
+
+</html>

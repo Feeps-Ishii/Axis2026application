@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 - 予約情報変更</title>
+
+	<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+		rel="stylesheet">
+
+	<style>
+		:root {
+			--brown: #1b1008;
+			--brown-soft: #2b1a0f;
+			--gold: #b08a2e;
+			--gold-dark: #8d6c1f;
+			--gold-light: #f7f0df;
+			--base: #f7f3ec;
+			--card: #fffdf8;
+			--line: #e5ddcf;
+			--text: #3d3328;
+			--muted: #8a8177;
+			--danger: #b3261e;
+		}
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-family: 'Noto Sans JP', sans-serif;
+			background: var(--base);
+			color: var(--text);
+			min-height: 100vh;
+		}
+
+		header {
+			background: #130b05;
+			height: 64px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 0 44px;
+			border-bottom: 1px solid rgba(176, 138, 46, 0.35);
+		}
+
+		.logo h2 {
+			font-family: 'Noto Serif JP', serif;
+			color: #e9d7aa;
+			font-size: 18px;
+			font-weight: 500;
+			letter-spacing: 3px;
+		}
+
+		.logo small {
+			display: block;
+			color: rgba(255, 255, 255, 0.45);
+			font-size: 9px;
+			letter-spacing: 2px;
+			margin-top: 2px;
+		}
+
+		nav ul {
+			list-style: none;
+			display: flex;
+			align-items: center;
+			gap: 28px;
+		}
+
+		nav a {
+			color: #d6cbbb;
+			text-decoration: none;
+			font-size: 13px;
+			letter-spacing: 0.5px;
+			transition: 0.2s;
+		}
+
+		nav a:hover,
+		nav a.active {
+			color: var(--gold);
+		}
+
+		.hero {
+			background:
+				linear-gradient(rgba(27, 16, 8, 0.88), rgba(27, 16, 8, 0.9)),
+				linear-gradient(135deg, #3a2414, #120904);
+			min-height: 220px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			color: #fff;
+			padding: 36px 20px;
+		}
+
+		.hero-tag {
+			display: inline-block;
+			border: 1px solid rgba(176, 138, 46, 0.75);
+			border-radius: 999px;
+			color: var(--gold);
+			font-size: 10px;
+			letter-spacing: 3px;
+			padding: 5px 18px;
+			margin-bottom: 16px;
+		}
+
+		.hero h1 {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 32px;
+			font-weight: 400;
+			letter-spacing: 8px;
+			margin-bottom: 12px;
+		}
+
+		.hero p {
+			color: #d8cfc3;
+			font-size: 13px;
+			line-height: 2;
+			max-width: 720px;
+		}
+
+		.container {
+			max-width: 1000px;
+			width: 100%;
+			margin: 0 auto;
+			padding: 48px 24px 72px;
+		}
+
+		.page-header {
+			margin-bottom: 24px;
+			border-bottom: 1px solid var(--line);
+			padding-bottom: 16px;
+		}
+
+		.page-header h2 {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 26px;
+			font-weight: 500;
+			letter-spacing: 2px;
+			color: #2f261d;
+			margin-bottom: 8px;
+		}
+
+		.page-header p {
+			color: var(--muted);
+			font-size: 13px;
+		}
+
+		.card,
+		.reservation-panel {
+			background: var(--card);
+			border: 1px solid var(--line);
+			border-radius: 6px;
+			padding: 28px;
+			margin-bottom: 24px;
+			box-shadow: 0 3px 10px rgba(27, 16, 8, 0.03);
+		}
+
+		.card h3 {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 17px;
+			font-weight: 600;
+			color: #3d3328;
+			margin-bottom: 20px;
+			padding-bottom: 12px;
+			border-bottom: 1px solid #efe7d8;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.card h3::before {
+			content: "";
+			width: 4px;
+			height: 18px;
+			background: var(--gold);
+			border-radius: 2px;
+			display: inline-block;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 13px;
+			border: 1px solid var(--line);
+			overflow: hidden;
+		}
+
+		th {
+			background: #fbf7ef;
+			color: #5f5347;
+			font-weight: 600;
+			text-align: left;
+			padding: 13px 14px;
+			border-bottom: 1px solid var(--line);
+		}
+
+		td {
+			background: #fff;
+			color: #3f352b;
+			padding: 14px;
+			border-bottom: 1px solid #eee7dc;
+			line-height: 1.6;
+			vertical-align: middle;
+		}
+
+		tr:last-child td {
+			border-bottom: none;
+		}
+
+		.reservation-panel {
+			background: #fffaf0;
+			border-color: #eadbbd;
+			color: #5f4a24;
+			font-size: 13px;
+			line-height: 1.9;
+		}
+
+		.reservation-panel strong {
+			display: inline-block;
+			font-family: 'Noto Serif JP', serif;
+			font-size: 16px;
+			color: var(--gold-dark);
+			margin-bottom: 6px;
+		}
+
+		.form-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 20px;
+		}
+
+		.form-group {
+			display: flex;
+			flex-direction: column;
+			gap: 7px;
+		}
+
+		.form-group.full {
+			grid-column: span 2;
+		}
+
+		.form-group label {
+			font-size: 12px;
+			font-weight: 600;
+			color: #665b50;
+		}
+
+		input,
+		select,
+		textarea {
+			width: 100%;
+			border: 1px solid #d8ccba;
+			background: #fff;
+			border-radius: 4px;
+			padding: 11px 13px;
+			font-family: inherit;
+			font-size: 13px;
+			color: var(--text);
+			outline: none;
+			transition: 0.2s;
+		}
+
+		input:focus,
+		select:focus,
+		textarea:focus {
+			border-color: var(--gold);
+			box-shadow: 0 0 0 3px rgba(176, 138, 46, 0.12);
+		}
+
+		textarea {
+			min-height: 90px;
+			resize: vertical;
+			line-height: 1.7;
+		}
+
+		.button-area {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 12px;
+			margin-top: 8px;
+			flex-wrap: wrap;
+		}
+
+		.btn-primary,
+		.btn-secondary {
+			min-width: 150px;
+			padding: 12px 22px;
+			border-radius: 4px;
+			font-family: inherit;
+			font-size: 13px;
+			font-weight: 600;
+			text-align: center;
+			cursor: pointer;
+			text-decoration: none;
+			transition: 0.2s;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			border: none;
+		}
+
+		.btn-primary {
+			background: var(--gold);
+			color: #fff;
+		}
+
+		.btn-primary:hover {
+			background: var(--gold-dark);
+		}
+
+		.btn-primary:disabled {
+			background: #c8bfae;
+			cursor: not-allowed;
+		}
+
+		.btn-secondary {
+			background: #fff;
+			color: #6b6158;
+			border: 1px solid #d5cbbc;
+		}
+
+		.btn-secondary:hover {
+			background: #f5efe6;
+		}
+
+		.error-message {
+			width: 100%;
+			background: #fff3f1;
+			border: 1px solid #efc5bf;
+			color: var(--danger);
+			font-size: 13px;
+			padding: 12px 14px;
+			border-radius: 4px;
+			margin-top: 6px;
+		}
+
+		footer {
+			background: #130b05;
+			color: #978b7d;
+			text-align: center;
+			padding: 30px 20px;
+			font-size: 11px;
+			line-height: 1.9;
+		}
+
+		.footer-title {
+			font-family: 'Noto Serif JP', serif;
+			color: var(--gold);
+			letter-spacing: 3px;
+			font-size: 15px;
+			margin-bottom: 8px;
+		}
+
+		@media (max-width: 768px) {
+			header {
+				height: auto;
+				padding: 18px 20px;
+				flex-direction: column;
+				gap: 14px;
+			}
+
+			nav ul {
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 14px 20px;
+			}
+
+			.hero h1 {
+				font-size: 26px;
+				letter-spacing: 5px;
+			}
+
+			.container {
+				padding: 36px 16px 56px;
+			}
+
+			.form-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.form-group.full {
+				grid-column: span 1;
+			}
+
+			table {
+				font-size: 12px;
+			}
+
+			th,
+			td {
+				padding: 10px;
+			}
+
+			.button-area {
+				justify-content: stretch;
+			}
+
+			.btn-primary,
+			.btn-secondary {
+				width: 100%;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<header>
+		<div class="logo">
+			<h2>花あかりの湯</h2>
+			<small>HANA AKARI NO YU</small>
+		</div>
+
+		<nav>
+			<ul>
+				<li><a href="./customer_top.html">ご予約トップ</a></li>
+				<li><a href="./regist_customer.html">予約登録</a></li>
+				<li><a class="active" href="./upcus_search.html">予約変更</a></li>
+				<li><a href="./cancus_search.html">予約キャンセル</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<section class="hero">
+		<div class="hero-tag">ONLINE RESERVATION</div>
+		<h1>花あかりの湯</h1>
+		<p>
+			ご予約サイト<br>
+			山の静けさと温泉の温もりが灯る、特別なひとときをオンラインでかんたんにご予約いただけます。
+		</p>
+	</section>
+
+	<main class="container">
+
+		<section class="page-header">
+			<h2>予約情報変更</h2>
+		</section>
+
+		<!-- 検索結果：変更する予約の選択 -->
+		<section class="card" id="listCard" style="display:none">
+			<h3>変更する予約を選択してください</h3>
+
+			<table>
+				<thead>
+					<tr>
+						<th>チェックイン日</th>
+						<th>チェックアウト日</th>
+						<th>プラン</th>
+						<th>人数</th>
+						<th>選択</th>
+					</tr>
+				</thead>
+
+				<tbody id="listBody"></tbody>
+			</table>
+		</section>
+
+		<!-- 現在の予約 -->
+		<section class="reservation-panel" id="resPanel" style="display:none"></section>
+
+		<!-- 変更フォーム -->
+		<form id="editForm" style="display:none">
+			<div class="error-message" id="errorMessage" style="display:none">
+				<span id="errorText"></span>
+			</div>
+
+			<section class="card">
+				<h3>変更内容</h3>
+
+				<div class="form-grid">
+					<div class="form-group">
+						<label>新しい宿泊日</label>
+						<input type="date" name="newDate" id="newDate">
+					</div>
+
+					<div class="form-group">
+						<label>新しいチェックアウト日</label>
+						<input type="date" name="newCheckoutDate" id="newCheckoutDate">
+					</div>
+
+					<div class="form-group">
+						<label>チェックイン時間</label>
+						<select name="newTime" id="newTime">
+							<option>15:00</option>
+							<option>16:00</option>
+							<option>17:00</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label>人数</label>
+						<select name="people" id="people">
+							<option>1名</option>
+							<option>2名</option>
+							<option>3名</option>
+							<option>4名</option>
+							<option>5名</option>
+							<option>6名</option>
+							<option>7名</option>
+							<option>8名</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label>プラン</label>
+						<select name="plan" id="plan">
+							<option value="tsukiakari_kaiseki">月あかり懐石プラン</option>
+							<option value="hanaakari_kaiseki">花あかり懐石プラン</option>
+							<option value="washitsu_anniversary">和室記念日プラン</option>
+							<option value="roten_anniversary">露天風呂付き客室記念日プラン</option>
+							<option value="weekday_relax">平日のんびりプラン</option>
+						</select>
+					</div>
+
+					<div class="form-group full">
+						<label>変更理由</label>
+						<textarea name="changeReason" id="changeReason" placeholder="例：宿泊日を変更したいため"></textarea>
+					</div>
+
+					<div class="form-group full">
+						<label>ご要望</label>
+						<textarea name="request" id="request" placeholder="変更後のご要望があればご記入ください"></textarea>
+					</div>
+				</div>
+			</section>
+
+			<div class="button-area">
+				<a class="btn-secondary" href="./upcus_search.html">戻る</a>
+
+				<button type="submit" class="btn-primary" id="submitBtn">
+					変更内容を確認する
+				</button>
+
+				<div class="error-message" id="updateLimitMessage" style="display:none">
+					<span id="updateLimitText"></span>
+				</div>
+			</div>
+		</form>
+	</main>
+
+	<footer>
+		<div class="footer-title">花あかりの湯</div>
+		<p>〒XXX-XXXX　○○県○○市○○町1-1　｜　TEL: 0120-XXX-XXX</p>
+		<p>Copyright © 2026 花あかりの湯. All Rights Reserved.</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		// planId → select value（フォーム初期化用）
+		const PLAN_TO_VALUE = {
+			1: "tsukiakari_kaiseki",
+			2: "hanaakari_kaiseki",
+			3: "washitsu_anniversary",
+			4: "roten_anniversary",
+			5: "weekday_relax",
+		};
+
+		TeamF.init().then(() => {
+			const params = new URLSearchParams(location.search);
+			const id = params.get("id");
+			const restore = params.get("restore") === "1";
+
+			if (id) {
+				showEditForm(Number(id), restore);
+			} else {
+				showList();
+			}
+		});
+
+		// --- 検索結果一覧モード ---
+		function showList() {
+			const cond = JSON.parse(sessionStorage.getItem("teamF:upcusSearch") || "null");
+			// 検索条件が無ければ照合画面へ戻す（URL直打ち対策）
+			if (!cond) {
+				location.href = "./upcus_search.html";
+				return;
+			}
+
+			const results = TeamF.searchReservations(cond)
+				.filter((v) => v.reservation.status !== "キャンセル")
+				.sort((a, b) => a.reservation.stayDate < b.reservation.stayDate ? -1 : 1);
+
+			const body = document.getElementById("listBody");
+			body.innerHTML = results.map((v) => {
+				const r = v.reservation;
+				return `<tr>
+					<td>${TeamF.esc(r.stayDate)}</td>
+					<td>${TeamF.esc(r.checkoutDate)}</td>
+					<td>${TeamF.esc(v.plan ? v.plan.planName : "")}</td>
+					<td>${TeamF.esc(r.numPeople)}名</td>
+					<td><a class="btn-primary" href="./update_customer.html?id=${r.reservationId}">この予約を変更</a></td>
+				</tr>`;
+			}).join("");
+
+			document.getElementById("listCard").style.display = "";
+		}
+
+		// --- 変更フォームモード ---
+		function showEditForm(id, restore) {
+			const view = TeamF.reservationView(id);
+			if (!view) {
+				location.href = "./upcus_search.html";
+				return;
+			}
+			const r = view.reservation;
+			const customer = view.customer;
+
+			// 現在の予約パネル
+			const panel = document.getElementById("resPanel");
+			panel.innerHTML =
+				`<strong>現在の予約</strong><br>` +
+				`<span>${TeamF.esc(customer ? customer.name : "")} 様</span><br>` +
+				`<span>${TeamF.esc(r.stayDate)} / ${TeamF.esc(r.checkoutDate)} / ` +
+				`${TeamF.esc(view.plan ? view.plan.planName : "")} / ${TeamF.esc(r.numPeople)}名</span>`;
+			panel.style.display = "";
+
+			// 復元（戻る）か、予約からの初期化か
+			const pending = restore ? TeamF.getPending("upcus") : null;
+			if (pending && Number(pending.id) === Number(id) && pending.form) {
+				const f = pending.form;
+				document.getElementById("newDate").value = f.newDate || r.stayDate;
+				document.getElementById("newCheckoutDate").value = f.newCheckoutDate || r.checkoutDate;
+				document.getElementById("newTime").value = f.newTime || TeamF.fmtTime(r.checkinTime);
+				document.getElementById("people").value = f.people || (r.numPeople + "名");
+				document.getElementById("plan").value = f.plan || PLAN_TO_VALUE[r.planId] || "tsukiakari_kaiseki";
+				document.getElementById("changeReason").value = f.changeReason || "";
+				document.getElementById("request").value = f.request || "";
+			} else {
+				document.getElementById("newDate").value = r.stayDate;
+				document.getElementById("newCheckoutDate").value = r.checkoutDate;
+				document.getElementById("newTime").value = TeamF.fmtTime(r.checkinTime) || "15:00";
+				document.getElementById("people").value = r.numPeople + "名";
+				document.getElementById("plan").value = PLAN_TO_VALUE[r.planId] || "tsukiakari_kaiseki";
+				document.getElementById("changeReason").value = "";
+				document.getElementById("request").value = r.requestNote || "";
+			}
+
+			// 本日以降のみ選択可（元テンプレ th:min=today）
+			const today = TeamF.today();
+			document.getElementById("newDate").min = today;
+			document.getElementById("newCheckoutDate").min = today;
+
+			document.getElementById("editForm").style.display = "";
+
+			const errBox = document.getElementById("errorMessage");
+			const errText = document.getElementById("errorText");
+			function showError(msg) {
+				errText.textContent = msg;
+				errBox.style.display = "";
+			}
+
+			document.getElementById("editForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				errBox.style.display = "none";
+
+				const newDate = document.getElementById("newDate").value;
+				const newCheckoutDate = document.getElementById("newCheckoutDate").value;
+				const newTime = document.getElementById("newTime").value;
+				const people = document.getElementById("people").value;
+				const plan = document.getElementById("plan").value;
+				const changeReason = document.getElementById("changeReason").value;
+				const request = document.getElementById("request").value;
+
+				// 元コントローラの確認前バリデーション
+				if (newDate < today) {
+					showError("新しい宿泊日は本日以降を選択してください。");
+					return;
+				}
+				if (!(newCheckoutDate > newDate)) {
+					showError("チェックアウト日は宿泊日より後の日付を選択してください。");
+					return;
+				}
+
+				const form = { newDate, newCheckoutDate, newTime, people, plan, changeReason, request };
+
+				// patch（updateReservation 用）。確認画面で確定時に適用。
+				const patch = {
+					stayDate: newDate,
+					checkoutDate: newCheckoutDate,
+					checkinTime: newTime,
+					numPeople: Number(String(people).replace(/[^0-9]/g, "")) || 1,
+					planId: Number(Object.keys(PLAN_TO_VALUE).find((k) => PLAN_TO_VALUE[k] === plan)) || 1,
+					requestNote: request,
+					changeReason: changeReason,
+					status: "予約済",
+				};
+
+				TeamF.setPending("upcus", { id: Number(id), form, patch });
+				location.href = "./upcus_confirm.html";
+			});
+		}
+	</script>
+</body>
+
+</html>

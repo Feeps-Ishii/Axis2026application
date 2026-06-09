@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>花あかりの湯 ― ログイン</title>
+
+	<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+		rel="stylesheet">
+
+	<style>
+		:root {
+			--ink: #1a1208;
+			--gold: #b8912a;
+			--gold-light: #e6c96a;
+		}
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-family: 'Noto Sans JP', sans-serif;
+			background: radial-gradient(ellipse at 60% 40%, #2a1f10 0%, #0e0b07 100%);
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.login-card {
+			width: 380px;
+			padding: 52px 48px;
+			border: 1px solid rgba(184, 145, 42, 0.3);
+			border-radius: 6px;
+			background: rgba(255, 255, 255, 0.03);
+			backdrop-filter: blur(8px);
+			color: white;
+		}
+
+		.login-logo {
+			text-align: center;
+			margin-bottom: 36px;
+		}
+
+		.login-logo .kanji {
+			font-family: 'Noto Serif JP', serif;
+			font-size: 28px;
+			color: var(--gold-light);
+		}
+
+		.login-divider {
+			width: 40px;
+			height: 1px;
+			background: var(--gold);
+			margin: 16px auto;
+		}
+
+		label {
+			display: block;
+			font-size: 11px;
+			color: rgba(255, 255, 255, 0.6);
+			margin-top: 20px;
+			margin-bottom: 8px;
+		}
+
+		input {
+			width: 100%;
+			padding: 12px 14px;
+			border-radius: 2px;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			background: rgba(255, 255, 255, 0.06);
+			color: white;
+		}
+
+		input:focus {
+			outline: none;
+			border-color: var(--gold);
+		}
+
+		button {
+			width: 100%;
+			margin-top: 32px;
+			padding: 14px;
+			background: var(--gold);
+			border: none;
+			font-weight: bold;
+			cursor: pointer;
+		}
+
+		button:hover {
+			background: var(--gold-light);
+		}
+
+		.error {
+			margin-top: 12px;
+			color: #e07070;
+			font-size: 12px;
+		}
+
+		.cus-link {
+			text-align: center;
+			margin-top: 28px;
+			padding-top: 18px;
+			border-top: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.cus-link a {
+			font-size: 11px;
+			color: rgba(255, 255, 255, 0.5);
+			text-decoration: none;
+		}
+
+		.cus-link a:hover {
+			color: var(--gold-light);
+			text-decoration: underline;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="login-card">
+
+		<div class="login-logo">
+			<div class="kanji">花あかりの湯</div>
+			<div class="login-divider"></div>
+			<div style="font-size:10px;opacity:0.6;">Staff Management Portal</div>
+		</div>
+
+		<form id="loginForm">
+
+			<label>ログインID</label>
+			<input type="text" name="loginId" id="loginId" required>
+
+			<label>パスワード</label>
+			<input type="password" name="password" id="password" required>
+
+			<button type="submit">ログイン</button>
+
+		</form>
+
+		<div class="error">
+			<span id="errorMessage"></span>
+		</div>
+
+		<div class="cus-link">
+			<a href="./customer_top.html">お客様用予約サイトはこちら →</a>
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamF.init().then(() => {
+			document.getElementById("loginForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				const loginId = document.getElementById("loginId").value.trim();
+				const password = document.getElementById("password").value;
+				const user = TeamF.login(loginId, password);
+				if (!user) {
+					document.getElementById("errorMessage").textContent = "ログインIDまたはパスワードが違います";
+					return;
+				}
+				location.href = "./topmenu.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

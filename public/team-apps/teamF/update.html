@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>予約変更 - 花あかりの湯</title>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+		rel="stylesheet">
+	<style>
+		:root { --gold: #b8912a; --gold-l: #e6c96a; --gold-p: #f7f0e0; --ink: #1a1208; --ash: #5c4a36; --cream: #f0ebe3; --moss: #4a6741; --rust: #9b3a2a; --slate: #2c3e50; --sidebar: #1e1610; --sw: 220px; --hh: 56px; --border: #e8dece; --bg: #f2ece4; }
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+		#app { min-height: 100vh; display: flex; }
+		.sidebar { position: fixed; top: 0; left: 0; width: var(--sw); height: 100vh; background: var(--sidebar); display: flex; flex-direction: column; z-index: 100; border-right: 1px solid rgba(184, 145, 42, .15); }
+		.sb-brand { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255, 255, 255, .06); }
+		.sb-brand .en { font-size: 9px; color: rgba(255, 255, 255, .3); letter-spacing: 3px; text-transform: uppercase; }
+		.sb-brand .ja { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--gold-l); letter-spacing: 2px; margin-top: 4px; }
+		.sb-badge { font-size: 10px; background: var(--gold); color: var(--ink); padding: 2px 6px; border-radius: 10px; margin-top: 6px; display: inline-block; font-weight: 700; }
+		nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+		.ns { font-size: 9px; color: rgba(255, 255, 255, .25); letter-spacing: 3px; padding: 12px 20px 6px; text-transform: uppercase; }
+		nav a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: rgba(255, 255, 255, .55); text-decoration: none; font-size: 13px; transition: all .15s; cursor: pointer; border-left: 2px solid transparent; }
+		nav a:hover { color: #fff; background: rgba(255, 255, 255, .04); }
+		nav a.active { color: var(--gold-l); border-left-color: var(--gold); background: rgba(184, 145, 42, .08); }
+		nav a .ic { font-size: 15px; width: 18px; text-align: center; }
+		.sb-footer { padding: 16px 20px; border-top: 1px solid rgba(255, 255, 255, .06); }
+		.sb-user { font-size: 12px; color: rgba(255, 255, 255, .4); margin-bottom: 10px; }
+		.sb-user strong { color: rgba(255, 255, 255, .7); display: block; }
+		.logout-btn { width: 100%; padding: 8px; background: transparent; border: 1px solid rgba(255, 255, 255, .12); border-radius: 2px; color: rgba(255, 255, 255, .4); font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: all .2s; font-family: 'Noto Sans JP', sans-serif; }
+		.logout-btn:hover { border-color: var(--rust); color: #e07070; }
+		.main-panel { margin-left: var(--sw); flex: 1; display: flex; flex-direction: column; min-width: 0; }
+		.topbar { height: var(--hh); background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 16px; position: sticky; top: 0; z-index: 50; }
+		.topbar-title { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--ash); flex: 1; }
+		.topbar-date { font-size: 12px; color: #999; }
+		.content { padding: 28px; flex: 1; max-width: 1100px; width: 100%; margin: 0 auto; }
+		.page-header { margin-bottom: 22px; }
+		.page-header h2 { font-family: 'Noto Serif JP', serif; font-size: 22px; font-weight: 500; color: var(--ash); margin-bottom: 6px; }
+		.page-header .sc-id { font-size: 11px; color: #999; letter-spacing: 0.5px; }
+		.card { background: #fff; border-radius: 4px; border: 1px solid var(--border); padding: 24px; margin-bottom: 20px; }
+		.card-title { font-family: 'Noto Serif JP', serif; font-size: 15px; color: var(--ash); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0ebe3; display: flex; align-items: center; gap: 8px; }
+		.customer-info-box { background: var(--gold-p); border: 1px solid var(--border); padding: 16px 20px; border-radius: 4px; margin-bottom: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+		.info-item { display: flex; flex-direction: column; gap: 4px; }
+		.info-label { font-size: 11px; color: #888; }
+		.info-value { font-size: 15px; color: var(--ash); font-weight: 500; }
+		.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 20px; }
+		.form-group { display: flex; flex-direction: column; gap: 6px; }
+		.form-group.full { grid-column: span 2; }
+		label { font-size: 12px; color: var(--ash); font-weight: 500; }
+		label span { color: var(--rust); margin-left: 2px; }
+		input, select, textarea { width: 100%; border: 1px solid var(--border); border-radius: 2px; background: #fff; padding: 10px 12px; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; color: var(--ink); outline: none; transition: border-color 0.2s; }
+		input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184, 145, 42, .12); }
+		textarea { min-height: 90px; resize: vertical; line-height: 1.7; }
+		.btn-group { display: flex; gap: 12px; margin-top: 24px; }
+		.btn { padding: 10px 22px; border: none; border-radius: 2px; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; letter-spacing: .5px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+		.btn-gold { background: var(--gold); color: var(--ink); }
+		.btn-gold:hover { background: var(--gold-l); }
+		.btn-white { background: transparent; border: 1px solid #ccc; color: var(--ash); }
+		.btn-white:hover { border-color: var(--gold); color: var(--gold); }
+		.error-msg { color: var(--rust); font-size: 12px; }
+	</style>
+</head>
+
+<body>
+
+	<div id="app">
+		<aside class="sidebar">
+			<div class="sb-brand">
+				<div class="en">Hana Akari no Yu</div>
+				<div class="ja">花あかりの湯</div>
+				<span class="sb-badge">管理サイト</span>
+			</div>
+			<nav>
+				<div class="ns">メイン</div>
+				<a href="./topmenu.html"><span class="ic">🏠</span>ダッシュボード</a>
+				<a href="./list.html" class="active"><span class="ic">📋</span>全予約一覧</a>
+				<a href="./regist.html"><span class="ic">➕</span>予約登録</a>
+				<div class="ns">管理</div>
+				<a href="./room.html"><span class="ic">🛏</span>空室確認</a>
+				<a href="./record.html"><span class="ic">👤</span>顧客カルテ</a>
+				<a href="./okami_bot.html"><span class="ic">🤖</span>女将ボット</a>
+			</nav>
+			<div class="sb-footer">
+				<div class="sb-user">ログイン中<br><strong id="sbUser">staff001</strong></div>
+				<a href="#" id="logoutLink"><button class="logout-btn">ログアウト</button></a>
+			</div>
+		</aside>
+
+		<div class="main-panel">
+			<div class="topbar">
+				<span class="topbar-title">予約変更</span>
+				<span class="topbar-date">従業員管理画面</span>
+			</div>
+
+			<div class="content">
+				<div class="page-header">
+					<h2>予約変更</h2>
+					<p class="sc-id">SC-008</p>
+				</div>
+
+				<div class="card">
+					<div class="card-title">✏️ 予約変更 SC-008</div>
+
+					<div class="customer-info-box">
+						<div class="info-item"><span class="info-label">お客様名</span><div class="info-value"><span id="custName"></span> 様</div></div>
+						<div class="info-item"><span class="info-label">フリガナ</span><div class="info-value" id="custKana"></div></div>
+						<div class="info-item"><span class="info-label">電話番号</span><div class="info-value" id="custPhone"></div></div>
+					</div>
+
+					<form id="updateForm">
+						<div class="form-grid">
+							<div class="form-group">
+								<label>宿泊日 <span>*</span></label>
+								<input type="date" id="stayDate" required />
+							</div>
+							<div class="form-group">
+								<label>チェックアウト日 <span>*</span></label>
+								<input type="date" id="checkoutDate" required />
+							</div>
+							<div class="form-group">
+								<label>チェックイン時刻<span>*</span></label>
+								<select id="checkinTime">
+									<option value="15:00">15:00</option>
+									<option value="16:00">16:00</option>
+									<option value="17:00">17:00</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>プラン <span>*</span></label>
+								<select id="planSelect" required>
+									<option value="1">月あかり懐石</option>
+									<option value="2">花あかり懐石</option>
+									<option value="3">和室記念日プラン</option>
+									<option value="4">露天風呂付き客室記念日プラン</option>
+									<option value="5">平日のんびりプラン</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>人数 <span>*</span></label>
+								<select id="numPeople" required></select>
+							</div>
+							<div class="form-group">
+								<label>割当部屋 <span>*</span></label>
+								<select id="roomSelect" required></select>
+							</div>
+
+							<div class="form-group full" id="availabilityArea">
+								<div style="background: #fdfaf7; border: 1px solid #e2d9cd; padding: 12px; border-radius: 4px;">
+									<span style="color: #b8912a; font-weight: bold;">【リアルタイム空室状況】</span><br>
+									<div style="margin-top: 5px;">
+										和室: <strong id="washitsuCount" style="font-size: 16px;">-</strong> 室<br>
+										客室露天風呂付: <strong id="rotenCount" style="font-size: 16px;">-</strong> 室
+									</div>
+									<span id="fullAlert" style="color: red; font-size: 11px; display: none;"></span>
+								</div>
+							</div>
+
+							<div class="form-group full">
+								<label>アレルギー情報</label>
+								<input type="text" id="allergyInfo" placeholder="例：えび、かに">
+							</div>
+							<div class="form-group full">
+								<label>おもてなしメモ</label>
+								<textarea id="requestNote" placeholder="結婚記念日など"></textarea>
+							</div>
+						</div>
+
+						<div class="btn-group">
+							<button type="submit" class="btn btn-gold">確認へ進む</button>
+							<button type="button" class="btn btn-white" id="backBtn">戻る</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		function qs(name) { return new URLSearchParams(location.search).get(name); }
+		const resId = qs("id");
+		const restore = qs("restore") === "1";
+
+		const stayDateInput = document.getElementById('stayDate');
+		const checkoutDateInput = document.getElementById('checkoutDate');
+		const planSelect = document.getElementById('planSelect');
+		const roomSelect = document.getElementById('roomSelect');
+		const peopleSelect = document.getElementById('numPeople');
+
+		let initialRoomId = null;
+
+		function updatePeopleOptions(currentSelection) {
+			const planId = planSelect.value;
+			if (currentSelection == null) currentSelection = peopleSelect.value;
+			peopleSelect.innerHTML = '<option value="">選択してください</option>';
+			let maxPeople = (planId == '1' || planId == '4') ? 6 : 8;
+			for (let i = 1; i <= maxPeople; i++) {
+				const o = document.createElement('option');
+				o.value = i; o.textContent = i + '名';
+				if (parseInt(currentSelection) === i) o.selected = true;
+				peopleSelect.appendChild(o);
+			}
+		}
+
+		// プランに対応する roomType
+		function planRoomType(planId) {
+			const p = TeamF.plan(planId);
+			return p ? p.roomType : null;
+		}
+
+		function refreshRooms(keepRoomId) {
+			const stay = stayDateInput.value;
+			const checkout = checkoutDateInput.value;
+			const planId = planSelect.value;
+			const roomType = planRoomType(planId);
+
+			// 空室カウント（プランに依らず全体）
+			let washitsu = 0, roten = 0;
+			if (stay && checkout) {
+				const avW = TeamF.availableRooms(stay, checkout, '和室', resId);
+				const avR = TeamF.availableRooms(stay, checkout, '露天風呂付き客室', resId);
+				washitsu = avW.length;
+				roten = avR.length;
+			}
+			document.getElementById('washitsuCount').textContent = washitsu;
+			document.getElementById('rotenCount').textContent = roten;
+
+			// 選択肢：プランの roomType に合う空室（excludeResId=この予約）＋現在の部屋
+			roomSelect.innerHTML = '';
+			let avail = [];
+			if (stay && checkout) {
+				avail = TeamF.availableRooms(stay, checkout, roomType, resId);
+			}
+			// 現在の部屋（割当）が roomType に合致するなら必ず含める
+			const cur = initialRoomId != null ? TeamF.room(initialRoomId) : null;
+			if (cur && cur.roomType === roomType && !avail.some(r => r.roomId === cur.roomId)) {
+				avail = avail.concat([cur]);
+			}
+			avail.sort((a, b) => a.roomId - b.roomId);
+
+			const wantRoom = keepRoomId != null ? Number(keepRoomId) : Number(roomSelect.value);
+			let matched = false;
+			avail.forEach(rm => {
+				const o = document.createElement('option');
+				o.value = rm.roomId;
+				let label = rm.roomNo + ' (' + rm.roomType + ')';
+				if (rm.roomId === initialRoomId) label += ' 【現在の部屋】';
+				o.textContent = label;
+				if (rm.roomId === wantRoom) { o.selected = true; matched = true; }
+				roomSelect.appendChild(o);
+			});
+
+			const alertEl = document.getElementById('fullAlert');
+			if (avail.length === 0) {
+				alertEl.style.display = 'block';
+				alertEl.textContent = '※このプランで選択できる部屋がありません。';
+			} else {
+				alertEl.style.display = 'none';
+				if (!matched) roomSelect.selectedIndex = 0;
+			}
+		}
+
+		TeamF.init().then(() => {
+			const s = TeamF.requireLogin();
+			if (!s) return;
+
+			document.getElementById("sbUser").textContent = s.account.loginId;
+			document.getElementById("logoutLink").addEventListener("click", (e) => {
+				e.preventDefault();
+				TeamF.logout();
+				location.href = "./login.html";
+			});
+
+			const v = TeamF.reservationView(resId);
+			if (!v) {
+				document.querySelector(".content").innerHTML = '<div class="card">該当する予約が見つかりませんでした。<a href="./list.html">一覧へ戻る</a></div>';
+				return;
+			}
+			const r = v.reservation;
+			const c = v.customer;
+			document.getElementById("custName").textContent = c ? c.name : '未登録';
+			document.getElementById("custKana").textContent = c && c.nameKana ? c.nameKana : '-';
+			document.getElementById("custPhone").textContent = c ? (c.phone || '-') : '-';
+
+			// 現在の割当部屋（先頭）
+			const rrs = TeamF.roomsOfReservation(r.reservationId);
+			initialRoomId = rrs.length ? rrs[0].roomId : null;
+
+			// 復元 or 初期値
+			let init = {
+				stayDate: r.stayDate, checkoutDate: r.checkoutDate,
+				checkinTime: TeamF.fmtTime(r.checkinTime), planId: r.planId,
+				numPeople: r.numPeople, roomId: initialRoomId,
+				allergyInfo: r.allergyInfo || '', requestNote: r.requestNote || ''
+			};
+			if (restore) {
+				const pend = TeamF.getPending("update");
+				if (pend && pend.patch) {
+					init = {
+						stayDate: pend.patch.stayDate, checkoutDate: pend.patch.checkoutDate,
+						checkinTime: TeamF.fmtTime(pend.patch.checkinTime), planId: pend.patch.planId,
+						numPeople: pend.patch.numPeople,
+						roomId: (pend.roomIds && pend.roomIds.length) ? pend.roomIds[0] : initialRoomId,
+						allergyInfo: pend.patch.allergyInfo || '', requestNote: pend.patch.requestNote || ''
+					};
+				}
+			}
+
+			stayDateInput.value = init.stayDate;
+			checkoutDateInput.value = init.checkoutDate;
+			document.getElementById("checkinTime").value = init.checkinTime;
+			planSelect.value = init.planId;
+			document.getElementById("allergyInfo").value = init.allergyInfo;
+			document.getElementById("requestNote").value = init.requestNote;
+
+			updatePeopleOptions(init.numPeople);
+			refreshRooms(init.roomId);
+
+			stayDateInput.addEventListener('change', () => refreshRooms());
+			checkoutDateInput.addEventListener('change', () => refreshRooms());
+			planSelect.addEventListener('change', () => {
+				updatePeopleOptions();
+				refreshRooms();
+			});
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./detail.html?id=" + r.reservationId;
+			});
+
+			document.getElementById("updateForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				const roomId = roomSelect.value;
+				if (!roomId) { alert("選択できる部屋がありません。日程・プランをご確認ください。"); return; }
+				const patch = {
+					stayDate: stayDateInput.value,
+					checkoutDate: checkoutDateInput.value,
+					checkinTime: document.getElementById("checkinTime").value + ":00",
+					planId: Number(planSelect.value),
+					numPeople: Number(peopleSelect.value),
+					allergyInfo: document.getElementById("allergyInfo").value.trim(),
+					requestNote: document.getElementById("requestNote").value.trim(),
+					status: "予約済"
+				};
+				TeamF.setPending("update", {
+					id: r.reservationId,
+					patch: patch,
+					roomIds: [Number(roomId)],
+					roomNo: (TeamF.room(roomId) || {}).roomNo || ''
+				});
+				location.href = "./up_confirm.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

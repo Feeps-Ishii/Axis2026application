@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>予約変更確認 - 花あかりの湯</title>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+		rel="stylesheet">
+	<style>
+		:root { --gold: #b8912a; --gold-l: #e6c96a; --gold-p: #f7f0e0; --ink: #1a1208; --ash: #5c4a36; --cream: #f0ebe3; --moss: #4a6741; --rust: #9b3a2a; --sidebar: #1e1610; --sw: 220px; --hh: 56px; --border: #e8dece; --bg: #f2ece4; }
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+		#app { min-height: 100vh; display: flex; }
+		.sidebar { position: fixed; top: 0; left: 0; width: var(--sw); height: 100vh; background: var(--sidebar); display: flex; flex-direction: column; z-index: 100; border-right: 1px solid rgba(184, 145, 42, .15); }
+		.sb-brand { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255, 255, 255, .06); }
+		.sb-brand .en { font-size: 9px; color: rgba(255, 255, 255, .3); letter-spacing: 3px; text-transform: uppercase; }
+		.sb-brand .ja { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--gold-l); letter-spacing: 2px; margin-top: 4px; }
+		.sb-badge { font-size: 10px; background: var(--gold); color: var(--ink); padding: 2px 6px; border-radius: 10px; margin-top: 6px; display: inline-block; font-weight: 700; }
+		nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+		.ns { font-size: 9px; color: rgba(255, 255, 255, .25); letter-spacing: 3px; padding: 12px 20px 6px; text-transform: uppercase; }
+		nav a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: rgba(255, 255, 255, .55); text-decoration: none; font-size: 13px; transition: all .15s; border-left: 2px solid transparent; }
+		nav a:hover { color: #fff; background: rgba(255, 255, 255, .04); }
+		nav a.active { color: var(--gold-l); border-left-color: var(--gold); background: rgba(184, 145, 42, .08); }
+		nav a .ic { font-size: 15px; width: 18px; text-align: center; }
+		.sb-footer { padding: 16px 20px; border-top: 1px solid rgba(255, 255, 255, .06); }
+		.sb-user { font-size: 12px; color: rgba(255, 255, 255, .4); margin-bottom: 10px; }
+		.sb-user strong { color: rgba(255, 255, 255, .7); display: block; }
+		.logout-btn { width: 100%; padding: 8px; background: transparent; border: 1px solid rgba(255, 255, 255, .12); border-radius: 2px; color: rgba(255, 255, 255, .4); font-size: 11px; cursor: pointer; transition: all .2s; font-family: inherit; }
+		.logout-btn:hover { border-color: var(--rust); color: #e07070; }
+		.main-panel { margin-left: var(--sw); flex: 1; display: flex; flex-direction: column; min-width: 0; }
+		.topbar { height: var(--hh); background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 16px; position: sticky; top: 0; z-index: 50; }
+		.topbar-title { font-family: 'Noto Serif JP', serif; font-size: 16px; color: var(--ash); flex: 1; }
+		.topbar-date { font-size: 12px; color: #999; }
+		.content { padding: 28px; flex: 1; max-width: 1100px; width: 100%; margin: 0 auto; }
+		.page-header { margin-bottom: 22px; }
+		.page-header h2 { font-family: 'Noto Serif JP', serif; font-size: 22px; font-weight: 500; color: var(--ash); margin-bottom: 6px; }
+		.page-header .sc-id { font-size: 11px; color: #999; letter-spacing: 0.5px; }
+		.card { background: #fff; border-radius: 4px; border: 1px solid var(--border); padding: 24px; margin-bottom: 20px; }
+		.card-title { font-family: 'Noto Serif JP', serif; font-size: 15px; color: var(--ash); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0ebe3; display: flex; align-items: center; gap: 8px; }
+		.confirm-message { background: var(--gold-p); padding: 16px; border-radius: 4px; color: var(--ash); font-size: 13px; margin-bottom: 20px; border-left: 4px solid var(--gold); }
+		.customer-info-box { background: #fafafa; border: 1px solid var(--border); padding: 16px 20px; border-radius: 4px; margin-bottom: 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+		.info-item { display: flex; flex-direction: column; gap: 4px; }
+		.info-label { font-size: 11px; color: #888; }
+		.info-value { font-size: 14px; color: var(--ash); font-weight: 500; }
+		.confirm-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+		.confirm-table th { width: 200px; text-align: left; padding: 12px; font-size: 13px; color: var(--ash); border-bottom: 1px solid var(--border); background: #fdfaf7; }
+		.confirm-table td { padding: 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
+		.btn-group { display: flex; gap: 12px; }
+		.btn { padding: 10px 22px; border: none; border-radius: 2px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-family: 'Noto Sans JP', sans-serif; }
+		.btn-gold { background: var(--gold); color: var(--ink); }
+		.btn-gold:hover { background: var(--gold-l); }
+		.btn-white { background: transparent; border: 1px solid #ccc; color: var(--ash); }
+		.btn-white:hover { border-color: var(--gold); color: var(--gold); }
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<aside class="sidebar">
+			<div class="sb-brand">
+				<div class="en">Hana Akari no Yu</div>
+				<div class="ja">花あかりの湯</div>
+				<span class="sb-badge">管理サイト</span>
+			</div>
+			<nav>
+				<div class="ns">メイン</div>
+				<a href="./topmenu.html"><span class="ic">🏠</span>ダッシュボード</a>
+				<a href="./list.html" class="active"><span class="ic">📋</span>全予約一覧</a>
+				<a href="./regist.html"><span class="ic">➕</span>予約登録</a>
+				<div class="ns">管理</div>
+				<a href="./room.html"><span class="ic">🛏</span>空室確認</a>
+				<a href="./record.html"><span class="ic">👤</span>顧客カルテ</a>
+				<a href="./okami_bot.html"><span class="ic">🤖</span>女将ボット</a>
+			</nav>
+			<div class="sb-footer">
+				<div class="sb-user">ログイン中<br><strong id="sbUser">staff001</strong></div>
+				<a href="#" id="logoutLink"><button class="logout-btn">ログアウト</button></a>
+			</div>
+		</aside>
+
+		<div class="main-panel">
+			<div class="topbar">
+				<span class="topbar-title">予約変更確認</span>
+				<span class="topbar-date">従業員管理画面</span>
+			</div>
+
+			<div class="content">
+				<div class="page-header">
+					<h2>予約変更確認</h2>
+					<p class="sc-id">SC-023</p>
+				</div>
+
+				<div class="card">
+					<div class="card-title">✏️ 変更内容の確認</div>
+					<div class="confirm-message">以下の内容で予約を変更します。内容に誤りがないか確認してください。</div>
+
+					<div class="customer-info-box">
+						<div class="info-item"><span class="info-label">お客様名</span><div class="info-value"><span id="custName"></span> 様</div></div>
+						<div class="info-item"><span class="info-label">フリガナ</span><div class="info-value" id="custKana"></div></div>
+						<div class="info-item"><span class="info-label">電話番号</span><div class="info-value" id="custPhone"></div></div>
+					</div>
+
+					<table class="confirm-table">
+						<tr><th>宿泊日</th><td id="stayDate"></td></tr>
+						<tr><th>チェックアウト日</th><td id="checkoutDate"></td></tr>
+						<tr><th>チェックイン時間</th><td id="checkinTime"></td></tr>
+						<tr><th>人数</th><td id="numPeople"></td></tr>
+						<tr><th>プラン</th><td id="planName"></td></tr>
+						<tr><th>変更後の部屋</th><td><span id="roomName" style="font-weight:bold; color:var(--rust);"></span></td></tr>
+						<tr><th>アレルギー情報</th><td id="allergyInfo"></td></tr>
+						<tr><th>おもてなしメモ</th><td id="requestNote"></td></tr>
+					</table>
+
+					<div class="btn-group">
+						<button type="button" class="btn btn-gold" id="confirmBtn">変更を確定する</button>
+						<button type="button" class="btn btn-white" id="backBtn">修正する</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamF.init().then(() => {
+			const s = TeamF.requireLogin();
+			if (!s) return;
+
+			document.getElementById("sbUser").textContent = s.account.loginId;
+			document.getElementById("logoutLink").addEventListener("click", (e) => {
+				e.preventDefault();
+				TeamF.logout();
+				location.href = "./login.html";
+			});
+
+			const pend = TeamF.getPending("update");
+			if (!pend || !pend.patch) {
+				document.querySelector(".content").innerHTML = '<div class="card">変更内容が見つかりませんでした。<a href="./list.html">一覧へ戻る</a></div>';
+				return;
+			}
+
+			const v = TeamF.reservationView(pend.id);
+			const c = v ? v.customer : null;
+			document.getElementById("custName").textContent = c ? c.name : '未登録';
+			document.getElementById("custKana").textContent = c && c.nameKana ? c.nameKana : '-';
+			document.getElementById("custPhone").textContent = c ? (c.phone || '-') : '-';
+
+			const p = pend.patch;
+			const plan = TeamF.plan(p.planId);
+			const roomNo = pend.roomNo || ((pend.roomIds && pend.roomIds.length) ? (TeamF.room(pend.roomIds[0]) || {}).roomNo : '');
+			document.getElementById("stayDate").textContent = TeamF.fmtDate(p.stayDate);
+			document.getElementById("checkoutDate").textContent = TeamF.fmtDate(p.checkoutDate);
+			document.getElementById("checkinTime").textContent = TeamF.fmtTime(p.checkinTime);
+			document.getElementById("numPeople").textContent = p.numPeople + '名';
+			document.getElementById("planName").textContent = plan ? plan.planName : p.planId;
+			document.getElementById("roomName").textContent = roomNo || '';
+			document.getElementById("allergyInfo").textContent = p.allergyInfo || 'なし';
+			document.getElementById("requestNote").textContent = p.requestNote || '特になし';
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./update.html?id=" + pend.id + "&restore=1";
+			});
+
+			document.getElementById("confirmBtn").addEventListener("click", () => {
+				TeamF.updateReservation(pend.id, pend.patch);
+				if (pend.roomIds && pend.roomIds.length) {
+					TeamF.reassignRooms(pend.id, pend.roomIds, pend.patch.stayDate, pend.patch.checkoutDate);
+				}
+				TeamF.clearPending("update");
+				location.href = "./complete.html?mode=update&id=" + pend.id;
+			});
+		});
+	</script>
+</body>
+
+</html>
