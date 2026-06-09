@@ -222,6 +222,13 @@
 					icon: "📅", title: "予約作成", desc: "授業・自習室の予約を作成",
 				});
 			}
+			// 生徒本人：スケジュール確認・予約への導線
+			if (TeamC.isStudent(me) && student.userId === me.userId) {
+				menu.push({
+					href: "./schedule_month.html",
+					icon: "📅", title: "スケジュール・予約", desc: "授業・自習室のスケジュールを確認して予約",
+				});
+			}
 
 			document.getElementById("menuGrid").innerHTML = menu.map((m) =>
 				'<a href="' + m.href + '" class="student-carte-menu-card">' +
