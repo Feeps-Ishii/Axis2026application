@@ -102,7 +102,7 @@
 			const backList = "./troublelist.html" + (portalSite ? "?siteId=" + portalSite : "");
 			let html = `<button type="button" class="btn btn-gray" onclick="location.href='${backList}'">一覧へ戻る</button>`;
 			if (roll !== 2) {
-				html += `<button type="button" class="btn btn" onclick="location.href='./trouble.html?id=${id}'">編集</button>`;
+				html += `<button type="button" class="btn btn" onclick="location.href='./troubleedit.html?id=${id}'">編集</button>`;
 			}
 			if (roll === 0) {
 				if (t.tStatusFlag === 0) html += `<button id="adv" class="btn btn">確認完了</button>`;

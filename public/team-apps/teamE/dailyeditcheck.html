@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>日報詳細</title>
+  <title>日報編集確認</title>
   <link rel="stylesheet" href="./css/dailyreport.css">
 </head>
 
@@ -13,21 +13,18 @@
   <header class="system-header">
     <div class="header-top">
       <div class="logo-area">
-        <a id="homeLink"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
-        <div class="site-system-name">日報詳細</div>
+        <a href="./home.html"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+        <div class="site-system-name">日報編集確認</div>
       </div>
       <div class="user-area">
         <div class="user-info-box">
           <span class="user-name-text"><strong id="userName">田中</strong> さん</span>
-          <form id="logoutForm" style="display: inline;">
-            <button type="submit" class="logout-btn">ログアウト</button>
-          </form>
+          <form id="logoutForm" style="display:inline;"><button type="submit" class="logout-btn">ログアウト</button></form>
         </div>
       </div>
     </div>
-
-    <div class="page-title-bar" style="display: flex; align-items: center; gap: 40px; padding: 0 20px;">
-      <div class="header-site-name" id="headerSiteName" style="font-weight: bold; font-size: 15px; color: #1f3c88;"></div>
+    <div class="page-title-bar" style="display:flex; align-items:center; gap:40px; padding:0 20px;">
+      <div class="header-site-name" id="headerSiteName" style="font-weight:bold;font-size:15px;color:#1f3c88;"></div>
       <a href="./dailylist.html" class="nav-link active">日報一覧</a>
     </div>
   </header>
@@ -43,24 +40,28 @@
     TeamE.init().then(() => {
       const s = TeamE.requireLogin();
       if (!s) return;
-      const roll = s.user.roll;
-      document.getElementById("userName").textContent = s.user.userName;
-      document.getElementById("homeLink").href = roll === 0 ? "./list.html" : "./home.html";
+      if (s.user.roll === 2) { location.href = "./home.html"; return; } // 閲覧は不可
 
-      const id = Number(new URLSearchParams(location.search).get("id"));
-      const r = TeamE.reports().find(x => x.reportId === id);
-      const c = document.getElementById("container");
-      if (!r) { c.innerHTML = "<p style='padding:40px;'>日報が見つかりません。</p>"; return; }
+      document.getElementById("userName").textContent = s.user.userName;
+
+      const pending = TeamE.getPending("report");
+      if (!pending || pending.mode !== "edit" || !pending.data || !pending.id) {
+        location.href = "./dailylist.html";
+        return;
+      }
+      const id = Number(pending.id);
+      const r = pending.data;
 
       const site = TeamE.site(r.siteId);
       document.getElementById("headerSiteName").textContent = site ? site.siteName : "";
 
+      const E = TeamE.esc;
       const workers = Array.isArray(r.workerDetails) ? r.workerDetails : [];
       const workerRows = workers.length
-        ? workers.map(w => `<tr><td><strong>${TeamE.esc(w.company || "未入力")}</strong></td><td>${w.count || 0} 名</td><td>${TeamE.esc(w.names || "未入力")}</td></tr>`).join("")
+        ? workers.map(w => `<tr><td><strong>${E(w.company || "未入力")}</strong></td><td>${E(w.count || 0)} 名</td><td>${E(w.names || "未入力")}</td></tr>`).join("")
         : `<tr><td colspan="3" style="text-align:center; color:#718096;">出面情報なし</td></tr>`;
 
-      const E = TeamE.esc;
+      const c = document.getElementById("container");
       c.innerHTML = `
         <div class="section">
           <div class="section-title">基本情報</div>
@@ -75,7 +76,7 @@
 
         <div class="section">
           <div class="section-title">作業内容</div>
-          <div class="item"><div class="label">本日の作業</div><div class="value" style="white-space: pre-wrap;">${E(r.workDetails)}</div></div>
+          <div class="value" style="white-space:pre-wrap;">${E(r.workDetails)}</div>
         </div>
 
         <div class="section">
@@ -94,17 +95,17 @@
         <div class="section">
           <div class="section-title">安全管理</div>
           <div class="grid-2">
-            <div class="item"><div class="label">KY項目</div><div class="value" style="white-space: pre-wrap;">${E(r.safetyKy)}</div></div>
-            <div class="item"><div class="label">安全対策</div><div class="value" style="white-space: pre-wrap;">${E(r.safetyMeasure)}</div></div>
-            <div class="item"><div class="label">新規入場者教育</div><div class="value" style="white-space: pre-wrap;">${E(r.safetyEducation)}</div></div>
-            <div class="item"><div class="label">ヒヤリハット</div><div class="value" style="white-space: pre-wrap;">${E(r.nearMiss)}</div></div>
+            <div class="item"><div class="label">KY項目</div><div class="value" style="white-space:pre-wrap;">${E(r.safetyKy)}</div></div>
+            <div class="item"><div class="label">対策</div><div class="value" style="white-space:pre-wrap;">${E(r.safetyMeasure)}</div></div>
+            <div class="item"><div class="label">新規入場者教育</div><div class="value" style="white-space:pre-wrap;">${E(r.safetyEducation)}</div></div>
+            <div class="item"><div class="label">ヒヤリハット</div><div class="value" style="white-space:pre-wrap;">${E(r.nearMiss)}</div></div>
           </div>
         </div>
 
         <div class="section">
           <div class="section-title">資材・機材</div>
-          <div class="item"><div class="label">搬入物</div><div class="value" style="white-space: pre-wrap;">${E(r.materials)}</div></div>
-          <div class="item"><div class="label">使用機材</div><div class="value" style="white-space: pre-wrap;">${E(r.equipments)}</div></div>
+          <div class="item"><div class="label">搬入物</div><div class="value" style="white-space:pre-wrap;">${E(r.materials)}</div></div>
+          <div class="item"><div class="label">機材</div><div class="value" style="white-space:pre-wrap;">${E(r.equipments)}</div></div>
         </div>
 
         <div class="section">
@@ -118,32 +119,25 @@
         </div>
 
         <div class="section">
-          <div class="section-title">現場コメント</div>
-          <div class="value" style="white-space: pre-wrap;">${E(r.notes)}</div>
+          <div class="section-title">コメント</div>
+          <div class="value" style="white-space:pre-wrap;">${E(r.notes)}</div>
         </div>
 
-        <div class="btn-area" id="btnArea"></div>
+        <div class="btn-area" style="display:flex; gap:15px;">
+          <button type="button" class="btn btn-gray" id="backBtn">修正する</button>
+          <button type="button" class="btn" id="updateBtn">確認</button>
+        </div>
       `;
 
-      // ロール別ボタン
-      const btn = document.getElementById("btnArea");
-      btn.style.display = "flex";
-      btn.style.gap = "15px";
-      if (roll === 0) {
-        const confirmed = r.dStatusFlag === 1;
-        btn.innerHTML = `<a href="./list.html" class="btn_h">本社ホームへ</a>
-          <a href="./dailylist.html" class="btn_h">一覧へ戻る</a>
-          <button id="confirmBtn" class="btn">${confirmed ? "確認解除" : "確認完了"}</button>`;
-        document.getElementById("confirmBtn").addEventListener("click", () => {
-          TeamE.setReportStatus(id, confirmed ? 0 : 1);
-          location.reload();
-        });
-      } else if (roll === 1) {
-        btn.innerHTML = `<a href="./dailylist.html" class="btn_h">一覧画面へ戻る</a>
-          <a href="./dailyedit.html?id=${id}" class="btn" style="background-color:#3182ce;">編集</a>`;
-      } else {
-        btn.innerHTML = `<a href="./dailylist.html" class="btn_h">一覧画面へ戻る</a>`;
-      }
+      document.getElementById("backBtn").addEventListener("click", () => {
+        location.href = "./dailyedit.html?id=" + id + "&restore=1";
+      });
+
+      document.getElementById("updateBtn").addEventListener("click", () => {
+        TeamE.updateReport(id, r);
+        TeamE.clearPending("report");
+        location.href = "./complete.html?type=report&mode=edit";
+      });
 
       document.getElementById("logoutForm").addEventListener("submit", e => {
         e.preventDefault(); TeamE.logout(); location.href = "./login.html";

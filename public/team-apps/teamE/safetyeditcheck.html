@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>安全点検編集確認</title>
+	<link rel="stylesheet" href="./css/safety/safetyeditcheck.css">
+</head>
+
+<body>
+
+	<header>
+		<div class="header-top">
+			<div class="logo-area">
+				<a href="./home.html"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+				<div class="pageTitle">安全点検編集確認</div>
+			</div>
+			<div class="user-area">
+				<div><span id="userName">ゲスト</span> さん</div>
+				<form id="logoutForm"><button type="submit" class="logout-btn">ログアウト</button></form>
+			</div>
+		</div>
+		<div class="page-title-bar"></div>
+	</header>
+
+	<div class="container" id="container"></div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamE.init().then(() => {
+			const s = TeamE.requireLogin();
+			if (!s) return;
+			if (s.user.roll !== 1) { location.href = "./home.html"; return; }
+			document.getElementById("userName").textContent = s.user.userName;
+
+			const pending = TeamE.getPending("safety");
+			const c = document.getElementById("container");
+			if (!pending || pending.mode !== "edit" || !pending.data) {
+				c.innerHTML = "<p style='padding:40px;'>編集データが見つかりません。</p>";
+				return;
+			}
+			const id = pending.id;
+			const data = pending.data;
+			const rec = TeamE.safetyById(id);
+			const site = TeamE.site(data.siteId);
+
+			const createdAt = rec ? rec.sCreatedAt : data.sCreatedAt;
+			const updatedRow = (data.sUpdatedAt && data.sUpdatedAt !== createdAt)
+				? `<div>更新日時：<span>${TeamE.fmtDateTime(data.sUpdatedAt)}</span></div>` : "";
+
+			const checks = TeamE.label.SAFETY_ITEMS.map(it => {
+				const ok = data[it.key] === 0;
+				return `<div class="check-card">
+					<div class="check-name">${it.label}</div>
+					<div class="${ok ? 'check-status ok' : 'check-status ng'}">${ok ? '良好' : '不備'}</div>
+				</div>`;
+			}).join("");
+
+			const photoBlock = data.photo
+				? `<div class="section">
+						<div class="item">
+							<div class="label">点検時の画像</div>
+							<div><img src="${TeamE.esc(data.photo)}" width="500"></div>
+						</div>
+					</div>`
+				: "";
+
+			c.innerHTML = `
+				<div class="section">
+					<div class="section-title">点検情報</div>
+					<div class="summary-box">
+						<div>登録日時：<span>${TeamE.fmtDateTime(createdAt)}</span></div>
+						${updatedRow}
+						<div>現場名：<span>${TeamE.esc(site ? site.siteName : "")}</span></div>
+					</div>
+				</div>
+
+				<div class="section">
+					<div class="section-title">点検結果サマリー</div>
+					<div class="summary-box">
+						点検項目：7件<br>
+						良好：${TeamE.safetyGood(data)}件<br>
+						不備：${TeamE.safetyBad(data)}件
+					</div>
+				</div>
+
+				<div class="section">
+					<div class="section-title">点検項目確認</div>
+					<div class="check-list">${checks}</div>
+				</div>
+
+				${photoBlock}
+
+				<div class="btn-area">
+					<button type="button" class="btn btn-secondary" id="backBtn">修正</button>
+					<button type="button" class="btn" id="confirmBtn">登録</button>
+				</div>
+			`;
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./safetyedit.html?id=" + id + "&restore=1";
+			});
+
+			document.getElementById("confirmBtn").addEventListener("click", () => {
+				TeamE.updateSafety(id, data);
+				TeamE.clearPending("safety");
+				location.href = "./complete.html?type=safety&mode=edit";
+			});
+
+			document.getElementById("logoutForm").addEventListener("submit", e => {
+				e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+			});
+		});
+	</script>
+
+</body>
+</html>

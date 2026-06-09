@@ -85,7 +85,7 @@
 			else html += `<a href="${roll === 0 ? './list.html' : './home.html'}" class="btn-gray">ホームへ戻る</a>`;
 
 			if (roll === 1) {
-				html += `<a href="./safetycheck.html?id=${id}" class="btn">編集</a>`;
+				html += `<a href="./safetyedit.html?id=${id}" class="btn">編集</a>`;
 			} else if (roll === 0) {
 				html += `<button id="confBtn" class="btn">${x.sStatusFlag === 0 ? "確認完了" : "確認解除"}</button>`;
 			}

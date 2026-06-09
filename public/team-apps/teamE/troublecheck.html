@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>トラブル登録確認</title>
+	<link rel="stylesheet" href="./css/trouble/troublecheck.css" />
+</head>
+
+<body>
+
+	<header>
+		<div class="header-top">
+			<div class="logo-area">
+				<a id="homeLink"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+				<div class="site-system-name">トラブル登録確認</div>
+			</div>
+			<div class="user-area">
+				<div><span id="userName">ゲスト</span> さん</div>
+				<form id="logoutForm"><button type="submit" class="logout-btn">ログアウト</button></form>
+			</div>
+		</div>
+		<div class="page-title-bar"></div>
+	</header>
+
+	<div class="container" id="container"></div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamE.init().then(() => {
+			const s = TeamE.requireLogin();
+			if (!s) return;
+			const roll = s.user.roll;
+			if (roll === 0 || roll === 2) { location.href = "./home.html"; return; }
+			document.getElementById("userName").textContent = s.user.userName;
+			document.getElementById("homeLink").href = roll === 0 ? "./list.html" : "./home.html";
+
+			const pending = TeamE.getPending("trouble");
+			if (!pending || pending.mode !== "create" || !pending.data) {
+				location.href = "./trouble.html";
+				return;
+			}
+			const data = pending.data;
+			const E = TeamE.esc;
+
+			document.getElementById("container").innerHTML = `
+				<div class="section">
+					<div class="section-title">入力内容確認</div>
+					<div class="summary-box">
+						<div class="summary-title">確認内容</div>
+						登録内容を確認してください。<br>
+						問題がなければ「登録」を押してください。
+					</div>
+				</div>
+
+				<div class="section">
+					<div class="section-title">トラブル情報</div>
+					<div class="item">
+						<div class="item">
+							<div class="label">緊急度</div>
+							<div class="value">${E(TeamE.label.PRIORITY[data.priority] || "")}</div>
+						</div>
+						<div class="item">
+							<div class="label">トラブル種別</div>
+							<div class="value">${E(TeamE.label.TROUBLE_TYPE[data.troubleType] || "")}</div>
+						</div>
+						<div class="item">
+							<div class="label">一言で表す</div>
+							<div class="value">${E(data.overview)}</div>
+						</div>
+					</div>
+
+					<div class="section">
+						<div class="section-title">具体的な内容</div>
+						<div class="value">${E(data.detail)}</div>
+					</div>
+
+					<div class="btn-area">
+						<button type="button" class="btn btn-secondary" id="backBtn">修正する</button>
+						<button type="button" class="btn" id="registerBtn">登録</button>
+					</div>
+				</div>
+			`;
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./trouble.html?restore=1";
+			});
+			document.getElementById("registerBtn").addEventListener("click", () => {
+				TeamE.addTrouble(data);
+				TeamE.clearPending("trouble");
+				location.href = "./complete.html?type=trouble&mode=create";
+			});
+
+			document.getElementById("logoutForm").addEventListener("submit", e => {
+				e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+			});
+		});
+	</script>
+
+</body>
+</html>

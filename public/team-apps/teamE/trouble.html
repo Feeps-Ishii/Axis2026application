@@ -68,23 +68,29 @@
 		TeamE.init().then(() => {
 			const s = TeamE.requireLogin();
 			if (!s) return;
-			if (s.user.roll === 2) { location.href = "./home.html"; return; }
+			// 新規登録：本社(0)・閲覧(2)は不可（コントローラ /trouble/new のガード）
+			if (s.user.roll === 0 || s.user.roll === 2) { location.href = "./home.html"; return; }
 			document.getElementById("userName").textContent = s.user.userName;
 			const site = TeamE.site(s.siteId);
 			document.getElementById("headerSiteName").textContent = site ? site.siteName : "";
 
-			const id = Number(new URLSearchParams(location.search).get("id"));
-			const editing = id && TeamE.troubles().find(t => t.troubleId === id);
 			const f = document.getElementById("form");
+			const restore = new URLSearchParams(location.search).get("restore") === "1";
 
-			if (editing) {
-				document.getElementById("pageTitle").textContent = "トラブル編集";
-				f.priority.value = editing.priority;
-				f.troubleType.value = editing.troubleType;
-				f.occurredAt.value = String(editing.occurredAt).slice(0, 16);
-				f.overview.value = editing.overview;
-				f.detail.value = editing.detail;
+			// 初期化ルール：restore=1ならpendingから復元、無ければclearして空
+			if (restore) {
+				const p = TeamE.getPending("trouble");
+				if (p && p.mode === "create" && p.data) {
+					f.priority.value = p.data.priority;
+					f.troubleType.value = p.data.troubleType;
+					f.occurredAt.value = String(p.data.occurredAt).slice(0, 16);
+					f.overview.value = p.data.overview;
+					f.detail.value = p.data.detail;
+				} else {
+					f.occurredAt.value = TeamE.today() + "T09:00";
+				}
 			} else {
+				TeamE.clearPending("trouble");
 				f.occurredAt.value = TeamE.today() + "T09:00";
 			}
 
@@ -99,16 +105,8 @@
 					occurredAt: f.occurredAt.value + ":00",
 					siteMemo: null, hqMemo: null,
 				};
-				if (editing) {
-					const arr = TeamE.troubles();
-					const idx = arr.findIndex(t => t.troubleId === id);
-					arr[idx] = Object.assign(arr[idx], data);
-					localStorage.setItem("teamE:troubles", JSON.stringify(arr));
-				} else {
-					TeamE.addTrouble(data);
-				}
-				alert("保存しました");
-				location.href = "./troublelist.html";
+				TeamE.setPending("trouble", { mode: "create", data: data });
+				location.href = "./troublecheck.html";
 			});
 
 			document.getElementById("logoutForm").addEventListener("submit", e => {

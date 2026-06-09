@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>安全点検編集</title>
+	<link rel="stylesheet" href="./css/safety/safetyedit.css">
+</head>
+
+<body>
+
+	<header>
+		<div class="header-top">
+			<div class="logo-area">
+				<a href="./home.html"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+				<div class="pageTitle">安全点検編集</div>
+			</div>
+			<div class="user-area">
+				<div><span id="userName">ゲスト</span> さん</div>
+				<form id="logoutForm"><button type="submit" class="logout-btn">ログアウト</button></form>
+			</div>
+		</div>
+		<div class="page-title-bar"></div>
+	</header>
+
+	<div class="container" id="container"></div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamE.init().then(() => {
+			const s = TeamE.requireLogin();
+			if (!s) return;
+			if (s.user.roll !== 1) { location.href = "./home.html"; return; }
+			document.getElementById("userName").textContent = s.user.userName;
+
+			const params = new URLSearchParams(location.search);
+			const id = Number(params.get("id"));
+			const rec = TeamE.safetyById(id);
+			const c = document.getElementById("container");
+			if (!id || !rec) {
+				c.innerHTML = "<p style='padding:40px;'>安全点検が見つかりません。</p>";
+				return;
+			}
+
+			// フォーム初期化（restore=1 なら pending、無ければ既存レコード）
+			let data = rec;
+			if (params.get("restore")) {
+				const pending = TeamE.getPending("safety");
+				if (pending && pending.data) data = pending.data;
+			}
+
+			const site = TeamE.site(rec.siteId);
+
+			const updatedRow = (rec.sUpdatedAt && rec.sUpdatedAt !== rec.sCreatedAt)
+				? `<div>更新日時：<span>${TeamE.fmtDateTime(rec.sUpdatedAt)}</span></div>` : "";
+
+			const checkItems = TeamE.label.SAFETY_ITEMS.map(it => {
+				const v = data[it.key];
+				return `<div class="check-item">
+					<label>${it.label}</label>
+					<select name="${it.key}" required>
+						<option value="0" ${v === 0 ? "selected" : ""}>良好</option>
+						<option value="1" ${v === 1 ? "selected" : ""}>不備</option>
+					</select>
+				</div>`;
+			}).join("");
+
+			const photoBlock = rec.photo
+				? `<div class="label">変更前画像</div>
+				   <div><img src="${TeamE.esc(rec.photo)}" width="500"></div>`
+				: `<div class="label">写真なし</div>`;
+
+			c.innerHTML = `
+				<div class="section">
+					<div class="section-title">点検情報</div>
+					<div class="summary-box">
+						<div>登録日時：<span>${TeamE.fmtDateTime(rec.sCreatedAt)}</span></div>
+						${updatedRow}
+						<div>現場名：<span>${TeamE.esc(site ? site.siteName : "")}</span></div>
+					</div>
+				</div>
+
+				<div class="section">
+					<div class="section-title">点検結果サマリー</div>
+					<div class="summary-box">
+						点検項目：7件<br>
+						良好：<span id="goodCount"></span>件<br>
+						不備：<span id="badCount"></span>件
+					</div>
+				</div>
+
+				<div class="section">
+					<div class="section-title">点検項目編集</div>
+					<form id="form">
+						${checkItems}
+
+						<div class="section">
+							<div class="section-title">点検写真アップロード</div>
+							<div class="item">
+								<div>${photoBlock}</div>
+								<div>
+									<div id="previewLabel" class="label" style="display:none;">アップロード画像</div>
+									<div><img id="preview" width="500" style="display:none;"></div>
+								</div>
+								<input type="file" name="photoFile" id="photoFile" accept="image/*">
+							</div>
+						</div>
+
+						<div class="btn-area">
+							<button type="button" class="btn btn-gray" id="cancelBtn">キャンセル</button>
+							<button type="submit" class="btn">確認</button>
+						</div>
+					</form>
+				</div>
+			`;
+
+			function refreshSummary() {
+				const f = document.getElementById("form");
+				const tmp = {};
+				TeamE.label.SAFETY_ITEMS.forEach(it => { tmp[it.key] = Number(f[it.key].value); });
+				document.getElementById("goodCount").textContent = TeamE.safetyGood(tmp);
+				document.getElementById("badCount").textContent = TeamE.safetyBad(tmp);
+			}
+			refreshSummary();
+			document.getElementById("form").addEventListener("change", refreshSummary);
+
+			document.getElementById("cancelBtn").addEventListener("click", () => {
+				location.href = "./safetycheckdetail.html?id=" + id;
+			});
+
+			document.getElementById("photoFile").addEventListener("change", function (event) {
+				const file = event.target.files[0];
+				const prev = document.getElementById("preview");
+				const prevLabel = document.getElementById("previewLabel");
+				if (!file) { prev.style.display = "none"; prevLabel.style.display = "none"; return; }
+				const reader = new FileReader();
+				reader.onload = e => {
+					prev.src = e.target.result; prev.style.display = "block"; prevLabel.style.display = "block";
+				};
+				reader.readAsDataURL(file);
+			});
+
+			document.getElementById("form").addEventListener("submit", e => {
+				e.preventDefault();
+				const f = e.target;
+				const out = {
+					siteId: rec.siteId,
+					photo: rec.photo || null,
+					sUpdatedAt: TeamE.today() + "T00:00:00",
+				};
+				TeamE.label.SAFETY_ITEMS.forEach(it => { out[it.key] = Number(f[it.key].value); });
+				TeamE.setPending("safety", { mode: "edit", id, data: out });
+				location.href = "./safetyeditcheck.html";
+			});
+
+			document.getElementById("logoutForm").addEventListener("submit", e => {
+				e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+			});
+		});
+	</script>
+
+</body>
+</html>

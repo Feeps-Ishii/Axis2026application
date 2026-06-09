@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>安全点検登録確認</title>
+	<link rel="stylesheet" href="./css/safety/safetycheckcheck.css">
+</head>
+
+<body>
+
+	<header>
+		<div class="header-top">
+			<div class="logo-area">
+				<a href="./home.html"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+				<div class="pageTitle">安全点検登録確認</div>
+			</div>
+			<div class="user-area">
+				<div><span id="userName">ゲスト</span> さん</div>
+				<form id="logoutForm"><button type="submit" class="logout-btn">ログアウト</button></form>
+			</div>
+		</div>
+		<div class="page-title-bar"></div>
+	</header>
+
+	<div class="container">
+
+		<!-- 点検結果サマリー -->
+		<div class="section">
+			<div class="section-title">点検結果サマリー</div>
+			<div class="summary-box">
+				点検項目：7件<br>
+				良好：<span id="goodCount"></span>件<br>
+				不備：<span id="badCount"></span>件
+			</div>
+		</div>
+
+		<!-- 点検項目 -->
+		<div class="section">
+			<div class="section-title">点検項目確認</div>
+			<div class="check-list" id="checkList"></div>
+		</div>
+
+		<!-- ボタン -->
+		<div class="btn-area">
+			<button type="button" id="backBtn" class="btn btn-secondary">修正する</button>
+			<button type="button" id="confirmBtn" class="btn">登録</button>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamE.init().then(() => {
+			const s = TeamE.requireLogin();
+			if (!s) return;
+			if (s.user.roll !== 1) { location.href = "./home.html"; return; }
+			document.getElementById("userName").textContent = s.user.userName;
+
+			const pending = TeamE.getPending("safety");
+			if (!pending || pending.mode !== "create" || !pending.data) {
+				location.href = "./safetycheck.html";
+				return;
+			}
+			const data = pending.data;
+
+			document.getElementById("goodCount").textContent = TeamE.safetyGood(data);
+			document.getElementById("badCount").textContent = TeamE.safetyBad(data);
+
+			document.getElementById("checkList").innerHTML = TeamE.label.SAFETY_ITEMS.map(it => {
+				const ok = data[it.key] === 0;
+				return `<div class="check-card">
+					<div class="check-name">${it.label}</div>
+					<div class="${ok ? 'check-status ok' : 'check-status ng'}">${ok ? '良好' : '不備'}</div>
+				</div>`;
+			}).join("");
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./safetycheck.html?restore=1";
+			});
+
+			document.getElementById("confirmBtn").addEventListener("click", () => {
+				TeamE.addSafety(data);
+				TeamE.clearPending("safety");
+				location.href = "./complete.html?type=safety&mode=create";
+			});
+
+			document.getElementById("logoutForm").addEventListener("submit", e => {
+				e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+			});
+		});
+	</script>
+
+</body>
+</html>

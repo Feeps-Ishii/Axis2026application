@@ -4,13 +4,8 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>安全点検作成</title>
-	<link rel="stylesheet" href="./css/safety/safetycheckdetail.css">
-	<style>
-		.check-row { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid #eef; gap:12px; }
-		.check-row .nm { font-weight:bold; }
-		.check-row label { margin-left:10px; font-size:14px; }
-	</style>
+	<title>安全点検登録</title>
+	<link rel="stylesheet" href="./css/safety/safetycheck.css">
 </head>
 
 <body>
@@ -19,7 +14,7 @@
 		<div class="header-top">
 			<div class="logo-area">
 				<a href="./home.html"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
-				<div class="pageTitle" id="pageTitle">安全点検作成</div>
+				<div class="pageTitle">安全点検登録</div>
 			</div>
 			<div class="user-area">
 				<div><span id="userName">ゲスト</span> さん</div>
@@ -29,46 +24,46 @@
 		<div class="page-title-bar"></div>
 	</header>
 
-	<div class="container">
-		<form id="form">
-			<div class="section">
-				<div class="section-title">点検情報</div>
-				<div class="summary-box">現場名：<span id="siteName"></span></div>
-			</div>
-			<div class="section">
-				<div class="section-title">点検項目（良好 / 不備）</div>
-				<div class="check-list" id="checkList"></div>
-			</div>
-			<div class="btn-area" style="display:flex;gap:15px;">
-				<a href="./safetylist.html" class="btn-gray">一覧へ戻る</a>
-				<button type="submit" class="btn">保存</button>
-			</div>
-		</form>
-	</div>
+	<form class="container" id="form">
+		<div class="section">
+			<div class="section-title">点検項目</div>
+			<div id="checkList"></div>
+		</div>
+
+		<div class="btn-area">
+			<button type="button" class="btn btn-gray" onclick="location.href='./home.html'">戻る</button>
+			<button class="btn" type="submit">確認</button>
+		</div>
+	</form>
 
 	<script src="./js/db.js"></script>
 	<script>
 		TeamE.init().then(() => {
 			const s = TeamE.requireLogin();
 			if (!s) return;
-			if (s.user.roll === 2) { location.href = "./home.html"; return; }
+			if (s.user.roll !== 1) { location.href = "./home.html"; return; }
 			document.getElementById("userName").textContent = s.user.userName;
-			const site = TeamE.site(s.siteId);
-			document.getElementById("siteName").textContent = site ? site.siteName : "";
 
-			const id = Number(new URLSearchParams(location.search).get("id"));
-			const editing = id && TeamE.safeties().find(x => x.safetyId === id);
-			if (editing) document.getElementById("pageTitle").textContent = "安全点検編集";
+			// 初期化（stale prefill 防止）
+			const params = new URLSearchParams(location.search);
+			let prefill = null;
+			if (params.get("restore")) {
+				const pending = TeamE.getPending("safety");
+				if (pending && pending.data) prefill = pending.data;
+			} else {
+				TeamE.clearPending("safety");
+			}
 
 			const list = document.getElementById("checkList");
 			list.innerHTML = TeamE.label.SAFETY_ITEMS.map(it => {
-				const v = editing ? editing[it.key] : 0;
-				return `<div class="check-row">
-					<span class="nm">${it.label}</span>
-					<span>
-						<label><input type="radio" name="${it.key}" value="0" ${v === 0 ? "checked" : ""}> 良好</label>
-						<label><input type="radio" name="${it.key}" value="1" ${v === 1 ? "checked" : ""}> 不備</label>
-					</span>
+				const v = prefill ? prefill[it.key] : "";
+				return `<div class="check-item">
+					<label>${it.label}</label>
+					<select name="${it.key}" required>
+						<option value="">選択してください</option>
+						<option value="0" ${v === 0 ? "selected" : ""}>良好</option>
+						<option value="1" ${v === 1 ? "selected" : ""}>不備</option>
+					</select>
 				</div>`;
 			}).join("");
 
@@ -79,16 +74,8 @@
 				TeamE.label.SAFETY_ITEMS.forEach(it => {
 					data[it.key] = Number(f[it.key].value);
 				});
-				if (editing) {
-					const arr = TeamE.safeties();
-					const idx = arr.findIndex(x => x.safetyId === id);
-					arr[idx] = Object.assign(arr[idx], data);
-					localStorage.setItem("teamE:safeties", JSON.stringify(arr));
-				} else {
-					TeamE.addSafety(data);
-				}
-				alert("保存しました");
-				location.href = "./safetylist.html";
+				TeamE.setPending("safety", { mode: "create", data });
+				location.href = "./safetycheckcheck.html";
 			});
 
 			document.getElementById("logoutForm").addEventListener("submit", e => {

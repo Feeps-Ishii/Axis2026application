@@ -104,6 +104,14 @@
       TeamE.safeties().filter((s) => s.siteId === Number(siteId)),
     troublesBySite: (siteId) =>
       TeamE.troubles().filter((t) => t.siteId === Number(siteId)),
+
+    // ---- ID 単体取得（編集・確認画面用） ----
+    reportById: (id) =>
+      TeamE.reports().find((r) => r.reportId === Number(id)) || null,
+    safetyById: (id) =>
+      TeamE.safeties().find((s) => s.safetyId === Number(id)) || null,
+    troubleById: (id) =>
+      TeamE.troubles().find((t) => t.troubleId === Number(id)) || null,
     chatsBySite: (siteId) =>
       TeamE.chats()
         .filter((c) => c.siteId === Number(siteId))
@@ -153,6 +161,26 @@
       return trouble;
     },
 
+    // 既存レコードの更新（編集フロー用）。patch を Object.assign で反映。
+    updateReport: (reportId, patch) => {
+      const list = TeamE.reports();
+      const r = list.find((x) => x.reportId === Number(reportId));
+      if (r) { Object.assign(r, patch); write("dailyreports", list); }
+      return r;
+    },
+    updateSafety: (safetyId, patch) => {
+      const list = TeamE.safeties();
+      const s = list.find((x) => x.safetyId === Number(safetyId));
+      if (s) { Object.assign(s, patch); write("safeties", list); }
+      return s;
+    },
+    updateTrouble: (troubleId, patch) => {
+      const list = TeamE.troubles();
+      const t = list.find((x) => x.troubleId === Number(troubleId));
+      if (t) { Object.assign(t, patch); write("troubles", list); }
+      return t;
+    },
+
     // 状態フラグの更新（本社の確認完了など）
     setReportStatus: (reportId, flag) => {
       const list = TeamE.reports();
@@ -185,6 +213,23 @@
     },
     session: () => read("session", null),
     logout: () => global.localStorage.removeItem(NS + "session"),
+
+    // ---- 確認画面用の一時データ受け渡し（sessionStorage） ----
+    // Spring の「フォーム→確認画面→登録」の session 持ち回りを擬似する。
+    // kind 例: "report" / "safety" / "trouble"
+    setPending: (kind, obj) => {
+      global.sessionStorage.setItem(NS + "pending:" + kind, JSON.stringify(obj));
+      return obj;
+    },
+    getPending: (kind) => {
+      try {
+        const raw = global.sessionStorage.getItem(NS + "pending:" + kind);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    },
+    clearPending: (kind) => global.sessionStorage.removeItem(NS + "pending:" + kind),
 
     // ログイン必須ページのガード。未ログインなら login.html へ。
     requireLogin: () => {

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>日報登録確認</title>
+  <link rel="stylesheet" href="./css/dailyreport.css">
+</head>
+
+<body>
+
+  <header class="system-header">
+    <div class="header-top">
+      <div class="logo-area">
+        <a href="./home.html"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
+        <div class="site-system-name">日報登録確認</div>
+      </div>
+      <div class="user-area">
+        <div class="user-info-box">
+          <span class="user-name-text"><strong id="userName">田中</strong> さん</span>
+          <form id="logoutForm" style="display:inline;"><button type="submit" class="logout-btn">ログアウト</button></form>
+        </div>
+      </div>
+    </div>
+    <div class="page-title-bar" style="display:flex; align-items:center; gap:40px; padding:0 20px;">
+      <div class="header-site-name" id="headerSiteName" style="font-weight:bold;font-size:15px;color:#1f3c88;"></div>
+      <a href="./dailylist.html" class="nav-link active">日報一覧</a>
+    </div>
+  </header>
+
+  <div class="container" id="container"></div>
+
+  <script src="./js/db.js"></script>
+  <script>
+    function weatherLabel(w) {
+      return w === 1 ? "晴れ" : w === 2 ? "曇り" : w === 3 ? "雨" : "雪";
+    }
+
+    TeamE.init().then(() => {
+      const s = TeamE.requireLogin();
+      if (!s) return;
+      if (s.user.roll === 2) { location.href = "./home.html"; return; } // 閲覧は不可
+
+      document.getElementById("userName").textContent = s.user.userName;
+
+      const pending = TeamE.getPending("report");
+      if (!pending || pending.mode !== "create" || !pending.data) {
+        location.href = "./dailyreport.html";
+        return;
+      }
+      const r = pending.data;
+
+      const site = TeamE.site(r.siteId);
+      document.getElementById("headerSiteName").textContent = site ? site.siteName : "";
+
+      const E = TeamE.esc;
+      const workers = Array.isArray(r.workerDetails) ? r.workerDetails : [];
+      const workerHtml = workers.length
+        ? workers.map(w => `
+            <div class="item" style="border-bottom:1px dashed #ccc; padding-bottom:8px; margin-bottom:8px;">
+              <div class="label">協力会社 : <strong style="color:#333;">${E(w.company || "未入力")}</strong></div>
+              <div class="value"><span>職人数：${E(w.count || 0)} 名</span> / <span>氏名：${E(w.names || "未入力")}</span></div>
+            </div>`).join("")
+        : `<div class="value">出面情報なし</div>`;
+
+      const c = document.getElementById("container");
+      c.innerHTML = `
+        <div class="section">
+          <div class="section-title">作業実績</div>
+          <div class="grid-2">
+            <div class="item"><div class="label">現場名</div><div class="value">${E(site ? site.siteName : "")}</div></div>
+            <div class="item"><div class="label">工事番号</div><div class="value">${E(r.projectNumber)}</div></div>
+            <div class="item"><div class="label">日付</div><div class="value">${E(r.targetDate)}</div></div>
+            <div class="item"><div class="label">天候</div><div class="value">${weatherLabel(r.weather)}</div></div>
+            <div class="item"><div class="label">気温</div><div class="value">${E(r.temperature)} ℃</div></div>
+          </div>
+          <div class="item"><div class="label">当日作業内容</div><div class="value" style="white-space:pre-wrap;">${E(r.workDetails)}</div></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">出面（協力会社別）</div>
+          <div id="worker-display-area">${workerHtml}</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">工程進捗</div>
+          <div class="item"><div class="label">全体進捗</div><div class="value">${E(r.progressPercent)} %</div></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">安全管理</div>
+          <div class="item"><div class="label">KY項目</div><div class="value" style="white-space:pre-wrap;">${E(r.safetyKy)}</div></div>
+          <div class="item"><div class="label">対策</div><div class="value" style="white-space:pre-wrap;">${E(r.safetyMeasure)}</div></div>
+          <div class="item"><div class="label">新規入場者教育</div><div class="value" style="white-space:pre-wrap;">${E(r.safetyEducation)}</div></div>
+          <div class="item"><div class="label">ヒヤリハット</div><div class="value" style="white-space:pre-wrap;">${E(r.nearMiss)}</div></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">資材・機材</div>
+          <div class="item"><div class="label">搬入物</div><div class="value" style="white-space:pre-wrap;">${E(r.materials)}</div></div>
+          <div class="item"><div class="label">レンタル機材稼働</div><div class="value" style="white-space:pre-wrap;">${E(r.equipments)}</div></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">問題・調整事項</div>
+          <div class="item"><div class="label">設計変更指示</div><div class="value" style="white-space:pre-wrap;">${E(r.designChange)}</div></div>
+          <div class="item"><div class="label">客先追加要望</div><div class="value" style="white-space:pre-wrap;">${E(r.customerRequest)}</div></div>
+          <div class="item"><div class="label">協力会社調整</div><div class="value" style="white-space:pre-wrap;">${E(r.partnerCoordination)}</div></div>
+          <div class="item"><div class="label">翌日予定</div><div class="value" style="white-space:pre-wrap;">${E(r.nextDaySchedule)}</div></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">コメント</div>
+          <div class="value" style="white-space:pre-wrap;">${E(r.notes)}</div>
+        </div>
+
+        <div class="btn-area" style="display:flex; gap:15px;">
+          <button type="button" class="btn btn-gray" id="backBtn">修正する</button>
+          <button type="button" class="btn" id="submitBtn">登録</button>
+        </div>
+      `;
+
+      document.getElementById("backBtn").addEventListener("click", () => {
+        location.href = "./dailyreport.html?restore=1";
+      });
+
+      document.getElementById("submitBtn").addEventListener("click", () => {
+        TeamE.addReport(r);
+        TeamE.clearPending("report");
+        location.href = "./complete.html?type=report&mode=create";
+      });
+
+      document.getElementById("logoutForm").addEventListener("submit", e => {
+        e.preventDefault(); TeamE.logout(); location.href = "./login.html";
+      });
+    });
+  </script>
+
+</body>
+</html>

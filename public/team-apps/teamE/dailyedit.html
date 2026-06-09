@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>日報作成</title>
+  <title>日報編集</title>
   <link rel="stylesheet" href="./css/dailyreport.css">
   <style>
     .form-field { margin: 12px 0; }
@@ -13,6 +13,7 @@
       width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box; font-size:14px;
     }
     .form-field textarea { min-height:60px; }
+    .form-field input:disabled, .form-field input[readonly] { background-color:#e2e8f0; cursor:not-allowed; }
   </style>
 </head>
 
@@ -22,7 +23,7 @@
     <div class="header-top">
       <div class="logo-area">
         <a href="./home.html"><img src="./images/icon.png" alt="ロゴ" class="logo-img"></a>
-        <div class="site-system-name" id="pageTitle">日報作成</div>
+        <div class="site-system-name">日報編集</div>
       </div>
       <div class="user-area">
         <div class="user-info-box">
@@ -31,8 +32,9 @@
         </div>
       </div>
     </div>
-    <div class="page-title-bar" style="padding:0 20px;">
+    <div class="page-title-bar" style="display:flex; align-items:center; gap:40px; padding:0 20px;">
       <div class="header-site-name" id="headerSiteName" style="font-weight:bold;font-size:15px;color:#1f3c88;"></div>
+      <a href="./dailylist.html" class="nav-link active">日報一覧</a>
     </div>
   </header>
 
@@ -41,19 +43,20 @@
       <div class="section">
         <div class="section-title">基本情報</div>
         <div class="grid-2">
+          <div class="form-field"><label>現場名（自現場のみに固定・変更不可）</label><input id="siteNameDisplay" disabled></div>
           <div class="form-field"><label>工事番号</label><input name="projectNumber" required></div>
-          <div class="form-field"><label>日付</label><input type="date" name="targetDate" required></div>
+          <div class="form-field"><label>日付</label><input type="date" name="targetDate" readonly></div>
           <div class="form-field"><label>天候</label>
             <select name="weather"><option value="1">晴れ</option><option value="2">曇り</option><option value="3">雨</option><option value="0">雪</option></select>
           </div>
-          <div class="form-field"><label>気温（℃）</label><input type="number" name="temperature" value="20" required></div>
+          <div class="form-field"><label>気温（℃）</label><input type="number" name="temperature" required></div>
         </div>
       </div>
 
       <div class="section">
         <div class="section-title">作業内容</div>
-        <div class="form-field"><label>本日の作業</label><textarea name="workDetails" required></textarea></div>
-        <div class="form-field"><label>全体進捗率（%）</label><input type="number" name="progressPercent" min="0" max="100" value="0"></div>
+        <div class="form-field"><label>当日作業内容（工種別）</label><textarea name="workDetails" required></textarea></div>
+        <div class="form-field"><label>全体進捗率（%）</label><input type="number" name="progressPercent" min="0" max="100"></div>
       </div>
 
       <div class="section">
@@ -80,8 +83,8 @@
         <div class="form-field"><label>搬入物</label><textarea name="materials"></textarea></div>
         <div class="form-field"><label>使用機材</label><textarea name="equipments"></textarea></div>
         <div class="grid-2">
-          <div class="form-field"><label>設計変更指示</label><input name="designChange" value="なし"></div>
-          <div class="form-field"><label>客先追加要望</label><input name="customerRequest" value="なし"></div>
+          <div class="form-field"><label>設計変更指示</label><input name="designChange"></div>
+          <div class="form-field"><label>客先追加要望</label><input name="customerRequest"></div>
           <div class="form-field"><label>協力会社調整</label><input name="partnerCoordination"></div>
           <div class="form-field"><label>翌日予定</label><input name="nextDaySchedule"></div>
         </div>
@@ -89,7 +92,7 @@
       </div>
 
       <div class="btn-area" style="display:flex;gap:15px;">
-        <a href="./dailylist.html" class="btn_h">一覧へ戻る</a>
+        <a id="cancelLink" class="btn_h">キャンセル</a>
         <button type="submit" class="btn">保存</button>
       </div>
     </form>
@@ -101,38 +104,49 @@
       const s = TeamE.requireLogin();
       if (!s) return;
       if (s.user.roll === 2) { location.href = "./home.html"; return; } // 閲覧は不可
+
       document.getElementById("userName").textContent = s.user.userName;
-      const site = TeamE.site(s.siteId);
+
+      const params = new URLSearchParams(location.search);
+      const restore = params.get("restore") === "1";
+
+      // 編集対象の特定。restore時は pending を優先、それ以外は ?id=N から取得。
+      const pending = restore ? TeamE.getPending("report") : null;
+      let id = Number(params.get("id"));
+      if (restore && pending && pending.mode === "edit" && pending.id) {
+        id = Number(pending.id);
+      }
+      if (!id) { location.href = "./dailylist.html"; return; }
+
+      const rec = TeamE.reportById(id);
+      if (!rec) { location.href = "./dailylist.html"; return; }
+
+      // 現場アクセスチェック（本社以外は自現場の日報のみ編集可）
+      if (s.user.roll !== 0 && rec.siteId !== s.siteId) {
+        location.href = "./dailylist.html"; return;
+      }
+
+      const site = TeamE.site(rec.siteId);
       document.getElementById("headerSiteName").textContent = site ? site.siteName : "";
 
       const f = document.getElementById("form");
-      const restore = new URLSearchParams(location.search).get("restore") === "1";
+      document.getElementById("siteNameDisplay").value = site ? site.siteName : "";
+      document.getElementById("cancelLink").href = "./dailyreportdetail.html?id=" + id;
 
-      if (restore) {
-        // 確認画面からの「修正する」戻り：pending から復元
-        const pending = TeamE.getPending("report");
-        const r = (pending && pending.mode === "create" && pending.data) ? pending.data : null;
-        if (r) {
-          ["projectNumber","targetDate","weather","temperature","workDetails","progressPercent",
-           "safetyKy","safetyMeasure","safetyEducation","nearMiss","materials","equipments",
-           "designChange","customerRequest","partnerCoordination","nextDaySchedule","notes"].forEach(k => {
-            if (f[k] != null && r[k] != null) f[k].value = r[k];
-          });
-          const w = (Array.isArray(r.workerDetails) && r.workerDetails[0]) || {};
-          f.company.value = w.company || ""; f.count.value = w.count || 0; f.names.value = w.names || "";
-        } else {
-          f.targetDate.value = TeamE.today();
-        }
-      } else {
-        // 新規入力：古い一時データを破棄して空フォーム
-        TeamE.clearPending("report");
-        f.targetDate.value = TeamE.today();
-      }
+      // 復元元データ：restore時は pending.data、無ければレコード。
+      const src = (restore && pending && pending.mode === "edit" && pending.data) ? pending.data : rec;
+      ["projectNumber","targetDate","weather","temperature","workDetails","progressPercent",
+       "safetyKy","safetyMeasure","safetyEducation","nearMiss","materials","equipments",
+       "designChange","customerRequest","partnerCoordination","nextDaySchedule","notes"].forEach(k => {
+        if (f[k] != null && src[k] != null) f[k].value = src[k];
+      });
+      const w = (Array.isArray(src.workerDetails) && src.workerDetails[0]) || {};
+      f.company.value = w.company || ""; f.count.value = w.count || 0; f.names.value = w.names || "";
 
       f.addEventListener("submit", e => {
         e.preventDefault();
         const data = {
-          siteId: s.siteId,
+          siteId: rec.siteId,
           projectNumber: f.projectNumber.value,
           targetDate: f.targetDate.value,
           weather: Number(f.weather.value),
@@ -147,8 +161,8 @@
           partnerCoordination: f.partnerCoordination.value, nextDaySchedule: f.nextDaySchedule.value,
           notes: f.notes.value,
         };
-        TeamE.setPending("report", { mode: "create", data: data });
-        location.href = "./dailyreportcheck.html";
+        TeamE.setPending("report", { mode: "edit", id: id, data: data });
+        location.href = "./dailyeditcheck.html";
       });
 
       document.getElementById("logoutForm").addEventListener("submit", e => {

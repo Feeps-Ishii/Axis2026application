@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>処理完了</title>
+	<link rel="stylesheet" href="./css/complete.css">
+</head>
+
+<body>
+
+	<header>
+		<div class="header-top">
+
+			<div class="logo-area">
+				<a href="./home.html">
+					<img src="./images/icon.png" alt="アイコン" class="logo-img" style="height: 45px; width: auto;">
+				</a>
+			</div>
+
+			<div class="user-area">
+				<span id="userArea">
+					ログインユーザ：<strong id="userName">ゲスト</strong> さん
+					<form id="logoutForm" style="display: inline-block; margin-left: 10px;">
+						<button type="submit" class="logout-btn">ログアウト</button>
+					</form>
+				</span>
+			</div>
+
+		</div>
+
+		<div class="site-info">
+			<span id="siteInfo"></span>
+		</div>
+	</header>
+
+	<main>
+		<div class="complete-card">
+
+			<div class="check-mark">✔</div>
+
+			<div class="title" id="completeTitle">処理が完了しました</div>
+
+			<div class="message" id="completeMessage">
+				ご入力いただいた内容は正常に登録、または編集されました。
+			</div>
+
+			<div class="btn-area" id="btnArea">
+				<!-- リンクは JS で生成 -->
+			</div>
+
+		</div>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script>
+		// クエリ取得
+		function getParam(name) {
+			return new URLSearchParams(location.search).get(name);
+		}
+
+		// type → 見出し用ラベル / 一覧リンク
+		const TYPE_MAP = {
+			report: { label: "日報", list: "./dailylist.html", listLabel: "日報一覧へ" },
+			safety: { label: "安全点検", list: "./safetylist.html", listLabel: "安全点検一覧へ" },
+			trouble: { label: "トラブル報告", list: "./troublelist.html", listLabel: "トラブル一覧へ" }
+		};
+		const MODE_MAP = { create: "登録", edit: "更新" };
+
+		TeamE.init().then(() => {
+			const s = TeamE.session();
+
+			// ヘッダー（ログイン済みなら情報表示、未ログインでも画面は壊さない）
+			if (s) {
+				document.getElementById("userName").textContent = s.user.userName;
+				const site = TeamE.site(s.siteId);
+				if (s.user.roll === 0) {
+					document.getElementById("siteInfo").textContent = "本社管理者アカウント";
+				} else {
+					document.getElementById("siteInfo").textContent =
+						site ? site.siteName : "現場管理アカウント";
+				}
+			} else {
+				document.getElementById("userArea").innerHTML = '<a href="./login.html">ログイン</a>';
+			}
+
+			// type / mode に応じた見出し・メッセージのカスタマイズ
+			const type = getParam("type");
+			const mode = getParam("mode");
+			const t = TYPE_MAP[type];
+			const m = MODE_MAP[mode];
+
+			if (t && m) {
+				document.getElementById("completeTitle").textContent = t.label + "を" + m + "しました";
+				document.getElementById("completeMessage").textContent =
+					t.label + "の内容は正常に" + m + "されました。";
+			} else if (t) {
+				document.getElementById("completeTitle").textContent = t.label + "の処理が完了しました";
+			}
+
+			// 戻り先リンク生成
+			const btnArea = document.getElementById("btnArea");
+			let html = "";
+			if (t) {
+				html += '<a href="' + t.list + '" class="btn" style="text-decoration: none; display: inline-block;">'
+					+ t.listLabel + '</a>';
+			}
+			html += '<a href="./home.html" class="btn" style="text-decoration: none; display: inline-block;">ホームへ</a>';
+			btnArea.innerHTML = html;
+
+			// ログアウト
+			const form = document.getElementById("logoutForm");
+			if (form) {
+				form.addEventListener("submit", function (e) {
+					e.preventDefault();
+					TeamE.logout();
+					location.href = "./login.html";
+				});
+			}
+		});
+	</script>
+
+</body>
+
+</html>

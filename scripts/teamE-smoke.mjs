@@ -106,17 +106,96 @@ await step("日報一覧→詳細に作業内容/天候/出面表示", async () 
     throw new Error("missing text");
 });
 
-await step("日報新規作成→一覧が2件以上", async () => {
+// ---- 日報: 新規作成フロー（作成→確認→完了） ----
+await step("日報 作成→確認画面に内容引継ぎ", async () => {
   await page.goto(`${BASE}/dailyreport.html`);
   await page.waitForSelector("#form");
   await page.fill('[name="projectNumber"]', "B-2048");
   await page.fill('[name="workDetails"]', "鉄筋組立");
-  page.once("dialog", (d) => d.accept());
   await page.click('.btn-area button[type="submit"]');
-  await page.waitForURL("**/dailylist.html");
+  await page.waitForURL("**/dailyreportcheck.html");
+  const t = await page.textContent(".container");
+  if (!t.includes("鉄筋組立") || !t.includes("B-2048")) throw new Error("引継ぎ欠落");
+});
+await step("日報 確認→登録→完了画面", async () => {
+  await page.click("#submitBtn");
+  await page.waitForURL("**/complete.html**");
+  if (!page.url().includes("type=report")) throw new Error(page.url());
+});
+await step("日報 一覧が2件以上に増加", async () => {
+  await page.goto(`${BASE}/dailylist.html`);
   await page.waitForSelector("#reportBody tr");
   const n = await page.locator("#reportBody tr").count();
   if (n < 2) throw new Error(`rows=${n}`);
+});
+
+// ---- 日報: 編集フロー（詳細→編集→確認→完了→反映確認） ----
+let editedReportUrl;
+await step("日報 詳細→編集画面へ遷移", async () => {
+  await page.click("#reportBody .detail-btn");
+  await page.waitForURL("**/dailyreportdetail.html**");
+  await page.click('a[href^="./dailyedit.html"]');
+  await page.waitForURL("**/dailyedit.html?id=**");
+  editedReportUrl = page.url();
+  await page.waitForSelector('[name="workDetails"]');
+});
+await step("日報 編集→確認→更新→完了", async () => {
+  await page.fill('[name="workDetails"]', "鉄筋組立(修正済)");
+  await page.click('.btn-area button[type="submit"]');
+  await page.waitForURL("**/dailyeditcheck.html");
+  const t = await page.textContent(".container");
+  if (!t.includes("鉄筋組立(修正済)")) throw new Error("編集内容欠落");
+  await page.click("#updateBtn");
+  await page.waitForURL("**/complete.html**");
+  if (!page.url().includes("mode=edit")) throw new Error(page.url());
+});
+await step("日報 編集が詳細に反映", async () => {
+  const detailUrl = editedReportUrl.replace("dailyedit.html", "dailyreportdetail.html");
+  await page.goto(detailUrl);
+  await page.waitForSelector(".container .section");
+  const t = await page.textContent(".container");
+  if (!t.includes("鉄筋組立(修正済)")) throw new Error("反映なし");
+});
+
+// ---- 安全点検: 作成→確認→完了 ----
+await step("安全点検 作成→確認→登録→完了", async () => {
+  await page.goto(`${BASE}/safetycheck.html`);
+  await page.waitForSelector("#form select[name]");
+  await page.$$eval("#form select[name]", (els) => els.forEach((e) => (e.value = "0")));
+  await page.click('.btn-area button[type="submit"]');
+  await page.waitForURL("**/safetycheckcheck.html");
+  await page.click("#confirmBtn");
+  await page.waitForURL("**/complete.html**");
+  if (!page.url().includes("type=safety")) throw new Error(page.url());
+});
+await step("安全点検 一覧に反映→編集→確認→完了", async () => {
+  await page.goto(`${BASE}/safetylist.html`);
+  await page.waitForSelector("a.detail-btn[href^='./safetycheckdetail.html']", { timeout: 5000 });
+  await page.click("a.detail-btn[href^='./safetycheckdetail.html']");
+  await page.waitForURL("**/safetycheckdetail.html**");
+  await page.click("a[href^='./safetyedit.html']");
+  await page.waitForURL("**/safetyedit.html?id=**");
+  await page.click('.btn-area button[type="submit"]');
+  await page.waitForURL("**/safetyeditcheck.html");
+  await page.click("#confirmBtn");
+  await page.waitForURL("**/complete.html**");
+  if (!page.url().includes("type=safety") || !page.url().includes("mode=edit")) throw new Error(page.url());
+});
+
+// ---- トラブル: 作成→確認→完了（現場担当） ----
+await step("トラブル 作成→確認→登録→完了", async () => {
+  await page.goto(`${BASE}/trouble.html`);
+  await page.waitForSelector('[name="overview"]');
+  await page.fill('[name="occurredAt"]', "2026-06-08T09:30");
+  await page.fill('[name="overview"]', "クレーン点検遅延");
+  await page.fill('[name="detail"]', "点検待ちで作業開始が遅れた");
+  await page.click('.btn-area button[type="submit"]');
+  await page.waitForURL("**/troublecheck.html");
+  const t = await page.textContent(".container");
+  if (!t.includes("クレーン点検遅延")) throw new Error("引継ぎ欠落");
+  await page.click("#registerBtn");
+  await page.waitForURL("**/complete.html**");
+  if (!page.url().includes("type=trouble")) throw new Error(page.url());
 });
 
 check("JSエラーなし", errors.length === 0, errors.slice(0, 4).join(" | "));
