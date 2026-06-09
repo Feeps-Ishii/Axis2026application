@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>作業指示書編集</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+			background: #f4f7fb;
+			color: #1f2937;
+		}
+
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		.main {
+			flex: 1;
+			padding: 32px;
+		}
+
+		/* ページタイトル */
+		.page-title {
+			font-size: 28px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0 0 24px 0;
+			display: flex;
+			align-items: center;
+		}
+
+		.page-title::before {
+			content: '';
+			display: inline-block;
+			width: 5px;
+			height: 32px;
+			background: #153e75;
+			border-radius: 3px;
+			margin-right: 12px;
+		}
+
+		/* カード */
+		.card {
+			background: white;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 24px;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+		}
+
+		/* フォーム行 */
+		.form-row {
+			display: grid;
+			grid-template-columns: 160px 1fr;
+			gap: 12px;
+			align-items: center;
+			margin-bottom: 14px;
+		}
+
+		label {
+			font-weight: bold;
+			color: #334e68;
+			font-size: 14px;
+		}
+
+		input,
+		select {
+			width: 100%;
+			padding: 10px 12px;
+			border: 1px solid #bcccdc;
+			border-radius: 8px;
+			font-size: 14px;
+			font-family: inherit;
+			color: #1f2937;
+		}
+
+		input:focus,
+		select:focus {
+			border-color: #153e75;
+			outline: none;
+		}
+
+		/* 工程フォーム */
+		.process-form {
+			align-items: flex-start;
+		}
+
+		.process-area {
+			width: 100%;
+		}
+
+		.process-header,
+		.process-item {
+			display: grid;
+			grid-template-columns: 40px 1fr 1fr 1fr 1fr 90px;
+			gap: 10px;
+			align-items: center;
+			width: 100%;
+		}
+
+		.process-header {
+			margin-bottom: 8px;
+			font-weight: bold;
+			color: #334e68;
+			font-size: 13px;
+		}
+
+		.process-id {
+			text-align: center;
+			font-weight: bold;
+		}
+
+		.process-item {
+			margin-bottom: 10px;
+		}
+
+		/* ボタン */
+		.button-area {
+			display: flex;
+			gap: 12px;
+			margin-top: 20px;
+		}
+
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 10px 18px;
+			border-radius: 8px;
+			border: 1px solid #bcccdc;
+			background: white;
+			color: #334e68;
+			cursor: pointer;
+			font-weight: bold;
+			font-size: 14px;
+			font-family: inherit;
+			text-decoration: none;
+		}
+
+		.btn:hover {
+			background: #f0f4f8;
+		}
+
+		.btn.primary {
+			background: #153e75;
+			color: white;
+			border-color: #153e75;
+		}
+
+		.btn.primary:hover {
+			background: #102a43;
+		}
+
+		.btn.danger {
+			background: #b91c1c;
+			color: white;
+			border-color: #b91c1c;
+		}
+
+		.btn.danger:hover {
+			background: #991b1b;
+		}
+
+		.btn.small {
+			padding: 6px 10px;
+			font-size: 12px;
+		}
+
+		@media (max-width: 900px) {
+			.layout {
+				flex-direction: column;
+			}
+
+			.form-row {
+				grid-template-columns: 1fr;
+			}
+
+			.process-item {
+				display: flex;
+				gap: 10px;
+			}
+
+			.process-id {
+				width: 30px;
+				flex: 0 0 30px;
+			}
+
+			.process-item input,
+			.process-item select {
+				flex: 1;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<h1 class="page-title">作業指示書編集</h1>
+
+			<div class="card">
+				<form id="editForm">
+
+					<div class="form-row">
+						<label>受注番号</label>
+						<input name="orderNo" id="orderNo">
+					</div>
+					<div class="form-row">
+						<label>部品名</label>
+						<input name="partName" id="partName">
+					</div>
+					<div class="form-row">
+						<label>数量</label>
+						<input name="quantity" id="quantity">
+					</div>
+					<div class="form-row">
+						<label>客先</label>
+						<input name="clientName" id="clientName">
+					</div>
+					<div class="form-row">
+						<label>納期</label>
+						<input name="dueDate" id="dueDate">
+					</div>
+
+					<div class="form-row process-form">
+						<label>工程</label>
+						<div class="process-area" id="processArea">
+
+							<div class="process-header">
+								<span></span>
+								<span>工程名</span>
+								<span>機械番号</span>
+								<span>担当者</span>
+								<span>状態</span>
+								<span>削除</span>
+							</div>
+
+						</div>
+
+						<template id="processTemplate">
+							<div class="process-item">
+								<input type="hidden" data-name="workOrderProcessId">
+								<span class="process-id"></span>
+								<input data-name="processName">
+								<select data-name="machineId">
+									<option value="">選択してください</option>
+								</select>
+								<select data-name="assignedUserId">
+									<option value="">選択してください</option>
+								</select>
+								<select data-name="currentStatus">
+									<option value="not_started">未着手</option>
+									<option value="processing">加工中</option>
+									<option value="completed">完了</option>
+								</select>
+								<button type="button" class="btn danger small" onclick="removeProcess(this)">
+									削除
+								</button>
+							</div>
+						</template>
+
+						<div class="button-area">
+							<button type="button" class="btn" onclick="addProcess()">工程を追加</button>
+						</div>
+
+						<div class="button-area">
+							<button type="submit" class="btn primary">再登録</button>
+							<a class="btn" id="backBtn" href="#">
+								戻る
+							</a>
+						</div>
+
+					</div>
+
+				</form>
+			</div>
+
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+		let MACHINE_OPTIONS = "";
+		let USER_OPTIONS = "";
+		let WO_ID = null;
+
+		function renumberProcesses() {
+			const items = document.querySelectorAll("#processArea .process-item");
+			items.forEach((item, index) => {
+				item.querySelector(".process-id").textContent = index + 1;
+			});
+		}
+
+		function addProcess(process) {
+			const area = document.getElementById("processArea");
+			const template = document.getElementById("processTemplate");
+			const clone = template.content.cloneNode(true);
+			const macSel = clone.querySelector('[data-name="machineId"]');
+			macSel.innerHTML = '<option value="">選択してください</option>' + MACHINE_OPTIONS;
+			const userSel = clone.querySelector('[data-name="assignedUserId"]');
+			userSel.innerHTML = '<option value="">選択してください</option>' + USER_OPTIONS;
+			if (process) {
+				clone.querySelector('[data-name="workOrderProcessId"]').value = process.workOrderProcessId != null ? String(process.workOrderProcessId) : "";
+				clone.querySelector('[data-name="processName"]').value = process.processName || "";
+				macSel.value = process.machineId != null ? String(process.machineId) : "";
+				userSel.value = process.assignedUserId != null ? String(process.assignedUserId) : "";
+				clone.querySelector('[data-name="currentStatus"]').value = process.currentStatus || "not_started";
+			}
+			area.appendChild(clone);
+			renumberProcesses();
+		}
+
+		function removeProcess(button) {
+			const item = button.closest(".process-item");
+			item.remove();
+			renumberProcesses();
+		}
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			if (sess.role !== "admin") { location.href = "./login.html?authError=true"; return; }
+			TeamHNav.render("workOrders");
+
+			WO_ID = new URLSearchParams(location.search).get("id");
+			const data = TeamH.workOrderEditData(WO_ID);
+			if (!data) { location.href = "./work_orders.html"; return; }
+
+			MACHINE_OPTIONS = TeamH.machines().map((m) => `<option value="${E(m.machineId)}">${E(m.machineNo)}</option>`).join("");
+			USER_OPTIONS = TeamH.users().map((u) => `<option value="${E(u.userId)}">${E(u.name)}</option>`).join("");
+
+			document.getElementById("orderNo").value = data.orderNo || "";
+			document.getElementById("partName").value = data.partName || "";
+			document.getElementById("quantity").value = data.quantity != null ? data.quantity : "";
+			document.getElementById("clientName").value = data.clientName || "";
+			document.getElementById("dueDate").value = data.dueDate || "";
+
+			(data.processes || []).forEach((p) => addProcess(p));
+
+			document.getElementById("backBtn").href = "./work_instruction_detail.html?workOrderId=" + WO_ID;
+
+			document.getElementById("editForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				const processes = [];
+				document.querySelectorAll("#processArea .process-item").forEach((row) => {
+					const wopId = row.querySelector('[data-name="workOrderProcessId"]').value;
+					processes.push({
+						workOrderProcessId: wopId ? Number(wopId) : null,
+						processName: row.querySelector('[data-name="processName"]').value.trim(),
+						machineId: row.querySelector('[data-name="machineId"]').value,
+						assignedUserId: row.querySelector('[data-name="assignedUserId"]').value,
+						currentStatus: row.querySelector('[data-name="currentStatus"]').value,
+					});
+				});
+				const dto = {
+					orderNo: document.getElementById("orderNo").value.trim(),
+					partName: document.getElementById("partName").value.trim(),
+					clientName: document.getElementById("clientName").value.trim(),
+					quantity: document.getElementById("quantity").value,
+					dueDate: document.getElementById("dueDate").value,
+					processes,
+				};
+				TeamH.setDraft("workOrderEdit", { id: WO_ID, dto });
+				location.href = "./work_orders_edit_confirm.html?id=" + WO_ID;
+			});
+		});
+	</script>
+
+</body>
+
+</html>

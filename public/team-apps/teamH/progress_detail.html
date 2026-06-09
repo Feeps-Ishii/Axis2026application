@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>進捗管理詳細</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* { box-sizing: border-box; }
+		body { margin: 0; font-family: "Yu Gothic", "Meiryo", sans-serif; background-color: #f4f7fb; color: #1f2937; }
+		a { text-decoration: none; color: inherit; }
+		.main { flex: 1; padding: 50px 40px; display: flex; flex-direction: column; align-items: center; background: #f4f7fb; }
+		.page-title { width: 1100px; font-size: 36px; font-weight: bold; color: #102a43; margin: 0 0 24px 0; display: flex; align-items: center; }
+		.page-title::before { content: ""; display: inline-block; width: 6px; height: 42px; background: #153e75; border-radius: 4px; margin-right: 14px; }
+		.sheet { width: 1100px; background: white; border: 1px solid #9ca3af; }
+		.sheet-header { background: #102a43; color: white; padding: 24px; display: flex; justify-content: space-between; align-items: center; }
+		.sheet-title { font-size: 40px; font-weight: bold; }
+		.sheet-sub { text-align: right; font-size: 18px; line-height: 2; }
+		.section-title { background: #153e75; color: white; font-size: 24px; font-weight: bold; padding: 14px 18px; }
+		.table { width: 100%; border-collapse: collapse; font-size: 20px; }
+		.table th { background: #edf2f7; border: 1px solid #777; padding: 18px; text-align: center; font-size: 18px; font-weight: bold; color: #102a43; }
+		.table td { border: 1px solid #777; padding: 18px; font-size: 18px; vertical-align: middle; }
+		.status-done { background: #dcfce7; color: #166534; font-weight: bold; padding: 4px 8px; }
+		.status-preparing { background: #fef3c7; color: #92400e; font-weight: bold; padding: 4px 8px; }
+		.status-processing { background: #dbeafe; color: #1e40af; font-weight: bold; padding: 4px 8px; }
+		.status-inspecting { background: #ede9fe; color: #5b21b6; font-weight: bold; padding: 4px 8px; }
+		.button-area { margin: 28px 0 0 0; padding: 0 24px 28px 24px; display: flex; gap: 12px; flex-wrap: wrap; }
+		.btn { display: inline-flex; align-items: center; justify-content: center; padding: 14px 28px; font-size: 18px; font-weight: bold; border: 1px solid #9ca3af; background: white; color: #334e68; cursor: pointer; }
+		.btn:hover { background: #f0f4f8; }
+		.btn.primary { background: #153e75; color: white; border-color: #153e75; }
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+			<h1 class="page-title">進捗管理詳細</h1>
+			<div class="sheet" id="sheet"></div>
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+		const ST_TEXT = { not_started: "未着手", preparing: "段取り中", processing: "加工中", inspecting: "検査中", completed: "完了" };
+
+		function statusCell(st) {
+			if (st === "not_started") return "未着手";
+			if (st === "completed") return '<span class="status-done">✓ 完了</span>';
+			if (st === "preparing") return '<span class="status-preparing">段取り中</span>';
+			if (st === "processing") return '<span class="status-processing">加工中</span>';
+			if (st === "inspecting") return '<span class="status-inspecting">検査中</span>';
+			return E(st);
+		}
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			TeamHNav.render("progress");
+
+			const id = new URLSearchParams(location.search).get("id");
+			const data = TeamH.progressDetail(id);
+			const homeByRole = { admin: "./progress_list.html", sales: "./progress_list.html", craftsman: "./todo.html" };
+			if (!data) { location.href = homeByRole[sess.role] || "./progress_list.html"; return; }
+
+			const r = data.report, processes = data.processes, notes = data.notes;
+			const firstUser = processes.length && processes[0].assignedUser ? processes[0].assignedUser.name : "－";
+
+			const procRows = processes.map(function (p) {
+				const wop = p.workOrderProcess || {};
+				const mac = p.machineNoActual || (wop.machine ? wop.machine.machineNo : "");
+				return `<tr>
+					<td>${E(wop.processOrder)}</td>
+					<td>${E(wop.processName)}</td>
+					<td>${E(mac)}</td>
+					<td>${E(ST_TEXT[p.progressStatus] || p.progressStatus)}</td>
+					<td><span>${E(p.assignedUser ? p.assignedUser.loginId : "")}</span> <span>${E(p.assignedUser ? p.assignedUser.name : "")}</span></td>
+					<td>${statusCell(p.progressStatus)}</td>
+				</tr>`;
+			}).join("");
+
+			const resultRows = processes.map(function (p) {
+				const wop = p.workOrderProcess || {};
+				return `<tr>
+					<td><span>${E(wop.processOrder)}</span>. <span>${E(wop.processName)}</span></td>
+					<td><span>${E(p.assignedUser ? p.assignedUser.loginId : "")}</span> <span>${E(p.assignedUser ? p.assignedUser.name : "")}</span></td>
+					<td>${p.actualStart ? E(TeamH.fmtDateTime(p.actualStart)) : "－"}</td>
+					<td>${p.actualEnd ? E(TeamH.fmtDateTime(p.actualEnd)) : "－"}</td>
+					<td>${p.handoverScheduledAt ? E(TeamH.fmtDateTime(p.handoverScheduledAt)) : "－"}</td>
+					<td>${E(p.comment || "")}</td>
+				</tr>`;
+			}).join("");
+
+			let noteRows = notes.map((n) => `<tr>
+				<td>${E(n.createdBy ? n.createdBy.name : "")}</td>
+				<td>${E(TeamH.fmtDateTime(n.createdAt))}</td>
+				<td>${E(n.note)}</td>
+			</tr>`).join("");
+			if (!notes.length) noteRows = '<tr><td colspan="3" style="text-align:center; color:#627d98;">引継ぎメモはありません</td></tr>';
+
+			// ボタン（役割別）
+			let buttons = "";
+			if (sess.role === "admin") {
+				buttons = `<a class="btn primary" href="./progress_report_edit.html?reportId=${r.progressReportId}">進捗を更新</a>
+					<a class="btn" href="./progress_list.html">一覧へ戻る</a>`;
+			} else if (sess.role === "craftsman") {
+				const firstWop = processes.length ? processes[0].workOrderProcess.workOrderProcessId : "";
+				buttons = `<a class="btn primary" href="./progress_update.html?workOrderProcessId=${firstWop}">進捗を更新</a>
+					<a class="btn" href="./todo.html">進捗へ戻る</a>`;
+			} else {
+				buttons = `<a class="btn" href="./progress_list.html">一覧へ戻る</a>`;
+			}
+
+			document.getElementById("sheet").innerHTML = `
+				<div class="sheet-header">
+					<div class="sheet-title">進捗管理書</div>
+					<div class="sheet-sub">
+						<div>マルセイ精密工業株式会社</div>
+						<div>受注番号：${E(r.workOrder ? r.workOrder.orderNo : "")}</div>
+					</div>
+				</div>
+				<div class="section-title">① 作業基本情報</div>
+				<table class="table">
+					<tr><th>対象作業</th><th>担当者名</th></tr>
+					<tr>
+						<td><span>${E(r.workOrder ? r.workOrder.orderNo : "")}</span> <span>${E(r.workOrder ? r.workOrder.partName : "")}</span></td>
+						<td>${E(firstUser)}</td>
+					</tr>
+				</table>
+				<div class="section-title">② 工程進捗</div>
+				<table class="table">
+					<tr><th>No</th><th>工程</th><th>機械</th><th>ステータス</th><th>担当職人ID</th><th>操作</th></tr>
+					${procRows}
+				</table>
+				<div class="section-title">③ 作業実績</div>
+				<table class="table">
+					<tr><th>工程</th><th>担当職人ID</th><th>開始時刻</th><th>完了時刻</th><th>引継ぎ予定時刻</th><th>備考</th></tr>
+					${resultRows}
+				</table>
+				<div class="section-title">④ 申し送り・引継ぎメモ</div>
+				<table class="table">
+					<tr><th>記入者</th><th>記入時刻</th><th>内容</th></tr>
+					${noteRows}
+				</table>
+				<div class="button-area">${buttons}</div>`;
+		});
+	</script>
+
+</body>
+
+</html>

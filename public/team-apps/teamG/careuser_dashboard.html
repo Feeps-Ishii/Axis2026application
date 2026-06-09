@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>家族ダッシュボード</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="family-dashboard-page care-user-list-page">
+
+	<header class="site-header">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">
+						ご家族
+					</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="care-user-list-container compact-care-user-list-container compact-family-dashboard-container">
+
+		<section class="compact-page-top">
+
+			<div class="page-heading compact-page-heading">
+				<h2 class="page-title">家族ダッシュボード</h2>
+				<p class="page-description">
+					ご家族向けに、承認済みの報告確認と連絡事項の送信ができます。
+				</p>
+			</div>
+
+		</section>
+
+		<section class="message-section" id="messageSection" style="display:none;">
+
+			<p class="success-message" id="successMessage" style="display:none;">
+				連絡事項を送信しました。
+			</p>
+
+			<p class="error-message" id="errorMessage" style="display:none;">
+				エラーがあります。
+			</p>
+
+		</section>
+
+		<!-- 対象利用者 -->
+		<section class="search-section compact-search-section family-dashboard-section">
+
+			<div class="compact-family-section-header">
+
+				<div class="family-section-title-area">
+					<h3 class="family-section-title">対象利用者</h3>
+				</div>
+
+				<p class="family-section-description">
+					ご家族として確認できる報告内容を表示しています。
+				</p>
+
+			</div>
+
+			<div class="family-target-user-card">
+
+				<p class="family-target-user-label">
+					現在確認中のご利用者様
+				</p>
+
+				<p class="family-target-user-name" id="targetUserName">
+					山田 花子
+				</p>
+
+				<p class="family-target-user-note">
+					承認済みの家族報告のみ確認できます。
+				</p>
+
+			</div>
+
+		</section>
+
+		<!-- 最新の家族報告 -->
+		<section class="search-section compact-search-section family-dashboard-section">
+
+			<div class="compact-family-section-header family-section-header-with-button">
+
+				<div class="family-section-title-area">
+					<h3 class="family-section-title">最新の家族報告</h3>
+				</div>
+
+				<div class="page-action-area compact-page-action-area">
+					<a href="./familyreport_list.html" class="secondary-button family-list-button">
+						家族報告一覧を見る
+					</a>
+				</div>
+
+			</div>
+
+			<div class="family-report-panel" id="latestReportPanel" style="display:none;">
+			</div>
+
+			<div class="family-report-panel" id="latestReportEmptyPanel" style="display:none;">
+
+				<p class="empty-message">
+					現在、確認できる家族報告はありません。
+				</p>
+
+			</div>
+
+		</section>
+
+		<!-- 連絡事項送信 -->
+		<section class="search-section compact-search-section family-dashboard-section">
+
+			<div class="compact-family-section-header">
+
+				<div class="family-section-title-area">
+					<h3 class="family-section-title">連絡事項送信</h3>
+				</div>
+
+				<p class="family-section-description">
+					管理者、または担当ヘルパーを選択して連絡事項を送信できます。
+				</p>
+
+			</div>
+
+			<form id="familyContactForm"
+				method="post"
+				class="family-contact-form compact-family-contact-form"
+				onsubmit="return false;"
+				novalidate>
+
+				<div class="family-info-grid">
+
+					<div class="form-group compact-form-group">
+
+						<label for="receiverValue" class="raised-field-label">
+							<span>送信先</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<select id="receiverValue"
+							name="receiverValue"
+							class="inset-field large-field">
+
+							<option value="">選択してください</option>
+
+							<option value="ADMIN">
+								管理者・事務員
+							</option>
+
+						</select>
+
+						<p class="form-note">
+							管理者・事務員を選択した場合は、管理者権限を持つ職員全員に送信されます。
+						</p>
+
+					</div>
+
+					<div class="form-group compact-form-group">
+
+						<label for="contactCategory" class="raised-field-label">
+							<span>連絡カテゴリ</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<select id="contactCategory"
+							name="contactCategory"
+							class="inset-field large-field">
+
+							<option value="">選択してください</option>
+							<option value="家族連絡">家族連絡</option>
+							<option value="相談">相談</option>
+							<option value="依頼">依頼</option>
+							<option value="その他">その他</option>
+
+						</select>
+
+					</div>
+
+					<div class="form-group compact-form-group">
+
+						<label for="importance" class="raised-field-label">
+							<span>重要度</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<select id="importance"
+							name="importance"
+							class="inset-field large-field">
+
+							<option value="">選択してください</option>
+							<option value="high">高</option>
+							<option value="normal">中</option>
+							<option value="row">低</option>
+
+						</select>
+
+						<p class="form-note">
+							緊急性や確認の優先度に応じて選択してください。
+						</p>
+
+					</div>
+
+					<div class="form-group compact-form-group full-width">
+
+						<label for="contactContent" class="raised-field-label">
+							<span>連絡内容</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<textarea id="contactContent"
+							name="contactContent"
+							class="inset-field large-field family-contact-textarea"
+							rows="6"
+							maxlength="1000"
+							placeholder="例：本人の体調について気になる点があります。次回訪問時に確認をお願いします。"></textarea>
+
+						<p class="form-note">
+							入力した内容は、本人家族と選択した送信先のみ確認できます。
+						</p>
+
+					</div>
+
+				</div>
+
+				<div class="button-area compact-register-button-area">
+
+					<button type="button"
+						id="openFamilyContactConfirmModal"
+						class="primary-button large-action-button">
+						送信内容を確認する
+					</button>
+
+					<button type="reset" class="secondary-button large-action-button">
+						クリア
+					</button>
+
+				</div>
+
+			</form>
+
+		</section>
+
+	</main>
+
+	<!-- 送信確認ポップアップ -->
+	<section id="confirmModal" class="modal-section family-confirm-modal" hidden>
+
+		<div class="modal-overlay" id="modalOverlay">
+
+			<div class="modal-card compact-modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+
+				<h3 id="confirmModalTitle" class="modal-title">
+					送信内容を確認してください
+				</h3>
+
+				<div class="confirm-panel">
+
+					<dl class="confirm-list compact-confirm-list">
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">送信先</dt>
+							<dd id="confirmReceiver" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">連絡カテゴリ</dt>
+							<dd id="confirmCategory" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">重要度</dt>
+							<dd id="confirmImportance" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">連絡内容</dt>
+							<dd id="confirmContent" class="inset-confirm-value pre-line"></dd>
+						</div>
+
+					</dl>
+
+				</div>
+
+				<p class="confirm-message">
+					この内容で連絡事項を送信しますか？
+				</p>
+
+				<div class="modal-button-area compact-modal-button-area">
+
+					<button type="button"
+						class="primary-button large-action-button"
+						onclick="submitFamilyContactForm()">
+						送信する
+					</button>
+
+					<button type="button"
+						id="cancelButton"
+						class="secondary-button large-action-button">
+						戻る
+					</button>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</section>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [3])) return;
+
+			const targetCareUser = TeamG.careUser(sess.careUserId);
+			const userName = targetCareUser ? targetCareUser.careUserName + "様のご家族" : "ご家族";
+			document.getElementById("userName").textContent = userName;
+			document.getElementById("targetUserName").textContent =
+				targetCareUser ? targetCareUser.careUserName : "未取得";
+
+			// 送信成功メッセージ
+			const q = new URLSearchParams(location.search);
+			if (q.get("sent") === "1") {
+				document.getElementById("messageSection").style.display = "";
+				document.getElementById("successMessage").style.display = "";
+				document.getElementById("successMessage").textContent = "連絡事項を送信しました。";
+			}
+
+			function abbreviate(s, max) {
+				if (s == null) return "";
+				s = String(s);
+				if (s.length <= max) return s;
+				return s.substring(0, max - 3) + "...";
+			}
+
+			// 最新の家族報告
+			const latest = TeamG.latestFamilyReportForCareUser(sess.careUserId);
+			if (latest) {
+				let html = '<div class="family-info-grid">';
+
+				html += '<div class="form-group compact-form-group">'
+					+ '<label class="raised-field-label"><span>報告ID</span></label>'
+					+ '<div class="inset-field display-inset-field">' + TeamG.esc(latest.familyReportId) + '</div>'
+					+ '</div>';
+
+				const reportContent = (latest.reportContent != null && String(latest.reportContent) !== "")
+					? abbreviate(latest.reportContent, 120) : "報告内容はありません。";
+				html += '<div class="form-group compact-form-group full-width">'
+					+ '<label class="raised-field-label"><span>報告内容</span></label>'
+					+ '<div class="inset-field display-inset-field multiline-inset-field">' + TeamG.esc(reportContent) + '</div>'
+					+ '</div>';
+
+				if (latest.familyComment != null && String(latest.familyComment) !== "") {
+					html += '<div class="form-group compact-form-group full-width">'
+						+ '<label class="raised-field-label"><span>家族コメント</span></label>'
+						+ '<div class="inset-field display-inset-field multiline-inset-field">' + TeamG.esc(abbreviate(latest.familyComment, 120)) + '</div>'
+						+ '</div>';
+				}
+
+				if (latest.specialNote != null && String(latest.specialNote) !== "") {
+					html += '<div class="form-group compact-form-group full-width">'
+						+ '<label class="raised-field-label"><span>特記事項</span></label>'
+						+ '<div class="inset-field display-inset-field multiline-inset-field">' + TeamG.esc(abbreviate(latest.specialNote, 120)) + '</div>'
+						+ '</div>';
+				}
+
+				if (latest.nextVisitDate != null) {
+					html += '<div class="form-group compact-form-group">'
+						+ '<label class="raised-field-label"><span>次回訪問予定</span></label>'
+						+ '<div class="inset-field display-inset-field">' + TeamG.esc(TeamG.fmtDateTime(latest.nextVisitDate)) + '</div>'
+						+ '</div>';
+				}
+
+				const photoText = (latest.photoPath != null && String(latest.photoPath) !== "") ? "写真あり" : "添付なし";
+				html += '<div class="form-group compact-form-group">'
+					+ '<label class="raised-field-label"><span>写真</span></label>'
+					+ '<div class="inset-field display-inset-field"><span>' + photoText + '</span></div>'
+					+ '</div>';
+
+				html += '</div>';
+
+				html += '<div class="button-area compact-register-button-area">'
+					+ '<a href="./familyreport_detail.html?familyReportId=' + encodeURIComponent(latest.familyReportId) + '" class="primary-button large-action-button">詳細を見る</a>'
+					+ '</div>';
+
+				const panel = document.getElementById("latestReportPanel");
+				panel.innerHTML = html;
+				panel.style.display = "";
+			} else {
+				document.getElementById("latestReportEmptyPanel").style.display = "";
+			}
+
+			// 送信先セレクト（担当ヘルパー）
+			const receiverSelect = document.getElementById("receiverValue");
+			const helpers = TeamG.assignedHelperStaff(sess.careUserId);
+			helpers.forEach(function (h) {
+				const opt = document.createElement("option");
+				opt.value = "HELPER:" + h.staffId;
+				opt.textContent = h.staffName + "（担当ヘルパー）";
+				receiverSelect.appendChild(opt);
+			});
+		});
+
+		document.addEventListener("DOMContentLoaded", function () {
+
+			const form = document.getElementById("familyContactForm");
+			const modal = document.getElementById("confirmModal");
+			const overlay = document.getElementById("modalOverlay");
+			const openButton = document.getElementById("openFamilyContactConfirmModal");
+			const cancelButton = document.getElementById("cancelButton");
+
+			function openModal() {
+				modal.hidden = false;
+				modal.classList.add("is-open");
+				document.body.style.overflow = "hidden";
+			}
+
+			function closeModal() {
+				modal.classList.remove("is-open");
+				modal.hidden = true;
+				document.body.style.overflow = "";
+			}
+
+			openButton.addEventListener("click", function () {
+
+				const receiverSelect = document.getElementById("receiverValue");
+				const categorySelect = document.getElementById("contactCategory");
+				const importanceSelect = document.getElementById("importance");
+				const contactContent = document.getElementById("contactContent");
+
+				if (!receiverSelect.value) {
+					receiverSelect.focus();
+					return;
+				}
+
+				if (!categorySelect.value) {
+					categorySelect.focus();
+					return;
+				}
+
+				if (!importanceSelect.value) {
+					importanceSelect.focus();
+					return;
+				}
+
+				if (!contactContent.value.trim()) {
+					contactContent.focus();
+					return;
+				}
+
+				document.getElementById("confirmReceiver").textContent =
+					receiverSelect.options[receiverSelect.selectedIndex].text.trim();
+
+				document.getElementById("confirmCategory").textContent =
+					categorySelect.options[categorySelect.selectedIndex].text.trim();
+
+				document.getElementById("confirmImportance").textContent =
+					importanceSelect.options[importanceSelect.selectedIndex].text.trim();
+
+				document.getElementById("confirmContent").textContent =
+					contactContent.value.trim();
+
+				openModal();
+			});
+
+			cancelButton.addEventListener("click", function () {
+				closeModal();
+			});
+
+			if (overlay) {
+				overlay.addEventListener("click", function (event) {
+					if (event.target === overlay) {
+						closeModal();
+					}
+				});
+			}
+
+			document.addEventListener("keydown", function (event) {
+				if (event.key === "Escape" && !modal.hidden) {
+					closeModal();
+				}
+			});
+
+		});
+
+		function submitFamilyContactForm() {
+			const sess = TeamG.session();
+			if (!sess) { location.href = "./login.html"; return; }
+			TeamG.sendFamilyContact(sess.careUserId, {
+				receiverValue: document.getElementById("receiverValue").value,
+				contactCategory: document.getElementById("contactCategory").value,
+				importance: document.getElementById("importance").value,
+				contactContent: document.getElementById("contactContent").value.trim(),
+			});
+			location.href = "./careuser_dashboard.html?sent=1";
+		}
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>プラン一覧</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="plan-list-page care-user-list-page hidamari-plan-list-page">
+
+	<header class="site-header">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ゲスト</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="care-user-list-container compact-care-user-list-container compact-staff-list-container hidamari-plan-list-container">
+
+		<section class="compact-page-top">
+
+			<div class="page-heading compact-page-heading">
+				<h2 class="page-title">プラン一覧</h2>
+				<p class="page-description">
+					訪問記録登録時に選択するサービスプランを確認できます。
+				</p>
+			</div>
+
+			<div class="page-action-area compact-page-action-area">
+				<a href="./admin_dashboard.html" class="secondary-button">
+					管理者ダッシュボードへ戻る
+				</a>
+			</div>
+
+		</section>
+
+		<section class="search-section compact-search-section hidamari-plan-search-section" id="searchArea">
+
+			<h3 class="section-title compact-table-header">検索条件</h3>
+
+			<form method="get"
+				class="search-form compact-search-form"
+				id="planSearchForm">
+
+				<input type="hidden" id="selectedTab" name="tab" value="active">
+				<input type="hidden" name="page" value="1">
+
+				<div class="compact-form-group hidamari-plan-form-group">
+					<label for="planName" class="compact-form-label hidamari-plan-form-label">
+						プラン名
+					</label>
+
+					<input type="text"
+						id="planName"
+						name="planName"
+						class="compact-form-input hidamari-plan-form-input"
+						placeholder="プラン名を入力"
+						maxlength="100">
+
+					<p class="field-error-message" id="planNameSearchError"></p>
+				</div>
+
+				<div class="button-area compact-search-button-area">
+
+					<button type="submit" class="primary-button">
+						検索
+					</button>
+
+					<button type="button" class="secondary-button" id="clearSearchButton">
+						クリア
+					</button>
+
+				</div>
+
+			</form>
+
+		</section>
+
+		<section class="search-section compact-search-section compact-staff-tab-section hidamari-plan-tab-section">
+
+			<div class="compact-table-header hidamari-plan-tab-header">
+
+				<div class="list-title-action">
+					<h3 class="section-title">表示切り替え</h3>
+				</div>
+
+			</div>
+
+			<div class="tab-button-area staff-tab-action-area hidamari-plan-tab-action-area">
+
+				<a href="#searchArea"
+					id="tabActive"
+					class="tab-button hidamari-plan-tab-button">
+					有効なサービスプラン
+				</a>
+
+				<a href="#searchArea"
+					id="tabStopped"
+					class="tab-button hidamari-plan-tab-button">
+					停止中のサービスプラン
+				</a>
+
+				<a href="./plan_register.html" class="primary-button staff-register-tab-button">
+					新規プラン登録
+				</a>
+
+			</div>
+
+		</section>
+
+		<section class="care-user-table-section compact-care-user-table-section compact-staff-table-section hidamari-plan-table-section"
+			id="activeSection">
+
+			<div class="compact-table-header hidamari-plan-table-header">
+
+				<div class="hidamari-plan-title-left">
+					<h3 class="section-title">有効なサービスプラン一覧</h3>
+				</div>
+
+				<p class="list-count">
+					表示件数：
+					<span id="activeCount">0</span>
+					件
+				</p>
+
+			</div>
+
+			<div class="table-area compact-table-area hidamari-plan-table-area" id="activeTableArea">
+			</div>
+
+			<p class="empty-message" id="activeEmpty" style="display:none;">
+				条件に一致する有効なサービスプランは見つかりませんでした。
+			</p>
+
+		</section>
+
+		<section class="care-user-table-section compact-care-user-table-section compact-staff-table-section hidamari-plan-table-section"
+			id="stoppedSection" style="display:none;">
+
+			<div class="compact-table-header hidamari-plan-table-header">
+
+				<div class="hidamari-plan-title-left">
+					<h3 class="section-title">停止中のサービスプラン一覧</h3>
+				</div>
+
+				<p class="list-count">
+					表示件数：
+					<span id="stoppedCount">0</span>
+					件
+				</p>
+
+			</div>
+
+			<div class="table-area compact-table-area hidamari-plan-table-area" id="stoppedTableArea">
+			</div>
+
+			<p class="empty-message" id="stoppedEmpty" style="display:none;">
+				条件に一致する停止中のサービスプランは見つかりませんでした。
+			</p>
+
+		</section>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+
+			const q = new URLSearchParams(location.search);
+			const selectedTab = q.get("tab") === "stopped" ? "stopped" : "active";
+			const planName = q.get("planName") || "";
+
+			document.getElementById("planName").value = planName;
+			document.getElementById("selectedTab").value = selectedTab;
+
+			const tabActive = document.getElementById("tabActive");
+			const tabStopped = document.getElementById("tabStopped");
+			tabActive.href = "./plan_list.html?tab=active&planName=" + encodeURIComponent(planName) + "&page=1#searchArea";
+			tabStopped.href = "./plan_list.html?tab=stopped&planName=" + encodeURIComponent(planName) + "&page=1#searchArea";
+			if (selectedTab === "active") tabActive.className += " active-tab";
+			else tabStopped.className += " active-tab";
+
+			function renderTable(list, isActive) {
+				let h = '<table class="hidamari-plan-table">';
+				h += '<colgroup>'
+					+ '<col class="plan-col-detail">'
+					+ '<col class="plan-col-status-action">'
+					+ '<col class="plan-col-name">'
+					+ '<col class="plan-col-fee">'
+					+ '<col class="plan-col-status">'
+					+ '</colgroup>';
+				h += '<thead><tr>'
+					+ '<th class="plan-col-detail">詳細</th>'
+					+ '<th class="plan-col-status-action">状態操作</th>'
+					+ '<th class="plan-col-name">プラン名</th>'
+					+ '<th class="plan-col-fee">料金</th>'
+					+ '<th class="plan-col-status">状態</th>'
+					+ '</tr></thead><tbody>';
+				list.forEach(function (plan) {
+					h += '<tr>';
+					h += '<td class="plan-col-detail">'
+						+ '<a href="./plan_detail.html?planId=' + plan.planId + '" class="hidamari-detail-button">詳細</a>'
+						+ '</td>';
+					if (isActive) {
+						h += '<td class="plan-col-status-action">'
+							+ '<form class="table-action-form" onsubmit="return false;">'
+							+ '<button type="button" class="plan-status-button plan-stop-button" data-stop="' + plan.planId + '">停止</button>'
+							+ '</form></td>';
+					} else {
+						h += '<td class="plan-col-status-action">'
+							+ '<form class="table-action-form" onsubmit="return false;">'
+							+ '<button type="button" class="plan-status-button plan-start-button" data-start="' + plan.planId + '">開始</button>'
+							+ '</form></td>';
+					}
+					h += '<td class="plan-col-name">' + TeamG.esc(plan.planName) + '</td>';
+					h += '<td class="plan-col-fee">' + TeamG.esc(plan.feeAmount) + '円</td>';
+					if (isActive) {
+						h += '<td class="plan-col-status"><span class="status-pill status-active">有効</span></td>';
+					} else {
+						h += '<td class="plan-col-status"><span class="status-pill status-stopped">停止中</span></td>';
+					}
+					h += '</tr>';
+				});
+				h += '</tbody></table>';
+				return h;
+			}
+
+			if (selectedTab === "active") {
+				document.getElementById("activeSection").style.display = "";
+				document.getElementById("stoppedSection").style.display = "none";
+				const list = TeamG.searchActivePlans(planName);
+				document.getElementById("activeCount").textContent = list.length;
+				if (list.length === 0) {
+					document.getElementById("activeTableArea").innerHTML = "";
+					document.getElementById("activeEmpty").style.display = "";
+				} else {
+					document.getElementById("activeTableArea").innerHTML = renderTable(list, true);
+				}
+			} else {
+				document.getElementById("activeSection").style.display = "none";
+				document.getElementById("stoppedSection").style.display = "";
+				const list = TeamG.searchStoppedPlans(planName);
+				document.getElementById("stoppedCount").textContent = list.length;
+				if (list.length === 0) {
+					document.getElementById("stoppedTableArea").innerHTML = "";
+					document.getElementById("stoppedEmpty").style.display = "";
+				} else {
+					document.getElementById("stoppedTableArea").innerHTML = renderTable(list, false);
+				}
+			}
+
+			document.addEventListener("click", function (e) {
+				const stopBtn = e.target.closest("[data-stop]");
+				if (stopBtn) {
+					if (confirm("このプランを停止しますか？")) {
+						TeamG.planSetActive(Number(stopBtn.getAttribute("data-stop")), false);
+						location.reload();
+					}
+					return;
+				}
+				const startBtn = e.target.closest("[data-start]");
+				if (startBtn) {
+					if (confirm("このプランを開始しますか？")) {
+						TeamG.planSetActive(Number(startBtn.getAttribute("data-start")), true);
+						location.reload();
+					}
+				}
+			});
+
+			const clearButton = document.getElementById("clearSearchButton");
+			const searchForm = document.getElementById("planSearchForm");
+			const selectedTabInput = document.getElementById("selectedTab");
+			const planNameInput = document.getElementById("planName");
+			const planNameSearchError = document.getElementById("planNameSearchError");
+
+			const PLAN_NAME_SEARCH_MAX_LENGTH = 100;
+
+			function clearSearchError() {
+				if (planNameSearchError) {
+					planNameSearchError.textContent = "";
+				}
+			}
+
+			function validateSearchForm() {
+				clearSearchError();
+				if (!planNameInput) {
+					return true;
+				}
+				const planName = planNameInput.value.trim();
+				if (planName.length > PLAN_NAME_SEARCH_MAX_LENGTH) {
+					if (planNameSearchError) {
+						planNameSearchError.textContent =
+							"プラン名は100文字以内で入力してください。";
+					}
+					planNameInput.focus();
+					return false;
+				}
+				return true;
+			}
+
+			searchForm.addEventListener("submit", function (event) {
+				event.preventDefault();
+				if (!validateSearchForm()) {
+					return;
+				}
+				const tab = selectedTabInput.value || "active";
+				location.href = "./plan_list.html?tab=" + encodeURIComponent(tab)
+					+ "&planName=" + encodeURIComponent(planNameInput.value.trim()) + "&page=1#searchArea";
+			});
+
+			if (planNameInput) {
+				planNameInput.addEventListener("input", function () {
+					clearSearchError();
+				});
+			}
+
+			if (clearButton) {
+				clearButton.addEventListener("click", function () {
+					const formItems = searchForm.querySelectorAll(
+						"input[type='text'], input[type='date'], select, textarea"
+					);
+					formItems.forEach(function (item) {
+						item.value = "";
+					});
+					if (selectedTabInput) {
+						selectedTabInput.value = "active";
+					}
+					clearSearchError();
+				});
+			}
+		});
+	</script>
+
+</body>
+
+</html>

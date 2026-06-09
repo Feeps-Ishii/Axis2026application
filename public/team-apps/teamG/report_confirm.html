@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>SC-028 全報告登録確認</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="all-report-confirm-page compact-form-page">
+
+	<header class="site-header">
+		<div class="header-inner">
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ゲスト</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">ログアウト</button>
+				</form>
+			</div>
+		</div>
+	</header>
+
+	<main class="helper-report-register-container compact-form-container">
+
+		<section class="compact-page-top">
+			<div class="compact-page-heading">
+				<h2 class="page-title">全報告登録確認</h2>
+				<p class="page-description">
+					入力内容を確認し、問題がなければ登録してください。
+				</p>
+			</div>
+
+			<div class="compact-page-action-area">
+				<a href="./report_register.html" class="secondary-button">
+					入力画面へ戻る
+				</a>
+			</div>
+		</section>
+
+		<div id="confirmContainer"></div>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [2])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+
+			const draft = TeamG.getDraft("allReport");
+			if (!draft) {
+				location.href = "./report_register.html";
+				return;
+			}
+
+			const vr = draft.visitRecord || {};
+			const fr = draft.familyReport || {};
+			const hn = draft.handoverNote || {};
+			const esc = TeamG.esc;
+
+			const careUserName = TeamG.careUserName(vr.careUserId) || vr.careUserId;
+			const planName = TeamG.planName(vr.planId) || vr.planId;
+			const planObj = TeamG.plan(vr.planId) || {};
+			const serviceContent = planObj.serviceContent || "";
+
+			function nz(v, fallback) { return (v != null && String(v) !== "") ? esc(v) : (fallback || ""); }
+
+			const careTags = [];
+			if (vr.bathCare === true) careTags.push('<span class="care-tag">入浴介助</span>');
+			if (vr.clothesChangeCare === true) careTags.push('<span class="care-tag">更衣介助</span>');
+			if (vr.medicationCare === true) careTags.push('<span class="care-tag">服薬確認</span>');
+			if (vr.cookingCare === true) careTags.push('<span class="care-tag">調理</span>');
+			if (vr.cleaningCare === true) careTags.push('<span class="care-tag">掃除</span>');
+			if (vr.laundryCare === true) careTags.push('<span class="care-tag">洗濯</span>');
+			if (vr.shoppingCare === true) careTags.push('<span class="care-tag">買い物</span>');
+			if (vr.otherCare != null && vr.otherCare !== "") careTags.push('<span class="care-tag">その他：<span>' + esc(vr.otherCare) + '</span></span>');
+			if (careTags.length === 0) careTags.push('<span class="empty-care-text">記録なし</span>');
+
+			let importanceHtml;
+			if (hn.importance === "high") importanceHtml = '<span class="status-pill status-high">高</span>';
+			else if (hn.importance === "normal") importanceHtml = '<span class="status-pill status-normal">通常</span>';
+			else if (hn.importance === "low") importanceHtml = '<span class="status-pill status-low">低</span>';
+			else importanceHtml = '<span class="status-pill">未設定</span>';
+
+			function handoverRow(label, value) {
+				if (value == null || value === "") return "";
+				return '<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">' + label + '</div><div class="compact-detail-value compact-detail-text pre-line">' + esc(value) + '</div></div>';
+			}
+
+			const handoverRows = [
+				handoverRow("体調変化", hn.healthChange),
+				handoverRow("認知症症状の変化", hn.dementiaSymptomChange),
+				handoverRow("転倒・事故", hn.fallOrAccidentRisk),
+				handoverRow("家族の様子", hn.familySituation),
+				handoverRow("ヒヤリハット", vr.accidentRisk),
+				handoverRow("医療処置の変更", hn.medicalChange),
+				handoverRow("服薬状況の変化", hn.medicationChange),
+				handoverRow("次回への申し送り事項", hn.nextStaffNote),
+			].join("");
+
+			const anyHandover = handoverRows.trim() !== "";
+
+			document.getElementById("confirmContainer").innerHTML =
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">① 基本情報</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">利用者名</div><div class="compact-detail-value">' + esc(careUserName) + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">ヘルパー氏名</div><div class="compact-detail-value">' + esc(TeamG.staffName(vr.helperStaffId) || sess.loginUserName) + '</div></div>' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">プラン内容</div><div class="compact-detail-value"><span>' + esc(planName) + '</span>' + (serviceContent ? '<span>：</span><span>' + esc(serviceContent) + '</span>' : '') + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">訪問日</div><div class="compact-detail-value">' + esc(vr.visitDate) + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">訪問開始時刻</div><div class="compact-detail-value">' + esc(vr.startTime) + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">訪問終了時刻</div><div class="compact-detail-value">' + esc(vr.endTime) + '</div></div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">② 訪問記録</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">体温</div><div class="compact-detail-value"><span>' + esc(vr.bodyTemperature) + '</span> ℃</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">脈拍</div><div class="compact-detail-value"><span>' + esc(vr.pulse) + '</span> 回/分</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">血圧 上</div><div class="compact-detail-value"><span>' + esc(vr.bloodPressureHigh) + '</span> mmHg</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">血圧 下</div><div class="compact-detail-value"><span>' + esc(vr.bloodPressureLow) + '</span> mmHg</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">SpO2</div><div class="compact-detail-value"><span>' + esc(vr.spo2) + '</span> %</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">食事摂取量</div><div class="compact-detail-value"><span>' + esc(vr.mealAmount) + '</span> 割</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">水分摂取量</div><div class="compact-detail-value"><span>' + esc(vr.waterAmount) + '</span> ml</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">睡眠時間</div><div class="compact-detail-value"><span>' + esc(vr.sleepStatus) + '</span> 時間</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">便</div><div class="compact-detail-value"><span>' + esc(vr.stoolCount) + '</span> 回・<span>' + nz(vr.stoolCondition, "未入力") + '</span></div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">尿</div><div class="compact-detail-value"><span>' + esc(vr.urineCount) + '</span> 回・<span>' + nz(vr.urineColor, "未入力") + '</span></div></div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">③ 実施したケア</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">実施したケア</div><div class="compact-detail-value compact-care-value">' + careTags.join("") + '</div></div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">④ 特記事項・気付き</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">利用者の様子・普段と違う点</div><div class="compact-detail-value compact-detail-text pre-line">' + nz(vr.noticedPoint, "記録なし") + '</div></div>' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">皮膚状態</div><div class="compact-detail-value compact-detail-text pre-line">' + nz(vr.skinCondition, "記録なし") + '</div></div>' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">認知症症状の変化</div><div class="compact-detail-value compact-detail-text pre-line">' + nz(vr.dementiaChange, "記録なし") + '</div></div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">⑤ 家族向け報告</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">家族向け報告内容</div><div class="compact-detail-value compact-detail-text pre-line">' + esc(fr.reportContent) + '</div></div>' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">家族向けコメント</div><div class="compact-detail-value compact-detail-text pre-line">' + nz(fr.familyComment, "記録なし") + '</div></div>' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">特記事項</div><div class="compact-detail-value compact-detail-text pre-line">' + nz(fr.specialNote, "記録なし") + '</div></div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">⑥ 写真（本人同意取得済の場合のみ）</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">本人同意取得済</div><div class="compact-detail-value">' + (fr.photoConsent === true ? "取得済" : "未取得") + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">添付写真</div><div class="compact-detail-value"><span>添付なし</span></div></div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">⑦ 申し送り</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">重要度</div><div class="compact-detail-value">' + importanceHtml + '</div></div>' +
+						handoverRows +
+					'</div>' +
+					(anyHandover ? '' : '<p class="empty-message">申し送り事項はありません。</p>') +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">⑧ 登録確認</h3>' +
+					'<p class="form-note compact-form-note">上記の内容で、訪問記録・家族報告・申し送りを登録します。</p>' +
+				'</section>' +
+				'<section class="compact-detail-action-section">' +
+					'<div class="button-area compact-button-area">' +
+						'<button type="button" class="secondary-button" id="backButton">入力画面へ戻る</button>' +
+						'<button type="button" class="primary-button" id="registerButton">この内容で登録する</button>' +
+					'</div>' +
+				'</section>';
+
+			document.getElementById("backButton").addEventListener("click", function () {
+				location.href = "./report_register.html";
+			});
+
+			document.getElementById("registerButton").addEventListener("click", function () {
+				TeamG.registerAllReport(draft, sess.staffId);
+				TeamG.clearDraft("allReport");
+				location.href = "./complete.html?title=" + encodeURIComponent("全報告登録完了") +
+					"&message=" + encodeURIComponent("全報告の登録が完了しました。") +
+					"&backUrl=" + encodeURIComponent("./visitreport_list.html") +
+					"&backText=" + encodeURIComponent("訪問報告一覧へ") +
+					"&dashboardUrl=" + encodeURIComponent("./helper_dashboard.html") +
+					"&dashboardText=" + encodeURIComponent("ヘルパーダッシュボードへ戻る");
+			});
+		});
+	</script>
+
+</body>
+
+</html>

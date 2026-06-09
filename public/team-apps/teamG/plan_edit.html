@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>プラン更新</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="plan-update-page compact-form-page">
+
+	<header class="site-header" id="pageHeader">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ゲスト</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="plan-update-container compact-form-container">
+
+		<section class="compact-page-top">
+			<div class="compact-page-heading">
+				<h2 class="page-title">プラン更新</h2>
+				<p class="page-description">
+					登録済みのサービスプラン情報を更新します。
+				</p>
+			</div>
+
+			<div class="compact-page-action-area">
+				<a href="#" id="backDetailButton" class="secondary-button">
+					プラン詳細へ戻る
+				</a>
+			</div>
+		</section>
+
+		<section class="message-section" id="errorSection" style="display:none;">
+			<p class="error-message" id="errorMessage"></p>
+		</section>
+
+		<section class="compact-form-section">
+
+			<h3 class="compact-section-title">プラン情報</h3>
+
+			<form method="post"
+				  class="plan-update-form compact-input-form"
+				  id="planUpdateForm"
+				  onsubmit="return false;"
+				  novalidate>
+
+				<input type="hidden" id="planId" name="planId">
+
+				<div class="compact-form-grid">
+
+					<div class="compact-form-group">
+						<label for="planName" class="compact-form-label">
+							プラン名
+							<span class="required-label">必須</span>
+						</label>
+
+						<input type="text"
+							   id="planName"
+							   name="planName"
+							   class="compact-form-input"
+							   maxlength="100"
+							   required>
+
+						<p class="field-error-message js-error-message" id="planNameError"></p>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="feeAmount" class="compact-form-label">
+							料金（円）
+							<span class="required-label">必須</span>
+						</label>
+
+						<input type="number"
+							   id="feeAmount"
+							   name="feeAmount"
+							   class="compact-form-input"
+							   min="0"
+							   max="9999999"
+							   step="1"
+							   required>
+
+						<p class="field-error-message js-error-message" id="feeAmountError"></p>
+					</div>
+
+					<div class="compact-form-group compact-form-group-wide">
+						<label for="serviceContent" class="compact-form-label">
+							サービス内容
+							<span class="required-label">必須</span>
+						</label>
+
+						<textarea id="serviceContent"
+								  name="serviceContent"
+								  class="compact-form-input compact-form-textarea"
+								  rows="4"
+								  maxlength="1000"
+								  required></textarea>
+
+						<p class="field-error-message js-error-message" id="serviceContentError"></p>
+					</div>
+
+				</div>
+
+				<div class="button-area compact-button-area">
+
+					<button type="button" class="primary-button" onclick="openUpdateModal()">
+						更新する
+					</button>
+
+					<button type="reset" class="secondary-button" id="clearButton">
+						クリア
+					</button>
+
+				</div>
+
+			</form>
+
+		</section>
+
+		<!-- 更新確認モーダル -->
+		<section id="updateModal" class="modal-section is-hidden">
+
+			<div class="modal-overlay">
+
+				<div class="modal-card compact-modal-card">
+
+					<h3 class="modal-title">更新確認</h3>
+
+					<div class="compact-detail-grid compact-confirm-grid">
+
+						<div class="compact-detail-group">
+							<div class="compact-detail-label">プラン名</div>
+							<div class="compact-detail-value" id="confirmPlanName"></div>
+						</div>
+
+						<div class="compact-detail-group">
+							<div class="compact-detail-label">サービス内容</div>
+							<div class="compact-detail-value compact-detail-text" id="confirmServiceContent"></div>
+						</div>
+
+						<div class="compact-detail-group">
+							<div class="compact-detail-label">料金</div>
+							<div class="compact-detail-value" id="confirmFeeAmount"></div>
+						</div>
+
+					</div>
+
+					<p class="confirm-message">
+						この内容でプラン情報を更新しますか？
+					</p>
+
+					<div class="modal-button-area compact-modal-button-area">
+
+						<button type="button" class="primary-button compact-modal-button" onclick="submitUpdateForm()">
+							更新する
+						</button>
+
+						<button type="button" class="secondary-button compact-modal-button" onclick="closeUpdateModal()">
+							キャンセル
+						</button>
+
+					</div>
+
+				</div>
+
+			</div>
+
+		</section>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const header = document.getElementById("pageHeader");
+
+		function clearErrors() {
+			document.getElementById("planNameError").textContent = "";
+			document.getElementById("feeAmountError").textContent = "";
+			document.getElementById("serviceContentError").textContent = "";
+		}
+
+		function validateUpdateForm() {
+
+			clearErrors();
+
+			let isValid = true;
+
+			const planName = document.getElementById("planName").value.trim();
+			const feeAmount = document.getElementById("feeAmount").value.trim();
+			const serviceContent = document.getElementById("serviceContent").value.trim();
+
+			if (planName === "") {
+				document.getElementById("planNameError").textContent =
+					"プラン名を入力してください。";
+				isValid = false;
+			} else if (planName.length > 100) {
+				document.getElementById("planNameError").textContent =
+					"プラン名は100文字以内で入力してください。";
+				isValid = false;
+			}
+
+			if (feeAmount === "") {
+				document.getElementById("feeAmountError").textContent =
+					"料金を入力してください。";
+				isValid = false;
+			} else if (!/^[0-9]+$/.test(feeAmount)) {
+				document.getElementById("feeAmountError").textContent =
+					"料金は数字で入力してください。";
+				isValid = false;
+			} else if (Number(feeAmount) < 0) {
+				document.getElementById("feeAmountError").textContent =
+					"料金は0円以上で入力してください。";
+				isValid = false;
+			} else if (Number(feeAmount) > 9999999) {
+				document.getElementById("feeAmountError").textContent =
+					"料金は9,999,999円以下で入力してください。";
+				isValid = false;
+			}
+
+			if (serviceContent === "") {
+				document.getElementById("serviceContentError").textContent =
+					"サービス内容を入力してください。";
+				isValid = false;
+			} else if (serviceContent.length > 1000) {
+				document.getElementById("serviceContentError").textContent =
+					"サービス内容は1000文字以内で入力してください。";
+				isValid = false;
+			}
+
+			return isValid;
+		}
+
+		function openUpdateModal() {
+
+			if (!validateUpdateForm()) {
+				return;
+			}
+
+			const planName = document.getElementById("planName").value.trim();
+			const serviceContent = document.getElementById("serviceContent").value.trim();
+			const feeAmount = document.getElementById("feeAmount").value.trim();
+
+			document.getElementById("confirmPlanName").textContent = planName;
+			document.getElementById("confirmServiceContent").textContent = serviceContent;
+			document.getElementById("confirmFeeAmount").textContent =
+				Number(feeAmount).toLocaleString() + "円";
+
+			document.getElementById("updateModal").classList.remove("is-hidden");
+
+			if (header) {
+				header.style.display = "none";
+			}
+
+			document.body.style.overflow = "hidden";
+		}
+
+		function closeUpdateModal() {
+
+			document.getElementById("updateModal").classList.add("is-hidden");
+
+			if (header) {
+				header.style.display = "block";
+			}
+
+			document.body.style.overflow = "";
+		}
+
+		function submitUpdateForm() {
+
+			if (!validateUpdateForm()) {
+				closeUpdateModal();
+				return;
+			}
+
+			const form = {
+				planId: Number(document.getElementById("planId").value),
+				planName: document.getElementById("planName").value.trim(),
+				serviceContent: document.getElementById("serviceContent").value.trim(),
+				feeAmount: Number(document.getElementById("feeAmount").value.trim()),
+			};
+			TeamG.planUpdate(form);
+			location.href = "./complete.html?title=" + encodeURIComponent("プラン更新完了")
+				+ "&message=" + encodeURIComponent("プラン情報の更新が完了しました。")
+				+ "&backUrl=" + encodeURIComponent("./plan_list.html")
+				+ "&dashboardUrl=" + encodeURIComponent("./admin_dashboard.html");
+		}
+
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+
+			const q = new URLSearchParams(location.search);
+			const planId = Number(q.get("planId"));
+			const plan = TeamG.plan(planId);
+
+			document.getElementById("backDetailButton").href = "./plan_detail.html?planId=" + planId;
+
+			if (!plan) {
+				document.getElementById("errorSection").style.display = "";
+				document.getElementById("errorMessage").textContent = "対象のプランが見つかりませんでした。";
+				return;
+			}
+
+			document.getElementById("planId").value = plan.planId;
+			document.getElementById("planName").value = plan.planName || "";
+			document.getElementById("feeAmount").value = plan.feeAmount != null ? plan.feeAmount : "";
+			document.getElementById("serviceContent").value = plan.serviceContent || "";
+
+			const clearButton = document.getElementById("clearButton");
+			if (clearButton) {
+				clearButton.addEventListener("click", function () {
+					clearErrors();
+				});
+			}
+		});
+	</script>
+
+</body>
+
+</html>

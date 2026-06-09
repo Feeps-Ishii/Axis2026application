@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>SC-027 全報告登録</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="all-report-register-page compact-form-page">
+
+	<header class="site-header">
+		<div class="header-inner">
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ゲスト</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">ログアウト</button>
+				</form>
+			</div>
+		</div>
+	</header>
+
+	<main class="helper-report-register-container compact-form-container">
+
+		<section class="compact-page-top">
+			<div class="compact-page-heading">
+				<h2 class="page-title">全報告登録</h2>
+				<p class="page-description">
+					訪問記録・家族報告・申し送りを一括で登録します。
+				</p>
+			</div>
+
+			<div class="compact-page-action-area">
+				<a href="./helper_dashboard.html" class="secondary-button">
+					ダッシュボードへ戻る
+				</a>
+			</div>
+		</section>
+
+		<section class="message-section" id="messageSection" style="display:none;">
+			<p class="error-message" id="errorMessage">
+				入力内容に誤りがあります。
+			</p>
+		</section>
+
+		<form id="allReportForm" class="compact-input-form" onsubmit="return false;">
+
+			<section class="compact-form-section">
+				<h3 class="compact-section-title">① 基本情報</h3>
+
+				<div class="compact-form-grid">
+
+					<div class="compact-form-group">
+						<label for="careUserId" class="compact-form-label">
+							利用者名
+							<span class="required-label">必須</span>
+						</label>
+						<select id="careUserId" name="visitRecord.careUserId" class="compact-form-input" required>
+							<option value="">選択してください</option>
+						</select>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="helperName" class="compact-form-label">
+							ヘルパー氏名
+							<span class="required-label">必須</span>
+						</label>
+						<input type="text" id="helperName" class="compact-form-input" readonly required>
+						<input type="hidden" id="helperStaffId" name="visitRecord.helperStaffId">
+					</div>
+
+					<div class="compact-form-group compact-form-group-wide">
+						<label for="planId" class="compact-form-label">
+							プラン内容
+							<span class="required-label">必須</span>
+						</label>
+						<select id="planId" name="visitRecord.planId" class="compact-form-input" required>
+							<option value="">選択してください</option>
+						</select>
+						<p class="form-note compact-form-note">
+							プラン一覧で追加・削除された内容に連動して表示されます。
+						</p>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="visitDate" class="compact-form-label">
+							訪問日
+							<span class="required-label">必須</span>
+						</label>
+						<input type="date" id="visitDate" name="visitRecord.visitDate" class="compact-form-input" required>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="startTime" class="compact-form-label">
+							訪問開始時刻
+							<span class="required-label">必須</span>
+						</label>
+						<input type="time" id="startTime" name="visitRecord.startTime" class="compact-form-input" required>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="endTime" class="compact-form-label">
+							訪問終了時刻
+							<span class="required-label">必須</span>
+						</label>
+						<input type="time" id="endTime" name="visitRecord.endTime" class="compact-form-input" required>
+					</div>
+
+				</div>
+			</section>
+
+			<section class="compact-form-section">
+				<h3 class="compact-section-title">② 訪問記録</h3>
+
+				<div class="compact-form-grid">
+
+					<div class="compact-form-group">
+						<label for="bodyTemperature" class="compact-form-label">
+							体温
+							<span class="required-label">必須</span>
+						</label>
+						<input type="number" id="bodyTemperature" name="visitRecord.bodyTemperature" step="0.1" value="36.5"
+							class="compact-form-input" required>
+						<p class="unit-label compact-unit-label">単位：℃</p>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="pulse" class="compact-form-label">
+							脈拍
+							<span class="required-label">必須</span>
+						</label>
+						<input type="number" id="pulse" name="visitRecord.pulse" value="70"
+							class="compact-form-input" required>
+						<p class="unit-label compact-unit-label">単位：回/分</p>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="bloodPressureHigh" class="compact-form-label">
+							血圧 上
+							<span class="required-label">必須</span>
+						</label>
+						<input type="number" id="bloodPressureHigh" name="visitRecord.bloodPressureHigh" value="120"
+							class="compact-form-input" required>
+						<p class="unit-label compact-unit-label">単位：mmHg</p>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="bloodPressureLow" class="compact-form-label">
+							血圧 下
+							<span class="required-label">必須</span>
+						</label>
+						<input type="number" id="bloodPressureLow" name="visitRecord.bloodPressureLow" value="80"
+							class="compact-form-input" required>
+						<p class="unit-label compact-unit-label">単位：mmHg</p>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="spo2" class="compact-form-label">
+							SpO2
+							<span class="required-label">必須</span>
+						</label>
+						<input type="number" id="spo2" name="visitRecord.spo2" value="98"
+							class="compact-form-input" required>
+						<p class="unit-label compact-unit-label">単位：%</p>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="mealAmount" class="compact-form-label">
+							食事摂取量
+							<span class="required-label">必須</span>
+						</label>
+						<select id="mealAmount" name="visitRecord.mealAmount" class="compact-form-input" required>
+							<option value="">選択してください</option>
+							<option value="1">1割</option>
+							<option value="2">2割</option>
+							<option value="3">3割</option>
+							<option value="4">4割</option>
+							<option value="5">5割</option>
+							<option value="6">6割</option>
+							<option value="7" selected>7割</option>
+							<option value="8">8割</option>
+							<option value="9">9割</option>
+							<option value="10">10割</option>
+						</select>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="waterAmount" class="compact-form-label">
+							水分摂取量
+							<span class="required-label">必須</span>
+						</label>
+						<input type="number" id="waterAmount" name="visitRecord.waterAmount" value="500"
+							class="compact-form-input" required>
+						<p class="unit-label compact-unit-label">単位：ml</p>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="sleepStatus" class="compact-form-label">
+							睡眠時間
+							<span class="required-label">必須</span>
+						</label>
+						<input type="number" id="sleepStatus" name="visitRecord.sleepStatus" min="0" max="24"
+							step="1" value="7" class="compact-form-input" required>
+						<p class="unit-label compact-unit-label">単位：時間</p>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="stoolCount" class="compact-form-label">便回数</label>
+						<input type="number" id="stoolCount" name="visitRecord.stoolCount" min="0" value="1"
+							class="compact-form-input">
+					</div>
+
+					<div class="compact-form-group">
+						<label for="stoolCondition" class="compact-form-label">便性状</label>
+						<select id="stoolCondition" name="visitRecord.stoolCondition" class="compact-form-input">
+							<option value="">選択してください</option>
+							<option value="普通" selected>普通</option>
+							<option value="硬め">硬め</option>
+							<option value="軟便">軟便</option>
+							<option value="下痢">下痢</option>
+							<option value="なし">なし</option>
+							<option value="未確認">未確認</option>
+						</select>
+					</div>
+
+					<div class="compact-form-group">
+						<label for="urineCount" class="compact-form-label">尿回数</label>
+						<input type="number" id="urineCount" name="visitRecord.urineCount" min="0" value="3"
+							class="compact-form-input">
+					</div>
+
+					<div class="compact-form-group">
+						<label for="urineColor" class="compact-form-label">尿色</label>
+						<select id="urineColor" name="visitRecord.urineColor" class="compact-form-input">
+							<option value="">選択してください</option>
+							<option value="通常" selected>通常</option>
+							<option value="濃い">濃い</option>
+							<option value="薄い">薄い</option>
+							<option value="血尿の疑い">血尿の疑い</option>
+							<option value="未確認">未確認</option>
+						</select>
+					</div>
+
+				</div>
+			</section>
+
+			<section class="compact-form-section">
+				<h3 class="compact-section-title">③ 実施したケア</h3>
+
+				<div class="compact-check-area">
+					<label class="compact-check-label">
+						<input type="checkbox" id="bathCare" name="visitRecord.bathCare" value="true">
+						<span>入浴介助</span>
+					</label>
+
+					<label class="compact-check-label">
+						<input type="checkbox" id="clothesChangeCare" name="visitRecord.clothesChangeCare" value="true">
+						<span>更衣介助</span>
+					</label>
+
+					<label class="compact-check-label">
+						<input type="checkbox" id="medicationCare" name="visitRecord.medicationCare" value="true">
+						<span>服薬確認</span>
+					</label>
+
+					<label class="compact-check-label">
+						<input type="checkbox" id="cookingCare" name="visitRecord.cookingCare" value="true">
+						<span>調理</span>
+					</label>
+
+					<label class="compact-check-label">
+						<input type="checkbox" id="cleaningCare" name="visitRecord.cleaningCare" value="true">
+						<span>掃除</span>
+					</label>
+
+					<label class="compact-check-label">
+						<input type="checkbox" id="laundryCare" name="visitRecord.laundryCare" value="true">
+						<span>洗濯</span>
+					</label>
+
+					<label class="compact-check-label">
+						<input type="checkbox" id="shoppingCare" name="visitRecord.shoppingCare" value="true">
+						<span>買い物</span>
+					</label>
+				</div>
+
+				<div class="compact-form-grid compact-form-grid-single">
+					<div class="compact-form-group compact-form-group-wide">
+						<label for="otherCare" class="compact-form-label">その他支援内容</label>
+						<textarea id="otherCare" name="visitRecord.otherCare"
+							class="compact-form-input compact-form-textarea"
+							placeholder="食事介助、排泄介助、通院介助など、上記にない支援内容があれば入力してください。"></textarea>
+					</div>
+				</div>
+			</section>
+
+			<section class="compact-form-section">
+				<h3 class="compact-section-title">④ 特記事項・気付き</h3>
+
+				<div class="compact-form-grid compact-form-grid-single">
+
+					<div class="compact-form-group compact-form-group-wide">
+						<label for="noticedPoint" class="compact-form-label">利用者の様子・普段と違う点</label>
+						<textarea id="noticedPoint" name="visitRecord.noticedPoint"
+							class="compact-form-input compact-form-textarea"
+							placeholder="体調、表情、会話、動作など、気付いた点を入力してください。"></textarea>
+					</div>
+
+					<div class="compact-form-group compact-form-group-wide">
+						<label for="skinCondition" class="compact-form-label">皮膚状態</label>
+						<textarea id="skinCondition" name="visitRecord.skinCondition"
+							class="compact-form-input compact-form-textarea"
+							placeholder="赤み、乾燥、傷、かゆみなどがあれば入力してください。"></textarea>
+					</div>
+
+					<div class="compact-form-group compact-form-group-wide">
+						<label for="dementiaChange" class="compact-form-label">認知症症状の変化</label>
+						<textarea id="dementiaChange" name="visitRecord.dementiaChange"
+							class="compact-form-input compact-form-textarea"
+							placeholder="物忘れ、混乱、不安、会話の変化などがあれば入力してください。"></textarea>
+					</div>
+
+				</div>
+			</section>
+
+			<section class="compact-form-section">
+				<h3 class="compact-section-title">⑤ 家族向け報告</h3>
+
+				<div class="compact-form-grid compact-form-grid-single">
+
+					<div class="compact-form-group compact-form-group-wide">
+						<label for="reportContent" class="compact-form-label">
+							家族向け報告内容
+							<span class="required-label">必須</span>
+						</label>
+						<textarea id="reportContent" name="familyReport.reportContent"
+							class="compact-form-input compact-form-textarea"
+							placeholder="ご家族に共有する内容を入力してください。"></textarea>
+					</div>
+
+					<div class="compact-form-group compact-form-group-wide">
+						<label for="familyComment" class="compact-form-label">家族向けコメント</label>
+						<textarea id="familyComment" name="familyReport.familyComment"
+							class="compact-form-input compact-form-textarea"
+							placeholder="必要に応じてコメントを入力してください。"></textarea>
+					</div>
+
+					<div class="compact-form-group compact-form-group-wide">
+						<label for="specialNote" class="compact-form-label">特記事項</label>
+						<textarea id="specialNote" name="familyReport.specialNote"
+							class="compact-form-input compact-form-textarea"
+							placeholder="特に共有したい内容があれば入力してください。"></textarea>
+					</div>
+
+				</div>
+			</section>
+
+			<section class="compact-form-section">
+				<h3 class="compact-section-title">⑥ 写真（本人同意取得済の場合のみ）</h3>
+
+				<p class="form-note compact-form-note">
+					本人同意が取得できている場合のみ、必要に応じて写真を添付してください。
+				</p>
+
+				<div class="compact-check-area">
+					<label class="compact-check-label">
+						<input type="checkbox" id="photoConsent" name="familyReport.photoConsent"
+							onchange="togglePhotoArea()">
+						<span>本人同意取得済</span>
+					</label>
+				</div>
+
+				<div id="photoArea" hidden class="compact-hidden-detail">
+					<div class="compact-form-grid compact-form-grid-single">
+						<div class="compact-form-group compact-form-group-wide">
+							<label for="photoFile" class="compact-form-label">写真添付</label>
+							<input type="file" id="photoFile" name="familyReport.photoFile" accept="image/*"
+								class="compact-form-input">
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="compact-form-section">
+				<h3 class="compact-section-title">⑦ 申し送り</h3>
+
+				<p class="form-note compact-form-note">
+					次回訪問者や事務員に共有が必要な項目のみチェックしてください。
+					チェックを入れた項目は、内容入力欄が表示されます。
+				</p>
+
+				<div class="compact-check-area">
+					<label class="compact-check-label">
+						<input type="checkbox" id="healthChangeCheck" name="healthChangeCheck"
+							onchange="toggleDetail('healthChangeCheck', 'healthChangeDetail')">
+						<span>体調変化</span>
+					</label>
+
+					<label class="compact-check-label">
+						<input type="checkbox" id="dementiaSymptomChangeCheck" name="dementiaSymptomChangeCheck"
+							onchange="toggleDetail('dementiaSymptomChangeCheck', 'dementiaSymptomChangeDetail')">
+						<span>認知症症状の変化</span>
+					</label>
+
+					<label class="compact-check-label">
+						<input type="checkbox" id="fallOrAccidentRiskCheck" name="fallOrAccidentRiskCheck"
+							onchange="toggleDetail('fallOrAccidentRiskCheck', 'fallOrAccidentRiskDetail')">
+						<span>転倒・事故</span>
+					</label>
+
+					<label class="compact-check-label">
+						<input type="checkbox" id="familySituationCheck" name="familySituationCheck"
+							onchange="toggleDetail('familySituationCheck', 'familySituationDetail')">
+						<span>家族の様子</span>
+					</label>
+
+					<label class="compact-check-label">
+						<input type="checkbox" id="accidentRiskCheck" name="accidentRiskCheck"
+							onchange="toggleDetail('accidentRiskCheck', 'accidentRiskDetail')">
+						<span>ヒヤリハット</span>
+					</label>
+
+					<label class="compact-check-label">
+						<input type="checkbox" id="medicalChangeCheck" name="medicalChangeCheck"
+							onchange="toggleDetail('medicalChangeCheck', 'medicalChangeDetail')">
+						<span>医療処置の変更</span>
+					</label>
+
+					<label class="compact-check-label">
+						<input type="checkbox" id="medicationChangeCheck" name="medicationChangeCheck"
+							onchange="toggleDetail('medicationChangeCheck', 'medicationChangeDetail')">
+						<span>服薬状況の変化</span>
+					</label>
+				</div>
+
+				<div class="compact-form-grid">
+
+					<div class="compact-form-group">
+						<label for="importance" class="compact-form-label">
+							重要度
+							<span class="required-label">必須</span>
+						</label>
+						<select id="importance" name="handoverNote.importance" class="compact-form-input" required>
+							<option value="">選択してください</option>
+							<option value="high">高</option>
+							<option value="normal" selected>通常</option>
+							<option value="low">低</option>
+						</select>
+					</div>
+
+				</div>
+
+				<div id="healthChangeDetail" hidden class="compact-hidden-detail">
+					<div class="compact-form-grid compact-form-grid-single">
+						<div class="compact-form-group compact-form-group-wide">
+							<label for="healthChange" class="compact-form-label">体調変化の内容</label>
+							<textarea id="healthChange" name="handoverNote.healthChange"
+								class="compact-form-input compact-form-textarea"></textarea>
+						</div>
+					</div>
+				</div>
+
+				<div id="dementiaSymptomChangeDetail" hidden class="compact-hidden-detail">
+					<div class="compact-form-grid compact-form-grid-single">
+						<div class="compact-form-group compact-form-group-wide">
+							<label for="dementiaSymptomChange" class="compact-form-label">認知症症状の変化内容</label>
+							<textarea id="dementiaSymptomChange" name="handoverNote.dementiaSymptomChange"
+								class="compact-form-input compact-form-textarea"></textarea>
+						</div>
+					</div>
+				</div>
+
+				<div id="fallOrAccidentRiskDetail" hidden class="compact-hidden-detail">
+					<div class="compact-form-grid compact-form-grid-single">
+						<div class="compact-form-group compact-form-group-wide">
+							<label for="fallOrAccidentRisk" class="compact-form-label">転倒・事故内容</label>
+							<textarea id="fallOrAccidentRisk" name="handoverNote.fallOrAccidentRisk"
+								class="compact-form-input compact-form-textarea"></textarea>
+						</div>
+					</div>
+				</div>
+
+				<div id="familySituationDetail" hidden class="compact-hidden-detail">
+					<div class="compact-form-grid compact-form-grid-single">
+						<div class="compact-form-group compact-form-group-wide">
+							<label for="familySituation" class="compact-form-label">家族の様子内容</label>
+							<textarea id="familySituation" name="handoverNote.familySituation"
+								class="compact-form-input compact-form-textarea"></textarea>
+						</div>
+					</div>
+				</div>
+
+				<div id="accidentRiskDetail" hidden class="compact-hidden-detail">
+					<div class="compact-form-grid compact-form-grid-single">
+						<div class="compact-form-group compact-form-group-wide">
+							<label for="accidentRisk" class="compact-form-label">ヒヤリハット内容</label>
+							<textarea id="accidentRisk" name="visitRecord.accidentRisk"
+								class="compact-form-input compact-form-textarea"></textarea>
+						</div>
+					</div>
+				</div>
+
+				<div id="medicalChangeDetail" hidden class="compact-hidden-detail">
+					<div class="compact-form-grid compact-form-grid-single">
+						<div class="compact-form-group compact-form-group-wide">
+							<label for="medicalChange" class="compact-form-label">医療処置の変更内容</label>
+							<textarea id="medicalChange" name="handoverNote.medicalChange"
+								class="compact-form-input compact-form-textarea"></textarea>
+						</div>
+					</div>
+				</div>
+
+				<div id="medicationChangeDetail" hidden class="compact-hidden-detail">
+					<div class="compact-form-grid compact-form-grid-single">
+						<div class="compact-form-group compact-form-group-wide">
+							<label for="medicationChange" class="compact-form-label">服薬状況の変化内容</label>
+							<textarea id="medicationChange" name="handoverNote.medicationChange"
+								class="compact-form-input compact-form-textarea"></textarea>
+						</div>
+					</div>
+				</div>
+
+				<div class="compact-form-grid compact-form-grid-single">
+					<div class="compact-form-group compact-form-group-wide">
+						<label for="nextStaffNote" class="compact-form-label">次回への申し送り事項</label>
+						<textarea id="nextStaffNote" name="handoverNote.nextStaffNote"
+							class="compact-form-input compact-form-textarea"
+							placeholder="次回訪問時に確認してほしいこと、注意点などを入力してください。"></textarea>
+					</div>
+				</div>
+			</section>
+
+			<section class="compact-form-section">
+				<h3 class="compact-section-title">⑧ 保存確認</h3>
+
+				<div class="compact-check-area">
+					<label class="compact-check-label compact-check-label-wide">
+						<input type="checkbox" id="confirmRecord" name="confirmRecord" required>
+						<span>
+							入力した内容を訪問記録・家族報告・申し送りとして保存することを確認しました。
+							<span class="required-label">必須</span>
+						</span>
+					</label>
+				</div>
+			</section>
+
+			<section class="compact-detail-action-section">
+				<div class="button-area compact-button-area">
+
+					<button type="submit" class="primary-button" id="confirmButton">
+						登録内容を確認する
+					</button>
+				</div>
+			</section>
+
+		</form>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		function toggleDetail(checkboxId, detailId) {
+			const checkbox = document.getElementById(checkboxId);
+			const detail = document.getElementById(detailId);
+
+			if (!checkbox || !detail) {
+				return;
+			}
+
+			const textarea = detail.querySelector("textarea");
+
+			if (checkbox.checked) {
+				detail.hidden = false;
+
+				if (textarea) {
+					textarea.required = true;
+				}
+			} else {
+				detail.hidden = true;
+
+				if (textarea) {
+					textarea.required = false;
+					textarea.value = "";
+				}
+			}
+		}
+
+		function togglePhotoArea() {
+			const checkbox = document.getElementById("photoConsent");
+			const photoArea = document.getElementById("photoArea");
+			const photoFile = document.getElementById("photoFile");
+
+			if (!checkbox || !photoArea || !photoFile) {
+				return;
+			}
+
+			if (checkbox.checked) {
+				photoArea.hidden = false;
+			} else {
+				photoArea.hidden = true;
+				photoFile.value = "";
+			}
+		}
+
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [2])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+			document.getElementById("helperName").value = TeamG.staffName(sess.staffId);
+			document.getElementById("helperStaffId").value = sess.staffId;
+
+			const careUserSel = document.getElementById("careUserId");
+			TeamG.assignedCareUsers(sess.staffId).forEach(function (c) {
+				const opt = document.createElement("option");
+				opt.value = c.careUserId;
+				opt.textContent = c.careUserName;
+				careUserSel.appendChild(opt);
+			});
+
+			const planSel = document.getElementById("planId");
+			let activePlans = TeamG.searchActivePlans("");
+			if (!activePlans.length) activePlans = TeamG.plans();
+			activePlans.forEach(function (p) {
+				const opt = document.createElement("option");
+				opt.value = p.planId;
+				opt.textContent = p.planName + "：" + (p.serviceContent || "");
+				planSel.appendChild(opt);
+			});
+
+			const form = document.getElementById("allReportForm");
+
+			document.getElementById("confirmButton").addEventListener("click", function () {
+				if (!form.reportValidity || !form.checkValidity()) {
+					form.reportValidity();
+					return;
+				}
+
+				function val(id) { const el = document.getElementById(id); return el ? el.value : ""; }
+				function chk(id) { const el = document.getElementById(id); return !!(el && el.checked); }
+
+				const draft = {
+					visitRecord: {
+						careUserId: val("careUserId"),
+						helperStaffId: val("helperStaffId"),
+						planId: val("planId"),
+						visitDate: val("visitDate"),
+						startTime: val("startTime"),
+						endTime: val("endTime"),
+						bodyTemperature: val("bodyTemperature"),
+						pulse: val("pulse"),
+						bloodPressureHigh: val("bloodPressureHigh"),
+						bloodPressureLow: val("bloodPressureLow"),
+						spo2: val("spo2"),
+						mealAmount: val("mealAmount"),
+						waterAmount: val("waterAmount"),
+						sleepStatus: val("sleepStatus"),
+						stoolCount: val("stoolCount"),
+						stoolCondition: val("stoolCondition"),
+						urineCount: val("urineCount"),
+						urineColor: val("urineColor"),
+						bathCare: chk("bathCare"),
+						clothesChangeCare: chk("clothesChangeCare"),
+						medicationCare: chk("medicationCare"),
+						cookingCare: chk("cookingCare"),
+						cleaningCare: chk("cleaningCare"),
+						laundryCare: chk("laundryCare"),
+						shoppingCare: chk("shoppingCare"),
+						otherCare: val("otherCare"),
+						noticedPoint: val("noticedPoint"),
+						skinCondition: val("skinCondition"),
+						dementiaChange: val("dementiaChange"),
+						accidentRisk: val("accidentRisk"),
+					},
+					familyReport: {
+						reportContent: val("reportContent"),
+						familyComment: val("familyComment"),
+						specialNote: val("specialNote"),
+						photoConsent: chk("photoConsent"),
+						photoPath: null,
+					},
+					handoverNote: {
+						importance: val("importance"),
+						healthChange: val("healthChange"),
+						dementiaSymptomChange: val("dementiaSymptomChange"),
+						fallOrAccidentRisk: val("fallOrAccidentRisk"),
+						familySituation: val("familySituation"),
+						medicalChange: val("medicalChange"),
+						medicationChange: val("medicationChange"),
+						nextStaffNote: val("nextStaffNote"),
+					},
+					confirmRecord: chk("confirmRecord"),
+				};
+
+				TeamG.setDraft("allReport", draft);
+				location.href = "./report_confirm.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>作業指示書編集確認</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+			background: #f0f4f8;
+			color: #1f2937;
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+
+		.main {
+			flex: 1;
+			padding: 32px;
+		}
+
+		/* ページタイトル */
+		.page-title {
+			font-size: 28px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0 0 24px 0;
+			display: flex;
+			align-items: center;
+		}
+
+		.page-title::before {
+			content: '';
+			display: inline-block;
+			width: 5px;
+			height: 32px;
+			background: #153e75;
+			border-radius: 3px;
+			margin-right: 12px;
+		}
+
+		/* カード */
+		.card {
+			background: white;
+			border-radius: 14px;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+			border: 1px solid #d9e2ec;
+			padding: 24px;
+			margin-bottom: 24px;
+		}
+
+		.card-title {
+			font-size: 18px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0 0 16px 0;
+		}
+
+		.form-row {
+			display: flex;
+			align-items: center;
+			margin-bottom: 16px;
+			gap: 16px;
+		}
+
+		.form-row label {
+			width: 160px;
+			font-size: 14px;
+			font-weight: bold;
+			color: #334e68;
+			flex-shrink: 0;
+		}
+
+		.form-value {
+			font-size: 14px;
+			color: #1f2937;
+			flex: 1;
+			padding: 10px 12px;
+			background: #f7fafc;
+			border: 1px solid #d9e2ec;
+			border-radius: 8px;
+		}
+
+		/* テーブル */
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		th,
+		td {
+			border-bottom: 1px solid #e5eaf0;
+			padding: 12px 16px;
+			text-align: left;
+			font-size: 14px;
+		}
+
+		th {
+			background: #f0f4f8;
+			color: #334e68;
+			font-weight: bold;
+		}
+
+		/* バッジ */
+		.badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			padding: 5px 12px;
+			border-radius: 999px;
+			font-size: 12px;
+			font-weight: bold;
+		}
+
+		.badge.not-started {
+			background: #e5e7eb;
+			color: #374151;
+		}
+
+		.badge.processing {
+			background: #dbeafe;
+			color: #1e40af;
+		}
+
+		.badge.completed {
+			background: #dcfce7;
+			color: #166534;
+		}
+
+		/* ボタン */
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 10px 18px;
+			border-radius: 8px;
+			border: 1px solid #bcccdc;
+			background: #fff;
+			color: #334e68;
+			font-weight: bold;
+			font-size: 14px;
+			cursor: pointer;
+			font-family: inherit;
+			text-decoration: none;
+		}
+
+		.btn:hover {
+			background: #f0f4f8;
+		}
+
+		.btn.primary {
+			background: #153e75;
+			color: #fff;
+			border-color: #153e75;
+		}
+
+		.btn.primary:hover {
+			background: #102a43;
+		}
+
+		.button-area {
+			margin-top: 24px;
+			display: flex;
+			gap: 12px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<h1 class="page-title">作業指示書編集確認</h1>
+
+			<!-- 作業指示書情報 -->
+			<div class="card">
+				<h2 class="card-title">以下の内容で更新します</h2>
+
+				<div class="form-row">
+					<label>受注番号</label>
+					<span class="form-value" id="cOrderNo"></span>
+				</div>
+
+				<div class="form-row">
+					<label>部品名</label>
+					<span class="form-value" id="cPartName"></span>
+				</div>
+
+				<div class="form-row">
+					<label>客先</label>
+					<span class="form-value" id="cClientName"></span>
+				</div>
+
+				<div class="form-row">
+					<label>数量</label>
+					<span class="form-value" id="cQuantity"></span>
+				</div>
+
+				<div class="form-row">
+					<label>納期</label>
+					<span class="form-value" id="cDueDate"></span>
+				</div>
+			</div>
+
+			<!-- 工程一覧 -->
+			<div class="card">
+				<h2 class="card-title">工程一覧</h2>
+
+				<table>
+					<thead>
+						<tr>
+							<th>No</th>
+							<th>工程名</th>
+							<th>状態</th>
+						</tr>
+					</thead>
+					<tbody id="processBody"></tbody>
+				</table>
+
+				<!-- ボタン -->
+				<div class="button-area">
+					<button type="button" class="btn primary" id="confirmBtn">確定</button>
+					<a class="btn" id="editBackBtn" href="#">
+						修正する
+					</a>
+				</div>
+			</div>
+
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+
+		function statusBadge(st) {
+			switch (st) {
+				case "not_started": return '<span class="badge not-started">未着手</span>';
+				case "processing": return '<span class="badge processing">加工中</span>';
+				case "completed": return '<span class="badge completed">完了</span>';
+				default: return E(st);
+			}
+		}
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			if (sess.role !== "admin") { location.href = "./login.html?authError=true"; return; }
+			TeamHNav.render("workOrders");
+
+			const id = new URLSearchParams(location.search).get("id");
+			const draft = TeamH.getDraft("workOrderEdit");
+			if (!draft || !draft.dto) { location.href = "./work_orders_edit.html?id=" + id; return; }
+			const dto = draft.dto;
+
+			document.getElementById("cOrderNo").textContent = dto.orderNo || "";
+			document.getElementById("cPartName").textContent = dto.partName || "";
+			document.getElementById("cClientName").textContent = dto.clientName || "";
+			document.getElementById("cQuantity").textContent = dto.quantity != null ? dto.quantity : "";
+			document.getElementById("cDueDate").textContent = dto.dueDate || "";
+
+			document.getElementById("processBody").innerHTML = (dto.processes || []).map((p, i) => `<tr>
+				<td>${i + 1}</td>
+				<td>${E(p.processName)}</td>
+				<td>${statusBadge(p.currentStatus)}</td>
+			</tr>`).join("");
+
+			document.getElementById("editBackBtn").href = "./work_orders_edit.html?id=" + id;
+
+			document.getElementById("confirmBtn").addEventListener("click", function () {
+				TeamH.updateWorkOrder(id, dto);
+				TeamH.clearDraft("workOrderEdit");
+				location.href = "./complete.html?type=update";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

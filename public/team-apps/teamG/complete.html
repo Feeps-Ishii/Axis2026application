@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>完了画面</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="complete-page">
+
+	<header class="site-header">
+		<div class="header-inner">
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+			<div class="header-user-area">
+				<p class="login-user">ようこそ、<span class="user-name" id="userName">ゲスト</span>さん</p>
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">ログアウト</button>
+				</form>
+			</div>
+		</div>
+	</header>
+
+	<main class="complete-container">
+		<section class="complete-card">
+			<div class="complete-icon-area">
+				<p class="complete-icon">✓</p>
+			</div>
+			<div class="complete-message-area">
+				<h2 class="complete-title" id="completeTitle">処理が完了しました</h2>
+				<p class="complete-message" id="completeMessage">処理が完了しました。</p>
+				<p class="complete-note">必要に応じて、一覧画面またはダッシュボードで内容を確認してください。</p>
+			</div>
+			<div class="complete-action-area">
+				<a href="#" class="primary-button" id="backBtn">一覧へ戻る</a>
+				<a href="#" class="secondary-button" id="dashboardBtn">ダッシュボードへ戻る</a>
+			</div>
+		</section>
+	</main>
+
+	<footer class="footer complete-footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+
+			const q = new URLSearchParams(location.search);
+			const dash = TeamG.homeUrl(sess.roleType);
+			document.getElementById("completeTitle").textContent = q.get("title") || "処理が完了しました";
+			document.getElementById("completeMessage").textContent = q.get("message") || "処理が完了しました。";
+			const back = document.getElementById("backBtn");
+			back.href = q.get("backUrl") || dash;
+			back.textContent = q.get("backText") || "一覧へ戻る";
+			const db = document.getElementById("dashboardBtn");
+			db.href = q.get("dashboardUrl") || dash;
+			db.textContent = q.get("dashboardText") || "ダッシュボードへ戻る";
+		});
+	</script>
+
+</body>
+
+</html>

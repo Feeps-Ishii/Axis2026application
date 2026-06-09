@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>請求情報一覧</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="staff-list-page care-user-list-page billing-list-page hidamari-billing-list-page">
+
+	<header class="site-header">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ゲスト</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="care-user-list-container compact-care-user-list-container compact-staff-list-container hidamari-billing-list-container">
+
+		<section class="compact-page-top">
+
+			<div class="compact-page-heading">
+				<h2 class="page-title">請求情報一覧</h2>
+				<p class="page-description">
+					対象期間を指定し、承認済みの訪問記録に基づく請求情報を確認します。
+				</p>
+			</div>
+
+			<div class="compact-page-action-area">
+				<a href="./admin_dashboard.html" class="secondary-button">
+					管理者ダッシュボードへ戻る
+				</a>
+			</div>
+
+		</section>
+
+		<section class="message-section" id="errorSection" style="display:none;">
+			<p class="error-message" id="errorMessage">
+				対象期間を入力してください。
+			</p>
+		</section>
+
+		<section class="search-section compact-search-section hidamari-billing-search-section" id="searchArea">
+
+			<h3 class="section-title compact-table-header">請求情報検索条件</h3>
+
+			<form method="get"
+				class="search-form"
+				id="visitReportSearchForm">
+
+				<div class="compact-search-grid hidamari-billing-search-grid">
+
+					<div class="compact-form-group hidamari-billing-form-group">
+						<label for="startDate" class="compact-form-label hidamari-billing-form-label">
+							対象期間開始
+							<span class="required-label">必須</span>
+						</label>
+						<input type="date"
+							id="startDate"
+							name="startDate"
+							class="compact-form-input hidamari-billing-form-input"
+							required>
+					</div>
+
+					<div class="compact-form-group hidamari-billing-form-group">
+						<label for="endDate" class="compact-form-label hidamari-billing-form-label">
+							対象期間終了
+							<span class="required-label">必須</span>
+						</label>
+						<input type="date"
+							id="endDate"
+							name="endDate"
+							class="compact-form-input hidamari-billing-form-input"
+							required>
+					</div>
+
+				</div>
+
+				<div class="button-area compact-button-area">
+					<button type="submit" class="primary-button">
+						表示
+					</button>
+
+					<button type="button" class="secondary-button" id="clearSearchButton">
+						クリア
+					</button>
+
+					<a href="#" id="csvButton" class="primary-button" style="display:none;">
+						CSV出力
+					</a>
+				</div>
+
+			</form>
+
+		</section>
+
+		<section class="care-user-table-section compact-care-user-table-section compact-staff-table-section hidamari-billing-table-section">
+
+			<div class="section-heading-row compact-section-heading-row hidamari-billing-table-header">
+				<h3 class="section-title compact-table-header">請求情報一覧</h3>
+				<p class="list-count" id="listCount">
+					0件
+				</p>
+			</div>
+
+			<div class="table-area compact-table-area hidamari-billing-table-area">
+
+				<table class="hidamari-billing-table">
+
+					<colgroup>
+						<col class="billing-col-date">
+						<col class="billing-col-user">
+						<col class="billing-col-helper">
+						<col class="billing-col-fee">
+						<col class="billing-col-user-charge">
+						<col class="billing-col-insurance">
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th class="billing-col-date">訪問日</th>
+							<th class="billing-col-user">利用者名</th>
+							<th class="billing-col-helper">ヘルパー</th>
+							<th class="billing-col-fee">料金</th>
+							<th class="billing-col-user-charge">利用者負担額</th>
+							<th class="billing-col-insurance">保険請求額</th>
+						</tr>
+					</thead>
+
+					<tbody id="billingTableBody">
+					</tbody>
+
+				</table>
+
+			</div>
+
+		</section>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		let currentList = [];
+
+		function yen(n) {
+			return "¥" + Number(n || 0).toLocaleString();
+		}
+
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+
+			const q = new URLSearchParams(location.search);
+			const startDate = q.get("startDate") || "";
+			const endDate = q.get("endDate") || "";
+
+			document.getElementById("startDate").value = startDate;
+			document.getElementById("endDate").value = endDate;
+
+			const tbody = document.getElementById("billingTableBody");
+			const listCount = document.getElementById("listCount");
+			const errorSection = document.getElementById("errorSection");
+			const errorMessage = document.getElementById("errorMessage");
+			const csvButton = document.getElementById("csvButton");
+
+			const hasStart = startDate !== "";
+			const hasEnd = endDate !== "";
+
+			function emptyRow(msg) {
+				tbody.innerHTML = '<tr><td colspan="6" class="empty-message">' + TeamG.esc(msg) + '</td></tr>';
+			}
+
+			if (!hasStart && !hasEnd) {
+				emptyRow("対象期間を指定して表示してください。");
+				listCount.textContent = "0件";
+			} else if (!hasStart || !hasEnd) {
+				errorSection.style.display = "";
+				errorMessage.textContent = "対象期間は開始日・終了日の両方を入力してください。";
+				emptyRow("対象期間を指定して表示してください。");
+				listCount.textContent = "0件";
+			} else if (TeamG.parseDate(startDate) > TeamG.parseDate(endDate)) {
+				errorSection.style.display = "";
+				errorMessage.textContent = "対象期間開始は対象期間終了より前の日付を指定してください。";
+				emptyRow("対象期間を指定して表示してください。");
+				listCount.textContent = "0件";
+			} else {
+				currentList = TeamG.billingList(startDate, endDate);
+				listCount.textContent = currentList.length + "件";
+				if (currentList.length === 0) {
+					emptyRow("指定された対象期間の請求情報はありません。");
+				} else {
+					let h = "";
+					currentList.forEach(function (b) {
+						h += "<tr>";
+						h += '<td class="billing-col-date">' + TeamG.esc(TeamG.fmtDate(b.visitDate)) + '</td>';
+						h += '<td class="billing-col-user">' + TeamG.esc(b.careUserName) + '</td>';
+						h += '<td class="billing-col-helper">' + TeamG.esc(b.helperName) + '</td>';
+						h += '<td class="billing-col-fee">' + TeamG.esc(yen(b.feeAmount)) + '</td>';
+						h += '<td class="billing-col-user-charge">' + TeamG.esc(yen(b.userChargeAmount)) + '</td>';
+						h += '<td class="billing-col-insurance">' + TeamG.esc(yen(b.insuranceChargeAmount)) + '</td>';
+						h += "</tr>";
+					});
+					tbody.innerHTML = h;
+					csvButton.style.display = "";
+				}
+			}
+
+			csvButton.addEventListener("click", function (e) {
+				e.preventDefault();
+				if (!currentList.length) return;
+				const headers = ["訪問日", "利用者名", "ヘルパー", "料金", "利用者負担額", "保険請求額"];
+				function cell(v) {
+					const s = String(v == null ? "" : v);
+					return '"' + s.replace(/"/g, '""') + '"';
+				}
+				const lines = [headers.map(cell).join(",")];
+				currentList.forEach(function (b) {
+					lines.push([
+						cell(TeamG.fmtDate(b.visitDate)),
+						cell(b.careUserName),
+						cell(b.helperName),
+						cell(b.feeAmount),
+						cell(b.userChargeAmount),
+						cell(b.insuranceChargeAmount),
+					].join(","));
+				});
+				const csv = "﻿" + lines.join("\r\n");
+				const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = "billing.csv";
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			});
+
+			const searchForm = document.getElementById("visitReportSearchForm");
+			searchForm.addEventListener("submit", function (event) {
+				event.preventDefault();
+				const s = document.getElementById("startDate").value;
+				const en = document.getElementById("endDate").value;
+				location.href = "./billing.html?startDate=" + encodeURIComponent(s)
+					+ "&endDate=" + encodeURIComponent(en) + "#searchArea";
+			});
+
+			const clearButton = document.getElementById("clearSearchButton");
+			if (clearButton) {
+				clearButton.addEventListener("click", function () {
+					const formItems = searchForm.querySelectorAll(
+						"input[type='text'], input[type='date'], select, textarea"
+					);
+					formItems.forEach(function (item) {
+						item.value = "";
+					});
+				});
+			}
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>プラン詳細</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="plan-detail-page compact-form-page">
+
+	<header class="site-header" id="pageHeader">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ゲスト</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="plan-detail-container compact-form-container">
+
+		<section class="compact-page-top">
+			<div class="compact-page-heading">
+				<h2 class="page-title">プラン詳細</h2>
+				<p class="page-description">
+					登録されているサービスプランの内容を確認できます。
+				</p>
+			</div>
+
+			<div class="compact-page-action-area">
+				<a href="./plan_list.html" class="secondary-button">
+					プラン一覧へ戻る
+				</a>
+			</div>
+		</section>
+
+		<section class="message-section" id="errorSection" style="display:none;">
+			<p class="error-message" id="errorMessage"></p>
+		</section>
+
+		<div id="planBody">
+
+		<section class="compact-form-section">
+
+			<h3 class="compact-section-title">プラン情報</h3>
+
+			<div class="compact-detail-grid">
+
+				<div class="compact-detail-group">
+					<div class="compact-detail-label">プランコード</div>
+					<div class="compact-detail-value" id="planCode"></div>
+				</div>
+
+				<div class="compact-detail-group">
+					<div class="compact-detail-label">プラン名</div>
+					<div class="compact-detail-value" id="planName"></div>
+				</div>
+
+				<div class="compact-detail-group compact-detail-group-wide">
+					<div class="compact-detail-label">サービス内容</div>
+					<div class="compact-detail-value compact-detail-text" id="serviceContent"></div>
+				</div>
+
+				<div class="compact-detail-group">
+					<div class="compact-detail-label">料金（円）</div>
+					<div class="compact-detail-value" id="feeAmount"></div>
+				</div>
+
+			</div>
+
+		</section>
+
+		<section class="compact-form-section">
+
+			<h3 class="compact-section-title">請求計算の参考</h3>
+
+			<div class="compact-detail-grid">
+
+				<div class="compact-detail-group">
+					<div class="compact-detail-label">利用者負担割合</div>
+					<div class="compact-detail-value">1割</div>
+				</div>
+
+				<div class="compact-detail-group">
+					<div class="compact-detail-label">保険請求割合</div>
+					<div class="compact-detail-value">9割</div>
+				</div>
+
+				<div class="compact-detail-group">
+					<div class="compact-detail-label">利用者負担額</div>
+					<div class="compact-detail-value" id="userChargeAmount"></div>
+				</div>
+
+				<div class="compact-detail-group">
+					<div class="compact-detail-label">保険請求額</div>
+					<div class="compact-detail-value" id="insuranceChargeAmount"></div>
+				</div>
+
+			</div>
+
+		</section>
+
+		<section class="compact-detail-action-section">
+
+			<div class="button-area compact-button-area">
+
+				<a href="#" id="editButton" class="primary-button">
+					更新画面へ
+				</a>
+
+				<button type="button" class="danger-button" onclick="openDeleteModal()">
+					削除する
+				</button>
+
+			</div>
+
+		</section>
+
+		<!-- 削除モーダル -->
+		<section id="deleteModal" class="modal-section is-hidden">
+
+			<div class="modal-overlay">
+
+				<div class="modal-card compact-modal-card">
+
+					<h3 class="modal-title">削除確認</h3>
+
+					<form onsubmit="return false;">
+
+						<div class="compact-detail-grid compact-confirm-grid">
+
+							<div class="compact-detail-group">
+								<div class="compact-detail-label">プラン名</div>
+								<div class="compact-detail-value" id="modalPlanName"></div>
+							</div>
+
+							<div class="compact-detail-group">
+								<div class="compact-detail-label">料金</div>
+								<div class="compact-detail-value" id="modalFeeAmount"></div>
+							</div>
+
+						</div>
+
+						<p class="confirm-message">
+							このプランを削除しますか？
+						</p>
+
+						<div class="modal-button-area compact-modal-button-area">
+
+							<button type="button" class="danger-button compact-modal-button" id="confirmDeleteButton">
+								削除する
+							</button>
+
+							<button type="button" class="secondary-button compact-modal-button" onclick="closeDeleteModal()">
+								キャンセル
+							</button>
+
+						</div>
+
+					</form>
+
+				</div>
+
+			</div>
+
+		</section>
+
+		</div>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const header = document.getElementById("pageHeader");
+
+		function openDeleteModal() {
+			document.getElementById("deleteModal").classList.remove("is-hidden");
+			header.style.display = "none";
+			document.body.style.overflow = "hidden";
+		}
+
+		function closeDeleteModal() {
+			document.getElementById("deleteModal").classList.add("is-hidden");
+			header.style.display = "block";
+			document.body.style.overflow = "";
+		}
+
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+
+			const q = new URLSearchParams(location.search);
+			const planId = Number(q.get("planId"));
+			const plan = TeamG.plan(planId);
+
+			if (!plan) {
+				document.getElementById("planBody").style.display = "none";
+				document.getElementById("errorSection").style.display = "";
+				document.getElementById("errorMessage").textContent = "対象のプランが見つかりませんでした。";
+				return;
+			}
+
+			document.getElementById("planCode").textContent = plan.planCode || "";
+			document.getElementById("planName").textContent = plan.planName || "";
+			document.getElementById("serviceContent").textContent = plan.serviceContent || "";
+			document.getElementById("feeAmount").textContent = plan.feeAmount + "円";
+
+			document.getElementById("userChargeAmount").textContent = TeamG.userCharge(plan.feeAmount) + "円";
+			document.getElementById("insuranceChargeAmount").textContent = TeamG.insuranceCharge(plan.feeAmount) + "円";
+
+			document.getElementById("editButton").href = "./plan_edit.html?planId=" + plan.planId;
+
+			document.getElementById("modalPlanName").textContent = plan.planName || "";
+			document.getElementById("modalFeeAmount").textContent = plan.feeAmount + "円";
+
+			document.getElementById("confirmDeleteButton").addEventListener("click", function () {
+				if (TeamG.planVisitCount(plan.planId) > 0) {
+					closeDeleteModal();
+					document.getElementById("errorSection").style.display = "";
+					document.getElementById("errorMessage").textContent =
+						"このプランは使用中のため削除できません。";
+					window.scrollTo(0, 0);
+					return;
+				}
+				TeamG.planDelete(plan.planId);
+				location.href = "./complete.html?title=" + encodeURIComponent("プラン削除完了")
+					+ "&message=" + encodeURIComponent("プランの削除が完了しました。")
+					+ "&backUrl=" + encodeURIComponent("./plan_list.html")
+					+ "&dashboardUrl=" + encodeURIComponent("./admin_dashboard.html");
+			});
+		});
+	</script>
+
+</body>
+
+</html>

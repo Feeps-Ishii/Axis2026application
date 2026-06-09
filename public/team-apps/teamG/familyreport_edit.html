@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>家族報告編集</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="family-report-edit-page">
+
+	<header class="site-header">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ヘルパー</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="family-report-edit-container">
+
+		<section class="page-heading">
+			<h2 class="page-title">家族報告編集</h2>
+			<p class="page-description">
+				差し戻された家族報告の内容を修正し、再提出します。
+			</p>
+		</section>
+
+		<section class="page-action-section">
+			<div class="page-action-area" id="pageActionArea">
+
+				<a href="./helper_dashboard.html" class="secondary-button">
+					ヘルパーダッシュボードへ戻る
+				</a>
+
+			</div>
+		</section>
+
+		<section class="message-section" id="messageSection" style="display:none;">
+			<p class="error-message" id="errorMessage">
+				エラーメッセージ
+			</p>
+		</section>
+
+		<div id="editContainer"></div>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		function valueOrEmpty(value) {
+			if (value === null || value === undefined || value.trim() === "") {
+				return "未入力";
+			}
+			return value;
+		}
+
+		function formatDateTimeLocal(value) {
+			if (!value) {
+				return "未入力";
+			}
+
+			return value.replace("T", " ");
+		}
+
+		function openConfirmModal() {
+			const form = document.getElementById("familyReportEditForm");
+
+			if (!form.reportContent.value.trim()) {
+				alert("報告内容を入力してください。");
+				form.reportContent.focus();
+				return;
+			}
+
+			document.getElementById("confirmReportContent").textContent =
+				valueOrEmpty(form.reportContent.value);
+
+			document.getElementById("confirmFamilyComment").textContent =
+				valueOrEmpty(form.familyComment.value);
+
+			document.getElementById("confirmSpecialNote").textContent =
+				valueOrEmpty(form.specialNote.value);
+
+			document.getElementById("confirmNextVisitDate").textContent =
+				formatDateTimeLocal(form.nextVisitDate.value);
+
+			document.getElementById("confirmPhotoConsent").textContent =
+				form.photoConsent.checked ? "同意あり" : "同意なし";
+
+			document.getElementById("confirmPhotoFile").textContent =
+				form.photoFile.files.length > 0
+					? form.photoFile.files[0].name
+					: "変更なし";
+
+			document.getElementById("confirmModal").hidden = false;
+			document.body.classList.add("modal-open");
+		}
+
+		function closeConfirmModal() {
+			document.getElementById("confirmModal").hidden = true;
+			document.body.classList.remove("modal-open");
+		}
+
+		function previewPhoto(input) {
+			const previewArea = document.getElementById("photoPreviewArea");
+			const preview = document.getElementById("photoPreview");
+
+			if (!input.files || input.files.length === 0) {
+				previewArea.hidden = true;
+				preview.removeAttribute("src");
+				return;
+			}
+
+			const file = input.files[0];
+			const reader = new FileReader();
+
+			reader.onload = function (event) {
+				preview.src = event.target.result;
+				previewArea.hidden = false;
+			};
+
+			reader.readAsDataURL(file);
+		}
+
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [2])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ヘルパー";
+
+			const q = new URLSearchParams(location.search);
+			const familyReportId = q.get("familyReportId");
+			const fr = TeamG.familyReportDetailByRole(familyReportId, 2, sess.staffId, null);
+
+			function showError(msg) {
+				document.getElementById("errorMessage").textContent = msg;
+				document.getElementById("messageSection").style.display = "";
+			}
+
+			if (!fr) {
+				showError("家族報告情報の取得に失敗しました。");
+				document.getElementById("editContainer").innerHTML =
+					'<section class="detail-section"><p class="empty-message">編集対象の家族報告がありません。</p></section>';
+				return;
+			}
+
+			if (fr.approvalStatus !== 3) {
+				showError("差し戻された家族報告のみ編集できます。");
+				return;
+			}
+
+			const esc = TeamG.esc;
+			const actionArea = document.getElementById("pageActionArea");
+			actionArea.insertAdjacentHTML("beforeend", '<a href="./familyreport_detail.html?familyReportId=' + encodeURIComponent(fr.familyReportId) + '" class="secondary-button">詳細へ戻る</a>');
+
+			document.getElementById("editContainer").innerHTML =
+				(fr.rejectReason != null ?
+					'<section class="detail-section reject-section">' +
+						'<h3 class="section-title">差し戻し理由</h3>' +
+						'<div class="notice-box pre-line">' + esc(fr.rejectReason) + '</div>' +
+					'</section>' : '') +
+				'<section class="detail-section">' +
+					'<h3 class="section-title">基本情報</h3>' +
+					'<dl class="detail-list edit-detail-list">' +
+						'<div class="detail-row edit-detail-row"><dt>利用者名</dt><dd>' + esc(fr.careUserName) + '</dd></div>' +
+						'<div class="detail-row edit-detail-row"><dt>担当ヘルパー</dt><dd>' + esc(fr.staffName) + '</dd></div>' +
+						'<div class="detail-row edit-detail-row"><dt>プラン名</dt><dd>' + esc(fr.planName) + '</dd></div>' +
+						'<div class="detail-row edit-detail-row"><dt>サービス内容</dt><dd>' + esc(fr.serviceContent) + '</dd></div>' +
+						'<div class="detail-row edit-detail-row"><dt>訪問日</dt><dd>' + esc(fr.visitDate ? TeamG.fmtDate(fr.visitDate) : "") + '</dd></div>' +
+						'<div class="detail-row edit-detail-row"><dt>訪問時間</dt><dd><span>' + esc(fr.startTime ? TeamG.fmtTime(fr.startTime) : "") + '</span> ～ <span>' + esc(fr.endTime ? TeamG.fmtTime(fr.endTime) : "") + '</span></dd></div>' +
+					'</dl>' +
+				'</section>' +
+				'<section class="form-section">' +
+					'<h3 class="section-title">修正内容入力</h3>' +
+					'<form id="familyReportEditForm" class="family-report-edit-form" onsubmit="return false;">' +
+						'<input type="hidden" id="familyReportId" value="' + esc(fr.familyReportId) + '">' +
+						'<input type="hidden" id="visitRecordId" value="' + esc(fr.visitRecordId) + '">' +
+						'<div class="form-group edit-form-group full-width">' +
+							'<label for="reportContent">報告内容 <span class="required">必須</span></label>' +
+							'<textarea id="reportContent" rows="7" maxlength="1000" required>' + esc(fr.reportContent || "") + '</textarea>' +
+							'<p class="form-note">家族へ伝える報告内容を1000文字以内で入力してください。</p>' +
+						'</div>' +
+						'<div class="form-group edit-form-group full-width">' +
+							'<label for="familyComment">家族コメント</label>' +
+							'<textarea id="familyComment" rows="5" maxlength="1000">' + esc(fr.familyComment || "") + '</textarea>' +
+						'</div>' +
+						'<div class="form-group edit-form-group full-width">' +
+							'<label for="specialNote">特記事項</label>' +
+							'<textarea id="specialNote" rows="5" maxlength="1000">' + esc(fr.specialNote || "") + '</textarea>' +
+						'</div>' +
+						'<div class="form-group edit-form-group">' +
+							'<label for="nextVisitDate">次回訪問予定</label>' +
+							'<input type="datetime-local" id="nextVisitDate" value="' + esc(fr.nextVisitDate ? TeamG.toLocalInput(fr.nextVisitDate) : "") + '">' +
+						'</div>' +
+						'<div class="form-group edit-form-group">' +
+							'<label>写真同意</label>' +
+							'<div class="checkbox-group edit-checkbox-group">' +
+								'<label><input type="checkbox" id="photoConsent"' + (fr.photoConsent ? ' checked' : '') + '> 写真掲載の本人同意あり</label>' +
+							'</div>' +
+						'</div>' +
+						'<div class="form-group edit-form-group full-width">' +
+							'<label for="photoFile">写真</label>' +
+							'<input type="file" id="photoFile" accept="image/*" onchange="previewPhoto(this)">' +
+							'<p class="form-note">写真を変更する場合のみ選択してください。</p>' +
+							'<div class="photo-preview-area" id="photoPreviewArea" hidden><img id="photoPreview" class="photo-preview" alt="写真プレビュー"></div>' +
+						'</div>' +
+						'<div class="form-group edit-form-group full-width">' +
+							'<label for="photoPath">現在の写真パス</label>' +
+							'<input type="text" id="photoPath" value="' + esc(fr.photoPath || "") + '" readonly>' +
+						'</div>' +
+						'<div class="button-area edit-button-area full-width">' +
+							'<button type="button" class="primary-button" onclick="openConfirmModal()">入力内容を確認する</button>' +
+							'<a href="./familyreport_detail.html?familyReportId=' + encodeURIComponent(fr.familyReportId) + '" class="secondary-button">キャンセル</a>' +
+						'</div>' +
+						'<section class="modal-section" id="confirmModal" hidden>' +
+							'<div class="modal-overlay"><div class="modal-card">' +
+								'<h3 class="modal-title">入力内容確認</h3>' +
+								'<p class="confirm-message">以下の内容で再提出します。よろしいですか？</p>' +
+								'<dl class="confirm-list edit-confirm-list">' +
+									'<div class="confirm-row edit-confirm-row full-width"><dt>報告内容</dt><dd id="confirmReportContent" class="pre-line"></dd></div>' +
+									'<div class="confirm-row edit-confirm-row full-width"><dt>家族コメント</dt><dd id="confirmFamilyComment" class="pre-line"></dd></div>' +
+									'<div class="confirm-row edit-confirm-row full-width"><dt>特記事項</dt><dd id="confirmSpecialNote" class="pre-line"></dd></div>' +
+									'<div class="confirm-row edit-confirm-row"><dt>次回訪問予定</dt><dd id="confirmNextVisitDate"></dd></div>' +
+									'<div class="confirm-row edit-confirm-row"><dt>写真同意</dt><dd id="confirmPhotoConsent"></dd></div>' +
+									'<div class="confirm-row edit-confirm-row full-width"><dt>写真</dt><dd id="confirmPhotoFile"></dd></div>' +
+								'</dl>' +
+								'<div class="modal-button-area">' +
+									'<button type="submit" class="primary-button" id="resubmitButton">再提出する</button>' +
+									'<button type="button" class="secondary-button" onclick="closeConfirmModal()">入力画面に戻る</button>' +
+								'</div>' +
+							'</div></div>' +
+						'</section>' +
+					'</form>' +
+				'</section>';
+
+			document.getElementById("resubmitButton").addEventListener("click", function () {
+				const form = document.getElementById("familyReportEditForm");
+				const nextVisit = form.nextVisitDate.value ? form.nextVisitDate.value.replace("T", " ") + ":00" : null;
+				TeamG.resubmitFamilyReport(fr.familyReportId, {
+					reportContent: form.reportContent.value,
+					familyComment: form.familyComment.value,
+					specialNote: form.specialNote.value,
+					nextVisitDate: nextVisit,
+					photoConsent: form.photoConsent.checked,
+				}, sess.staffId);
+				location.href = "./helper_dashboard.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>コンテンツ詳細</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+			background: #f4f7fb;
+			color: #1f2937;
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+
+		.main {
+			flex: 1;
+			padding: 32px;
+		}
+
+		/* ページヘッダー */
+		.page-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+		}
+
+		.page-title {
+			font-size: 28px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0;
+			display: flex;
+			align-items: center;
+		}
+
+		.page-title::before {
+			content: '';
+			display: inline-block;
+			width: 5px;
+			height: 32px;
+			background: #153e75;
+			border-radius: 3px;
+			margin-right: 12px;
+		}
+
+		/* カード */
+		.card {
+			background: #fff;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 24px;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+			margin-bottom: 20px;
+		}
+
+		.card-title {
+			margin: 0 0 18px;
+			font-size: 22px;
+			color: #102a43;
+			border-bottom: 1px solid #e5eaf0;
+			padding-bottom: 12px;
+		}
+
+		/* 情報グリッド */
+		.info-grid {
+			display: grid;
+			grid-template-columns: 180px 1fr;
+			border: 1px solid #d9e2ec;
+			border-radius: 10px;
+			overflow: hidden;
+			margin-bottom: 18px;
+		}
+
+		.info-label {
+			background: #f0f4f8;
+			font-weight: bold;
+			color: #334e68;
+			padding: 13px;
+			border-bottom: 1px solid #d9e2ec;
+			font-size: 14px;
+		}
+
+		.info-value {
+			padding: 13px;
+			border-bottom: 1px solid #d9e2ec;
+			white-space: pre-wrap;
+			font-size: 14px;
+		}
+
+		.info-label:last-of-type,
+		.info-value:last-of-type {
+			border-bottom: none;
+		}
+
+		.section-title {
+			font-size: 16px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 22px 0 10px;
+		}
+
+		.content-box {
+			background: #f8fafc;
+			border: 1px solid #d9e2ec;
+			border-radius: 10px;
+			padding: 16px;
+			line-height: 1.8;
+			white-space: pre-wrap;
+			font-size: 14px;
+		}
+
+		/* ファイルリスト */
+		.file-list {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		.file-item {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 12px;
+			border: 1px solid #d9e2ec;
+			border-radius: 8px;
+			margin-bottom: 8px;
+			background: #f8fafc;
+			font-size: 14px;
+		}
+
+		/* ボタン */
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 10px 18px;
+			border-radius: 8px;
+			border: 1px solid #bcccdc;
+			background: #fff;
+			color: #334e68;
+			font-weight: bold;
+			font-size: 14px;
+			cursor: pointer;
+			text-decoration: none;
+		}
+
+		.btn:hover {
+			background: #f0f4f8;
+		}
+
+		.btn.primary {
+			background: #153e75;
+			color: #fff;
+			border-color: #153e75;
+		}
+
+		.btn.primary:hover {
+			background: #102a43;
+		}
+
+		.btn.danger {
+			background: #b91c1c;
+			color: #fff;
+			border-color: #b91c1c;
+		}
+
+		.btn.danger:hover {
+			background: #991b1b;
+		}
+
+		.button-area {
+			display: flex;
+			gap: 12px;
+			margin-top: 24px;
+		}
+
+		.viewer-card {
+			background: #fff;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 24px;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+		}
+
+		.viewer-area {
+			width: 100%;
+			height: 100%;
+			background: #111827;
+			border-radius: 14px;
+			overflow: hidden;
+			margin-bottom: 22px;
+		}
+
+		.main-viewer {
+			width: 100%;
+			height: 100%;
+			border: none;
+			background: white;
+		}
+
+		.no-file {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-weight: bold;
+			font-size: 18px;
+		}
+
+		.content-main-info {
+			margin-bottom: 20px;
+		}
+
+		.content-main-info h2 {
+			font-size: 26px;
+			color: #102a43;
+			margin: 0 0 10px;
+		}
+
+		.content-main-info p {
+			color: #52606d;
+			line-height: 1.8;
+			margin: 0;
+		}
+
+		.detail-box {
+			border: 1px solid #d9e2ec;
+			border-radius: 12px;
+			background: #f8fafc;
+			padding: 16px;
+			margin-top: 18px;
+		}
+
+		.detail-box summary {
+			cursor: pointer;
+			font-weight: bold;
+			color: #153e75;
+			font-size: 16px;
+		}
+
+		.detail-box[open] summary {
+			margin-bottom: 16px;
+		}
+
+		.file-section {
+			margin-top: 22px;
+		}
+
+
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<h1 class="page-title" id="pageTitle">コンテンツ詳細</h1>
+
+			<div class="viewer-card" id="viewerCard"></div>
+
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			TeamHNav.render("knowledge");
+
+			const role = sess.role;
+			const canEditKnowledge = role === "admin" || role === "craftsman";
+			const canDeleteKnowledge = role === "admin";
+
+			const id = new URLSearchParams(location.search).get("id");
+			const skill = TeamH.skillContent(id);
+			if (!skill) { location.href = "./knowledge_list.html"; return; }
+
+			const files = TeamH.skillFiles(id);
+			document.getElementById("pageTitle").textContent = skill.title || "コンテンツ詳細";
+
+			let viewerHtml;
+			if (files.length) {
+				const mainFile = files[0];
+				const viewerType = TeamH.detailViewerType(mainFile.fileType);
+				viewerHtml = `<div class="viewer-area no-file">
+						プレビューできません。
+						下の添付資料から開いてください。
+					</div>`;
+			} else {
+				viewerHtml = `<div class="viewer-area no-file">
+						表示できる添付資料はありません。
+					</div>`;
+			}
+
+			let fileSection = "";
+			if (files.length) {
+				const items = files.map(function (file) {
+					return `<li class="file-item">
+						<span>${E(file.fileName)}</span>
+						<a href="./knowledge_file.html?id=${E(file.skillContentsFilesId)}">表示</a>
+					</li>`;
+				}).join("");
+				fileSection = `<div class="file-section">
+					<h3 class="section-title">添付資料</h3>
+					<ul class="file-list">${items}</ul>
+				</div>`;
+			}
+
+			let buttons = `<a class="btn" href="./knowledge_list.html">一覧へ戻る</a>`;
+			if (canEditKnowledge) {
+				buttons += `<a class="btn primary" href="./knowledge_edit.html?id=${E(skill.skillContentsId)}">編集</a>`;
+			}
+			if (canDeleteKnowledge) {
+				buttons += `<a class="btn danger" href="./knowledge_delete.html?id=${E(skill.skillContentsId)}">削除</a>`;
+			}
+
+			document.getElementById("viewerCard").innerHTML = `
+				${viewerHtml}
+				<div class="content-main-info">
+					<h2>${E(skill.title)}</h2>
+					<p>${E(skill.description)}</p>
+				</div>
+				<details class="detail-box">
+					<summary>詳細情報を見る</summary>
+					<div class="info-grid">
+						<div class="info-label">対象部品</div>
+						<div class="info-value">${E(skill.targetPart)}</div>
+						<div class="info-label">対象工程</div>
+						<div class="info-value">${E(skill.targetProcess)}</div>
+						<div class="info-label">登録者</div>
+						<div class="info-value">${E(skill.registeredByName)}</div>
+					</div>
+					<h3 class="section-title">作業内容</h3>
+					<div class="content-box">${E(skill.workContent)}</div>
+					<h3 class="section-title">注意事項</h3>
+					<div class="content-box">${E(skill.notes)}</div>
+				</details>
+				${fileSection}
+				<div class="button-area">${buttons}</div>`;
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>自分の作業一覧</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* { box-sizing: border-box; }
+		body { margin: 0; font-family: "Yu Gothic", "Meiryo", sans-serif; background-color: #f4f7fb; color: #1f2937; }
+		a { text-decoration: none; color: inherit; }
+		.main { flex: 1; padding: 32px; }
+		.page-title { font-size: 28px; font-weight: bold; color: #102a43; margin: 0 0 8px 0; display: flex; align-items: center; }
+		.page-title::before { content: ''; display: inline-block; width: 5px; height: 32px; background: #153e75; border-radius: 3px; margin-right: 12px; }
+		.page-lead { color: #627d98; font-size: 14px; margin: 0 0 24px 0; padding-left: 17px; }
+		.filter-area { display: flex; align-items: flex-end; gap: 24px; background: white; border: 1px solid #d9e2ec; border-radius: 14px; padding: 18px 22px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06); flex-wrap: wrap; }
+		.filter-item { display: flex; flex-direction: column; gap: 6px; }
+		.filter-item label { font-weight: bold; color: #334e68; font-size: 13px; }
+		.filter-item select { min-width: 200px; padding: 10px 12px; border: 1px solid #bcccdc; border-radius: 8px; background: white; font-size: 14px; font-family: inherit; }
+		.filter-item select:focus { border-color: #153e75; outline: none; }
+		.filter-buttons { display: flex; align-items: flex-end; gap: 8px; }
+		.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 18px; border-radius: 8px; border: 1px solid #bcccdc; background: #fff; color: #334e68; font-weight: bold; font-size: 14px; cursor: pointer; font-family: inherit; text-decoration: none; }
+		.btn:hover { background: #f0f4f8; }
+		.btn.primary { background: #153e75; color: white; border-color: #153e75; }
+		.btn.primary:hover { background: #102a43; }
+		.card { background: white; border: 1px solid #d9e2ec; border-radius: 14px; padding: 22px; box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06); }
+		.table { width: 100%; border-collapse: collapse; }
+		.table th { background: #f0f4f8; padding: 12px 14px; text-align: left; color: #334e68; font-size: 13px; font-weight: bold; border-bottom: 1px solid #d9e2ec; }
+		.table td { padding: 14px; border-bottom: 1px solid #e5eaf0; font-size: 14px; }
+		.badge { padding: 5px 12px; border-radius: 999px; font-weight: bold; display: inline-block; font-size: 12px; }
+		.not_started { background: #e5e7eb; color: #374151; }
+		.preparing { background: #dbeafe; color: #1d4ed8; }
+		.processing { background: #fef3c7; color: #92400e; }
+		.inspecting { background: #ede9fe; color: #6b21a8; }
+		.completed { background: #dcfce7; color: #166534; }
+		.clickable-row { cursor: pointer; transition: background 0.15s; }
+		.clickable-row:hover td { background: #e0ecff; }
+		.empty-message { padding: 20px; text-align: center; color: #627d98; font-size: 14px; }
+		.notice-board { width: 100%; height: 40px; background: #102a43; color: white; overflow: hidden; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; box-shadow: 0 4px 12px rgba(16, 42, 67, .2); position: relative; }
+		.notice-label { background: #dc2626; color: white; font-weight: bold; padding: 0 24px; height: 100%; display: flex; align-items: center; font-size: 18px; flex-shrink: 0; position: relative; z-index: 2; }
+		.notice-marquee { flex: 1; height: 100%; overflow: hidden; position: relative; }
+		.notice-track { white-space: nowrap; display: inline-block; animation: marquee 20s linear infinite; font-size: 20px; font-weight: bold; padding-left: 100%; line-height: 50px; }
+		@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+		.morning-modal-bg { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); display: flex; align-items: center; justify-content: center; z-index: 9999; animation: fadeIn 0.25s ease-out; }
+		.morning-modal { width: 720px; background: white; border-radius: 24px; padding: 36px 42px; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35); animation: popIn 0.35s ease-out; text-align: center; }
+		.morning-label { display: inline-block; background: #153e75; color: white; font-weight: bold; padding: 8px 18px; border-radius: 999px; font-size: 15px; margin-bottom: 18px; }
+		.morning-title { font-size: 34px; font-weight: bold; color: #102a43; margin-bottom: 18px; }
+		.morning-process { font-size: 42px; font-weight: bold; color: #153e75; margin-bottom: 18px; }
+		.morning-detail { background: #f0f4f8; border-radius: 16px; padding: 18px; font-size: 18px; line-height: 1.9; color: #334e68; margin-bottom: 24px; }
+		.morning-buttons { display: flex; justify-content: center; gap: 14px; }
+		@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+		@keyframes popIn { from { transform: scale(0.9) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+		.main { width: 100%; max-width: none; padding: clamp(16px, 2vw, 32px); overflow-x: hidden; }
+		.notice-board, .filter-area, .card, .page-title { width: 100%; max-width: 100%; }
+		.filter-area { gap: clamp(10px, 1.5vw, 24px); }
+		.filter-item { flex: 1 1 180px; min-width: 0; }
+		.filter-item select { min-width: 0; width: 100%; }
+		.filter-buttons { flex: 0 0 auto; }
+		.card { overflow-x: auto; }
+		.table { min-width: 760px; }
+		.morning-modal { width: min(720px, 90vw); padding: clamp(22px, 4vw, 42px); }
+		.morning-title { font-size: clamp(24px, 3vw, 34px); }
+		.morning-process { font-size: clamp(28px, 4vw, 42px); }
+		.notice-track { font-size: clamp(16px, 2vw, 22px); }
+		.empty-notice { background: #ffffff; border: 1px solid #d9e2ec; border-left: 5px solid #153e75; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; color: #334e68; font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06); }
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<div id="morningModalArea"></div>
+			<div id="noticeArea"></div>
+
+			<h1 class="page-title">自分の作業一覧</h1>
+			<p class="page-lead">自分が担当する作業を表示します。</p>
+
+			<form class="filter-area" id="filterForm" method="get">
+				<div class="filter-item">
+					<label>品名</label>
+					<select name="partName" id="partName"></select>
+				</div>
+				<div class="filter-item">
+					<label>機械番号</label>
+					<select name="machineNo" id="machineNo"></select>
+				</div>
+				<div class="filter-item">
+					<label>状態</label>
+					<select name="status" id="status">
+						<option value="">全て</option>
+						<option value="not_started">未着手</option>
+						<option value="preparing">段取中</option>
+						<option value="processing">加工中</option>
+						<option value="inspecting">検査中</option>
+						<option value="completed">完了</option>
+					</select>
+				</div>
+				<div class="filter-item">
+					<label>表示範囲</label>
+					<select name="showCompleted" id="showCompleted">
+						<option value="false">未完了のみ</option>
+						<option value="true">完了済みも表示</option>
+					</select>
+				</div>
+				<div class="filter-buttons">
+					<button type="submit" class="btn primary">検索</button>
+					<a class="btn" href="./todo.html">クリア</a>
+				</div>
+			</form>
+
+			<div class="card">
+				<div id="emptyMsg" class="empty-message" style="display:none;">表示できる作業はありません。</div>
+				<table class="table" id="todoTable">
+					<thead><tr>
+						<th>受注番号</th><th>部品名</th><th>工程順</th><th>工程名</th><th>機械番号</th><th>状態</th>
+					</tr></thead>
+					<tbody id="todoBody"></tbody>
+				</table>
+			</div>
+
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+
+		function navUrl(wopId) { return "./worker_navigation.html?workOrderProcessId=" + wopId; }
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			if (sess.role !== "craftsman") { location.href = "./login.html?authError=true"; return; }
+			TeamHNav.render("dashboard");
+
+			const uid = sess.loginUser.userId;
+			const params = new URLSearchParams(location.search);
+			const partName = params.get("partName") || "";
+			const machineNoVal = params.get("machineNo") || "";
+			const status = params.get("status") || "";
+			const showCompleted = params.get("showCompleted") === "true";
+
+			// フィルタ選択肢
+			const pnSel = document.getElementById("partName");
+			pnSel.innerHTML = '<option value="">全て</option>' +
+				TeamH.todoPartNameList(uid).map((p) => `<option value="${E(p)}"${p === partName ? " selected" : ""}>${E(p)}</option>`).join("");
+			const mnSel = document.getElementById("machineNo");
+			mnSel.innerHTML = '<option value="">全て</option>' +
+				TeamH.todoMachineNoList(uid).map((m) => `<option value="${E(m)}"${m === machineNoVal ? " selected" : ""}>${E(m)}</option>`).join("");
+			document.getElementById("status").value = status;
+			document.getElementById("showCompleted").value = showCompleted ? "true" : "false";
+
+			// 優先作業（マーキー / モーダル）
+			const priority = TeamH.priorityWork(uid);
+			if (priority) {
+				document.getElementById("noticeArea").innerHTML = `
+					<div class="notice-board">
+						<div class="notice-label">重要</div>
+						<div class="notice-marquee"><div class="notice-track"><span>
+							【最優先】 受注番号：${E(priority.orderNo)} ｜ 部品名：${E(priority.partName)} ｜ 機械：${E(priority.machineNo)} ｜ 【納期注意】残り ${E(priority.remainingDays)} 日 ｜ 【申し送り】${E(priority.handoverMessage)}
+						</span></div></div>
+					</div>`;
+				const shown = sessionStorage.getItem("teamH:todoModalShown");
+				if (!shown) {
+					sessionStorage.setItem("teamH:todoModalShown", "1");
+					document.getElementById("morningModalArea").innerHTML = `
+						<div id="morningModal" class="morning-modal-bg">
+							<div class="morning-modal">
+								<div class="morning-label">本日の最優先作業</div>
+								<div class="morning-title">まずこの作業から開始してください</div>
+								<div>
+									<div class="morning-process">${E(priority.processName)}</div>
+									<div class="morning-process">${E(priority.machineNo)}</div>
+								</div>
+								<div class="morning-detail">
+									<span>${E(priority.orderNo)}</span>
+									<span>${E(priority.partName)}</span>
+									<span>${E(priority.remainingDays)}</span>
+									<span>${E(priority.handoverMessage)}</span>
+								</div>
+								<div class="morning-buttons">
+									<a class="btn primary" href="${navUrl(priority.workOrderProcessId)}">この作業を確認する</a>
+									<button type="button" class="btn" onclick="closeMorningModal()">一覧を見る</button>
+								</div>
+							</div>
+						</div>`;
+				}
+			} else {
+				document.getElementById("noticeArea").innerHTML = '<div class="empty-notice">現在、優先表示する作業はありません。</div>';
+			}
+
+			// 一覧
+			const list = TeamH.todoList(uid, partName, machineNoVal, status, showCompleted);
+			if (!list.length) {
+				document.getElementById("emptyMsg").style.display = "block";
+				document.getElementById("todoTable").style.display = "none";
+			} else {
+				document.getElementById("todoBody").innerHTML = list.map((t) => `
+					<tr class="clickable-row" onclick="location.href='${navUrl(t.workOrderProcessId)}'">
+						<td>${E(t.orderNo)}</td><td>${E(t.partName)}</td><td>${E(t.processOrder)}</td>
+						<td>${E(t.processName)}</td><td>${E(t.machineNo)}</td>
+						<td><span class="badge ${t.status}">${E(t.statusLabel)}</span></td>
+					</tr>`).join("");
+			}
+		});
+
+		function closeMorningModal() {
+			const m = document.getElementById("morningModal");
+			if (m) m.style.display = "none";
+		}
+	</script>
+
+</body>
+
+</html>

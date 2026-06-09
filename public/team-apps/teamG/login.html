@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ログイン</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="login-page compact-login-page">
+
+	<main class="login-container compact-login-container">
+
+		<section class="login-card compact-login-card">
+
+			<div class="login-header compact-login-header">
+
+				<div class="login-brand-mark">
+					<img src="./images/sun_transparent.png"
+						alt="ひだまり支援センター"
+						class="login-sun-image">
+				</div>
+
+				<p class="system-subtitle compact-login-subtitle">
+					ひだまり支援センター
+				</p>
+
+				<h2 class="page-title compact-login-title">
+					ログイン
+				</h2>
+
+			</div>
+
+			<div class="error-message compact-login-error" id="errorMessage" style="display:none;">
+				<span id="errorText">ログインIDまたはパスワードが違います。</span>
+			</div>
+
+			<form id="loginForm" class="login-form compact-login-form" autocomplete="off">
+
+				<div class="form-group compact-form-group compact-login-form-group">
+					<label for="loginId" class="compact-form-label compact-login-label">
+						ログインID
+					</label>
+
+					<div class="login-input-wrap">
+						<span class="login-input-icon" aria-hidden="true">👤</span>
+
+						<input type="text"
+							id="loginId"
+							name="loginId"
+							class="compact-form-input compact-login-input"
+							placeholder="ログインIDを入力してください"
+							required>
+					</div>
+				</div>
+
+				<div class="form-group compact-form-group compact-login-form-group">
+					<label for="password" class="compact-form-label compact-login-label">
+						パスワード
+					</label>
+
+					<div class="login-input-wrap">
+						<span class="login-input-icon" aria-hidden="true">🔒</span>
+
+						<input type="password"
+							id="password"
+							name="password"
+							class="compact-form-input compact-login-input"
+							placeholder="パスワードを入力してください"
+							required>
+					</div>
+				</div>
+
+				<div class="button-area compact-login-button-area">
+					<button type="submit" class="primary-button compact-login-button">
+						ログイン
+					</button>
+				</div>
+
+			</form>
+
+			<p class="login-note compact-login-note">
+				管理者・ヘルパー・家族/利用者の権限に応じて、ログイン後の画面が切り替わります。<br>
+				デモ用（パスワードはすべて <strong>password</strong>）：管理者 admin001 ／ ヘルパー staff001・staff002 ／ 家族 family001・family002
+			</p>
+
+		</section>
+
+	</main>
+
+	<footer class="footer login-footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			TeamG.logout && localStorage.removeItem("teamG:session");
+			const form = document.getElementById("loginForm");
+			form.addEventListener("submit", function (e) {
+				e.preventDefault();
+				const sess = TeamG.login(form.loginId.value.trim(), form.password.value);
+				if (!sess) {
+					document.getElementById("errorText").textContent = "ログインIDまたはパスワードが正しくありません。";
+					document.getElementById("errorMessage").style.display = "";
+					return;
+				}
+				location.href = TeamG.homeUrl(sess.roleType);
+			});
+		});
+	</script>
+
+</body>
+
+</html>

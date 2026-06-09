@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>家族報告一覧</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="staff-list-page care-user-list-page family-report-list-page">
+
+	<header class="site-header">
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ログインユーザー</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+	</header>
+
+	<main class="care-user-list-container compact-care-user-list-container compact-staff-list-container">
+
+		<section class="compact-page-top">
+
+			<div class="compact-page-heading">
+				<h2 class="page-title">家族報告一覧</h2>
+				<p class="page-description">
+					公開済みの家族報告を確認します。
+				</p>
+			</div>
+
+			<div class="compact-page-action-area" id="pageActionArea"></div>
+
+		</section>
+
+		<section class="search-section compact-search-section" id="searchArea">
+
+			<h3 class="section-title compact-table-header">検索条件</h3>
+
+			<form method="get" class="search-form" id="visitReportSearchForm" onsubmit="return false;">
+
+				<div class="compact-search-grid">
+
+					<div class="compact-form-group">
+						<label for="careUserName" class="compact-form-label">利用者名</label>
+						<input type="text"
+							id="careUserName"
+							name="careUserName"
+							class="compact-form-input"
+							placeholder="例：山田 太郎">
+					</div>
+
+				</div>
+
+				<div class="button-area compact-button-area">
+
+					<button type="submit" class="primary-button" id="searchButton">
+						検索
+					</button>
+
+					<button type="button" class="secondary-button" id="clearSearchButton">
+						クリア
+					</button>
+
+				</div>
+
+			</form>
+
+		</section>
+
+		<section class="care-user-table-section compact-care-user-table-section compact-staff-table-section family-report-table-section">
+
+			<h3 class="section-title compact-table-header">家族報告一覧</h3>
+
+			<div class="table-area compact-table-area family-report-table-area">
+
+				<table class="data-table compact-data-table family-report-table">
+
+					<colgroup>
+						<col class="family-report-col-action">
+						<col class="family-report-col-date">
+						<col class="family-report-col-user">
+						<col class="family-report-col-staff">
+						<col class="family-report-col-plan">
+						<col class="family-report-col-next">
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th>操作</th>
+							<th>訪問日</th>
+							<th>利用者名</th>
+							<th>担当ヘルパー</th>
+							<th>プラン名</th>
+							<th>次回訪問予定</th>
+						</tr>
+					</thead>
+
+					<tbody id="reportTableBody">
+					</tbody>
+
+				</table>
+
+			</div>
+
+		</section>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1, 2, 3])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ログインユーザー";
+
+			const actionArea = document.getElementById("pageActionArea");
+			if (sess.roleType === 1) {
+				actionArea.innerHTML = '<a href="./admin_dashboard.html" class="secondary-button">管理者ダッシュボードへ戻る</a>';
+			} else if (sess.roleType === 2) {
+				actionArea.innerHTML = '<a href="./helper_dashboard.html" class="secondary-button">スタッフダッシュボードへ戻る</a>';
+			} else if (sess.roleType === 3) {
+				actionArea.innerHTML = '<a href="./careuser_dashboard.html" class="secondary-button">利用者ダッシュボードへ戻る</a>';
+			}
+
+			const q = new URLSearchParams(location.search);
+			const careUserNameEl = document.getElementById("careUserName");
+			careUserNameEl.value = q.get("careUserName") || "";
+
+			function render() {
+				const rows = TeamG.familyReportListByRole(careUserNameEl.value.trim() || null, sess.roleType, sess.staffId, sess.careUserId);
+				const tbody = document.getElementById("reportTableBody");
+				if (!rows.length) {
+					tbody.innerHTML = '<tr><td colspan="6" class="empty-message">表示できる家族報告がありません。</td></tr>';
+					return;
+				}
+				tbody.innerHTML = rows.map(function (report) {
+					return '<tr>' +
+						'<td class="family-report-action-cell"><a href="./familyreport_detail.html?familyReportId=' + encodeURIComponent(report.familyReportId) + '" class="table-action-link compact-table-action-link">詳細</a></td>' +
+						'<td class="family-report-date-cell">' + TeamG.esc(report.visitDate ? TeamG.fmtDate(report.visitDate) : "") + '</td>' +
+						'<td class="family-report-user-cell">' + TeamG.esc(report.careUserName) + '</td>' +
+						'<td class="family-report-staff-cell">' + TeamG.esc(report.staffName) + '</td>' +
+						'<td class="family-report-plan-cell">' + TeamG.esc(report.planName) + '</td>' +
+						'<td class="family-report-next-cell">' + TeamG.esc(report.nextVisitDate ? TeamG.fmtDateTime(report.nextVisitDate) : "未定") + '</td>' +
+						'</tr>';
+				}).join("");
+			}
+
+			document.getElementById("searchButton").addEventListener("click", render);
+			document.getElementById("clearSearchButton").addEventListener("click", function () {
+				careUserNameEl.value = "";
+				render();
+			});
+
+			render();
+		});
+	</script>
+
+</body>
+
+</html>

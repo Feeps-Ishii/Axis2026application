@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>完了画面</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* { box-sizing: border-box; }
+
+		body {
+			margin: 0;
+			font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+			background: #f4f7fb;
+			color: #1f2937;
+		}
+
+		a { text-decoration: none; }
+
+		.completion-layout {
+			display: flex;
+			min-height: calc(100vh - 64px);
+			justify-content: center;
+			align-items: center;
+		}
+
+		.card {
+			background: #fff;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 60px 40px;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+			max-width: 500px;
+			width: 100%;
+			text-align: center;
+		}
+
+		.completion-icon { font-size: 48px; color: #10b981; margin-bottom: 20px; }
+		.completion-message { font-size: 22px; font-weight: bold; color: #102a43; margin-bottom: 12px; }
+		.redirect-notice { font-size: 14px; color: #627d98; margin-bottom: 30px; line-height: 1.6; }
+
+		.btn {
+			display: inline-flex; align-items: center; gap: 6px;
+			padding: 12px 32px; border-radius: 8px;
+			border: 1px solid #bcccdc; background: #fff; color: #334e68;
+			font-weight: bold; font-size: 15px; cursor: pointer; text-decoration: none;
+		}
+		.btn:hover { background: #f0f4f8; }
+		.btn.primary { background: #153e75; color: #fff; border-color: #153e75; }
+		.btn.primary:hover { background: #102a43; }
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="completion-layout">
+		<div class="card">
+			<div class="completion-icon">✓</div>
+			<div class="completion-message" id="message">処理が正常に完了しました</div>
+			<p class="redirect-notice" id="description">データは安全に更新されました。</p>
+			<a class="btn primary" id="topLink" href="#">TOPへ戻る</a>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			TeamHNav.render("");
+
+			const params = new URLSearchParams(location.search);
+			const type = params.get("type");
+			let message = "処理が完了しました", description = "データを処理しました。";
+			if (type === "create") { message = "登録が完了しました"; description = "データを登録しました。"; }
+			else if (type === "update") { message = "更新が完了しました"; description = "データを更新しました。"; }
+			else if (type === "delete") { message = "削除が完了しました"; description = "データを削除しました。"; }
+			document.getElementById("message").textContent = message;
+			document.getElementById("description").textContent = description;
+			document.getElementById("topLink").href = TeamH.homeUrl(sess.role);
+		});
+	</script>
+
+</body>
+
+</html>

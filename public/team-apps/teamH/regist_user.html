@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ユーザー登録</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            background: #f0f4f8;
+            color: #1f2937;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .main {
+            flex: 1;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ページタイトル */
+        .page-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #102a43;
+            margin: 0 0 24px 0;
+            width: 800px;
+        }
+
+        /* カード */
+        .card {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+            border: 1px solid #d9e2ec;
+            padding: 24px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        /* エラーメッセージ */
+        .error {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        /* フォーム */
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 16px;
+        }
+
+        .form-row label {
+            width: 120px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #334e68;
+            flex-shrink: 0;
+        }
+
+        .form-row input,
+        .form-row select {
+            flex: 1;
+            border: 1px solid #bcccdc;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: #1f2937;
+            font-family: inherit;
+        }
+
+        .form-row input:focus,
+        .form-row select:focus {
+            border-color: #153e75;
+            outline: none;
+        }
+
+        .required {
+            color: #e53e3e;
+            margin-left: 4px;
+        }
+
+        /* ボタン */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: 1px solid #bcccdc;
+            background: #fff;
+            color: #334e68;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: inherit;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #f0f4f8;
+        }
+
+        .btn.primary {
+            background: #153e75;
+            color: #fff;
+            border-color: #153e75;
+        }
+
+        .btn.primary:hover {
+            background: #102a43;
+        }
+
+        .button-area {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="teamH-header"></div>
+
+    <div class="layout">
+
+        <div id="teamH-sidebar"></div>
+
+        <main class="main">
+
+            <h1 class="page-title">ユーザー登録</h1>
+
+            <div class="card">
+
+                <p class="error" id="errorMsg" style="display:none;"></p>
+
+                <form id="registForm">
+
+                    <!-- 氏名 -->
+                    <div class="form-row">
+                        <label>氏名 <span class="required">*</span></label>
+                        <input type="text" name="name" placeholder="氏名を入力してください" required>
+                    </div>
+
+                    <!-- 社員ID -->
+                    <div class="form-row">
+                        <label>社員ID <span class="required">*</span></label>
+                        <input type="text" name="loginId" placeholder="社員IDを入力してください" required>
+                    </div>
+
+                    <!-- パスワード -->
+                    <div class="form-row">
+                        <label>パスワード <span class="required">*</span></label>
+                        <input type="password" name="password" placeholder="パスワードを入力してください" required>
+                    </div>
+
+                    <!-- 権限 -->
+                    <div class="form-row">
+                        <label>権限 <span class="required">*</span></label>
+                        <select name="role" required>
+                            <option value="">選択してください</option>
+                            <option value="admin">管理者</option>
+                            <option value="craftsman">職人</option>
+                            <option value="sales">営業</option>
+                        </select>
+                    </div>
+
+                    <div class="button-area">
+                        <button type="submit" class="btn primary">登録</button>
+                        <a class="btn" href="./work_orders.html">戻る</a>
+                    </div>
+
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="./js/db.js"></script>
+    <script src="./js/header.js"></script>
+    <script>
+        TeamH.init().then(function () {
+            const sess = TeamH.requireLogin();
+            if (!sess) return;
+            if (sess.role !== "admin") { location.href = "./login.html?authError=true"; return; }
+            TeamHNav.render("dashboard");
+
+            const form = document.getElementById("registForm");
+
+            // 下書きから復元
+            const draft = TeamH.getDraft("registUser");
+            if (draft) {
+                form.name.value = draft.name || "";
+                form.loginId.value = draft.loginId || "";
+                form.password.value = draft.password || "";
+                form.role.value = draft.role || "";
+            }
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const name = form.name.value;
+                const loginId = form.loginId.value;
+                const password = form.password.value;
+                const role = form.role.value;
+
+                const errEl = document.getElementById("errorMsg");
+                if (TeamH.loginIdExists(loginId)) {
+                    errEl.textContent = "この社員IDはすでに使用されています。";
+                    errEl.style.display = "block";
+                    return;
+                }
+                errEl.style.display = "none";
+
+                TeamH.setDraft("registUser", { name, loginId, password, role });
+                location.href = "./regist_user_confirm.html";
+            });
+        });
+    </script>
+
+</body>
+
+</html>

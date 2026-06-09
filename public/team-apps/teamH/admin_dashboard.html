@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>管理者ダッシュボード</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		body { margin: 0; font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; background-color: #f4f7fb; color: #1f2937; font-size: 13px; }
+		a { text-decoration: none; color: inherit; }
+		.main { flex: 1; padding: 28px; }
+		.content { padding: 32px; }
+		.page-title { font-size: 28px; font-weight: bold; color: #102a43; margin: 0 0 8px 0; display: flex; align-items: center; }
+		.page-title::before { content: ''; display: inline-block; width: 5px; height: 32px; background: #153e75; border-radius: 3px; margin-right: 12px; }
+		.description { margin-bottom: 24px; color: #627d98; font-size: 13px; padding-left: 17px; }
+		.summary-area { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+		.summary-card { background: #ffffff; border: 1px solid #d9e2ec; border-radius: 14px; padding: 20px; box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06); }
+		.summary-label { color: #627d98; font-size: 12px; margin-bottom: 10px; }
+		.summary-number { font-size: 28px; font-weight: bold; color: #102a43; line-height: 1; }
+		.section-box { background: #ffffff; border: 1px solid #d9e2ec; border-radius: 14px; padding: 22px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06); }
+		.section-title { margin: 0 0 16px 0; font-size: 16px; font-weight: bold; color: #102a43; }
+		table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+		thead th { background: #f0f4f8; color: #334e68; font-size: 12px; font-weight: bold; text-align: left; padding: 12px 10px; border-bottom: 1px solid #e5eaf0; }
+		tbody td { padding: 12px 10px; border-bottom: 1px solid #e5eaf0; color: #1f2937; font-size: 13px; vertical-align: middle; }
+		tbody tr { cursor: pointer; transition: background 0.15s; }
+		tbody tr:hover td { background: #e8f0fe; }
+		.col-machine { width: 13%; } .col-order { width: 20%; } .col-part { width: 30%; } .col-process { width: 10%; } .col-user { width: 10%; } .col-status { width: 17%; }
+		.status-badge { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: 999px; font-size: 11px; font-weight: bold; white-space: nowrap; }
+		.status-delay { background: #fee2e2; color: #991b1b; }
+		.status-working { background: #fef3c7; color: #92400e; }
+		.status-completed { background: #dcfce7; color: #166534; }
+		.status-default { background: #e5e7eb; color: #374151; }
+		.empty-message { padding: 16px 8px; color: #627d98; font-size: 13px; text-align: center; }
+		.detail-row td { background: #f8fafc; padding: 18px; }
+		.inner-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid #d9e2ec; }
+		.inner-table th { background: #edf2f7; font-size: 12px; }
+		.inner-table th, .inner-table td { padding: 10px; border-bottom: 1px solid #e5eaf0; }
+		.operation-panel { background: linear-gradient(135deg, #102a43, #153e75); border-radius: 16px; padding: 22px 26px; margin-bottom: 24px; color: white; box-shadow: 0 6px 18px rgba(16, 42, 67, 0.18); position: relative; overflow: hidden; }
+		.operation-panel::after { content: ""; position: absolute; right: -40px; top: -40px; width: 220px; height: 220px; background-image: url('./images/ダウンロード.jpg'); background-size: contain; background-repeat: no-repeat; opacity: 0.08; filter: grayscale(100%) brightness(220%); }
+		.operation-header { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+		.operation-title { font-size: 20px; font-weight: bold; letter-spacing: 1px; }
+		.operation-sub { font-size: 12px; color: rgba(255, 255, 255, 0.7); margin-top: 4px; }
+		.operation-rate { font-size: 42px; font-weight: bold; font-family: "Consolas", "Courier New", monospace; color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+		.operation-bar { height: 16px; background: rgba(255, 255, 255, 0.18); border-radius: 999px; overflow: hidden; margin-top: 18px; position: relative; z-index: 1; }
+		.operation-bar-fill { height: 100%; background: linear-gradient(90deg, #38bdf8, #22c55e); border-radius: 999px; box-shadow: 0 0 12px rgba(56, 189, 248, 0.8); transition: width 0.6s ease; }
+		.operation-detail { display: flex; gap: 24px; margin-top: 12px; font-size: 13px; color: rgba(255, 255, 255, 0.85); position: relative; z-index: 1; }
+		.operation-detail strong { color: white; font-size: 16px; }
+		.flow-section { position: relative; overflow: hidden; }
+		.flow-section::after { content: ""; position: absolute; right: -50px; top: -40px; width: 220px; height: 220px; background-image: url('./images/ダウンロード.jpg'); background-size: contain; background-repeat: no-repeat; opacity: 0.05; filter: grayscale(100%) brightness(200%); pointer-events: none; }
+		.flow-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; position: relative; z-index: 1; }
+		.flow-sub { margin: 4px 0 0; color: #627d98; font-size: 12px; }
+		.process-flow { display: flex; align-items: center; width: 100%; position: relative; z-index: 1; padding: 14px 8px 8px; }
+		.flow-step { width: 110px; text-align: center; flex-shrink: 0; }
+		.flow-circle { width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; background: #e5e7eb; color: #374151; font-size: 20px; font-weight: bold; border: 3px solid #cbd5e1; }
+		.flow-label { font-size: 13px; font-weight: bold; color: #334e68; white-space: nowrap; }
+		.flow-line { flex: 1; height: 6px; background: #d9e2ec; border-radius: 999px; margin: 0 4px 28px; position: relative; overflow: hidden; }
+		.flow-step.completed .flow-circle, .flow-line.completed { background: #16a34a; color: white; border-color: #16a34a; }
+		.flow-step.active .flow-circle { background: #153e75; color: white; border-color: #38bdf8; box-shadow: 0 0 16px rgba(56, 189, 248, 0.8); animation: activePulse 1.6s infinite; }
+		.flow-line.active { background: linear-gradient(90deg, #16a34a, #38bdf8); box-shadow: 0 0 10px rgba(56, 189, 248, 0.7); }
+		.flow-line.active::after { content: ""; position: absolute; top: 0; left: -40%; width: 40%; height: 100%; background: rgba(255, 255, 255, 0.55); animation: flowMove 1.4s linear infinite; }
+		.flow-select-form select { min-width: 320px; padding: 10px 14px; border: 1px solid #bcccdc; border-radius: 10px; background: #ffffff; color: #334e68; font-size: 13px; font-weight: bold; }
+		@keyframes flowMove { 0% { left: -40%; } 100% { left: 100%; } }
+		@keyframes activePulse { 0% { transform: scale(1); box-shadow: 0 0 10px rgba(56, 189, 248, 0.6); } 50% { transform: scale(1.08); box-shadow: 0 0 20px rgba(56, 189, 248, 0.9); } 100% { transform: scale(1); box-shadow: 0 0 10px rgba(56, 189, 248, 0.6); } }
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+			<div class="content">
+
+				<h1 class="page-title">管理者ダッシュボード</h1>
+				<p class="description">本日の作業状況を確認できます。</p>
+
+				<section class="section-box flow-section">
+					<div class="flow-header">
+						<div>
+							<h2 class="section-title">工程フロー</h2>
+							<p class="flow-sub">選択した受注番号の工程進捗</p>
+						</div>
+						<form class="flow-select-form" id="flowForm">
+							<select name="flowWorkOrderId" id="flowSelect" onchange="document.getElementById('flowForm').requestSubmit()"></select>
+						</form>
+					</div>
+					<div id="flowArea"></div>
+				</section>
+
+				<div class="operation-panel">
+					<div class="operation-header">
+						<div>
+							<div class="operation-title">設備稼働状況</div>
+							<div class="operation-sub">本日の機械稼働率</div>
+						</div>
+						<div class="operation-rate"><span id="opRate">0</span>%</div>
+					</div>
+					<div class="operation-bar"><div class="operation-bar-fill" id="opBar" style="width:0%"></div></div>
+					<div class="operation-detail">
+						<span>稼働中：<strong id="opWorking">0</strong>台</span>
+						<span>全体：<strong id="opTotal">0</strong>台</span>
+					</div>
+				</div>
+
+				<div class="summary-area">
+					<div class="summary-card"><div class="summary-label">本日の作業指示</div><div class="summary-number" id="todayCount">0件</div></div>
+					<div class="summary-card"><div class="summary-label">作業中</div><div class="summary-number" id="workingCount">0件</div></div>
+					<div class="summary-card"><div class="summary-label">完了</div><div class="summary-number" id="completedCount">0件</div></div>
+				</div>
+
+				<section class="section-box">
+					<h2 class="section-title">本日の作業</h2>
+					<table>
+						<thead><tr>
+							<th class="col-order">受注番号</th>
+							<th class="col-part">部品名</th>
+							<th class="col-process">工程数</th>
+							<th class="col-user">全体状態</th>
+							<th class="col-status">詳細</th>
+						</tr></thead>
+						<tbody id="groupsBody"></tbody>
+					</table>
+					<div class="empty-message" id="groupsEmpty" style="display:none;">表示する作業はありません。</div>
+				</section>
+
+				<section class="section-box">
+					<h2 class="section-title">遅延注意の作業</h2>
+					<table>
+						<thead><tr>
+							<th class="col-machine">機械番号</th>
+							<th class="col-order">受注番号</th>
+							<th class="col-part">部品名</th>
+							<th class="col-process">工程</th>
+							<th class="col-user">担当</th>
+							<th class="col-status">状態</th>
+						</tr></thead>
+						<tbody id="delayBody"></tbody>
+					</table>
+					<div class="empty-message" id="delayEmpty" style="display:none;">遅延注意の作業はありません。</div>
+				</section>
+
+			</div>
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+
+		function itemBadgeClass(item) {
+			if (item.delayWarning) return "status-delay";
+			if (item.statusLabel === "作業中" || item.statusLabel === "加工中") return "status-working";
+			if (item.statusLabel === "完了") return "status-completed";
+			return "status-default";
+		}
+
+		function renderFlow(selectedId) {
+			const flow = TeamH.priorityFlow(selectedId);
+			const area = document.getElementById("flowArea");
+			if (!flow.length) {
+				area.innerHTML = '<div class="empty-message">表示できる工程フローはありません。</div>';
+				return;
+			}
+			let html = '<div class="process-flow">';
+			flow.forEach((f, i) => {
+				let icon = f.flowStatus === "completed" ? "✓" : (f.flowStatus === "active" ? "▶" : (i + 1));
+				html += `<div class="flow-step ${f.flowStatus}"><div class="flow-circle">${icon}</div><div class="flow-label">${E(f.processName)}</div></div>`;
+				if (i < flow.length - 1) {
+					const lineCls = f.flowStatus === "completed" ? "completed" : (f.flowStatus === "active" ? "active" : "");
+					html += `<div class="flow-line ${lineCls}"></div>`;
+				}
+			});
+			html += '</div>';
+			area.innerHTML = html;
+		}
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			if (sess.role !== "admin") { location.href = "./login.html?authError=true"; return; }
+			TeamHNav.render("dashboard");
+
+			const params = new URLSearchParams(location.search);
+			const selectedFlowId = params.get("flowWorkOrderId");
+
+			// 工程フロー選択
+			const select = document.getElementById("flowSelect");
+			let opts = '<option value="">納期が近い作業を自動表示</option>';
+			TeamH.flowTargetOrders().forEach(function (o) {
+				const sel = selectedFlowId && Number(selectedFlowId) === Number(o.workOrderId) ? " selected" : "";
+				opts += `<option value="${o.workOrderId}"${sel}>${E(o.orderNo + "｜" + o.partName)}</option>`;
+			});
+			select.innerHTML = opts;
+			document.getElementById("flowForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				const v = select.value;
+				location.href = "./admin_dashboard.html" + (v ? "?flowWorkOrderId=" + v : "");
+			});
+			renderFlow(selectedFlowId);
+
+			// 設備稼働
+			const rate = TeamH.machineOperationRate();
+			document.getElementById("opRate").textContent = rate;
+			document.getElementById("opBar").style.width = rate + "%";
+			document.getElementById("opWorking").textContent = TeamH.countWorkingMachines();
+			document.getElementById("opTotal").textContent = TeamH.totalMachineCount();
+
+			// サマリー
+			const items = TeamH.dashboardItems();
+			document.getElementById("todayCount").textContent = items.length + "件";
+			document.getElementById("workingCount").textContent = TeamH.countWorkingItems(items) + "件";
+			document.getElementById("completedCount").textContent = TeamH.countCompletedItems(items) + "件";
+
+			// 本日の作業（グループ）
+			const groups = TeamH.dashboardGroups(items);
+			const body = document.getElementById("groupsBody");
+			if (!items.length) { document.getElementById("groupsEmpty").style.display = "block"; }
+			let html = "";
+			groups.forEach(function (g, idx) {
+				html += `<tr onclick="toggleGroup('group-${idx}')">
+					<td>${E(g.orderNo)}</td>
+					<td>${E(g.partName)}</td>
+					<td>${g.processCount}工程</td>
+					<td><span class="status-badge ${g.statusClass}">${E(g.statusLabel)}</span></td>
+					<td>▼</td>
+				</tr>`;
+				let inner = "";
+				g.items.forEach(function (it) {
+					inner += `<tr onclick="location.href='${it.detailUrl}'">
+						<td>${E(it.machineNo)}</td>
+						<td>${E(it.processName)}</td>
+						<td>${E(it.assignedUserName)}</td>
+						<td><span class="status-badge ${itemBadgeClass(it)}">${E(it.statusLabel)}</span></td>
+					</tr>`;
+				});
+				html += `<tr class="detail-row group-${idx}" style="display:none;"><td colspan="5">
+					<table class="inner-table"><thead><tr><th>機械番号</th><th>工程</th><th>担当</th><th>状態</th></tr></thead>
+					<tbody>${inner}</tbody></table></td></tr>`;
+			});
+			body.innerHTML = html;
+
+			// 遅延注意
+			const delays = items.filter((i) => i.delayWarning);
+			const delayBody = document.getElementById("delayBody");
+			if (!delays.length) { document.getElementById("delayEmpty").style.display = "block"; }
+			delayBody.innerHTML = delays.map((it) => `<tr onclick="location.href='${it.detailUrl}'">
+				<td>${E(it.machineNo)}</td><td>${E(it.orderNo)}</td><td>${E(it.partName)}</td>
+				<td>${E(it.processName)}</td><td>${E(it.assignedUserName)}</td>
+				<td><span class="status-badge ${itemBadgeClass(it)}">${E(it.statusLabel)}</span></td></tr>`).join("");
+		});
+
+		function toggleGroup(groupClass) {
+			document.querySelectorAll("." + groupClass).forEach(function (row) {
+				row.style.display = row.style.display === "none" ? "table-row" : "none";
+			});
+		}
+	</script>
+
+</body>
+
+</html>

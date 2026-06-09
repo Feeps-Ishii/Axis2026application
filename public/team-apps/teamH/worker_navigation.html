@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>移動先選択</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Yu Gothic", "Meiryo", sans-serif;
+			background-color: #f4f7fb;
+			color: #1f2937;
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+
+		.main {
+			flex: 1;
+			padding: 32px;
+		}
+
+		/* ページタイトル */
+		.page-title {
+			font-size: 28px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0 0 8px 0;
+			display: flex;
+			align-items: center;
+		}
+
+		.page-title::before {
+			content: '';
+			display: inline-block;
+			width: 5px;
+			height: 32px;
+			background: #153e75;
+			border-radius: 3px;
+			margin-right: 12px;
+		}
+
+		.page-lead {
+			color: #627d98;
+			font-size: 14px;
+			margin: 0 0 28px 0;
+			padding-left: 17px;
+		}
+
+		/* 選択カードエリア */
+		.select-area {
+			display: flex;
+			gap: 24px;
+			margin-bottom: 40px;
+		}
+
+		.select-card {
+			flex: 1;
+			background: white;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 36px 24px;
+			text-align: center;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+			transition: box-shadow 0.2s;
+		}
+
+		.select-card:hover {
+			box-shadow: 0 8px 24px rgba(16, 42, 67, 0.12);
+		}
+
+		.select-card h2 {
+			font-size: 20px;
+			color: #102a43;
+			margin: 0 0 16px 0;
+		}
+
+		.select-card p {
+			color: #627d98;
+			line-height: 1.8;
+			font-size: 14px;
+			min-height: 58px;
+			margin: 0 0 24px 0;
+		}
+
+		.select-button {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			padding: 12px 24px;
+			background: #153e75;
+			color: white;
+			border-radius: 8px;
+			font-weight: bold;
+			font-size: 14px;
+			text-decoration: none;
+			width: 100%;
+		}
+
+		.select-button:hover {
+			background: #102a43;
+		}
+
+		/* 戻るボタン */
+		.back-area {
+			text-align: center;
+		}
+
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 12px 32px;
+			border-radius: 8px;
+			border: 1px solid #bcccdc;
+			background: #fff;
+			color: #334e68;
+			font-weight: bold;
+			font-size: 14px;
+			cursor: pointer;
+			text-decoration: none;
+		}
+
+		.btn:hover {
+			background: #f0f4f8;
+		}
+
+		/* 空メッセージ */
+		.empty-message {
+			background: white;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 24px;
+			color: #627d98;
+			font-size: 14px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<h1 class="page-title">移動先を選択してください</h1>
+
+			<div id="content"></div>
+
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			if (sess.role !== "craftsman") { location.href = "./login.html?authError=true"; return; }
+			TeamHNav.render("progress");
+
+			const workOrderProcessId = new URLSearchParams(location.search).get("workOrderProcessId");
+			const item = TeamH.navigationItem(workOrderProcessId);
+			const content = document.getElementById("content");
+
+			if (!item) {
+				content.innerHTML = `<div class="empty-message">対象作業が見つかりません。</div>`;
+				return;
+			}
+
+			content.innerHTML = `
+				<p class="page-lead">対象作業：${E(item.orderNo)} ${E(item.partName)}</p>
+
+				<div class="select-area">
+
+					<div class="select-card">
+						<h2>作業指示書を確認する</h2>
+						<p>
+							この作業の図面、数量、納期、全体の工程表などの基本情報を確認する場合はこちらに進んでください。
+						</p>
+						<a class="select-button" href="./work_instruction_detail.html?workOrderProcessId=${E(item.workOrderProcessId)}">
+							作業詳細画面へ
+						</a>
+					</div>
+
+					<div class="select-card">
+						<h2>進捗管理書を入力・確認する</h2>
+						<p>
+							機械ID、担当者、開始・完了予定時刻の確認や、次の担当者への引き継ぎ予定時刻・備考の入力をする場合はこちらに進んでください。
+						</p>
+						<a class="select-button" href="./progress_update.html?workOrderProcessId=${E(item.workOrderProcessId)}">
+							進捗管理書画面へ
+						</a>
+					</div>
+
+				</div>
+
+				<div class="back-area">
+					<a class="btn" href="./todo.html">作業一覧に戻る</a>
+				</div>`;
+		});
+	</script>
+
+</body>
+
+</html>

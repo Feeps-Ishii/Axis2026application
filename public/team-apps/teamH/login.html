@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ログイン</title>
+
+	<style>
+		* { box-sizing: border-box; }
+
+		body {
+			margin: 0;
+			padding: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+			background: linear-gradient(135deg, #e0ecff, #f8fafc);
+			font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+		}
+
+		.login-card {
+			background: #ffffff;
+			border-radius: 18px;
+			box-shadow: 0 18px 40px rgba(16, 42, 67, 0.16);
+			width: 460px;
+			padding: 50px 45px;
+		}
+
+		.logo-area {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 12px;
+			margin-bottom: 32px;
+		}
+
+		.logo-icon {
+			width: 44px;
+			height: 44px;
+			background: #153e75;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-size: 20px;
+			flex-shrink: 0;
+		}
+
+		.logo-text { display: flex; flex-direction: column; }
+
+		.logo-name {
+			font-size: 15px;
+			font-weight: bold;
+			color: #153e75;
+			letter-spacing: 1px;
+		}
+
+		.logo-sub {
+			font-size: 10px;
+			color: #627d98;
+			letter-spacing: 2px;
+		}
+
+		h1 {
+			text-align: center;
+			margin: 0 0 32px 0;
+			font-weight: bold;
+			color: #102a43;
+			font-size: 22px;
+			letter-spacing: 1px;
+		}
+
+		.error-msg {
+			background-color: #fef2f2;
+			border: 1px solid #fecaca;
+			color: #991b1b;
+			padding: 12px;
+			border-radius: 8px;
+			font-size: 14px;
+			font-weight: bold;
+			margin-bottom: 24px;
+			text-align: center;
+		}
+
+		.form-group { margin-bottom: 24px; }
+
+		label {
+			display: block;
+			margin-bottom: 8px;
+			font-weight: bold;
+			color: #334e68;
+			font-size: 14px;
+		}
+
+		input[type="text"],
+		input[type="password"] {
+			width: 100%;
+			border: 1px solid #bcccdc;
+			border-radius: 8px;
+			padding: 12px 14px;
+			font-size: 15px;
+			color: #1f2937;
+			background: #ffffff;
+			font-family: inherit;
+		}
+
+		input[type="text"]:focus,
+		input[type="password"]:focus {
+			border-color: #153e75;
+			outline: none;
+		}
+
+		button {
+			width: 100%;
+			border: none;
+			cursor: pointer;
+			font-family: inherit;
+			border-radius: 8px;
+			background: #153e75;
+			color: #ffffff;
+			padding: 14px;
+			font-size: 16px;
+			font-weight: bold;
+			margin-top: 8px;
+			transition: background 0.2s;
+		}
+
+		button:hover { background: #102a43; }
+
+		.demo-hint {
+			margin-top: 22px;
+			font-size: 12px;
+			color: #627d98;
+			line-height: 1.8;
+			text-align: center;
+			border-top: 1px dashed #d9e2ec;
+			padding-top: 16px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="login-card">
+
+		<div class="logo-area">
+			<div class="logo-icon">⚙</div>
+			<div class="logo-text">
+				<span class="logo-name">マルセイ精密工業</span>
+				<span class="logo-sub">MARUSEI PRECISION INDUSTRY</span>
+			</div>
+		</div>
+
+		<h1>進捗マルわかりシステム</h1>
+
+		<p class="error-msg" id="errorMsg" style="display:none;">社員IDまたはパスワードが間違っています。</p>
+
+		<form id="loginForm" autocomplete="off">
+			<div class="form-group">
+				<label>社員ID</label>
+				<input type="text" name="login_id" placeholder="社員IDを入力してください" autocomplete="new-password" required>
+			</div>
+
+			<div class="form-group">
+				<label>パスワード</label>
+				<input type="password" name="password" placeholder="パスワードを入力してください" autocomplete="new-password" required>
+			</div>
+
+			<button type="submit">ログイン</button>
+		</form>
+
+		<div class="demo-hint">
+			デモ用ログイン（パスワードはすべて <strong>password</strong>）<br>
+			管理者：admin001 ／ 職人：craftsman001 ／ 営業：sales001
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamH.init().then(function () {
+			TeamH.logout();
+
+			const params = new URLSearchParams(location.search);
+			if (params.get("authError")) {
+				alert("権限がありません。権限を変えてログインしてください。");
+			}
+
+			const form = document.getElementById("loginForm");
+			form.addEventListener("submit", function (e) {
+				e.preventDefault();
+				const loginId = form.login_id.value.trim();
+				const password = form.password.value;
+				const user = TeamH.login(loginId, password);
+				if (!user) {
+					document.getElementById("errorMsg").style.display = "block";
+					return;
+				}
+				location.href = TeamH.homeUrl(user.role);
+			});
+		});
+	</script>
+</body>
+
+</html>

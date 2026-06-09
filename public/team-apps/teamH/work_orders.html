@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>作業指示書一覧</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		/* ページ固有CSS */
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+			background: #f0f4f8;
+			color: #1f2937;
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+
+		.main {
+			flex: 1;
+			padding: 60px;
+			position: relative;
+			overflow: hidden;
+		}
+
+		/* ページタイトル */
+		.page-title-area {
+			margin-bottom: 28px;
+			position: relative;
+			z-index: 1;
+		}
+
+		.page-title {
+			display: flex;
+			align-items: center;
+			font-size: 28px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0 0 8px 0;
+		}
+
+		.page-title::before {
+			content: '';
+			display: inline-block;
+			width: 5px;
+			height: 32px;
+			background: #153e75;
+			border-radius: 3px;
+			margin-right: 12px;
+		}
+
+		.page-lead {
+			color: #627d98;
+			font-size: 14px;
+			margin: 0;
+			padding-left: 17px;
+		}
+
+		/* 検索カード */
+		.search-card {
+			background: #ffffff;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 20px 24px;
+			margin-bottom: 20px;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+			position: relative;
+			z-index: 1;
+		}
+
+		.search-area {
+			display: flex;
+			gap: 16px;
+			align-items: flex-end;
+		}
+
+		.search-item {
+			flex: 1;
+		}
+
+		.search-item-narrow {
+			width: 180px;
+			flex: none;
+		}
+
+		.search-item label {
+			display: block;
+			margin-bottom: 6px;
+			font-weight: bold;
+			color: #334e68;
+			font-size: 13px;
+		}
+
+		.search-btns {
+			display: flex;
+			gap: 8px;
+		}
+
+		input,
+		select {
+			width: 100%;
+			padding: 10px 12px;
+			border: 1px solid #bcccdc;
+			border-radius: 8px;
+			font-size: 14px;
+			background: #fff;
+			font-family: inherit;
+			color: #1f2937;
+			box-sizing: border-box;
+		}
+
+		input:focus,
+		select:focus {
+			border-color: #153e75;
+			outline: none;
+		}
+
+		/* ボタン */
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 10px 18px;
+			border-radius: 8px;
+			border: 1px solid #bcccdc;
+			background: #fff;
+			color: #334e68;
+			font-weight: bold;
+			font-size: 14px;
+			cursor: pointer;
+			font-family: inherit;
+			text-decoration: none;
+		}
+
+		.btn:hover {
+			background: #f0f4f8;
+		}
+
+		.btn.primary {
+			background: #153e75;
+			color: #fff;
+			border-color: #153e75;
+		}
+
+		.btn.primary:hover {
+			background: #102a43;
+		}
+
+		/* テーブルカード */
+		.table-card {
+			background: #ffffff;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 22px;
+			margin-bottom: 20px;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+			position: relative;
+			z-index: 1;
+			overflow: hidden;
+		}
+
+		.table-card-accent {
+			position: absolute;
+			top: 0;
+			right: 0;
+			width: 80px;
+			height: 4px;
+			background: linear-gradient(90deg, #153e75, #4a90d9);
+			border-radius: 0 14px 0 0;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		th,
+		td {
+			border-bottom: 1px solid #e5eaf0;
+			padding: 14px 12px;
+			text-align: left;
+			font-size: 14px;
+		}
+
+		th {
+			background: #f0f4f8;
+			color: #334e68;
+			font-weight: bold;
+		}
+
+		th .th-inner {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		th .th-icon {
+			color: #153e75;
+			font-size: 14px;
+		}
+
+		tbody tr {
+			transition: background 0.15s;
+			cursor: pointer;
+		}
+
+		tbody tr:hover td {
+			background: #e8f0fe;
+		}
+
+		/* バッジ */
+		.badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			padding: 5px 12px;
+			border-radius: 999px;
+			font-size: 12px;
+			font-weight: bold;
+		}
+
+		.badge.not-started {
+			background: #e5e7eb;
+			color: #374151;
+		}
+
+		.badge.working {
+			background: #dbeafe;
+			color: #1e40af;
+		}
+
+		.badge.done {
+			background: #dcfce7;
+			color: #166534;
+		}
+
+		.badge.cancelled {
+			background: #fee2e2;
+			color: #991b1b;
+		}
+
+		/* ボタンエリア */
+		.button-area {
+			margin-top: 20px;
+			position: relative;
+			z-index: 1;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<!-- ページタイトル -->
+			<div class="page-title-area">
+				<h1 class="page-title">作業指示書一覧</h1>
+				<p class="page-lead">登録されている作業指示書を一覧表示します。</p>
+			</div>
+
+			<!-- 検索・絞り込みフォーム -->
+			<div class="search-card">
+				<form id="searchForm" method="get">
+					<div class="search-area">
+
+						<div class="search-item">
+							<label>受注番号・部品名</label>
+							<input type="text" name="keyword" id="keyword" placeholder="受注番号または部品名で検索">
+						</div>
+
+						<div class="search-item search-item-narrow">
+							<label>状態</label>
+							<select name="status" id="status">
+								<option value="">すべて</option>
+								<option value="not_started">未着手</option>
+								<option value="active">進行中</option>
+								<option value="completed">完了</option>
+							</select>
+						</div>
+
+						<div class="search-btns">
+							<button type="submit" class="btn primary">🔍 検索</button>
+							<a class="btn" href="./work_orders.html">↺ クリア</a>
+						</div>
+
+					</div>
+				</form>
+			</div>
+
+			<!-- 作業指示書一覧テーブル -->
+			<div class="table-card">
+				<div class="table-card-accent"></div>
+				<table>
+					<thead>
+						<tr>
+							<th>
+								<div class="th-inner"><span class="th-icon">🖥</span>機械番号</div>
+							</th>
+							<th>
+								<div class="th-inner"><span class="th-icon">📋</span>受注番号</div>
+							</th>
+							<th>
+								<div class="th-inner"><span class="th-icon">⚙</span>部品名</div>
+							</th>
+							<th>
+								<div class="th-inner">数量</div>
+							</th>
+							<th>
+								<div class="th-inner">納期</div>
+							</th>
+							<th>
+								<div class="th-inner">進行中工程</div>
+							</th>
+							<th>
+								<div class="th-inner"><span class="th-icon">🚩</span>状態</div>
+							</th>
+						</tr>
+					</thead>
+					<tbody id="ordersBody"></tbody>
+				</table>
+			</div>
+
+			<a href="./work_order_form.html" class="floating-register-btn">
+				<span>登録</span>
+			</a>
+
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+
+		function statusBadge(st) {
+			switch (st) {
+				case "not_started": return '<span class="badge not-started">⏱ 未着手</span>';
+				case "preparing": return '<span class="badge setup">▶ 段取り中</span>';
+				case "processing": return '<span class="badge working">▶ 加工中</span>';
+				case "inspecting": return '<span class="badge inspecting">▶ 検査中</span>';
+				case "completed": return '<span class="badge done">✓ 完了</span>';
+				default: return E(st);
+			}
+		}
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			if (sess.role !== "admin") { location.href = "./login.html?authError=true"; return; }
+			TeamHNav.render("workOrders");
+
+			const params = new URLSearchParams(location.search);
+			const keyword = params.get("keyword") || "";
+			const status = params.get("status") || "";
+			document.getElementById("keyword").value = keyword;
+			document.getElementById("status").value = status;
+
+			document.getElementById("searchForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				const q = new URLSearchParams();
+				const kw = document.getElementById("keyword").value.trim();
+				const st = document.getElementById("status").value;
+				if (kw) q.set("keyword", kw);
+				if (st) q.set("status", st);
+				location.href = "./work_orders.html" + (q.toString() ? "?" + q.toString() : "");
+			});
+
+			const list = TeamH.searchWorkOrders(keyword, status);
+			document.getElementById("ordersBody").innerHTML = list.map(function (wo) {
+				const ap = TeamH.activeProcess(wo.workOrderId);
+				const machineNo = ap && ap.machine ? ap.machine.machineNo : "-";
+				const processName = ap ? ap.processName : "-";
+				const badge = ap == null ? '<span class="badge done">完了</span>' : statusBadge(ap.currentStatus);
+				return `<tr onclick="location.href='./work_instruction_detail.html?workOrderId=${wo.workOrderId}'">
+					<td>${E(machineNo)}</td>
+					<td>${E(wo.orderNo)}</td>
+					<td>${E(wo.partName)}</td>
+					<td>${E(wo.quantity)}</td>
+					<td>${E(TeamH.fmtDate(wo.dueDate))}</td>
+					<td>${E(processName)}</td>
+					<td>${badge}</td>
+				</tr>`;
+			}).join("");
+		});
+	</script>
+
+</body>
+
+</html>
