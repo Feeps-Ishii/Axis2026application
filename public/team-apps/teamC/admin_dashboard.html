@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>管理ポータル | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<main class="admin-portal-page">
+
+		<section class="admin-portal-hero">
+			<div>
+				<p class="admin-portal-label">Staff Portal</p>
+				<h1>教室長・講師ダッシュボード</h1>
+				<p class="admin-portal-lead">
+					生徒情報・講師情報・予約状況・お知らせを確認できます。
+				</p>
+			</div>
+		</section>
+
+		<section class="admin-quick-card">
+			<div class="admin-section-header">
+				<div>
+					<p class="admin-section-label">Quick Navigation</p>
+					<h2>クイックナビゲーション</h2>
+				</div>
+			</div>
+
+			<div class="admin-nav-grid">
+				<a href="./students.html" class="admin-nav-card">
+					<div class="admin-nav-icon">&#128101;</div>
+					<div class="admin-nav-text">
+						<span class="admin-nav-title">生徒一覧</span>
+						<span class="admin-nav-desc">生徒情報・カルテを確認</span>
+					</div>
+					<span class="admin-nav-arrow">&rsaquo;</span>
+				</a>
+
+				<a href="./teachers.html" class="admin-nav-card">
+					<div class="admin-nav-icon">&#128104;&#8205;&#127979;</div>
+					<div class="admin-nav-text">
+						<span class="admin-nav-title">講師一覧</span>
+						<span class="admin-nav-desc">講師情報・担当コマを確認</span>
+					</div>
+					<span class="admin-nav-arrow">&rsaquo;</span>
+				</a>
+
+				<a href="./schedule_month.html" class="admin-nav-card">
+					<div class="admin-nav-icon">&#128197;</div>
+					<div class="admin-nav-text">
+						<span class="admin-nav-title">予約管理</span>
+						<span class="admin-nav-desc">月間・週間スケジュールへ</span>
+					</div>
+					<span class="admin-nav-arrow">&rsaquo;</span>
+				</a>
+			</div>
+		</section>
+
+		<section class="admin-notice-card">
+			<div class="admin-section-header admin-notice-header">
+				<div>
+					<p class="admin-section-label">Notice</p>
+					<h2>&#128226; 講師・スタッフ向けお知らせ</h2>
+				</div>
+
+				<a id="noticeCreateBtn" href="./announce_input.html" class="btn btn-primary admin-notice-create-btn" style="display:none;">
+					＋ お知らせ入力
+				</a>
+			</div>
+
+			<div class="admin-table-scroll">
+				<table class="admin-notice-table">
+					<colgroup>
+						<col class="notice-col-title">
+						<col class="notice-col-content">
+						<col class="notice-col-target">
+						<col class="notice-col-date">
+						<col class="notice-col-date">
+						<col id="noticeColActions" class="notice-col-actions" style="display:none;">
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th>タイトル</th>
+							<th>内容</th>
+							<th>公開対象</th>
+							<th>公開開始</th>
+							<th>公開終了</th>
+							<th id="noticeThActions" style="display:none;">操作</th>
+						</tr>
+					</thead>
+
+					<tbody id="noticeTbody"></tbody>
+				</table>
+			</div>
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+
+			// 教室長のみ：作成・操作（変更/削除）UI を表示（AdminHomeController の isManager）
+			const isManager = TeamC.isManager(me);
+			if (isManager) {
+				document.getElementById("noticeCreateBtn").style.display = "";
+				document.getElementById("noticeColActions").style.display = "";
+				document.getElementById("noticeThActions").style.display = "";
+			}
+
+			// NoticeService.findTeacherNotices() 相当：
+			// targetRole in [全員,講師] かつ isPublished=1 かつ 本日が公開期間内
+			const today = TeamC.today();
+			const list = TeamC.notices().filter((n) =>
+				(n.targetRole === "全員" || n.targetRole === "講師") &&
+				n.isPublished &&
+				(!n.startDate || String(n.startDate) <= today) &&
+				(!n.endDate || String(n.endDate) >= today)
+			);
+
+			const tbody = document.getElementById("noticeTbody");
+			const colSpan = isManager ? 6 : 5;
+
+			if (!list.length) {
+				const tr = document.createElement("tr");
+				tr.innerHTML =
+					'<td colspan="' + colSpan + '" class="admin-empty-cell">現在表示できるお知らせはありません。</td>';
+				tbody.appendChild(tr);
+			} else {
+				list.forEach((n) => {
+					const tr = document.createElement("tr");
+					let html =
+						'<td><div class="notice-title">' + TeamC.esc(n.title) + '</div></td>' +
+						'<td><div class="notice-content">' + TeamC.esc(n.content) + '</div></td>' +
+						'<td><span class="notice-badge">' + TeamC.esc(n.targetRole) + '</span></td>' +
+						'<td><span class="notice-date">' + TeamC.esc(n.startDate) + '</span></td>' +
+						'<td><span class="notice-date">' + TeamC.esc(n.endDate) + '</span></td>';
+					if (isManager) {
+						html +=
+							'<td class="notice-actions-cell"><div class="notice-actions">' +
+								'<a href="./announce_edit.html?noticeId=' + n.noticeId + '" class="notice-action-btn notice-edit-btn">変更</a>' +
+								'<a href="./announce_delete_confirm.html?noticeId=' + n.noticeId + '" class="notice-action-btn notice-delete-btn">削除</a>' +
+							'</div></td>';
+					}
+					tr.innerHTML = html;
+					tbody.appendChild(tr);
+				});
+			}
+		});
+	</script>
+</body>
+
+</html>

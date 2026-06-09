@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>授業記録削除確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<div class="container">
+
+		<div class="card">
+
+			<div class="card-header">
+				<span class="card-title" style="color:var(--danger);">
+					授業記録削除確認
+				</span>
+			</div>
+
+			<p>以下の授業記録を削除します。</p>
+
+			<table>
+				<tr>
+					<th>日付</th>
+					<td id="v_classDate"></td>
+				</tr>
+				<tr>
+					<th>教室</th>
+					<td id="v_classroom"></td>
+				</tr>
+				<tr>
+					<th>コマ</th>
+					<td id="v_slot"></td>
+				</tr>
+				<tr>
+					<th>講師</th>
+					<td id="v_teacher"></td>
+				</tr>
+				<tr>
+					<th>生徒</th>
+					<td id="v_student"></td>
+				</tr>
+				<tr>
+					<th>科目</th>
+					<td id="v_subject"></td>
+				</tr>
+				<tr>
+					<th>単元</th>
+					<td id="v_unit"></td>
+				</tr>
+				<tr>
+					<th>担当講師コメント</th>
+					<td id="v_encouragementComment"></td>
+				</tr>
+			</table>
+
+			<!-- 削除ボタン -->
+			<div style="display:flex; gap:1rem; margin-top:1.5rem;">
+
+				<button type="button" id="deleteBtn" class="btn btn-primary"
+						style="flex:1; background:var(--danger);">
+					削除を確定する
+				</button>
+
+				<a id="backBtn" class="btn"
+				   style="flex:1; background:#64748b; color:white; text-align:center;">
+					戻る
+				</a>
+
+			</div>
+
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+
+			const params = new URLSearchParams(location.search);
+			const studentId = Number(params.get("studentId"));
+			const recordId = Number(params.get("recordId"));
+
+			if (!TeamC.isStaff(me)) {
+				location.href = "./student_class_records.html?studentId=" + studentId;
+				return;
+			}
+
+			const v = TeamC.classRecordView(recordId);
+			if (!v) {
+				location.href = "./student_class_records.html?studentId=" + studentId;
+				return;
+			}
+
+			const set = (id, val) => { document.getElementById(id).textContent = val == null ? "" : val; };
+			set("v_classDate", TeamC.fmtDate(v.record.classDate));
+			set("v_classroom", v.classroom ? v.classroom.roomName : "");
+			set("v_slot", v.slot ? v.slot.slotName : "");
+			set("v_teacher", v.teacher ? v.teacher.teacherName : "");
+			set("v_student", v.student ? v.student.studentName : "");
+			set("v_subject", v.subject ? v.subject.subjectName : "");
+			set("v_unit", v.record.unit);
+			set("v_encouragementComment", v.record.encouragementComment);
+
+			document.getElementById("backBtn").href =
+				"./student_class_records.html?studentId=" + studentId;
+
+			document.getElementById("deleteBtn").addEventListener("click", () => {
+				TeamC.deleteClassRecord(recordId);
+				location.href = "./class_record_delete_complete.html?studentId=" + studentId;
+			});
+		});
+	</script>
+
+</body>
+
+</html>

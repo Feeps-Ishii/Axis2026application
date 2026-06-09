@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>宿題追加</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+	<div id="appHeader"></div>
+
+	<main class="homework-new-page">
+
+		<section class="homework-new-hero">
+			<div class="homework-new-hero-main">
+				<p class="homework-new-label">ADD HOMEWORK</p>
+				<h1>宿題追加</h1>
+				<p class="homework-new-lead">
+					生徒に出す宿題の科目、内容、提出期限、提出状況などを登録します。
+				</p>
+			</div>
+
+			<div class="homework-new-hero-actions">
+				<a id="backLink" class="btn btn-back">
+					◀ 宿題管理に戻る
+				</a>
+			</div>
+		</section>
+
+		<section class="homework-new-card">
+			<div class="homework-new-card-header">
+				<div>
+					<p class="homework-new-label">INPUT FORM</p>
+					<h2>宿題追加（入力）</h2>
+				</div>
+			</div>
+
+			<p class="homework-new-note">
+				必須項目を入力して、確認画面へ進んでください。点数やコメントは必要に応じて後から入力できます。
+			</p>
+
+			<form id="form" class="homework-new-form">
+
+				<div class="homework-new-section">
+					<h3>① 宿題の基本情報</h3>
+
+					<div class="homework-new-grid">
+						<div class="homework-new-field">
+							<label>科目 <span class="required-badge">必須</span></label>
+
+							<select class="form-control" name="subjectId" required>
+								<option value="" disabled selected>選択してください</option>
+							</select>
+						</div>
+
+						<div class="homework-new-field">
+							<label>提出期限 <span class="required-badge">必須</span></label>
+
+							<input type="date" class="form-control" name="dueDate" required>
+						</div>
+					</div>
+
+					<div class="homework-new-field">
+						<label>宿題内容 <span class="required-badge">必須</span></label>
+
+						<textarea class="form-control homework-new-textarea" rows="4" name="homeworkContent"
+							placeholder="例：数学ワーク P.36 問1〜問5" required></textarea>
+					</div>
+				</div>
+
+				<div class="homework-new-section">
+					<h3>② 提出状況・確認内容</h3>
+
+					<div class="homework-new-grid">
+						<div class="homework-new-field">
+							<label>提出確認</label>
+
+							<select class="form-control" name="submissionStatus">
+								<option value="未提出">未提出</option>
+								<option value="提出済">提出済</option>
+							</select>
+						</div>
+
+						<div class="homework-new-field">
+							<label>点数</label>
+
+							<input type="number" class="form-control" name="score" min="0" max="100"
+								placeholder="0〜100">
+						</div>
+					</div>
+
+					<div class="homework-new-field">
+						<label>コメント</label>
+
+						<textarea class="form-control homework-new-textarea-small" rows="3" name="comment"
+							placeholder="例：次回授業時に確認予定"></textarea>
+					</div>
+				</div>
+
+				<div class="homework-new-actions">
+					<a id="cancelLink" class="btn btn-secondary homework-cancel-btn">
+						キャンセル
+					</a>
+
+					<button type="submit" class="btn btn-primary homework-submit-btn">
+						確認画面へ進む ➔
+					</button>
+				</div>
+			</form>
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+
+			const params = new URLSearchParams(location.search);
+			const studentId = Number(params.get("studentId"));
+			if (!studentId) { location.href = "./login.html"; return; }
+
+			if (!TeamC.isStaff(me)) {
+				location.href = "./student_homework.html?studentId=" + studentId;
+				return;
+			}
+
+			const backHref = "./student_homework.html?studentId=" + studentId;
+			document.getElementById("backLink").href = backHref;
+			document.getElementById("cancelLink").href = backHref;
+
+			const f = document.getElementById("form");
+
+			const sel = f.subjectId;
+			TeamC.subjects().forEach(sub => {
+				const o = document.createElement("option");
+				o.value = sub.subjectId;
+				o.textContent = sub.subjectName;
+				sel.appendChild(o);
+			});
+
+			if (params.get("restore") === "1") {
+				const pending = TeamC.getPending("homework");
+				if (pending && pending.mode === "create" && pending.data) {
+					const d = pending.data;
+					if (d.subjectId != null) f.subjectId.value = d.subjectId;
+					if (d.dueDate != null) f.dueDate.value = d.dueDate;
+					if (d.homeworkContent != null) f.homeworkContent.value = d.homeworkContent;
+					if (d.submissionStatus != null) f.submissionStatus.value = d.submissionStatus;
+					if (d.score != null) f.score.value = d.score;
+					if (d.comment != null) f.comment.value = d.comment;
+				}
+			}
+
+			f.addEventListener("submit", e => {
+				e.preventDefault();
+				const teacher = TeamC.teacherByUserId(me.userId);
+				const data = {
+					studentId: studentId,
+					teacherId: teacher ? teacher.teacherId : null,
+					subjectId: Number(f.subjectId.value),
+					homeworkContent: f.homeworkContent.value,
+					dueDate: f.dueDate.value,
+					submissionStatus: f.submissionStatus.value,
+					score: f.score.value === "" ? null : Number(f.score.value),
+					comment: f.comment.value,
+				};
+				TeamC.setPending("homework", { mode: "create", studentId: studentId, data: data });
+				location.href = "./homework_add_confirm.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

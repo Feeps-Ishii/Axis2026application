@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>生徒新規登録</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<div class="container" style="max-width: 760px;">
+
+		<a href="./students.html" class="btn btn-back">
+			◀ 生徒一覧に戻る
+		</a>
+
+		<div class="card">
+
+			<div class="card-header">
+				<span class="card-title">生徒情報の新規登録 (入力)</span>
+			</div>
+			<!-- エラーメッセージ表示 -->
+			<div id="errorBox" class="error-message" style="color:red; margin-bottom:10px; display:none;">
+				<p id="errorMessage"></p>
+			</div>
+			<form id="registerForm">
+
+				<!-- 教室ID（選択） -->
+				<div class="form-group">
+					<label>教室 (必須)</label>
+					<select class="form-control" name="classroomId" required>
+						<option value="">全教室</option>
+						<option value="1">本校</option>
+						<option value="2">西口校</option>
+						<option value="3">北口校</option>
+						<option value="4">南校</option>
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label>生徒名 (必須)</label>
+					<input type="text" class="form-control" name="studentName" required>
+				</div>
+
+				<div class="form-group">
+					<label>生徒名カナ</label>
+					<input type="text" class="form-control" name="studentKana">
+				</div>
+
+				<div class="form-group">
+					<label>学校名</label>
+					<input type="text" class="form-control" name="schoolName">
+				</div>
+
+				<!-- 学年（選択） -->
+				<div class="form-group">
+					<label>学年 (必須)</label>
+					<select class="form-control" name="grade" required>
+						<option value="">選択してください</option>
+						<option value="小学4年">小学4年</option>
+						<option value="小学5年">小学5年</option>
+						<option value="小学6年">小学6年</option>
+						<option value="中学1年">中学1年</option>
+						<option value="中学2年">中学2年</option>
+						<option value="中学3年">中学3年</option>
+						<option value="高校1年">高校1年</option>
+						<option value="高校2年">高校2年</option>
+						<option value="高校3年">高校3年</option>
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label>電話番号</label>
+					<input type="text" class="form-control" name="phoneNumber">
+				</div>
+
+				<div class="form-group">
+					<label>保護者名</label>
+					<input type="text" class="form-control" name="guardianName">
+				</div>
+
+				<div class="form-group">
+					<label>保護者電話番号</label>
+					<input type="text" class="form-control" name="guardianTel">
+				</div>
+
+				<div class="form-group">
+					<label>保護者メールアドレス</label>
+					<input type="email" class="form-control" name="guardianEmail">
+				</div>
+
+				<div class="form-group">
+					<label>住所</label>
+					<input type="text" class="form-control" name="address">
+				</div>
+
+				<!-- 受講希望形式 -->
+				<div class="form-group">
+					<label>受講希望形式 (必須)</label>
+					<select class="form-control" name="lessonStyle" required>
+						<option value="">選択してください</option>
+						<option value="対面希望">対面希望</option>
+						<option value="自習室希望">自習室希望</option>
+						<option value="対面・自習室どちらも希望">対面・自習室どちらも希望</option>
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label>通塾希望条件</label>
+					<textarea class="form-control" name="desiredCondition" rows="3"></textarea>
+				</div>
+
+				<div class="form-group">
+					<label>通塾目的</label>
+					<input type="text" class="form-control" name="purpose">
+				</div>
+
+				<div class="form-group">
+					<label>志望校</label>
+					<input type="text" class="form-control" name="targetSchool">
+				</div>
+
+				<div class="form-group">
+					<label>講師共有メモ</label>
+					<textarea class="form-control" name="personalityMemo" rows="3"></textarea>
+				</div>
+
+				<div class="form-group">
+					<label>備考</label>
+					<textarea class="form-control" name="remark" rows="3"></textarea>
+				</div>
+
+				<!-- パスワード -->
+				<div class="form-group">
+					<label>パスワード (必須)</label>
+					<input type="password" class="form-control" id="password" name="password" required>
+				</div>
+
+				<div class="form-group">
+					<label>パスワード確認 (必須)</label>
+					<input type="password" class="form-control" name="confirmPassword" placeholder="もう一度パスワードを入力"
+						minlength="8" required>
+				</div>
+				<div style="margin-top: 2rem; display: flex; gap: 10px;">
+
+					<button type="submit" class="btn btn-primary" style="flex: 1;">
+						確認画面へ進む ➔
+					</button>
+
+					<a href="./students.html" class="btn" style="background:#e2e8f0; color:#475569;">
+						キャンセル
+					</a>
+
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			if (!TeamC.isStaff(me)) {
+				location.href = "./students.html";
+				return;
+			}
+
+			const form = document.getElementById("registerForm");
+
+			// ?restore=1 で確認画面からの入力復元
+			const params = new URLSearchParams(location.search);
+			if (params.get("restore") === "1") {
+				const pending = TeamC.getPending("student");
+				if (pending && pending.mode === "create" && pending.data) {
+					const d = pending.data;
+					Object.keys(d).forEach((k) => {
+						const el = form.elements[k];
+						if (el) el.value = d[k] == null ? "" : d[k];
+					});
+					if (pending.userPatch && pending.userPatch.password) {
+						if (form.elements.password) form.elements.password.value = pending.userPatch.password;
+						if (form.elements.confirmPassword) form.elements.confirmPassword.value = pending.userPatch.password;
+					}
+				}
+			}
+
+			form.addEventListener("submit", function (e) {
+				e.preventDefault();
+				const fd = new FormData(form);
+				const password = fd.get("password");
+				const confirmPassword = fd.get("confirmPassword");
+
+				const errorBox = document.getElementById("errorBox");
+				if (password !== confirmPassword) {
+					document.getElementById("errorMessage").textContent =
+						"パスワードと確認用パスワードが一致しません。";
+					errorBox.style.display = "";
+					return;
+				}
+				errorBox.style.display = "none";
+
+				const data = {
+					classroomId: Number(fd.get("classroomId")),
+					studentName: fd.get("studentName"),
+					studentKana: fd.get("studentKana"),
+					schoolName: fd.get("schoolName"),
+					grade: fd.get("grade"),
+					phoneNumber: fd.get("phoneNumber"),
+					guardianName: fd.get("guardianName"),
+					guardianTel: fd.get("guardianTel"),
+					guardianEmail: fd.get("guardianEmail"),
+					address: fd.get("address"),
+					lessonStyle: fd.get("lessonStyle"),
+					desiredCondition: fd.get("desiredCondition"),
+					purpose: fd.get("purpose"),
+					targetSchool: fd.get("targetSchool"),
+					personalityMemo: fd.get("personalityMemo"),
+					remark: fd.get("remark"),
+				};
+
+				const userPatch = {
+					password: password,
+					name: data.studentName,
+					role: "生徒",
+					email: data.guardianEmail || "",
+					tel: data.phoneNumber || "",
+				};
+
+				TeamC.setPending("student", { mode: "create", data, userPatch });
+				location.href = "./student_confirm.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

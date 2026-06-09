@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>お知らせ新規登録 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<div class="container" style="max-width:760px;">
+
+		<div class="card">
+
+			<div class="card-header">
+				<span class="card-title">お知らせ新規登録（入力）</span>
+			</div>
+
+			<form id="noticeForm">
+
+				<div class="form-group">
+					<label>タイトル</label>
+					<input type="text" id="title" name="title" class="form-control" required>
+				</div>
+
+				<div class="form-group">
+					<label>お知らせ内容</label>
+					<textarea id="content" name="content" class="form-control" rows="5" required></textarea>
+				</div>
+
+				<div class="form-group">
+					<label>公開対象</label>
+					<select id="targetRole" name="targetRole" class="form-control" required>
+						<option value="全員">全員</option>
+						<option value="生徒">生徒</option>
+						<option value="講師">講師</option>
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label>公開開始日</label>
+					<input type="date" id="startDate" name="startDate" class="form-control" required>
+				</div>
+
+				<div class="form-group">
+					<label>公開終了日</label>
+					<input type="date" id="endDate" name="endDate" class="form-control">
+					<div id="endDateError" class="error" style="color:red; display:none;"></div>
+				</div>
+
+				<div style="margin-top:2rem; display:flex; gap:10px;">
+					<button type="submit" class="btn btn-primary" style="flex:1;">
+						確認画面へ進む ➔
+					</button>
+					<a href="./admin_dashboard.html" class="btn" style="background:#e2e8f0; color:#475569;">
+						キャンセル
+					</a>
+				</div>
+
+			</form>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			// お知らせ作成は教室長のみ（NoticeController.isManager）
+			if (!TeamC.isManager(s.user)) { location.href = "./admin_dashboard.html"; return; }
+
+			const params = new URLSearchParams(location.search);
+			// ?restore=1 で確認画面から戻ったとき入力値を復元
+			if (params.get("restore") === "1") {
+				const p = TeamC.getPending("notice");
+				if (p && p.data) {
+					document.getElementById("title").value = p.data.title || "";
+					document.getElementById("content").value = p.data.content || "";
+					document.getElementById("targetRole").value = p.data.targetRole || "全員";
+					document.getElementById("startDate").value = p.data.startDate || "";
+					document.getElementById("endDate").value = p.data.endDate || "";
+				}
+			}
+
+			const errEl = document.getElementById("endDateError");
+
+			document.getElementById("noticeForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				errEl.style.display = "none";
+
+				const data = {
+					title: document.getElementById("title").value.trim(),
+					content: document.getElementById("content").value.trim(),
+					targetRole: document.getElementById("targetRole").value,
+					startDate: document.getElementById("startDate").value || null,
+					endDate: document.getElementById("endDate").value || null,
+					isPublished: 1,
+				};
+
+				// 終了日は開始日以降（NoticeController の日付チェック）
+				if (data.startDate && data.endDate && data.endDate < data.startDate) {
+					errEl.textContent = "終了日は開始日以降にしてください";
+					errEl.style.display = "block";
+					return;
+				}
+
+				TeamC.setPending("notice", { mode: "create", data });
+				location.href = "./announce_confirm.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

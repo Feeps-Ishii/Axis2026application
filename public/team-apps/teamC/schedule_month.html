@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>月間スケジュール | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+	<div id="appHeader"></div>
+
+	<main class="b2c-month-page">
+
+		<section class="b2c-month-hero">
+			<div class="b2c-month-hero-main">
+				<p class="b2c-month-label">MONTHLY SCHEDULE</p>
+				<h1 id="heroTitle">月間スケジュール予約</h1>
+				<p class="b2c-month-lead">
+					空き枠・自習室・予約状況を確認し、日付を選んで週ごとのコマ別スケジュールへ進めます。
+				</p>
+			</div>
+
+			<div class="b2c-month-hero-side">
+				<div class="b2c-month-classroom-card">
+					<span class="b2c-month-classroom-label">表示教室</span>
+					<strong id="classroomName">未設定</strong>
+				</div>
+
+				<div class="b2c-month-role-badge" id="studentBadge" style="display:none;">
+					生徒・保護者向け
+				</div>
+
+				<div class="b2c-month-role-badge" id="managerBadge" style="display:none;">
+					教室管理向け
+				</div>
+			</div>
+		</section>
+
+		<section class="b2c-month-toolbar">
+			<div class="b2c-month-nav">
+				<a class="btn btn-secondary" id="prevLink">前月</a>
+				<a class="btn btn-secondary" href="./schedule_month.html">今月</a>
+				<a class="btn btn-secondary" id="nextLink">翌月</a>
+			</div>
+
+			<div class="b2c-month-actions">
+				<a class="btn btn-primary b2c-month-reserve-btn" href="./reservation_input.html">
+					新規予約
+				</a>
+			</div>
+		</section>
+
+		<section class="b2c-month-guide-card">
+			<div class="b2c-month-guide-main">
+				<h2>使い方</h2>
+				<p>
+					日付をクリックすると、選択した週のコマ別予約状況を確認できます。
+					空き枠がある日を選ぶと、予約候補を探しやすくなります。
+				</p>
+			</div>
+
+			<div class="b2c-month-legend">
+				<span><i class="legend-dot available"></i>空きあり</span>
+				<span><i class="legend-dot reserved"></i>予約済み</span>
+				<span><i class="legend-dot full"></i>満席</span>
+				<span><i class="legend-dot closed"></i>休講</span>
+				<span><i class="legend-dot today"></i>今日</span>
+			</div>
+		</section>
+
+		<section class="b2c-month-calendar-card">
+			<div class="b2c-month-card-header">
+				<div>
+					<p class="b2c-month-label">CALENDAR</p>
+					<h2 id="calendarTitle">月間予約状況</h2>
+				</div>
+			</div>
+
+			<div class="b2c-month-calendar-scroll">
+				<div class="b2c-month-calendar">
+					<div class="b2c-month-header sunday">日</div>
+					<div class="b2c-month-header">月</div>
+					<div class="b2c-month-header">火</div>
+					<div class="b2c-month-header">水</div>
+					<div class="b2c-month-header">木</div>
+					<div class="b2c-month-header">金</div>
+					<div class="b2c-month-header saturday">土</div>
+
+					<div id="calendarDays" style="display:contents;"></div>
+				</div>
+			</div>
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+
+			const role = me.role || "";
+			const isReservationManager = TeamC.isStaff(me);
+			const isStudent = TeamC.isStudent(me);
+			const userLoc = TeamC.userLocation(me);
+
+			// --- 対象月（?year=&month= or デフォルト today() の月） ---
+			const params = new URLSearchParams(window.location.search);
+			const todayStr = TeamC.today();
+			let year = parseInt(params.get("year"), 10);
+			let month = parseInt(params.get("month"), 10);
+			if (!year) year = parseInt(todayStr.slice(0, 4), 10);
+			if (!month) month = parseInt(todayStr.slice(5, 7), 10);
+
+			const STUDY_ROOM_CAPACITY = 30;
+
+			function pad(n) { return String(n).padStart(2, "0"); }
+			function ymd(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+
+			// 月初・月末
+			const firstDay = new Date(year, month - 1, 1);
+			const lastDay = new Date(year, month, 0);
+
+			// カレンダー開始（日曜始まり）・終了（土曜終わり）
+			const calStart = new Date(firstDay);
+			while (calStart.getDay() !== 0) calStart.setDate(calStart.getDate() - 1);
+			const calEnd = new Date(lastDay);
+			while (calEnd.getDay() !== 6) calEnd.setDate(calEnd.getDate() + 1);
+
+			const calendarDates = [];
+			for (let d = new Date(calStart); d <= calEnd; d.setDate(d.getDate() + 1)) {
+				calendarDates.push(new Date(d));
+			}
+			const calStartStr = ymd(calStart);
+			const calEndStr = ymd(calEnd);
+
+			// 期間内イベント講習の有無（カレンダー全体で判定）→ その日のコマ数
+			const rangeHasEvent = calendarDates.some((d) => TeamC.eventPeriodFor(ymd(d)));
+			const slotCountPerDay = rangeHasEvent ? 8 : 6;
+			const studyRoomSlotCountPerDay = slotCountPerDay;
+
+			// 当校舎の予約（reservationsInRange → location 絞り込み）
+			function reservationLocation(r) {
+				const c = TeamC.classroom(r.classroomId);
+				return c ? c.location : "";
+			}
+			const reservations = TeamC.reservationsInRange(calStartStr, calEndStr)
+				.filter((r) => !userLoc || reservationLocation(r) === userLoc);
+
+			// 当校舎の講師シフト（勤務可）
+			const teacherShifts = TeamC.teacherShifts().filter((sh) => {
+				if (!sh.isAvailable || !sh.shiftDate) return false;
+				if (sh.shiftDate < calStartStr || sh.shiftDate > calEndStr) return false;
+				const t = TeamC.teacher(sh.teacherId);
+				if (!t) return false;
+				const c = TeamC.classroom(t.classroomId);
+				return c && (!userLoc || c.location === userLoc);
+			});
+
+			// 集計用 Map
+			function countByDate(items, dateOf) {
+				const m = {};
+				items.forEach((x) => { const d = dateOf(x); m[d] = (m[d] || 0) + 1; });
+				return m;
+			}
+
+			const teacherShiftCountMap = countByDate(teacherShifts, (sh) => sh.shiftDate);
+			const studentReservations = reservations.filter((r) => r.reservationRole === "生徒");
+			const studentReservationCountMap = countByDate(studentReservations, (r) => r.reservationDate);
+
+			// 自習室：教室長/講師が予約しているコマ数（日付単位）
+			const studyRoomTeacherReservedCountMap = countByDate(
+				reservations.filter((r) => r.lessonType === "自習室" && r.reservationRole !== "生徒"),
+				(r) => r.reservationDate
+			);
+
+			// 自習室：生徒予約数を「日付_コマID」単位で集計
+			const studyRoomStudentCountBySlot = {};
+			reservations.forEach((r) => {
+				if (r.lessonType !== "自習室" || r.reservationRole !== "生徒") return;
+				const key = r.reservationDate + "_" + r.scheduleSlotId;
+				studyRoomStudentCountBySlot[key] = (studyRoomStudentCountBySlot[key] || 0) + 1;
+			});
+			// 満席（30名）に達した自習室コマ数（日付単位）と満席ありフラグ
+			const studyRoomFullCountMap = {};
+			const studyRoomFullExistsMap = {};
+			Object.keys(studyRoomStudentCountBySlot).forEach((key) => {
+				if (studyRoomStudentCountBySlot[key] >= STUDY_ROOM_CAPACITY) {
+					const date = key.split("_")[0];
+					studyRoomFullCountMap[date] = (studyRoomFullCountMap[date] || 0) + 1;
+					studyRoomFullExistsMap[date] = true;
+				}
+			});
+
+			// 自分の予約済み日（reserved-day 表示）
+			const reservedDateMap = {};
+			if (isReservationManager && role === "講師") {
+				const myTeacher = TeamC.teacherByUserId(me.userId);
+				if (myTeacher) {
+					teacherShifts.forEach((sh) => {
+						if (sh.teacherId === myTeacher.teacherId) reservedDateMap[sh.shiftDate] = true;
+					});
+				}
+			} else if (isStudent) {
+				const myStudentId = TeamC.loginStudentId();
+				if (myStudentId != null) {
+					reservations.forEach((r) => {
+						if (r.studentId === myStudentId) reservedDateMap[r.reservationDate] = true;
+					});
+				}
+			}
+
+			const classroomName = (userLoc && userLoc !== "") ? userLoc : "未設定";
+			document.getElementById("classroomName").textContent = classroomName;
+			document.getElementById("heroTitle").textContent = year + "年 " + month + "月 スケジュール予約";
+			document.getElementById("calendarTitle").textContent = year + "年 " + month + "月の予約状況";
+			document.getElementById("studentBadge").style.display = isStudent ? "" : "none";
+			document.getElementById("managerBadge").style.display = isReservationManager ? "" : "none";
+
+			// 前月・翌月ナビ
+			const prev = new Date(year, month - 2, 1);
+			const next = new Date(year, month, 1);
+			document.getElementById("prevLink").href =
+				"./schedule_month.html?year=" + prev.getFullYear() + "&month=" + (prev.getMonth() + 1);
+			document.getElementById("nextLink").href =
+				"./schedule_month.html?year=" + next.getFullYear() + "&month=" + (next.getMonth() + 1);
+
+			// セル描画
+			const container = document.getElementById("calendarDays");
+			let html = "";
+			calendarDates.forEach((d) => {
+				const dateStr = ymd(d);
+				const dow = d.getDay();
+				const isClosed = dow === 0; // 日曜は休講
+				const isCurrentMonth = (d.getMonth() + 1) === month;
+				const isReserved = reservedDateMap[dateStr] === true;
+				const teacherShiftCount = teacherShiftCountMap[dateStr] || 0;
+				const studentReservationCount = studentReservationCountMap[dateStr] || 0;
+				const hasStudyRoomFull = studyRoomFullExistsMap[dateStr] === true;
+
+				// 役割別の個別授業空き枠と自習室空き枠
+				let availableCount = 0;
+				let studyRoomAvailableCount = 0;
+				if (isReservationManager) {
+					availableCount = slotCountPerDay - teacherShiftCount;
+					studyRoomAvailableCount = studyRoomSlotCountPerDay - (studyRoomTeacherReservedCountMap[dateStr] || 0);
+				} else if (isStudent) {
+					availableCount = teacherShiftCount * 2 - studentReservationCount;
+					studyRoomAvailableCount = studyRoomSlotCountPerDay - (studyRoomFullCountMap[dateStr] || 0);
+				}
+
+				let cls = "b2c-month-day";
+				if (!isCurrentMonth) cls += " other-month";
+				if (isClosed) cls += " closed-day";
+				if (isReserved) cls += " reserved-day";
+				if (!isClosed && availableCount > 0) cls += " available-day";
+				if (!isClosed && availableCount <= 0) cls += " full-day";
+				if (dateStr === todayStr) cls += " today";
+
+				let body = "";
+				if (isClosed) {
+					body = '<div class="b2c-day-status closed">休講</div>';
+				} else {
+					body += '<div class="b2c-day-body">';
+					if (isReserved) body += '<div class="b2c-day-status reserved">予約済み</div>';
+					if (isReservationManager) {
+						body += '<div class="b2c-day-info-row"><span>講師シフト</span><strong>' + teacherShiftCount + '件</strong></div>';
+					}
+					if (isStudent) {
+						body += '<div class="b2c-day-info-row"><span>生徒予約</span><strong>' + studentReservationCount + '件</strong></div>';
+					}
+					body += '<div class="b2c-day-info-row highlight"><span>個別授業</span><strong>' + availableCount + '枠</strong></div>';
+					if (studyRoomAvailableCount > 0) {
+						body += '<div class="b2c-day-info-row study"><span>自習室</span><strong>' + studyRoomAvailableCount + '枠</strong></div>';
+					}
+					if (isStudent && hasStudyRoomFull) {
+						body += '<div class="b2c-day-status full">自習室満席あり</div>';
+					}
+					if (isStudent && availableCount <= 0) {
+						body += '<div class="b2c-day-status full">個別授業満席</div>';
+					}
+					body += '<div class="b2c-day-click-hint">週の詳細を見る</div>';
+					body += '</div>';
+				}
+
+				const dayNumCls = dow === 0 ? " sunday" : (dow === 6 ? " saturday" : "");
+
+				html +=
+					'<a href="./schedule_week.html?date=' + dateStr + '" class="' + cls + '">' +
+						'<div class="b2c-day-top">' +
+							'<div class="b2c-day-number' + dayNumCls + '">' + d.getDate() + '</div>' +
+							'<div class="b2c-today-badge">今日</div>' +
+						'</div>' +
+						body +
+					'</a>';
+			});
+			container.innerHTML = html;
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>お知らせ削除確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<div class="container" style="max-width:700px;">
+
+		<div class="card" style="border-color:var(--danger);">
+
+			<div class="card-header">
+				<span class="card-title" style="color:var(--danger);">お知らせ削除確認</span>
+			</div>
+
+			<p style="margin-bottom:1rem; color:var(--danger); font-weight:bold;">
+				選択したお知らせを削除します。よろしいですか？
+			</p>
+
+			<table class="data-table">
+				<tr>
+					<th>タイトル</th>
+					<td id="vTitle"></td>
+				</tr>
+				<tr>
+					<th>本文</th>
+					<td id="vContent"></td>
+				</tr>
+				<tr>
+					<th>公開対象</th>
+					<td id="vTargetRole"></td>
+				</tr>
+			</table>
+
+			<div style="display:flex; gap:10px; margin-top:1.5rem;">
+				<button type="button" id="deleteBtn" class="btn btn-danger" style="flex:1;">削除を確定する</button>
+				<a href="./admin_dashboard.html" class="btn" style="background:#e2e8f0;color:#475569;">キャンセル</a>
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			if (!TeamC.isManager(s.user)) { location.href = "./admin_dashboard.html"; return; }
+
+			const params = new URLSearchParams(location.search);
+			const noticeId = params.get("noticeId");
+			const notice = TeamC.notice(noticeId);
+			if (!notice) { location.href = "./admin_dashboard.html"; return; }
+
+			document.getElementById("vTitle").textContent = notice.title || "";
+			document.getElementById("vContent").textContent = notice.content || "";
+			document.getElementById("vTargetRole").textContent = notice.targetRole || "";
+
+			document.getElementById("deleteBtn").addEventListener("click", function () {
+				TeamC.deleteNotice(notice.noticeId);
+				location.href = "./announce_delete_complete.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

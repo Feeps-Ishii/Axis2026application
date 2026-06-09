@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>授業記録管理 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+
+	<div id="appHeader"></div>
+
+	<main class="record-list-page">
+
+		<section class="record-list-hero">
+
+			<div class="record-list-hero-main">
+				<p class="record-list-label">Class Record Management</p>
+
+				<h1>授業記録管理</h1>
+
+				<p class="record-list-lead">
+					授業内容・学習状況・宿題内容を一覧で確認できます。
+				</p>
+			</div>
+
+			<div class="record-list-hero-actions">
+				<a id="backToCarte" class="btn btn-secondary">
+					◀ 生徒カルテに戻る
+				</a>
+			</div>
+
+		</section>
+
+		<section class="record-list-card">
+
+			<div class="record-list-card-header">
+				<div>
+					<p class="record-list-label">Class Record List</p>
+					<h2>授業記録一覧</h2>
+				</div>
+
+				<div class="record-list-card-actions">
+					<div class="record-list-count-badge">
+						登録件数：
+						<span id="recordCount">0</span>
+						件
+					</div>
+
+					<a id="newRecordBtn"
+					   class="btn btn-primary record-list-new-btn"
+					   style="display:none;">
+						＋ 授業記録の新規登録
+					</a>
+				</div>
+			</div>
+
+			<p class="record-list-note">
+				一覧では授業内容を把握するための主要項目のみ表示します。
+			</p>
+
+			<div class="record-list-table-scroll">
+
+				<table class="record-list-table">
+					<thead>
+						<tr id="recordHead">
+							<th>授業日</th>
+							<th>コマ</th>
+							<th>担当講師</th>
+							<th>科目</th>
+							<th>単元</th>
+							<th>次回宿題</th>
+							<th>励ましコメント</th>
+						</tr>
+					</thead>
+
+					<tbody id="recordBody"></tbody>
+
+				</table>
+
+			</div>
+
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			const E = TeamC.esc;
+
+			const params = new URLSearchParams(location.search);
+			const studentId = Number(params.get("studentId"));
+			const student = TeamC.student(studentId);
+			if (!student) { location.href = "./login.html"; return; }
+
+			const canEdit = TeamC.isStaff(me);
+
+			document.getElementById("backToCarte").href =
+				"./student_carte.html?studentId=" + studentId;
+
+			if (canEdit) {
+				const btn = document.getElementById("newRecordBtn");
+				btn.style.display = "";
+				btn.href = "./class_record_input.html?studentId=" + studentId;
+				// 操作列ヘッダー追加
+				const th = document.createElement("th");
+				th.textContent = "操作";
+				document.getElementById("recordHead").appendChild(th);
+			}
+
+			const list = TeamC.classRecordsByStudent(studentId);
+			document.getElementById("recordCount").textContent = list.length;
+
+			const tbody = document.getElementById("recordBody");
+
+			if (!list.length) {
+				const colspan = canEdit ? 8 : 7;
+				tbody.innerHTML =
+					'<tr><td colspan="' + colspan + '" class="record-empty-cell">' +
+					'登録されている授業記録はありません。</td></tr>';
+				return;
+			}
+
+			const orVal = (v) => (v != null && v !== "") ? E(v) : "未入力";
+
+			tbody.innerHTML = list.map((rec) => {
+				const teacher = TeamC.teacher(rec.teacherId);
+				const subject = TeamC.subject(rec.subjectId);
+				const slot = TeamC.slot(rec.scheduleSlotId);
+				let actions = "";
+				if (canEdit) {
+					actions =
+						'<td class="record-actions-cell">' +
+							'<div class="record-action-buttons">' +
+								'<a class="record-action-btn record-detail-btn" href="./class_record_edit.html?studentId=' +
+									studentId + '&recordId=' + rec.classRecordId + '">変更・詳細</a>' +
+								'<a class="record-action-btn record-delete-btn" href="./class_record_delete_confirm.html?studentId=' +
+									studentId + '&recordId=' + rec.classRecordId + '">削除</a>' +
+							'</div>' +
+						'</td>';
+				}
+				return '<tr class="record-list-row">' +
+					'<td><span class="record-date-badge">' + E(TeamC.fmtDate(rec.classDate)) + '</span></td>' +
+					'<td><span class="record-slot-badge">' + E(slot ? slot.slotName : "") + '</span></td>' +
+					'<td><span class="record-teacher-name">' + E(teacher ? teacher.teacherName : "") + '</span></td>' +
+					'<td><span class="record-subject-pill">' + E(subject ? subject.subjectName : "") + '</span></td>' +
+					'<td><span class="record-unit-text">' + orVal(rec.unit) + '</span></td>' +
+					'<td><div class="record-summary">' + orVal(rec.nextHomework) + '</div></td>' +
+					'<td><div class="record-summary">' + orVal(rec.encouragementComment) + '</div></td>' +
+					actions +
+				'</tr>';
+			}).join("");
+		});
+	</script>
+
+</body>
+
+</html>

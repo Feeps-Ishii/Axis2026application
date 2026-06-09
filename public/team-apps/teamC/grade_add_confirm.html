@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>成績追加確認</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+	<div id="appHeader"></div>
+
+	<main class="grade-new-confirm-page">
+		<section class="grade-new-confirm-hero">
+			<div class="grade-new-confirm-hero-main">
+				<p class="grade-new-confirm-label">CONFIRM GRADE</p>
+				<h1>成績追加確認</h1>
+				<p class="grade-new-confirm-lead">入力した成績情報を確認し、問題がなければ追加を確定してください。</p>
+			</div>
+			<div class="grade-new-confirm-hero-actions">
+				<a id="backToFormTop" href="#" class="btn btn-back">◀ 入力画面に戻る</a>
+			</div>
+		</section>
+
+		<section class="grade-new-confirm-card">
+			<div class="grade-new-confirm-card-header">
+				<div><p class="grade-new-confirm-label">CONFIRM DETAILS</p><h2>登録内容の確認</h2></div>
+			</div>
+			<p class="grade-new-confirm-note">以下の内容で成績を追加します。科目・テスト名・点数などに間違いがないか確認してください。</p>
+
+			<div class="grade-new-confirm-section">
+				<h3>① 成績情報</h3>
+				<div class="grade-new-confirm-grid grade-new-confirm-grid-2">
+					<div class="grade-new-confirm-item"><div class="grade-new-confirm-item-label">科目</div><div class="grade-subject-pill" id="vSubject"></div></div>
+					<div class="grade-new-confirm-item"><div class="grade-new-confirm-item-label">テスト種別</div><div class="grade-type-badge" id="vTestType"></div></div>
+				</div>
+				<div class="grade-new-confirm-grid grade-new-confirm-grid-2">
+					<div class="grade-new-confirm-item"><div class="grade-new-confirm-item-label">テスト名</div><div class="grade-new-confirm-main-text" id="vTestName"></div></div>
+					<div class="grade-new-confirm-item"><div class="grade-new-confirm-item-label">テスト日</div><div class="grade-date-badge" id="vTestDate"></div></div>
+				</div>
+				<div class="grade-new-confirm-grid grade-new-confirm-grid-4">
+					<div class="grade-new-confirm-item"><div class="grade-new-confirm-item-label">点数</div><div class="grade-score-badge" id="vScore"></div></div>
+					<div class="grade-new-confirm-item"><div class="grade-new-confirm-item-label">満点</div><div class="grade-new-confirm-value-badge" id="vMaxScore"></div></div>
+					<div class="grade-new-confirm-item"><div class="grade-new-confirm-item-label">偏差値</div><div class="grade-new-confirm-value-badge" id="vDeviation"></div></div>
+					<div class="grade-new-confirm-item"><div class="grade-new-confirm-item-label">順位</div><div class="grade-new-confirm-value-badge" id="vRank"></div></div>
+				</div>
+				<div class="grade-new-confirm-memo"><div class="grade-new-confirm-memo-label">コメント</div><p id="vComment"></p></div>
+			</div>
+
+			<div class="grade-new-confirm-section" id="interviewSection">
+				<h3>② 保護者面談・次期提案用情報</h3>
+				<div class="grade-new-confirm-grid grade-new-confirm-grid-2">
+					<div class="grade-new-confirm-memo"><div class="grade-new-confirm-memo-label">次期目標</div><p id="vNextGoal"></p></div>
+					<div class="grade-new-confirm-memo"><div class="grade-new-confirm-memo-label">提案内容</div><p id="vProposal"></p></div>
+				</div>
+				<div class="grade-new-confirm-memo"><div class="grade-new-confirm-memo-label">各講師の所見</div><p id="vTeacherOpinion"></p></div>
+				<div class="grade-new-confirm-grid grade-new-confirm-grid-2">
+					<div class="grade-new-confirm-item"><div class="grade-new-confirm-item-label">出席率</div><div class="grade-new-confirm-value-badge" id="vAttendance"></div></div>
+					<div class="grade-new-confirm-item"><div class="grade-new-confirm-item-label">宿題提出率</div><div class="grade-new-confirm-value-badge" id="vHomework"></div></div>
+				</div>
+			</div>
+
+			<div class="grade-new-confirm-actions">
+				<a id="backToForm" href="#" class="btn btn-secondary grade-new-confirm-back-btn">⬅ 修正する</a>
+				<button type="button" id="submitBtn" class="btn btn-primary grade-new-confirm-submit-btn">追加を確定する</button>
+			</div>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			const isStudent = TeamC.isStudent(me);
+			const E = TeamC.esc;
+
+			const pending = TeamC.getPending("grade");
+			if (!pending || pending.mode !== "create" || !pending.data) {
+				location.href = "./student_grades.html";
+				return;
+			}
+			const studentId = pending.studentId;
+			const d = pending.data;
+
+			const subjectNameMap = {};
+			TeamC.subjects().forEach(sub => { subjectNameMap[sub.subjectId] = sub.subjectName; });
+
+			const backHref = "./grade_add.html?studentId=" + studentId + "&restore=1";
+			document.getElementById("backToFormTop").href = backHref;
+			document.getElementById("backToForm").href = backHref;
+
+			const set = (id, v) => { document.getElementById(id).textContent = v; };
+			set("vSubject", subjectNameMap[d.subjectId] || "");
+			set("vTestType", d.testType || "");
+			set("vTestName", d.testName || "");
+			set("vTestDate", d.testDate || "");
+			set("vScore", (d.score != null ? d.score : "") + "点");
+			set("vMaxScore", d.maxScore != null ? d.maxScore + "点" : "-");
+			set("vDeviation", d.deviationValue != null ? d.deviationValue : "-");
+			set("vRank", d.testRank != null ? d.testRank + "位" : "-");
+			set("vComment", d.comment ? d.comment : "コメントはありません。");
+
+			if (isStudent) {
+				const sec = document.getElementById("interviewSection");
+				if (sec) sec.style.display = "none";
+			} else {
+				set("vNextGoal", d.nextGoal ? d.nextGoal : "未入力");
+				set("vProposal", d.proposalContent ? d.proposalContent : "未入力");
+				set("vTeacherOpinion", d.teacherOpinion ? d.teacherOpinion : "未入力");
+				set("vAttendance", d.attendanceRate != null ? d.attendanceRate + "%" : "-");
+				set("vHomework", d.homeworkSubmissionRate != null ? d.homeworkSubmissionRate + "%" : "-");
+			}
+
+			document.getElementById("submitBtn").addEventListener("click", () => {
+				TeamC.addGrade(d);
+				TeamC.clearPending("grade");
+				location.href = "./grade_add_complete.html?studentId=" + studentId;
+			});
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>授業記録変更確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+
+	<div id="appHeader"></div>
+
+	<main class="record-edit-confirm-page">
+
+		<section class="record-edit-confirm-hero">
+			<div>
+				<p class="record-edit-confirm-label">Class Record Confirm</p>
+				<h1>授業記録変更確認</h1>
+				<p class="record-edit-confirm-lead">
+					授業内容・学習状況・次回への引き継ぎ内容を確認し、問題がなければ変更を確定してください。
+				</p>
+			</div>
+
+			<div class="record-edit-confirm-hero-actions">
+				<a id="backToEdit" class="btn btn-secondary">
+					◀ 修正する
+				</a>
+			</div>
+		</section>
+
+		<section class="record-edit-confirm-card">
+
+			<div class="record-edit-confirm-header">
+				<div>
+					<p class="record-edit-confirm-label">Confirm Details</p>
+					<h2>変更内容</h2>
+				</div>
+
+				<div class="record-edit-confirm-badge">
+					確認画面
+				</div>
+			</div>
+
+			<section class="record-edit-confirm-section">
+				<div class="record-edit-confirm-section-title">
+					① 授業の事実
+				</div>
+
+				<div class="record-edit-confirm-grid record-edit-confirm-grid-3">
+
+					<div class="record-edit-confirm-item">
+						<div class="record-edit-confirm-item-label">授業日</div>
+						<div class="record-edit-confirm-item-value" id="v_classDate"></div>
+					</div>
+
+					<div class="record-edit-confirm-item">
+						<div class="record-edit-confirm-item-label">教室</div>
+						<div class="record-edit-confirm-item-value" id="v_classroom"></div>
+					</div>
+
+					<div class="record-edit-confirm-item">
+						<div class="record-edit-confirm-item-label">コマ</div>
+						<div class="record-edit-confirm-item-value" id="v_slot"></div>
+					</div>
+
+					<div class="record-edit-confirm-item">
+						<div class="record-edit-confirm-item-label">講師</div>
+						<div class="record-edit-confirm-item-value" id="v_teacher"></div>
+					</div>
+
+					<div class="record-edit-confirm-item">
+						<div class="record-edit-confirm-item-label">生徒</div>
+						<div class="record-edit-confirm-item-value" id="v_student"></div>
+					</div>
+
+					<div class="record-edit-confirm-item">
+						<div class="record-edit-confirm-item-label">科目</div>
+						<div class="record-edit-confirm-item-value">
+							<span class="record-edit-confirm-subject-pill" id="v_subject"></span>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="record-edit-confirm-grid record-edit-confirm-grid-2 record-edit-confirm-grid-margin">
+
+					<div class="record-edit-confirm-item">
+						<div class="record-edit-confirm-item-label">単元</div>
+						<div class="record-edit-confirm-item-value" id="v_unit"></div>
+					</div>
+
+					<div class="record-edit-confirm-item">
+						<div class="record-edit-confirm-item-label">使用教材ページ</div>
+						<div class="record-edit-confirm-item-value" id="v_materialPages"></div>
+					</div>
+
+					<div class="record-edit-confirm-item">
+						<div class="record-edit-confirm-item-label">実施演習問題番号</div>
+						<div class="record-edit-confirm-item-value" id="v_exerciseNumbers"></div>
+					</div>
+
+					<div class="record-edit-confirm-item">
+						<div class="record-edit-confirm-item-label">正答数</div>
+						<div class="record-edit-confirm-item-value">
+							<span class="record-edit-confirm-score-badge" id="v_correctCount"></span>
+						</div>
+					</div>
+
+				</div>
+			</section>
+
+			<section class="record-edit-confirm-section">
+				<div class="record-edit-confirm-section-title">
+					② 学習状況
+				</div>
+
+				<div class="record-edit-confirm-grid record-edit-confirm-grid-2">
+
+					<div class="record-edit-confirm-item">
+						<div class="record-edit-confirm-item-label">理解度</div>
+						<div class="record-edit-confirm-item-value">
+							<span class="record-edit-confirm-level-badge" id="v_understanding"></span>
+						</div>
+					</div>
+
+					<div class="record-edit-confirm-item">
+						<div class="record-edit-confirm-item-label">集中度</div>
+						<div class="record-edit-confirm-item-value">
+							<span class="record-edit-confirm-level-badge concentration" id="v_concentration"></span>
+						</div>
+					</div>
+
+					<div class="record-edit-confirm-item record-edit-confirm-wide">
+						<div class="record-edit-confirm-item-label">質問内容</div>
+						<div class="record-edit-confirm-item-value record-edit-confirm-memo" id="v_questionContent"></div>
+					</div>
+
+				</div>
+			</section>
+
+			<section class="record-edit-confirm-section">
+				<div class="record-edit-confirm-section-title">
+					③ コミュニケーション・次回への引き継ぎ
+				</div>
+
+				<div class="record-edit-confirm-grid record-edit-confirm-grid-1">
+
+					<div class="record-edit-confirm-item record-edit-confirm-wide">
+						<div class="record-edit-confirm-item-label">生徒の様子</div>
+						<div class="record-edit-confirm-item-value record-edit-confirm-memo" id="v_studentCondition"></div>
+					</div>
+
+					<div class="record-edit-confirm-item record-edit-confirm-wide">
+						<div class="record-edit-confirm-item-label">励ましコメント</div>
+						<div class="record-edit-confirm-item-value record-edit-confirm-memo" id="v_encouragementComment"></div>
+					</div>
+
+					<div class="record-edit-confirm-item record-edit-confirm-wide">
+						<div class="record-edit-confirm-item-label">次回宿題</div>
+						<div class="record-edit-confirm-item-value record-edit-confirm-memo" id="v_nextHomework"></div>
+					</div>
+
+				</div>
+			</section>
+
+			<div class="record-edit-confirm-actions">
+
+				<button type="button" id="submitBtn" class="btn btn-primary record-edit-confirm-submit-btn">
+					変更を確定する
+				</button>
+
+				<a id="backToEdit2" class="btn btn-secondary record-edit-confirm-back-btn">
+					⬅ 修正する
+				</a>
+
+			</div>
+
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+
+			const p = TeamC.getPending("record_edit");
+			if (!p || !p.patch || p.id == null) {
+				location.href = "./login.html";
+				return;
+			}
+			const studentId = Number(p.studentId);
+			const recordId = Number(p.id);
+			const d = p.patch;
+
+			const editHref = "./class_record_edit.html?studentId=" + studentId +
+				"&recordId=" + recordId + "&restore=1";
+			document.getElementById("backToEdit").href = editHref;
+			document.getElementById("backToEdit2").href = editHref;
+
+			const student = TeamC.student(studentId);
+			const classroom = TeamC.classroom(d.classroomId);
+			const slot = TeamC.slot(d.scheduleSlotId);
+			const teacher = TeamC.teacher(d.teacherId);
+			const subject = TeamC.subject(d.subjectId);
+
+			const orVal = (v) => (v != null && v !== "") ? v : "未入力";
+			const set = (id, v) => { document.getElementById(id).textContent = v; };
+
+			const UNDERSTAND = {
+				1: "1：かなり不安", 2: "2：やや不安", 3: "3：普通",
+				4: "4：おおむね理解", 5: "5：十分理解",
+			};
+			const CONCENTRATE = { 1: "低い", 2: "普通", 3: "高い" };
+
+			set("v_classDate", TeamC.fmtDate(d.classDate));
+			set("v_classroom", classroom ? classroom.roomName : "");
+			set("v_slot", slot ? slot.slotName : "");
+			set("v_teacher", teacher ? teacher.teacherName : "");
+			set("v_student", student ? student.studentName : "");
+			set("v_subject", subject ? subject.subjectName : "");
+			set("v_unit", orVal(d.unit));
+			set("v_materialPages", orVal(d.materialPages));
+			set("v_exerciseNumbers", orVal(d.exerciseNumbers));
+			set("v_correctCount", d.correctCount != null ? d.correctCount : "未入力");
+			set("v_understanding", UNDERSTAND[d.understandingLevel] || "未入力");
+			set("v_concentration", CONCENTRATE[d.concentrationLevel] || "未入力");
+			set("v_questionContent", orVal(d.questionContent));
+			set("v_studentCondition", orVal(d.studentCondition));
+			set("v_encouragementComment", orVal(d.encouragementComment));
+			set("v_nextHomework", orVal(d.nextHomework));
+
+			document.getElementById("submitBtn").addEventListener("click", () => {
+				TeamC.updateClassRecord(recordId, d);
+				TeamC.clearPending("record_edit");
+				location.href = "./class_record_edit_complete.html?studentId=" + studentId;
+			});
+		});
+	</script>
+
+</body>
+
+</html>

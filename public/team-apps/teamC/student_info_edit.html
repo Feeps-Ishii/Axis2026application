@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>生徒情報変更 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<main class="student-edit-page">
+
+		<section class="student-edit-hero">
+			<div>
+				<p class="student-edit-label">Student Edit</p>
+				<h1>生徒情報の変更</h1>
+				<p class="student-edit-lead">
+					生徒の基本情報・保護者情報・学習情報を編集できます。
+				</p>
+			</div>
+
+			<div class="student-edit-hero-actions">
+				<a id="backToCarte" href="#" class="btn btn-secondary">
+					◀ 生徒カルテに戻る
+				</a>
+			</div>
+		</section>
+
+		<section class="student-edit-card">
+
+			<div class="student-edit-header">
+				<div>
+					<p class="student-edit-label">Input Form</p>
+					<h2>変更内容入力</h2>
+				</div>
+
+				<div class="student-edit-badge">
+					編集画面
+				</div>
+			</div>
+
+			<div id="errorBox" class="error-message student-edit-error" style="display:none;">
+				<p id="errorMessage"></p>
+			</div>
+
+			<form id="editForm">
+
+				<section class="student-edit-section">
+					<div class="student-edit-section-title">基本情報</div>
+
+					<div class="student-edit-grid">
+
+						<div class="student-edit-field">
+							<label>教室 <span class="required-badge">必須</span></label>
+							<select class="form-control" name="classroomId" required>
+								<option value="">選択してください</option>
+								<option value="1">本校</option>
+								<option value="2">西口校</option>
+								<option value="3">北口校</option>
+								<option value="4">南校</option>
+							</select>
+						</div>
+
+						<div class="student-edit-field">
+							<label>生徒氏名 <span class="required-badge">必須</span></label>
+							<input type="text" class="form-control" name="studentName" required>
+						</div>
+
+						<div class="student-edit-field">
+							<label>生徒氏名カナ</label>
+							<input type="text" class="form-control" name="studentKana">
+						</div>
+
+						<div class="student-edit-field">
+							<label>学年 <span class="required-badge">必須</span></label>
+							<select class="form-control" name="grade" required>
+								<option value="">選択してください</option>
+								<option value="小学4年">小学4年</option>
+								<option value="小学5年">小学5年</option>
+								<option value="小学6年">小学6年</option>
+								<option value="中学1年">中学1年</option>
+								<option value="中学2年">中学2年</option>
+								<option value="中学3年">中学3年</option>
+								<option value="高校1年">高校1年</option>
+								<option value="高校2年">高校2年</option>
+								<option value="高校3年">高校3年</option>
+							</select>
+						</div>
+
+						<div class="student-edit-field">
+							<label>学校名</label>
+							<input type="text" class="form-control" name="schoolName">
+						</div>
+
+						<div class="student-edit-field">
+							<label>電話番号</label>
+							<input type="text" class="form-control" name="phoneNumber">
+						</div>
+
+					</div>
+				</section>
+
+				<section class="student-edit-section">
+					<div class="student-edit-section-title">保護者情報</div>
+
+					<div class="student-edit-grid">
+
+						<div class="student-edit-field">
+							<label>保護者名</label>
+							<input type="text" class="form-control" name="guardianName">
+						</div>
+
+						<div class="student-edit-field">
+							<label>保護者電話番号</label>
+							<input type="text" class="form-control" name="guardianTel">
+						</div>
+
+						<div class="student-edit-field">
+							<label>保護者メールアドレス</label>
+							<input type="email" class="form-control" name="guardianEmail">
+						</div>
+
+						<div class="student-edit-field">
+							<label>住所</label>
+							<input type="text" class="form-control" name="address">
+						</div>
+
+					</div>
+				</section>
+
+				<section class="student-edit-section">
+					<div class="student-edit-section-title">学習情報</div>
+
+					<div class="student-edit-grid">
+
+						<div class="student-edit-field">
+							<label>受講希望形式 <span class="required-badge">必須</span></label>
+							<select class="form-control" name="lessonStyle" required>
+								<option value="">選択してください</option>
+								<option value="対面希望">対面希望</option>
+								<option value="自習室希望">自習室希望</option>
+								<option value="対面・自習室どちらも希望">対面・自習室どちらも希望</option>
+							</select>
+						</div>
+
+						<div class="student-edit-field">
+							<label>通塾目的</label>
+							<input type="text" class="form-control" name="purpose">
+						</div>
+
+						<div class="student-edit-field">
+							<label>志望校</label>
+							<input type="text" class="form-control" name="targetSchool">
+						</div>
+
+						<div class="student-edit-field student-edit-wide">
+							<label>通塾希望条件</label>
+							<textarea class="form-control" name="desiredCondition" rows="3"></textarea>
+						</div>
+
+					</div>
+				</section>
+
+				<section class="student-edit-section" id="memoSection" style="display:none;">
+					<div class="student-edit-section-title">講師・教室長向け情報</div>
+
+					<div class="student-edit-grid">
+						<div class="student-edit-field student-edit-wide">
+							<label>講師間共有メモ</label>
+							<input type="text" class="form-control" name="personalityMemo">
+						</div>
+					</div>
+				</section>
+
+				<section class="student-edit-section">
+					<div class="student-edit-section-title">備考</div>
+
+					<div class="student-edit-grid">
+						<div class="student-edit-field student-edit-wide">
+							<label>備考</label>
+							<textarea class="form-control" name="remark" rows="4"></textarea>
+						</div>
+					</div>
+				</section>
+
+				<section class="student-edit-section">
+					<div class="student-edit-section-title">
+						ログイン情報
+						<span class="optional-badge">変更する場合のみ入力</span>
+					</div>
+
+					<div class="student-edit-grid">
+
+						<div class="student-edit-field">
+							<label>新しいパスワード</label>
+							<input type="password" class="form-control" id="newPassword" name="newPassword"
+								placeholder="8文字以上" minlength="8">
+							<p class="student-edit-help">
+								変更しない場合は空欄のままにしてください。
+							</p>
+						</div>
+
+						<div class="student-edit-field">
+							<label>確認用パスワード</label>
+							<input type="password" class="form-control" name="confirmPassword"
+								placeholder="パスワード変更時のみ入力" minlength="8">
+						</div>
+
+					</div>
+				</section>
+
+				<div class="student-edit-actions">
+					<button type="submit" class="btn btn-primary student-edit-submit-btn">
+						確認画面へ進む ➔
+					</button>
+
+					<a id="cancelBtn" href="#" class="btn btn-secondary student-edit-cancel-btn">
+						キャンセル
+					</a>
+				</div>
+
+			</form>
+
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+
+			const params = new URLSearchParams(location.search);
+			const studentId = params.get("studentId");
+			const view = studentId ? TeamC.studentView(studentId) : null;
+			if (!view || !view.student) {
+				location.href = "./students.html";
+				return;
+			}
+			const student = view.student;
+
+			const isStaff = TeamC.isStaff(me);
+			const canEdit = isStaff || (TeamC.isStudent(me) && student.userId === me.userId);
+			if (!canEdit) {
+				location.href = "./student_carte.html?studentId=" + studentId;
+				return;
+			}
+			const canViewMemo = isStaff;
+
+			const carteHref = "./student_carte.html?studentId=" + studentId;
+			document.getElementById("backToCarte").href = carteHref;
+			document.getElementById("cancelBtn").href = carteHref;
+
+			const form = document.getElementById("editForm");
+
+			// 共有メモ欄はスタッフのみ
+			if (canViewMemo) document.getElementById("memoSection").style.display = "";
+
+			// 初期値設定（?restore=1 なら pending から復元）
+			let init = {
+				classroomId: student.classroomId,
+				studentName: student.studentName,
+				studentKana: student.studentKana,
+				grade: student.grade,
+				schoolName: student.schoolName,
+				phoneNumber: student.phoneNumber,
+				guardianName: student.guardianName,
+				guardianTel: student.guardianTel,
+				guardianEmail: student.guardianEmail,
+				address: student.address,
+				lessonStyle: student.lessonStyle,
+				purpose: student.purpose,
+				targetSchool: student.targetSchool,
+				desiredCondition: student.desiredCondition,
+				personalityMemo: student.personalityMemo,
+				remark: student.remark,
+			};
+			let restoredPw = "";
+			if (params.get("restore") === "1") {
+				const pending = TeamC.getPending("student_edit");
+				if (pending && String(pending.id) === String(studentId) && pending.patch) {
+					init = Object.assign(init, pending.patch);
+					restoredPw = pending.newPassword || "";
+				}
+			}
+			Object.keys(init).forEach((k) => {
+				const el = form.elements[k];
+				if (el) el.value = init[k] == null ? "" : init[k];
+			});
+			if (restoredPw) {
+				form.elements.newPassword.value = restoredPw;
+				form.elements.confirmPassword.value = restoredPw;
+			}
+
+			form.addEventListener("submit", function (e) {
+				e.preventDefault();
+				const fd = new FormData(form);
+				const newPassword = fd.get("newPassword");
+				const confirmPassword = fd.get("confirmPassword");
+				const pwInput = (newPassword && newPassword !== "") || (confirmPassword && confirmPassword !== "");
+
+				const errorBox = document.getElementById("errorBox");
+				if (pwInput && newPassword !== confirmPassword) {
+					document.getElementById("errorMessage").textContent =
+						"パスワードと確認用パスワードが一致しません。";
+					errorBox.style.display = "";
+					return;
+				}
+				errorBox.style.display = "none";
+
+				const patch = {
+					classroomId: Number(fd.get("classroomId")),
+					studentName: fd.get("studentName"),
+					studentKana: fd.get("studentKana"),
+					grade: fd.get("grade"),
+					schoolName: fd.get("schoolName"),
+					phoneNumber: fd.get("phoneNumber"),
+					guardianName: fd.get("guardianName"),
+					guardianTel: fd.get("guardianTel"),
+					guardianEmail: fd.get("guardianEmail"),
+					address: fd.get("address"),
+					lessonStyle: fd.get("lessonStyle"),
+					purpose: fd.get("purpose"),
+					targetSchool: fd.get("targetSchool"),
+					desiredCondition: fd.get("desiredCondition"),
+					remark: fd.get("remark"),
+				};
+				// 共有メモはスタッフのみ更新
+				if (canViewMemo) {
+					patch.personalityMemo = fd.get("personalityMemo");
+				}
+
+				TeamC.setPending("student_edit", {
+					id: Number(studentId),
+					patch,
+					newPassword: pwInput ? newPassword : "",
+				});
+				location.href = "./student_info_edit_confirm.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

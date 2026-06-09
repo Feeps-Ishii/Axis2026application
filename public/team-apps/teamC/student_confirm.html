@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>生徒登録確認</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<div class="container" style="max-width: 760px;">
+
+		<div class="card">
+
+			<div class="card-header">
+				<span class="card-title" style="color:var(--accent);">
+					生徒情報の新規登録 (確認)
+				</span>
+			</div>
+
+			<p style="margin-bottom:1rem;">
+				以下の内容で生徒情報を登録します。
+			</p>
+
+			<!-- 教室 -->
+			<div class="form-group">
+				<label>教室</label>
+				<div class="form-text-static" id="c-classroom"></div>
+			</div>
+
+			<!-- 生徒氏名 -->
+			<div class="form-group">
+				<label>生徒氏名</label>
+				<div class="form-text-static" id="c-studentName"></div>
+			</div>
+
+			<!-- 学年 -->
+			<div class="form-group">
+				<label>学年</label>
+				<div class="form-text-static" id="c-grade"></div>
+			</div>
+
+			<!-- 学校名 -->
+			<div class="form-group">
+				<label>学校名</label>
+				<div class="form-text-static" id="c-schoolName"></div>
+			</div>
+
+			<!-- 電話番号 -->
+			<div class="form-group">
+				<label>電話番号</label>
+				<div class="form-text-static" id="c-phoneNumber"></div>
+			</div>
+
+			<!-- 受講希望形式 -->
+			<div class="form-group">
+				<label>受講希望形式</label>
+				<div class="form-text-static" id="c-lessonStyle"></div>
+			</div>
+
+			<!-- 通塾希望条件 -->
+			<div class="form-group">
+				<label>通塾希望条件</label>
+				<div class="form-text-static" id="c-desiredCondition"></div>
+			</div>
+
+			<!-- メモ -->
+			<div class="form-group">
+				<label>講師間共有メモ</label>
+				<div class="form-text-static" id="c-personalityMemo"></div>
+			</div>
+
+			<!-- パスワード -->
+			<div class="form-group">
+				<label>パスワード</label>
+				<div class="form-text-static">********</div>
+			</div>
+
+			<!-- 送信 -->
+			<div style="margin-top: 2rem; display:flex; gap:10px;">
+
+				<button type="button" id="confirmBtn" class="btn btn-primary" style="flex:1; background:var(--success);">
+					追加を確定する
+				</button>
+
+				<a href="./student_register.html?restore=1" class="btn"
+					style="flex:1; background:#e2e8f0; color:#475569; text-align:center;">
+					⬅ 修正する
+				</a>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const CLASSROOM_NAMES = { 1: "本校", 2: "西口校", 3: "北口校", 4: "南校" };
+
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			if (!TeamC.isStaff(me)) {
+				location.href = "./students.html";
+				return;
+			}
+
+			const pending = TeamC.getPending("student");
+			if (!pending || pending.mode !== "create" || !pending.data) {
+				location.href = "./student_register.html";
+				return;
+			}
+			const d = pending.data;
+			const esc = TeamC.esc;
+			const txt = (id, v) => { document.getElementById(id).textContent = (v == null || v === "") ? "" : v; };
+
+			document.getElementById("c-classroom").textContent =
+				CLASSROOM_NAMES[d.classroomId] || "未選択";
+			txt("c-studentName", d.studentName);
+			txt("c-grade", d.grade);
+			txt("c-schoolName", d.schoolName);
+			txt("c-phoneNumber", d.phoneNumber);
+			txt("c-lessonStyle", d.lessonStyle);
+			txt("c-desiredCondition", d.desiredCondition);
+			txt("c-personalityMemo", d.personalityMemo);
+
+			document.getElementById("confirmBtn").addEventListener("click", function () {
+				const loginId = "s" + Date.now();
+				const userPatch = Object.assign(
+					{ loginId: loginId, role: "生徒" },
+					pending.userPatch || {}
+				);
+				TeamC.addStudent(Object.assign({}, d), userPatch);
+				TeamC.clearPending("student");
+				location.href = "./student_complete.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

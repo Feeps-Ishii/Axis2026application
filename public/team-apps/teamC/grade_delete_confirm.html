@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>成績削除確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+	<div id="appHeader"></div>
+
+	<div class="container">
+		<a id="backToList" href="#" class="btn btn-back">◀ 成績管理に戻る</a>
+
+		<h1>成績削除確認</h1>
+		<p>以下の成績データを削除します。よろしいですか？</p>
+
+		<table class="detail-table">
+			<tr><th>科目</th><td id="vSubject"></td></tr>
+			<tr><th>テスト種別</th><td id="vTestType"></td></tr>
+			<tr><th>テスト名</th><td id="vTestName"></td></tr>
+			<tr><th>実施日</th><td id="vTestDate"></td></tr>
+			<tr><th>点数</th><td><span id="vScore"></span><span> / </span><span id="vMaxScore"></span></td></tr>
+			<tr><th>偏差値</th><td id="vDeviation"></td></tr>
+			<tr><th>順位</th><td id="vRank"></td></tr>
+			<tr><th>コメント</th><td id="vComment"></td></tr>
+			<tr><th>次回目標</th><td id="vNextGoal"></td></tr>
+		</table>
+
+		<div style="display:flex; gap:1rem; margin-top:1.5rem;">
+			<button type="button" id="deleteBtn" class="btn btn-danger" style="flex:1; padding:0.8rem;">削除を確定する</button>
+			<a id="cancelBtn" href="#" class="btn" style="background:#64748b; color:white; flex:1; padding:0.8rem; text-align:center;">戻る</a>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+
+			const params = new URLSearchParams(location.search);
+			let studentId = params.get("studentId");
+			if (TeamC.isStudent(me)) studentId = TeamC.loginStudentId();
+			studentId = studentId != null ? Number(studentId) : null;
+			const gradeId = Number(params.get("gradeId"));
+
+			const listHref = "./student_grades.html?studentId=" + studentId;
+			document.getElementById("backToList").href = listHref;
+			document.getElementById("cancelBtn").href = listHref;
+
+			// 生徒は削除不可
+			if (!TeamC.isStaff(me)) { location.href = listHref; return; }
+
+			const grade = TeamC.grade(gradeId);
+			if (!grade) { location.href = listHref; return; }
+
+			const subjectNameMap = {};
+			TeamC.subjects().forEach(sub => { subjectNameMap[sub.subjectId] = sub.subjectName; });
+
+			const set = (id, v) => { document.getElementById(id).textContent = v == null ? "" : v; };
+			set("vSubject", subjectNameMap[grade.subjectId] || "");
+			set("vTestType", grade.testType);
+			set("vTestName", grade.testName);
+			set("vTestDate", grade.testDate);
+			set("vScore", grade.score);
+			set("vMaxScore", grade.maxScore);
+			set("vDeviation", grade.deviationValue);
+			set("vRank", grade.testRank);
+			set("vComment", grade.comment);
+			set("vNextGoal", grade.nextGoal);
+
+			document.getElementById("deleteBtn").addEventListener("click", () => {
+				TeamC.deleteGrade(gradeId);
+				location.href = "./grade_delete_complete.html?studentId=" + studentId;
+			});
+		});
+	</script>
+</body>
+
+</html>

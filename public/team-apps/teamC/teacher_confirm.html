@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>講師登録確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<main class="teacher-new-confirm-page">
+
+		<section class="teacher-new-confirm-hero">
+			<div>
+				<p class="teacher-new-confirm-label">Teacher Registration Confirm</p>
+				<h1>講師情報の新規登録確認</h1>
+				<p class="teacher-new-confirm-lead">
+					入力内容を確認し、問題がなければ「追加を確定する」を押してください。
+				</p>
+			</div>
+
+			<div class="teacher-new-confirm-hero-actions">
+				<a href="./teacher_register.html?restore=1" class="btn btn-secondary">
+					◀ 修正する
+				</a>
+			</div>
+		</section>
+
+		<section class="teacher-new-confirm-card">
+
+			<div class="teacher-new-confirm-header">
+				<div>
+					<p class="teacher-new-confirm-label">Confirm Details</p>
+					<h2>登録内容</h2>
+				</div>
+
+				<div class="teacher-new-confirm-badge">
+					確認画面
+				</div>
+			</div>
+
+			<div class="teacher-new-confirm-grid">
+
+				<div class="teacher-new-confirm-item">
+					<div class="teacher-new-confirm-item-label">教室</div>
+					<div class="teacher-new-confirm-item-value" id="v-classroom">未入力</div>
+				</div>
+
+				<div class="teacher-new-confirm-item">
+					<div class="teacher-new-confirm-item-label">講師氏名</div>
+					<div class="teacher-new-confirm-item-value" id="v-name">未入力</div>
+				</div>
+
+				<div class="teacher-new-confirm-item">
+					<div class="teacher-new-confirm-item-label">講師カナ</div>
+					<div class="teacher-new-confirm-item-value" id="v-kana">未入力</div>
+				</div>
+
+				<div class="teacher-new-confirm-item">
+					<div class="teacher-new-confirm-item-label">電話番号</div>
+					<div class="teacher-new-confirm-item-value" id="v-tel">未入力</div>
+				</div>
+
+				<div class="teacher-new-confirm-item">
+					<div class="teacher-new-confirm-item-label">メールアドレス</div>
+					<div class="teacher-new-confirm-item-value" id="v-email">未入力</div>
+				</div>
+
+				<div class="teacher-new-confirm-item">
+					<div class="teacher-new-confirm-item-label">勤務開始日</div>
+					<div class="teacher-new-confirm-item-value" id="v-hireDate">未入力</div>
+				</div>
+
+				<div class="teacher-new-confirm-item teacher-new-confirm-wide">
+					<div class="teacher-new-confirm-item-label">住所</div>
+					<div class="teacher-new-confirm-item-value" id="v-address">未入力</div>
+				</div>
+
+			</div>
+
+			<div class="teacher-new-confirm-section">
+				<div class="teacher-new-confirm-section-title">担当可能科目</div>
+				<div id="v-subjects"></div>
+			</div>
+
+			<div class="teacher-new-confirm-section">
+				<div class="teacher-new-confirm-section-title">通常勤務可能コマ</div>
+				<div id="v-normal-slots"></div>
+			</div>
+
+			<div class="teacher-new-confirm-section">
+				<div class="teacher-new-confirm-section-title">イベント講習 勤務可能コマ</div>
+				<div id="v-event-slots"></div>
+			</div>
+
+			<div class="teacher-new-confirm-grid teacher-new-confirm-grid-bottom">
+
+				<div class="teacher-new-confirm-item teacher-new-confirm-wide">
+					<div class="teacher-new-confirm-item-label">勤務希望要件</div>
+					<div class="teacher-new-confirm-item-value" id="v-work">未入力</div>
+				</div>
+
+				<div class="teacher-new-confirm-item teacher-new-confirm-wide">
+					<div class="teacher-new-confirm-item-label">備考</div>
+					<div class="teacher-new-confirm-item-value teacher-new-confirm-memo" id="v-remark">未入力</div>
+				</div>
+
+				<div class="teacher-new-confirm-item teacher-new-confirm-wide">
+					<div class="teacher-new-confirm-item-label">パスワード</div>
+					<div class="teacher-new-confirm-item-value">
+						<span class="teacher-new-confirm-password-badge">********</span>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="teacher-new-confirm-actions">
+				<button type="button" id="registerBtn" class="btn btn-primary teacher-new-confirm-submit-btn">
+					追加を確定する
+				</button>
+
+				<a href="./teacher_register.html?restore=1" class="btn btn-secondary teacher-new-confirm-back-btn">
+					⬅ 修正する
+				</a>
+			</div>
+
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+
+			const esc = TeamC.esc;
+			const p = TeamC.getPending("teacher");
+			if (!p || p.mode !== "create") {
+				location.href = "./teacher_register.html";
+				return;
+			}
+			const d = p.data || {};
+			const val = (x) => (x != null && x !== "") ? x : "未入力";
+
+			document.getElementById("v-classroom").textContent = val(p.classroomName);
+			document.getElementById("v-name").textContent = val(d.teacherName);
+			document.getElementById("v-kana").textContent = val(d.teacherKana);
+			document.getElementById("v-tel").textContent = val(d.tel);
+			document.getElementById("v-email").textContent = val(d.email);
+			document.getElementById("v-hireDate").textContent = d.hireDate ? d.hireDate : "未入力";
+			document.getElementById("v-address").textContent = val(d.address);
+			document.getElementById("v-work").textContent = val(d.workPreference);
+			document.getElementById("v-remark").textContent = val(d.remark);
+
+			renderTags("v-subjects", (p.subjectNames || []), "teacher-new-confirm-subject-tag", "teacher-new-confirm-tag-list");
+			renderSlots("v-normal-slots", (p.normalSlotLabels || []), "");
+			renderSlots("v-event-slots", (p.eventSlotLabels || []), " event-new-confirm-shift-tag");
+
+			function renderTags(id, names, tagClass, listClass) {
+				const el = document.getElementById(id);
+				if (!names.length) { el.innerHTML = '<div class="teacher-new-confirm-empty">未選択</div>'; return; }
+				el.innerHTML = '<div class="' + listClass + '">' +
+					names.map((n) => '<span class="' + tagClass + '">' + esc(n) + "</span>").join("") + "</div>";
+			}
+			function renderSlots(id, labels, extra) {
+				const el = document.getElementById(id);
+				if (!labels.length) { el.innerHTML = '<div class="teacher-new-confirm-empty">未選択</div>'; return; }
+				el.innerHTML = '<div class="teacher-new-confirm-shift-list">' +
+					labels.map((l) =>
+						'<span class="teacher-new-confirm-shift-tag' + extra + '">' + esc(l) + "</span>"
+					).join("") + "</div>";
+			}
+
+			document.getElementById("registerBtn").addEventListener("click", () => {
+				const loginId = nextLoginId();
+				TeamC.addTeacher(
+					{
+						classroomId: d.classroomId,
+						teacherName: d.teacherName,
+						teacherKana: d.teacherKana,
+						tel: d.tel,
+						email: d.email,
+						address: d.address,
+						hireDate: d.hireDate,
+						workPreference: d.workPreference,
+						remark: d.remark,
+					},
+					{
+						loginId: loginId,
+						password: p.password,
+						name: d.teacherName,
+						email: d.email,
+						tel: d.tel,
+						role: "講師",
+					},
+					p.subjectIds || []
+				);
+				TeamC.clearPending("teacher");
+				location.href = "./teacher_complete.html";
+			});
+
+			function nextLoginId() {
+				let max = 0;
+				TeamC.users().forEach((u) => {
+					const m = /^teacher(\d+)$/.exec(u.loginId || "");
+					if (m) max = Math.max(max, Number(m[1]));
+				});
+				return "teacher" + String(max + 1).padStart(2, "0");
+			}
+		});
+	</script>
+
+</body>
+
+</html>

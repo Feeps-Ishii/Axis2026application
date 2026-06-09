@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>宿題変更確認</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<div class="container" style="max-width:700px;">
+		<div class="card">
+			<div class="card-header"><span class="card-title" style="color:var(--accent);">宿題変更確認</span></div>
+
+			<div class="form-group">
+				<label>科目</label>
+				<div class="form-text-static" id="vSubject"></div>
+			</div>
+
+			<div class="form-group">
+				<label>宿題内容</label>
+				<div class="form-text-static" id="vContent"></div>
+			</div>
+
+			<div class="form-group">
+				<label>提出期限</label>
+				<div class="form-text-static" id="vDue"></div>
+			</div>
+
+			<div class="form-group">
+				<label>提出確認</label>
+				<div class="form-text-static" id="vStatus"></div>
+			</div>
+
+			<div class="form-group">
+				<label>点数</label>
+				<div class="form-text-static" id="vScore"></div>
+			</div>
+
+			<div class="form-group">
+				<label>コメント</label>
+				<div class="form-text-static" id="vComment"></div>
+			</div>
+
+			<div style="margin-top:2rem; display:flex; gap:10px;">
+				<button type="button" id="submitBtn" class="btn btn-primary" style="flex:1; background:var(--success);">
+					変更を確定する
+				</button>
+				<a id="fixLink" class="btn" style="flex:1; background:#e2e8f0; color:#475569;">
+					⬅ 修正する
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+
+			const pending = TeamC.getPending("homework_edit");
+			if (!pending || !pending.id || !pending.patch) {
+				location.href = "./login.html";
+				return;
+			}
+			const studentId = pending.studentId;
+			const homeworkId = pending.id;
+			const p = pending.patch;
+
+			if (!TeamC.isStaff(me)) {
+				location.href = "./student_homework.html?studentId=" + studentId;
+				return;
+			}
+
+			document.getElementById("fixLink").href =
+				"./homework_edit.html?studentId=" + studentId + "&homeworkId=" + homeworkId + "&restore=1";
+
+			const subj = TeamC.subject(p.subjectId);
+			document.getElementById("vSubject").textContent = subj ? subj.subjectName : "";
+			document.getElementById("vContent").textContent = p.homeworkContent;
+			document.getElementById("vDue").textContent = String(p.dueDate).slice(0, 10);
+			document.getElementById("vStatus").textContent = p.submissionStatus;
+			document.getElementById("vScore").textContent = (p.score != null && p.score !== "") ? p.score : "";
+			document.getElementById("vComment").textContent = p.comment;
+
+			document.getElementById("submitBtn").addEventListener("click", () => {
+				TeamC.updateHomework(homeworkId, p);
+				TeamC.clearPending("homework_edit");
+				location.href = "./homework_edit_complete.html?studentId=" + studentId;
+			});
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>講師詳細 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<main class="teacher-detail-page" id="page" style="display:none;">
+
+		<section class="teacher-detail-hero">
+			<div>
+				<p class="teacher-detail-label">Teacher Profile</p>
+				<h1>
+					<span id="h-name">講師名</span>
+					講師詳細
+				</h1>
+				<p class="teacher-detail-lead">
+					講師の基本情報・指導可能科目・勤務可能コマを確認できます。
+				</p>
+			</div>
+
+			<div class="teacher-detail-hero-actions">
+				<a href="./teachers.html" class="btn btn-secondary">
+					◀ 講師一覧に戻る
+				</a>
+
+				<a id="editLink" href="#" class="btn btn-primary">
+					講師情報変更
+				</a>
+			</div>
+		</section>
+
+		<section class="teacher-profile-card">
+
+			<div class="teacher-profile-main">
+				<div class="teacher-profile-avatar" id="p-avatar">講</div>
+
+				<div class="teacher-profile-summary">
+					<p class="teacher-detail-label">Basic Information</p>
+					<h2 id="p-name">講師名</h2>
+
+					<div class="teacher-profile-badges">
+						<span class="teacher-profile-badge">
+							ID：<span id="p-id">1</span>
+						</span>
+
+						<span class="teacher-profile-badge" id="p-classroom">本校</span>
+
+						<span class="teacher-profile-badge" id="p-hire">勤務開始日未設定</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="teacher-detail-grid">
+
+				<div class="teacher-detail-item">
+					<div class="teacher-detail-item-label">講師ID</div>
+					<div class="teacher-detail-item-value" id="d-id">1</div>
+				</div>
+
+				<div class="teacher-detail-item">
+					<div class="teacher-detail-item-label">所属教室</div>
+					<div class="teacher-detail-item-value" id="d-classroom">未設定</div>
+				</div>
+
+				<div class="teacher-detail-item">
+					<div class="teacher-detail-item-label">講師氏名</div>
+					<div class="teacher-detail-item-value" id="d-name">講師名</div>
+				</div>
+
+				<div class="teacher-detail-item">
+					<div class="teacher-detail-item-label">講師カナ</div>
+					<div class="teacher-detail-item-value" id="d-kana">未設定</div>
+				</div>
+
+				<div class="teacher-detail-item">
+					<div class="teacher-detail-item-label">電話番号</div>
+					<div class="teacher-detail-item-value" id="d-tel">未設定</div>
+				</div>
+
+				<div class="teacher-detail-item">
+					<div class="teacher-detail-item-label">メールアドレス</div>
+					<div class="teacher-detail-item-value" id="d-email">未設定</div>
+				</div>
+
+				<div class="teacher-detail-item teacher-detail-item-wide">
+					<div class="teacher-detail-item-label">住所</div>
+					<div class="teacher-detail-item-value" id="d-address">未設定</div>
+				</div>
+
+				<div class="teacher-detail-item teacher-detail-item-wide">
+					<div class="teacher-detail-item-label">勤務希望要件</div>
+					<div class="teacher-detail-item-value" id="d-work">未設定</div>
+				</div>
+
+			</div>
+		</section>
+
+		<section class="teacher-detail-section-card">
+			<div class="teacher-detail-section-header">
+				<div>
+					<p class="teacher-detail-label">Subjects</p>
+					<h2>指導可能科目</h2>
+				</div>
+			</div>
+			<div id="d-subjects"></div>
+		</section>
+
+		<section class="teacher-detail-section-card">
+			<div class="teacher-detail-section-header">
+				<div>
+					<p class="teacher-detail-label">Regular Shift</p>
+					<h2>通常勤務可能コマ</h2>
+				</div>
+			</div>
+			<div id="d-normal-shifts"></div>
+		</section>
+
+		<section class="teacher-detail-section-card">
+			<div class="teacher-detail-section-header">
+				<div>
+					<p class="teacher-detail-label">Event Shift</p>
+					<h2>イベント講習 勤務可能コマ</h2>
+				</div>
+			</div>
+			<div id="d-event-shifts"></div>
+		</section>
+
+		<section class="teacher-detail-section-card">
+			<div class="teacher-detail-section-header">
+				<div>
+					<p class="teacher-detail-label">Memo</p>
+					<h2>備考</h2>
+				</div>
+			</div>
+			<div class="teacher-remark-box" id="d-remark">備考はありません。</div>
+		</section>
+
+		<section class="teacher-detail-actions">
+			<a href="./teachers.html" class="btn btn-secondary">
+				◀ 講師一覧に戻る
+			</a>
+
+			<a id="editLink2" href="#" class="btn btn-primary">
+				講師情報変更
+			</a>
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+
+			const esc = TeamC.esc;
+			const id = Number(new URLSearchParams(location.search).get("teacherId"));
+			const view = TeamC.teacherView(id);
+			if (!view || !view.teacher) {
+				document.body.innerHTML =
+					'<main class="teacher-detail-page" style="padding:2rem;">' +
+					'<p>該当する講師が見つかりませんでした。</p>' +
+					'<a href="./teachers.html" class="btn btn-secondary">◀ 講師一覧に戻る</a></main>';
+				return;
+			}
+
+			const t = view.teacher;
+			const classroom = view.classroom;
+			const subjects = view.subjects;
+			const avatar = t.teacherName && t.teacherName.length > 0 ? t.teacherName.charAt(0) : "講";
+			const set = (id, v) => { document.getElementById(id).textContent = v; };
+
+			set("h-name", t.teacherName);
+			set("p-avatar", avatar);
+			set("p-name", t.teacherName);
+			set("p-id", t.teacherId);
+			set("p-classroom", classroom ? classroom.roomName : "所属教室未設定");
+			set("p-hire", t.hireDate ? "勤務開始：" + t.hireDate : "勤務開始日未設定");
+
+			set("d-id", t.teacherId);
+			set("d-classroom", classroom ? classroom.roomName : "未設定");
+			set("d-name", t.teacherName);
+			set("d-kana", t.teacherKana != null && t.teacherKana !== "" ? t.teacherKana : "未設定");
+			set("d-tel", t.tel != null && t.tel !== "" ? t.tel : "未設定");
+			set("d-email", t.email != null && t.email !== "" ? t.email : "未設定");
+			set("d-address", t.address != null && t.address !== "" ? t.address : "未設定");
+			set("d-work", t.workPreference != null && t.workPreference !== "" ? t.workPreference : "未設定");
+			set("d-remark", t.remark != null && t.remark !== "" ? t.remark : "備考はありません。");
+
+			document.getElementById("editLink").href = "./teacher_edit.html?teacherId=" + t.teacherId;
+			document.getElementById("editLink2").href = "./teacher_edit.html?teacherId=" + t.teacherId;
+
+			const subjEl = document.getElementById("d-subjects");
+			if (subjects.length) {
+				subjEl.innerHTML = '<div class="teacher-detail-tag-list">' +
+					subjects.map((su) => '<span class="teacher-detail-subject-tag">' +
+						esc(su ? su.subjectName : "未設定") + "</span>").join("") + "</div>";
+			} else {
+				subjEl.innerHTML = '<div class="teacher-detail-empty">指導可能科目は未登録です。</div>';
+			}
+
+			const shifts = TeamC.teacherShifts().filter((sh) => sh.teacherId === t.teacherId);
+			const slotOf = (sh) => TeamC.slot(sh.scheduleSlotId);
+			const normal = shifts.filter((sh) => { const sl = slotOf(sh); return sl && sl.slotType === "通常講習"; });
+			const event = shifts.filter((sh) => { const sl = slotOf(sh); return sl && sl.slotType === "イベント講習"; });
+
+			renderShifts("d-normal-shifts", normal, "", "通常勤務可能コマは未登録です。");
+			renderShifts("d-event-shifts", event, " event-shift-tag", "イベント講習勤務可能コマは未登録です。");
+
+			function renderShifts(elId, list, extra, emptyMsg) {
+				const el = document.getElementById(elId);
+				if (!list.length) {
+					el.innerHTML = '<div class="teacher-detail-empty">' + emptyMsg + "</div>";
+					return;
+				}
+				el.innerHTML = '<div class="teacher-shift-tag-list">' +
+					list.map((sh) => {
+						const sl = slotOf(sh);
+						return '<span class="teacher-shift-tag' + extra + '">' +
+							'<span class="teacher-shift-day">' + esc(sl.dayOfWeek) + "</span>" +
+							"<span>" + esc(sl.slotName) + "</span>" +
+							'<span class="teacher-shift-time">' +
+								"<span>" + esc(TeamC.fmtTime(sl.startTime)) + "</span>〜" +
+								"<span>" + esc(TeamC.fmtTime(sl.endTime)) + "</span>" +
+							"</span>" +
+						"</span>";
+					}).join("") + "</div>";
+			}
+
+			document.getElementById("page").style.display = "";
+		});
+	</script>
+</body>
+
+</html>

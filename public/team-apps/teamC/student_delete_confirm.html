@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>生徒削除確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<div class="container">
+
+		<a href="./students.html" class="btn btn-back">
+			◀ 生徒一覧に戻る
+		</a>
+
+		<div class="card">
+
+			<div class="card-header">
+				<span class="card-title" style="color:var(--danger);">
+					生徒削除確認
+				</span>
+			</div>
+
+			<p>
+				以下の生徒情報を削除します。<br>
+				カルテ、授業記録、宿題、成績情報も削除対象です。
+			</p>
+
+			<table>
+				<tr>
+					<th>生徒ID</th>
+					<td id="d-studentId"></td>
+				</tr>
+				<tr>
+					<th>氏名</th>
+					<td id="d-studentName"></td>
+				</tr>
+				<tr>
+					<th>学年</th>
+					<td id="d-grade"></td>
+				</tr>
+			</table>
+
+			<div style="display:flex; gap:1rem; margin-top:1.5rem;">
+
+				<button type="button" id="deleteBtn" class="btn btn-primary" style="flex:1; padding:0.8rem;">
+					削除を確定する
+				</button>
+
+				<a href="./students.html" class="btn"
+					style="background:#64748b; color:white; flex:1; padding:0.8rem; text-align:center;">
+					戻る
+				</a>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+
+			// 教室長のみ削除可（教室長以外は生徒一覧へ）
+			if (!TeamC.isManager(me)) {
+				location.href = "./students.html";
+				return;
+			}
+
+			const params = new URLSearchParams(location.search);
+			const studentId = params.get("studentId");
+			const view = studentId ? TeamC.studentView(studentId) : null;
+			if (!view || !view.student) {
+				location.href = "./students.html";
+				return;
+			}
+			const student = view.student;
+
+			document.getElementById("d-studentId").textContent = student.studentId;
+			document.getElementById("d-studentName").textContent = student.studentName || "";
+			document.getElementById("d-grade").textContent = student.grade || "";
+
+			document.getElementById("deleteBtn").addEventListener("click", function () {
+				TeamC.deleteStudent(student.studentId);
+				location.href = "./student_delete_complete.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>お知らせ変更完了 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<main class="complete-page">
+		<section class="complete-card">
+			<div class="complete-icon">&#10003;</div>
+			<h1 class="complete-title">お知らせ変更完了</h1>
+			<p class="complete-message">お知らせの変更が完了しました。</p>
+			<div class="complete-actions">
+				<a href="./admin_dashboard.html" class="btn btn-primary">ポータルへ戻る</a>
+			</div>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			if (!TeamC.isManager(s.user)) { location.href = "./admin_dashboard.html"; }
+		});
+	</script>
+
+</body>
+
+</html>

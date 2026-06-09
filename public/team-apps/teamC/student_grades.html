@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>成績管理</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		.chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+		.chart-panel { border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; padding: 1rem; min-width: 0; }
+		.chart-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+		.chart-controls label { font-size: 0.85rem; font-weight: bold; color: #334155; display: block; margin-bottom: 0.25rem; }
+		.chart-controls select { width: 100%; padding: 0.45rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; }
+		.grade-chart { width: 100%; height: 320px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; overflow-x: auto; overflow-y: hidden; }
+		.grade-chart svg { height: 100%; display: block; }
+		.chart-message-row { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-top: 0.5rem; }
+		.chart-message { color: #64748b; font-size: 0.85rem; min-height: 1.2em; margin-top: 0; }
+		.chart-expand-btn { width: 28px; height: 28px; border: none; border-radius: 6px; background: transparent; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; }
+		.chart-expand-btn:hover { background: #f1f5f9; color: #2563eb; }
+		.expand-icon { width: 18px; height: 18px; }
+		.expand-icon path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+		.chart-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.65); }
+		.chart-modal.is-open { display: flex; align-items: center; justify-content: center; }
+		.chart-modal-content { background: #fff; width: 90%; max-width: 1100px; height: 80%; border-radius: 14px; padding: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.25); display: flex; flex-direction: column; }
+		.chart-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+		.chart-modal-title { font-weight: bold; color: #1e293b; }
+		.chart-modal-close { border: none; background: #e2e8f0; color: #334155; border-radius: 8px; padding: 0.4rem 0.7rem; cursor: pointer; }
+		.chart-modal-close:hover { background: #cbd5e1; }
+		.chart-modal-body { flex: 1; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; overflow-x: auto; overflow-y: hidden; }
+		.chart-modal-body svg { height: 100%; display: block; }
+		.grade-table-tools { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+		.grade-filter-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+		.grade-filter-select { padding: 0.55rem 0.7rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; background: #fff; }
+		.grade-search-input { width: 280px; max-width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; background: #fff; }
+		.grade-table-wrap { width: 100%; overflow-x: auto; overflow-y: hidden; }
+		.grade-table { width: 100%; min-width: 950px; table-layout: auto; border-collapse: separate; border-spacing: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+		.grade-table th { background: #f1f5f9; color: #334155; font-weight: bold; font-size: 0.85rem; padding: 0.7rem; border-bottom: 1px solid #e2e8f0; cursor: pointer; user-select: none; text-align: left; white-space: nowrap; }
+		.grade-table th.no-sort { cursor: default; }
+		.grade-table th:not(.no-sort):hover { color: #2563eb; background: #eaf2ff; }
+		.grade-table td { padding: 0.7rem; border-bottom: 1px solid #e2e8f0; font-size: 0.85rem; vertical-align: middle; }
+		.grade-table tbody tr:nth-child(even) { background: #f8fafc; }
+		.grade-table tbody tr:hover { background: #eef6ff; }
+		.grade-table tbody tr:last-child td { border-bottom: none; }
+		.subject-col, .type-col, .date-col, .number-col, .action-col { white-space: nowrap; }
+		.name-col { word-break: break-word; min-width: 180px; }
+		.date-col { min-width: 100px; }
+		.number-col { text-align: right; min-width: 65px; }
+		.action-col { width: 150px; min-width: 150px; }
+		.sort-mark { font-size: 0.75rem; color: #94a3b8; margin-left: 0.25rem; }
+		.grade-table th.is-active-sort .sort-mark { color: #2563eb; font-weight: bold; }
+		.score-cell { font-weight: bold; color: #1d4ed8; font-size: 0.95rem; }
+		.no-result-row td { text-align: center; color: #64748b; padding: 1rem; }
+		@media (max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } .grade-action-buttons { flex-direction: column; } }
+		.grade-score-input { width: 95px; padding: 0.55rem 0.7rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; background: #fff; }
+		.grade-action-buttons { display: flex; gap: 0.4rem; align-items: center; justify-content: center; min-height: 36px; }
+		.grade-action-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 64px; height: 32px; padding: 0 0.7rem; line-height: 1; box-sizing: border-box; }
+	</style>
+</head>
+
+<body class="student-theme">
+	<div id="appHeader"></div>
+
+	<main class="grade-list-page">
+		<section class="grade-list-hero">
+			<div class="grade-list-hero-main">
+				<p class="grade-list-label">GRADE MANAGEMENT</p>
+				<h1>成績管理</h1>
+				<p class="grade-list-lead">テスト結果の推移をグラフで確認し、成績データの追加・変更・削除を行えます。</p>
+			</div>
+			<div class="grade-list-hero-actions">
+				<a id="backToCarte" href="#" class="btn btn-back">◀ 生徒カルテに戻る</a>
+			</div>
+		</section>
+
+		<section class="grade-list-card grade-chart-card">
+			<div class="grade-list-card-header">
+				<div><p class="grade-list-label">SCORE CHART</p><h2>テスト点数推移グラフ</h2></div>
+			</div>
+			<div class="chart-grid">
+				<div class="chart-panel">
+					<div class="chart-controls">
+						<div><label for="subjectSelect1">科目</label><select id="subjectSelect1"><option value="">科目を選択</option></select></div>
+						<div><label for="testTypeSelect1">テスト種別</label><select id="testTypeSelect1"><option value="">すべて</option></select></div>
+					</div>
+					<div class="grade-chart"><svg id="gradeChartSvg1" viewBox="0 0 520 320" preserveAspectRatio="xMidYMid meet"></svg></div>
+					<div class="chart-message-row">
+						<span id="chartMessage1" class="chart-message">科目を選択するとグラフが表示されます。</span>
+						<button type="button" class="chart-expand-btn" data-chart-no="1" title="拡大表示" aria-label="拡大表示">
+							<svg viewBox="0 0 24 24" class="expand-icon"><path d="M14 4h6v6"></path><path d="M20 4l-8 8"></path><path d="M10 20H4v-6"></path><path d="M4 20l8-8"></path></svg>
+						</button>
+					</div>
+				</div>
+				<div class="chart-panel">
+					<div class="chart-controls">
+						<div><label for="subjectSelect2">科目</label><select id="subjectSelect2"><option value="">科目を選択</option></select></div>
+						<div><label for="testTypeSelect2">テスト種別</label><select id="testTypeSelect2"><option value="">すべて</option></select></div>
+					</div>
+					<div class="grade-chart"><svg id="gradeChartSvg2" viewBox="0 0 520 320" preserveAspectRatio="xMidYMid meet"></svg></div>
+					<div class="chart-message-row">
+						<span id="chartMessage2" class="chart-message">科目を選択するとグラフが表示されます。</span>
+						<button type="button" class="chart-expand-btn" data-chart-no="2" title="拡大表示" aria-label="拡大表示">
+							<svg viewBox="0 0 24 24" class="expand-icon"><path d="M14 4h6v6"></path><path d="M20 4l-8 8"></path><path d="M10 20H4v-6"></path><path d="M4 20l8-8"></path></svg>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div id="gradeChartData" style="display:none;"></div>
+			<div id="chartModal" class="chart-modal">
+				<div class="chart-modal-content">
+					<div class="chart-modal-header">
+						<div id="chartModalTitle" class="chart-modal-title">グラフ拡大表示</div>
+						<button type="button" id="chartModalClose" class="chart-modal-close">閉じる</button>
+					</div>
+					<div class="chart-modal-body"><svg id="chartModalSvg" viewBox="0 0 900 520" preserveAspectRatio="xMidYMid meet"></svg></div>
+				</div>
+			</div>
+		</section>
+
+		<section class="grade-list-card">
+			<div class="grade-list-card-header">
+				<div><p class="grade-list-label">GRADE LIST</p><h2>成績一覧</h2></div>
+				<div class="grade-list-card-actions" id="addBtnWrap">
+					<a id="addGradeBtn" href="#" class="btn btn-primary grade-add-btn">➕ 成績追加</a>
+				</div>
+			</div>
+			<p class="grade-list-note">科目・テスト種別・点数範囲・キーワードで成績データを絞り込めます。</p>
+			<div class="grade-table-tools">
+				<div class="grade-filter-group">
+					<select id="gradeSubjectFilter" class="grade-filter-select"><option value="">科目すべて</option></select>
+					<select id="gradeTestTypeFilter" class="grade-filter-select">
+						<option value="">種別すべて</option>
+						<option value="定期テスト">定期テスト</option>
+						<option value="模試">模試</option>
+						<option value="塾内テスト">塾内テスト</option>
+					</select>
+					<input type="number" id="gradeScoreMinInput" class="grade-score-input" min="0" max="100" placeholder="点数以上">
+					<input type="number" id="gradeScoreMaxInput" class="grade-score-input" min="0" max="100" placeholder="点数以下">
+				</div>
+				<input type="text" id="gradeSearchInput" class="grade-search-input" placeholder="キーワードで検索">
+			</div>
+			<div class="grade-table-wrap">
+				<table id="gradeTable" class="grade-table">
+					<thead>
+						<tr>
+							<th class="no-sort subject-col">科目</th>
+							<th class="no-sort type-col">テスト種別</th>
+							<th class="no-sort name-col">テスト名</th>
+							<th class="date-col" data-sort-type="date">テスト日<span class="sort-mark">▼</span></th>
+							<th class="number-col" data-sort-type="number">点数<span class="sort-mark">▼</span></th>
+							<th class="number-col" data-sort-type="number">偏差値<span class="sort-mark">▼</span></th>
+							<th class="number-col" data-sort-type="number">順位<span class="sort-mark">▲</span></th>
+							<th class="no-sort action-col">操作</th>
+						</tr>
+					</thead>
+					<tbody id="gradeTbody">
+						<tr id="gradeSearchNoResultRow" class="no-result-row" style="display:none;"><td colspan="8">条件に一致する成績データはありません。</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			const staff = TeamC.isStaff(me);
+			const E = TeamC.esc;
+
+			const params = new URLSearchParams(location.search);
+			let studentId = params.get("studentId");
+			if (TeamC.isStudent(me)) studentId = TeamC.loginStudentId();
+			studentId = studentId != null ? Number(studentId) : null;
+
+			document.getElementById("backToCarte").href = "./student_carte.html?studentId=" + studentId;
+			document.getElementById("addGradeBtn").href = "./grade_add.html?studentId=" + studentId;
+			if (!staff) { const w = document.getElementById("addBtnWrap"); if (w) w.style.display = "none"; }
+
+			const subjectNameMap = {};
+			TeamC.subjects().forEach(sub => { subjectNameMap[sub.subjectId] = sub.subjectName; });
+
+			const gradeList = TeamC.gradesByStudent(studentId);
+
+			const chartDataWrap = document.getElementById("gradeChartData");
+			gradeList.forEach(g => {
+				const d = document.createElement("div");
+				d.className = "grade-data";
+				d.dataset.subjectId = g.subjectId;
+				d.dataset.subjectName = subjectNameMap[g.subjectId] || "";
+				d.dataset.testType = g.testType || "";
+				d.dataset.testDate = g.testDate || "";
+				d.dataset.testName = g.testName || "";
+				d.dataset.score = g.score;
+				chartDataWrap.appendChild(d);
+			});
+
+			const tbody = document.getElementById("gradeTbody");
+			const noResultRow = document.getElementById("gradeSearchNoResultRow");
+			gradeList.forEach(g => {
+				const tr = document.createElement("tr");
+				tr.className = "grade-row";
+				const subjName = subjectNameMap[g.subjectId] || "";
+				const dev = g.deviationValue != null ? g.deviationValue : "-";
+				const rank = g.testRank != null ? g.testRank + "位" : "-";
+				let actions = "";
+				if (staff) {
+					actions =
+						'<a href="./grade_edit.html?studentId=' + studentId + '&gradeId=' + g.gradeId + '" class="btn btn-primary grade-action-btn">変更</a>' +
+						'<a href="./grade_delete_confirm.html?studentId=' + studentId + '&gradeId=' + g.gradeId + '" class="btn btn-danger grade-action-btn">削除</a>';
+				} else {
+					actions =
+						'<a href="./grade_edit.html?studentId=' + studentId + '&gradeId=' + g.gradeId + '" class="btn btn-primary grade-action-btn">詳細</a>';
+				}
+				tr.innerHTML =
+					'<td class="subject-col"><span class="grade-subject-pill">' + E(subjName) + '</span></td>' +
+					'<td class="type-col"><span class="grade-type-badge">' + E(g.testType) + '</span></td>' +
+					'<td class="name-col"><span class="grade-test-name">' + E(g.testName) + '</span></td>' +
+					'<td class="date-col"><span class="grade-date-badge">' + E(g.testDate) + '</span></td>' +
+					'<td class="number-col score-cell"><span class="grade-score-badge">' + E(g.score) + '点</span></td>' +
+					'<td class="number-col">' + E(dev) + '</td>' +
+					'<td class="number-col">' + E(rank) + '</td>' +
+					'<td class="grade-action-cell"><div class="grade-action-buttons">' + actions + '</div></td>';
+				tbody.insertBefore(tr, noResultRow);
+			});
+
+			if (gradeList.length === 0) {
+				const tr = document.createElement("tr");
+				tr.className = "no-result-row";
+				tr.innerHTML = '<td colspan="8">登録されている成績データはありません。</td>';
+				tbody.insertBefore(tr, noResultRow);
+			}
+
+			const dataElements = document.querySelectorAll(".grade-data");
+			const gradeData = [];
+			dataElements.forEach(function (element) {
+				const subjectId = element.dataset.subjectId;
+				const subjectName = element.dataset.subjectName;
+				const testType = element.dataset.testType;
+				const testDate = element.dataset.testDate;
+				const testName = element.dataset.testName;
+				const score = Number(element.dataset.score);
+				if (subjectId && testDate && !isNaN(score)) {
+					gradeData.push({ subjectId, subjectName, testType, testDate, testName, score });
+				}
+			});
+
+			const subjectMap = new Map();
+			gradeData.forEach(function (grade) {
+				if (!subjectMap.has(grade.subjectId)) subjectMap.set(grade.subjectId, grade.subjectName);
+			});
+
+			setupChart(1);
+			setupChart(2);
+			setupGradeTable();
+			setupGradeFilters();
+			setupChartModal();
+
+			function setupChart(chartNo) {
+				const subjectSelect = document.getElementById("subjectSelect" + chartNo);
+				const testTypeSelect = document.getElementById("testTypeSelect" + chartNo);
+				const svg = document.getElementById("gradeChartSvg" + chartNo);
+				const message = document.getElementById("chartMessage" + chartNo);
+				subjectMap.forEach(function (subjectName, subjectId) {
+					const option = document.createElement("option");
+					option.value = subjectId; option.textContent = subjectName;
+					subjectSelect.appendChild(option);
+				});
+				["定期テスト", "模試", "塾内テスト"].forEach(function (testType) {
+					const option = document.createElement("option");
+					option.value = testType; option.textContent = testType;
+					testTypeSelect.appendChild(option);
+				});
+				subjectSelect.addEventListener("change", () => drawChart(subjectSelect.value, testTypeSelect.value, svg, message));
+				testTypeSelect.addEventListener("change", () => drawChart(subjectSelect.value, testTypeSelect.value, svg, message));
+				if (subjectSelect.options.length > 1) {
+					if (chartNo === 1) subjectSelect.selectedIndex = 1;
+					else if (subjectSelect.options.length > 2) subjectSelect.selectedIndex = 2;
+					else subjectSelect.selectedIndex = 1;
+					drawChart(subjectSelect.value, testTypeSelect.value, svg, message);
+				} else {
+					drawEmptyChart(svg);
+					message.textContent = "登録されている成績データがありません。";
+				}
+			}
+
+			function setupChartModal() {
+				const modal = document.getElementById("chartModal");
+				const modalSvg = document.getElementById("chartModalSvg");
+				const modalTitle = document.getElementById("chartModalTitle");
+				const closeButton = document.getElementById("chartModalClose");
+				const expandButtons = document.querySelectorAll(".chart-expand-btn");
+				if (!modal || !modalSvg || !modalTitle || !closeButton) return;
+				expandButtons.forEach(function (button) {
+					button.addEventListener("click", function () {
+						const chartNo = button.dataset.chartNo;
+						const subjectSelect = document.getElementById("subjectSelect" + chartNo);
+						const testTypeSelect = document.getElementById("testTypeSelect" + chartNo);
+						if (!subjectSelect || !testTypeSelect) return;
+						const subjectText = subjectSelect.options[subjectSelect.selectedIndex] ? subjectSelect.options[subjectSelect.selectedIndex].textContent : "";
+						const testTypeText = testTypeSelect.value || "すべて";
+						modalTitle.textContent = subjectText + " / " + testTypeText;
+						drawChartForModal(subjectSelect.value, testTypeSelect.value, modalSvg);
+						modal.classList.add("is-open");
+					});
+				});
+				closeButton.addEventListener("click", closeChartModal);
+				modal.addEventListener("click", e => { if (e.target === modal) closeChartModal(); });
+				document.addEventListener("keydown", e => { if (e.key === "Escape") closeChartModal(); });
+				function closeChartModal() { modal.classList.remove("is-open"); }
+			}
+
+			function drawChart(subjectId, testType, svg, message) {
+				svg.innerHTML = "";
+				if (!subjectId) { drawEmptyChart(svg); message.textContent = "科目を選択するとグラフが表示されます。"; return; }
+				let selectedData = gradeData.filter(g => g.subjectId === subjectId);
+				if (testType) selectedData = selectedData.filter(g => g.testType && g.testType.split(",").map(t => t.trim()).includes(testType));
+				selectedData.sort((a, b) => new Date(a.testDate) - new Date(b.testDate));
+				if (selectedData.length === 0) { drawEmptyChart(svg); message.textContent = "該当する成績データがありません。"; return; }
+				message.textContent = selectedData[0].subjectName + " / " + (testType || "すべて");
+				const height = 320, paddingLeft = 55, paddingRight = 25, paddingTop = 32, paddingBottom = 64, minWidth = 520, pointInterval = 80;
+				const width = Math.max(minWidth, paddingLeft + paddingRight + (selectedData.length - 1) * pointInterval);
+				svg.setAttribute("viewBox", "0 0 " + width + " " + height); svg.style.width = width + "px";
+				const chartWidth = width - paddingLeft - paddingRight, chartHeight = height - paddingTop - paddingBottom;
+				function getX(i) { return selectedData.length === 1 ? paddingLeft + chartWidth / 2 : paddingLeft + pointInterval * i; }
+				function getY(score) { return paddingTop + chartHeight - (score / 100) * chartHeight; }
+				drawBase(svg, width, height, paddingLeft, paddingTop, chartWidth, chartHeight, getY);
+				const points = selectedData.map((g, i) => getX(i) + "," + getY(g.score)).join(" ");
+				svg.appendChild(createSvgElement("polyline", { points, fill: "none", stroke: "#2563eb", "stroke-width": "3", "stroke-linecap": "round", "stroke-linejoin": "round" }));
+				selectedData.forEach(function (grade, index) {
+					const x = getX(index), y = getY(grade.score);
+					const circle = createSvgElement("circle", { cx: x, cy: y, r: 6, fill: "#2563eb", style: "cursor:pointer;" });
+					circle.addEventListener("mouseover", function () {
+						const old = svg.querySelector("#hover-info-group"); if (old) old.remove();
+						const hoverGroup = createSvgElement("g", { id: "hover-info-group", "pointer-events": "none" });
+						const sl = createSvgElement("text", { x, y: y - 34, "text-anchor": "middle", "font-size": "13", "font-weight": "bold", fill: "#1e293b" }); sl.textContent = grade.score + "点";
+						const dl = createSvgElement("text", { x, y: y - 19, "text-anchor": "middle", "font-size": "10", fill: "#475569" }); dl.textContent = formatDateLabel(grade.testDate);
+						const tl = createSvgElement("text", { x, y: y - 6, "text-anchor": "middle", "font-size": "10", fill: "#64748b" }); tl.textContent = shortenText(grade.testName, 10);
+						hoverGroup.appendChild(sl); hoverGroup.appendChild(dl); hoverGroup.appendChild(tl); svg.appendChild(hoverGroup);
+					});
+					circle.addEventListener("mouseout", function () { const h = svg.querySelector("#hover-info-group"); if (h) h.remove(); });
+					svg.appendChild(circle);
+					const labelStep = selectedData.length > 12 ? 3 : selectedData.length > 8 ? 2 : 1;
+					if (index % labelStep === 0) {
+						const dl = createSvgElement("text", { x, y: paddingTop + chartHeight + 20, "text-anchor": "middle", "font-size": "11", fill: "#475569" });
+						dl.textContent = formatDateLabel(grade.testDate); svg.appendChild(dl);
+					}
+				});
+			}
+
+			function drawChartForModal(subjectId, testType, svg) {
+				svg.innerHTML = "";
+				if (!subjectId) { drawEmptyChart(svg); return; }
+				let selectedData = gradeData.filter(g => g.subjectId === subjectId);
+				if (testType) selectedData = selectedData.filter(g => g.testType && g.testType.split(",").map(t => t.trim()).includes(testType));
+				selectedData.sort((a, b) => new Date(a.testDate) - new Date(b.testDate));
+				if (selectedData.length === 0) { drawEmptyChart(svg); return; }
+				const height = 520, paddingLeft = 70, paddingRight = 40, paddingTop = 45, paddingBottom = 90, minWidth = 900, pointInterval = 110;
+				const width = Math.max(minWidth, paddingLeft + paddingRight + (selectedData.length - 1) * pointInterval);
+				svg.setAttribute("viewBox", "0 0 " + width + " " + height); svg.style.width = width + "px";
+				const chartWidth = width - paddingLeft - paddingRight, chartHeight = height - paddingTop - paddingBottom;
+				function getX(i) { return selectedData.length === 1 ? paddingLeft + chartWidth / 2 : paddingLeft + pointInterval * i; }
+				function getY(score) { return paddingTop + chartHeight - (score / 100) * chartHeight; }
+				drawBase(svg, width, height, paddingLeft, paddingTop, chartWidth, chartHeight, getY);
+				const points = selectedData.map((g, i) => getX(i) + "," + getY(g.score)).join(" ");
+				svg.appendChild(createSvgElement("polyline", { points, fill: "none", stroke: "#2563eb", "stroke-width": "4", "stroke-linecap": "round", "stroke-linejoin": "round" }));
+				selectedData.forEach(function (grade, index) {
+					const x = getX(index), y = getY(grade.score);
+					svg.appendChild(createSvgElement("circle", { cx: x, cy: y, r: 8, fill: "#2563eb" }));
+					const sl = createSvgElement("text", { x, y: y - 16, "text-anchor": "middle", "font-size": "15", "font-weight": "bold", fill: "#1e293b" }); sl.textContent = grade.score + "点"; svg.appendChild(sl);
+					const dl = createSvgElement("text", { x, y: paddingTop + chartHeight + 28, "text-anchor": "middle", "font-size": "13", fill: "#475569" }); dl.textContent = formatDateLabel(grade.testDate); svg.appendChild(dl);
+					const tl = createSvgElement("text", { x, y: paddingTop + chartHeight + 48, "text-anchor": "middle", "font-size": "12", fill: "#64748b" }); tl.textContent = shortenText(grade.testName, 12); svg.appendChild(tl);
+				});
+			}
+
+			function drawBase(svg, width, height, paddingLeft, paddingTop, chartWidth, chartHeight, getY) {
+				svg.appendChild(createSvgElement("rect", { x: 0, y: 0, width, height, fill: "#f8fafc" }));
+				for (let score = 0; score <= 100; score += 20) {
+					const y = getY(score);
+					svg.appendChild(createSvgElement("line", { x1: paddingLeft, y1: y, x2: paddingLeft + chartWidth, y2: y, stroke: "#e2e8f0", "stroke-width": "1" }));
+					const label = createSvgElement("text", { x: paddingLeft - 8, y: y + 4, "text-anchor": "end", "font-size": "12", fill: "#64748b" }); label.textContent = score; svg.appendChild(label);
+				}
+				svg.appendChild(createSvgElement("line", { x1: paddingLeft, y1: paddingTop, x2: paddingLeft, y2: paddingTop + chartHeight, stroke: "#94a3b8", "stroke-width": "1.5" }));
+				svg.appendChild(createSvgElement("line", { x1: paddingLeft, y1: paddingTop + chartHeight, x2: paddingLeft + chartWidth, y2: paddingTop + chartHeight, stroke: "#94a3b8", "stroke-width": "1.5" }));
+			}
+
+			function drawEmptyChart(svg) {
+				svg.innerHTML = ""; const width = 520, height = 320;
+				svg.setAttribute("viewBox", "0 0 " + width + " " + height); svg.style.width = width + "px";
+				svg.appendChild(createSvgElement("rect", { x: 0, y: 0, width, height, fill: "#f8fafc" }));
+				const text = createSvgElement("text", { x: width / 2, y: height / 2, "text-anchor": "middle", "font-size": "13", fill: "#64748b" });
+				text.textContent = "表示するデータがありません"; svg.appendChild(text);
+			}
+
+			function setupGradeTable() {
+				const table = document.getElementById("gradeTable"); if (!table) return;
+				const tbody = table.querySelector("tbody");
+				const headers = table.querySelectorAll("thead th");
+				let sortColumnIndex = null, sortDirection = "asc";
+				headers.forEach(function (header, index) {
+					if (header.classList.contains("no-sort")) return;
+					header.addEventListener("click", function () {
+						const sortType = header.dataset.sortType || "text";
+						if (sortColumnIndex === index) sortDirection = sortDirection === "asc" ? "desc" : "asc";
+						else { sortColumnIndex = index; sortDirection = getDefaultSortDirection(index, sortType); }
+						sortTable(tbody, index, sortType, sortDirection);
+						updateSortMarks(headers, index, sortDirection);
+					});
+				});
+				sortTable(tbody, 3, "date", "desc");
+				updateSortMarks(headers, 3, "desc");
+			}
+
+			function setupGradeFilters() {
+				const subjectFilter = document.getElementById("gradeSubjectFilter");
+				const testTypeFilter = document.getElementById("gradeTestTypeFilter");
+				const scoreMinInput = document.getElementById("gradeScoreMinInput");
+				const scoreMaxInput = document.getElementById("gradeScoreMaxInput");
+				const searchInput = document.getElementById("gradeSearchInput");
+				const table = document.getElementById("gradeTable");
+				const noRow = document.getElementById("gradeSearchNoResultRow");
+				if (!subjectFilter || !testTypeFilter || !scoreMinInput || !scoreMaxInput || !searchInput || !table) return;
+				const tbody = table.querySelector("tbody");
+				const rows = tbody.querySelectorAll("tr.grade-row");
+				const subjectSet = new Set();
+				rows.forEach(row => { const t = row.children[0] ? row.children[0].textContent.trim() : ""; if (t) subjectSet.add(t); });
+				Array.from(subjectSet).sort().forEach(function (subject) {
+					const option = document.createElement("option"); option.value = subject; option.textContent = subject; subjectFilter.appendChild(option);
+				});
+				function applyFilters() {
+					const selectedSubject = subjectFilter.value, selectedTestType = testTypeFilter.value;
+					const scoreMin = scoreMinInput.value === "" ? null : Number(scoreMinInput.value);
+					const scoreMax = scoreMaxInput.value === "" ? null : Number(scoreMaxInput.value);
+					const keyword = searchInput.value.trim().toLowerCase();
+					let visibleCount = 0;
+					rows.forEach(function (row) {
+						const subjectText = row.children[0] ? row.children[0].textContent.trim() : "";
+						const testTypeText = row.children[1] ? row.children[1].textContent.trim() : "";
+						const scoreText = row.children[4] ? row.children[4].textContent.trim() : "";
+						const scoreValue = Number(scoreText.replace(/[^0-9.-]/g, ""));
+						const rowText = row.textContent.trim().toLowerCase();
+						let visible = true;
+						if (selectedSubject && subjectText !== selectedSubject) visible = false;
+						if (selectedTestType && !testTypeText.includes(selectedTestType)) visible = false;
+						if (scoreMin !== null && scoreValue < scoreMin) visible = false;
+						if (scoreMax !== null && scoreValue > scoreMax) visible = false;
+						if (keyword && !rowText.includes(keyword)) visible = false;
+						row.style.display = visible ? "" : "none";
+						if (visible) visibleCount++;
+					});
+					if (noRow) noRow.style.display = visibleCount === 0 && rows.length > 0 ? "" : "none";
+				}
+				subjectFilter.addEventListener("change", applyFilters);
+				testTypeFilter.addEventListener("change", applyFilters);
+				scoreMinInput.addEventListener("input", applyFilters);
+				scoreMaxInput.addEventListener("input", applyFilters);
+				searchInput.addEventListener("input", applyFilters);
+			}
+
+			function getDefaultSortDirection(columnIndex, sortType) {
+				if (sortType === "date") return "desc";
+				if (columnIndex === 4 || columnIndex === 5) return "desc";
+				if (columnIndex === 6) return "asc";
+				return "asc";
+			}
+
+			function sortTable(tbody, columnIndex, sortType, direction) {
+				const rows = Array.from(tbody.querySelectorAll("tr.grade-row"));
+				rows.sort(function (a, b) {
+					const aCell = a.children[columnIndex], bCell = b.children[columnIndex];
+					if (!aCell || !bCell) return 0;
+					let aValue = aCell.textContent.trim(), bValue = bCell.textContent.trim();
+					if (sortType === "number") { aValue = Number(aValue.replace(/[^0-9.-]/g, "")); bValue = Number(bValue.replace(/[^0-9.-]/g, "")); }
+					else if (sortType === "date") { aValue = new Date(aValue).getTime(); bValue = new Date(bValue).getTime(); }
+					else { aValue = aValue.toLowerCase(); bValue = bValue.toLowerCase(); }
+					if (sortType === "number" || sortType === "date") {
+						if (isNaN(aValue)) aValue = direction === "asc" ? Number.MAX_VALUE : Number.MIN_VALUE;
+						if (isNaN(bValue)) bValue = direction === "asc" ? Number.MAX_VALUE : Number.MIN_VALUE;
+					}
+					if (aValue < bValue) return direction === "asc" ? -1 : 1;
+					if (aValue > bValue) return direction === "asc" ? 1 : -1;
+					return 0;
+				});
+				rows.forEach(row => tbody.appendChild(row));
+			}
+
+			function updateSortMarks(headers, activeIndex, direction) {
+				headers.forEach(function (header, index) {
+					const mark = header.querySelector(".sort-mark"); if (!mark) return;
+					header.classList.remove("is-active-sort");
+					if (index === activeIndex) { mark.textContent = direction === "asc" ? "▲" : "▼"; header.classList.add("is-active-sort"); }
+					else {
+						const sortType = header.dataset.sortType || "";
+						if (sortType === "date") mark.textContent = "▼";
+						else if (index === 4 || index === 5) mark.textContent = "▼";
+						else if (index === 6) mark.textContent = "▲";
+					}
+				});
+			}
+
+			function createSvgElement(tagName, attributes) {
+				const element = document.createElementNS("http://www.w3.org/2000/svg", tagName);
+				Object.keys(attributes).forEach(key => element.setAttribute(key, attributes[key]));
+				return element;
+			}
+			function formatDateLabel(dateText) {
+				if (!dateText) return "";
+				const date = new Date(dateText);
+				if (isNaN(date.getTime())) return dateText;
+				return (date.getMonth() + 1) + "/" + date.getDate();
+			}
+			function shortenText(text, maxLength) {
+				if (!text) return "";
+				return text.length <= maxLength ? text : text.substring(0, maxLength) + "…";
+			}
+		});
+	</script>
+</body>
+
+</html>

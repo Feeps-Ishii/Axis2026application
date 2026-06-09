@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>宿題管理</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+	<div id="appHeader"></div>
+
+	<main class="homework-list-page">
+
+		<section class="homework-list-hero">
+			<div class="homework-list-hero-main">
+				<p class="homework-list-label">HOMEWORK MANAGEMENT</p>
+				<h1>宿題管理</h1>
+				<p class="homework-list-lead">
+					生徒の宿題内容、提出期限、提出状況、点数、コメントを一覧で確認できます。
+				</p>
+			</div>
+
+			<div class="homework-list-hero-actions">
+				<a id="backToCarte" class="btn btn-back">
+					◀ 生徒カルテに戻る
+				</a>
+			</div>
+		</section>
+
+		<section class="homework-list-card">
+			<div class="homework-list-card-header">
+				<div>
+					<p class="homework-list-label">HOMEWORK LIST</p>
+					<h2>宿題一覧</h2>
+				</div>
+
+				<div class="homework-list-card-actions" id="addAction" style="display:none;">
+					<a id="addLink" class="btn btn-primary homework-add-btn">
+						➕ 宿題追加
+					</a>
+				</div>
+			</div>
+
+			<p class="homework-list-note">
+				未提出の宿題や提出期限を確認し、必要に応じて変更・削除を行ってください。
+			</p>
+
+			<div class="homework-list-table-scroll">
+				<table class="homework-list-table">
+					<thead>
+						<tr>
+							<th class="homework-col-subject">科目</th>
+							<th class="homework-col-content">宿題内容</th>
+							<th class="homework-col-due">提出期限</th>
+							<th class="homework-col-status">提出確認</th>
+							<th class="homework-col-score">点数</th>
+							<th class="homework-col-comment">コメント</th>
+							<th class="homework-col-actions" id="thActions" style="display:none;">操作</th>
+						</tr>
+					</thead>
+
+					<tbody id="homeworkRows"></tbody>
+				</table>
+			</div>
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			const esc = TeamC.esc, fmtDate = TeamC.fmtDate;
+
+			const params = new URLSearchParams(location.search);
+			let studentId = Number(params.get("studentId"));
+			// 生徒ロールは自分の宿題のみ
+			if (TeamC.isStudent(me)) {
+				const own = TeamC.loginStudentId();
+				if (own) studentId = own;
+			}
+			if (!studentId) { location.href = "./login.html"; return; }
+
+			const canEdit = TeamC.isStaff(me);
+
+			document.getElementById("backToCarte").href = "./student_carte.html?studentId=" + studentId;
+			if (canEdit) {
+				document.getElementById("addAction").style.display = "";
+				document.getElementById("addLink").href = "./homework_add.html?studentId=" + studentId;
+				document.getElementById("thActions").style.display = "";
+			}
+
+			const colspan = canEdit ? 7 : 6;
+			const list = TeamC.homeworksByStudent(studentId);
+			const tbody = document.getElementById("homeworkRows");
+
+			if (!list.length) {
+				tbody.innerHTML =
+					'<tr><td class="homework-empty-cell" colspan="' + colspan + '">登録されている宿題はありません。</td></tr>';
+				return;
+			}
+
+			tbody.innerHTML = list.map(h => {
+				const subj = TeamC.subject(h.subjectId);
+				const subjName = subj ? subj.subjectName : "";
+				const isDone = h.submissionStatus === "提出済";
+				const statusCls = isDone ? "is-done" : "is-pending";
+				const score = (h.score != null && h.score !== "") ? h.score : "-";
+				const comment = (h.comment != null && String(h.comment) !== "") ? h.comment : "コメント未入力";
+
+				let actions = "";
+				if (canEdit) {
+					actions =
+						'<td class="homework-actions-cell">' +
+							'<div class="homework-action-buttons">' +
+								'<a class="homework-action-btn homework-edit-btn" href="./homework_edit.html?studentId=' +
+									studentId + '&homeworkId=' + h.homeworkId + '">変更</a>' +
+								'<a class="homework-action-btn homework-delete-btn" href="./homework_delete_confirm.html?studentId=' +
+									studentId + '&homeworkId=' + h.homeworkId + '">削除</a>' +
+							'</div>' +
+						'</td>';
+				}
+
+				return '<tr>' +
+					'<td><span class="homework-subject-pill">' + esc(subjName) + '</span></td>' +
+					'<td><div class="homework-content-text">' + esc(h.homeworkContent) + '</div></td>' +
+					'<td><span class="homework-date-badge">' + esc(fmtDate(h.dueDate)) + '</span></td>' +
+					'<td><span class="homework-status-badge ' + statusCls + '">' + esc(h.submissionStatus) + '</span></td>' +
+					'<td><span class="homework-score-badge">' + esc(score) + '</span></td>' +
+					'<td><div class="homework-comment-text">' + esc(comment) + '</div></td>' +
+					actions +
+				'</tr>';
+			}).join("");
+		});
+	</script>
+
+</body>
+
+</html>

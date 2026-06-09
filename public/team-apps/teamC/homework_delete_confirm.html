@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>宿題削除確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+	<div id="appHeader"></div>
+	<div class="container">
+
+		<a id="backLink" class="btn btn-back" style="background:#0f766e;">◀ 宿題管理に戻る</a>
+		<div class="card">
+			<div class="card-header"><span class="card-title" style="color:var(--danger);">宿題削除確認</span></div>
+			<p>以下の宿題を削除します。</p>
+
+			<table>
+				<tr>
+					<th>科目</th>
+					<td id="vSubject"></td>
+				</tr>
+				<tr>
+					<th>提出期限</th>
+					<td id="vDue"></td>
+				</tr>
+				<tr>
+					<th>宿題内容</th>
+					<td id="vContent"></td>
+				</tr>
+				<tr>
+					<th>提出状況</th>
+					<td id="vStatus"></td>
+				</tr>
+				<tr>
+					<th>点数</th>
+					<td id="vScore"></td>
+				</tr>
+				<tr>
+					<th>コメント</th>
+					<td id="vComment"></td>
+				</tr>
+			</table>
+
+			<div style="display:flex; gap:1rem; margin-top:1.5rem;">
+				<button type="button" id="submitBtn" class="btn btn-primary" style="flex:1; padding:0.8rem;">
+					削除を確定する
+				</button>
+				<a id="cancelLink" class="btn" style="background:#64748b; color:white; flex:1; padding:0.8rem;">
+					戻る
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			const esc = TeamC.esc, fmtJpDate = TeamC.fmtJpDate;
+
+			const params = new URLSearchParams(location.search);
+			const studentId = Number(params.get("studentId"));
+			const homeworkId = Number(params.get("homeworkId"));
+			if (!studentId || !homeworkId) { location.href = "./login.html"; return; }
+
+			if (!TeamC.isStaff(me)) {
+				location.href = "./student_homework.html?studentId=" + studentId;
+				return;
+			}
+
+			const hw = TeamC.homework(homeworkId);
+			if (!hw) { location.href = "./student_homework.html?studentId=" + studentId; return; }
+
+			const backHref = "./student_homework.html?studentId=" + studentId;
+			document.getElementById("backLink").href = backHref;
+			document.getElementById("cancelLink").href = backHref;
+
+			const subj = TeamC.subject(hw.subjectId);
+			document.getElementById("vSubject").textContent = subj ? subj.subjectName : "";
+			document.getElementById("vDue").textContent = hw.dueDate ? fmtJpDate(hw.dueDate) : "未設定";
+			document.getElementById("vContent").textContent = hw.homeworkContent;
+			document.getElementById("vStatus").textContent = hw.submissionStatus;
+			document.getElementById("vScore").textContent =
+				(hw.score != null && hw.score !== "") ? hw.score + " 点" : "未採点";
+			document.getElementById("vComment").textContent =
+				(hw.comment != null && String(hw.comment) !== "") ? hw.comment : "なし";
+
+			document.getElementById("submitBtn").addEventListener("click", () => {
+				TeamC.deleteHomework(homeworkId);
+				location.href = "./homework_delete_complete.html?studentId=" + studentId;
+			});
+		});
+	</script>
+
+</body>
+
+</html>

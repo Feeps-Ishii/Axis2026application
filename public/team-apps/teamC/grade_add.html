@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>成績追加</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+	<div id="appHeader"></div>
+
+	<main class="grade-new-page">
+		<section class="grade-new-hero">
+			<div class="grade-new-hero-main">
+				<p class="grade-new-label">ADD GRADE</p>
+				<h1>成績追加</h1>
+				<p class="grade-new-lead">テスト結果、点数、偏差値、順位、次期目標などを登録します。</p>
+			</div>
+			<div class="grade-new-hero-actions">
+				<a id="backToList" href="#" class="btn btn-back">◀ 成績管理に戻る</a>
+			</div>
+		</section>
+
+		<section class="grade-new-card">
+			<div class="grade-new-card-header">
+				<div><p class="grade-new-label">INPUT FORM</p><h2>成績追加（入力）</h2></div>
+			</div>
+			<p class="grade-new-note">必須項目を入力して、確認画面へ進んでください。偏差値・順位・面談用情報は必要に応じて入力できます。</p>
+
+			<form id="form" class="grade-new-form">
+				<div class="grade-new-section">
+					<h3>① 成績情報</h3>
+					<div class="grade-new-grid grade-new-grid-2">
+						<div class="grade-new-field">
+							<label>科目 <span class="required-badge">必須</span></label>
+							<select class="form-control" name="subjectId" required>
+								<option value="1">国語</option>
+								<option value="2">数学</option>
+								<option value="3">英語</option>
+								<option value="4">理科</option>
+								<option value="5">社会</option>
+							</select>
+						</div>
+						<div class="grade-new-field">
+							<label>テスト種別 <span class="required-badge">必須</span></label>
+							<select class="form-control" name="testType" required>
+								<option value="定期テスト">定期テスト</option>
+								<option value="模試">模試</option>
+								<option value="塾内テスト">塾内テスト</option>
+							</select>
+						</div>
+					</div>
+					<div class="grade-new-grid grade-new-grid-2">
+						<div class="grade-new-field">
+							<label>テスト名 <span class="required-badge">必須</span></label>
+							<input type="text" class="form-control" name="testName" placeholder="例：1学期期末テスト" required>
+						</div>
+						<div class="grade-new-field">
+							<label>テスト日 <span class="required-badge">必須</span></label>
+							<input type="date" class="form-control" name="testDate" required>
+						</div>
+					</div>
+					<div class="grade-new-grid grade-new-grid-3">
+						<div class="grade-new-field">
+							<label>点数 <span class="required-badge">必須</span></label>
+							<input type="number" class="form-control" name="score" min="0" max="100" placeholder="0〜100" required>
+						</div>
+						<div class="grade-new-field">
+							<label>偏差値</label>
+							<input type="number" class="form-control" name="deviationValue" min="0" max="100" placeholder="例：55">
+						</div>
+						<div class="grade-new-field">
+							<label>順位</label>
+							<input type="number" class="form-control" name="testRank" min="1" placeholder="例：10">
+						</div>
+					</div>
+					<div class="grade-new-field">
+						<label>コメント</label>
+						<textarea class="form-control grade-new-textarea-small" name="comment" rows="3" placeholder="例：漢字・文法は安定しているが、読解問題の記述で失点が見られる"></textarea>
+					</div>
+				</div>
+
+				<div class="grade-new-section" id="interviewSection">
+					<h3>② 保護者面談・次期提案用情報</h3>
+					<div class="grade-new-grid grade-new-grid-2">
+						<div class="grade-new-field">
+							<label>次期目標</label>
+							<textarea class="form-control grade-new-textarea-small" name="nextGoal" rows="3" placeholder="例：次回テストで80点以上を目指す"></textarea>
+						</div>
+						<div class="grade-new-field">
+							<label>提案内容</label>
+							<textarea class="form-control grade-new-textarea-small" name="proposalContent" rows="3" placeholder="例：読解演習を週1回追加する"></textarea>
+						</div>
+					</div>
+					<div class="grade-new-field">
+						<label>各講師の所見</label>
+						<textarea class="form-control grade-new-textarea" name="teacherOpinion" rows="4" placeholder="例：授業中の集中力は高く、宿題への取り組みも安定している"></textarea>
+					</div>
+					<div class="grade-new-grid grade-new-grid-2">
+						<div class="grade-new-field">
+							<label>出席率</label>
+							<input type="number" class="form-control" name="attendanceRate" min="0" max="100" placeholder="0〜100">
+						</div>
+						<div class="grade-new-field">
+							<label>宿題提出率</label>
+							<input type="number" class="form-control" name="homeworkSubmissionRate" min="0" max="100" placeholder="0〜100">
+						</div>
+					</div>
+				</div>
+
+				<div class="grade-new-actions">
+					<a id="cancelBtn" href="#" class="btn btn-secondary grade-new-cancel-btn">キャンセル</a>
+					<button type="submit" class="btn btn-primary grade-new-submit-btn">確認画面へ進む ➔</button>
+				</div>
+			</form>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			const isStudent = TeamC.isStudent(me);
+
+			const params = new URLSearchParams(location.search);
+			let studentId = params.get("studentId");
+			if (isStudent) studentId = TeamC.loginStudentId();
+			studentId = studentId != null ? Number(studentId) : null;
+
+			document.getElementById("backToList").href = "./student_grades.html?studentId=" + studentId;
+			document.getElementById("cancelBtn").href = "./student_grades.html?studentId=" + studentId;
+
+			const f = document.getElementById("form");
+			// 生徒は面談用情報を入力させない
+			if (isStudent) {
+				const sec = document.getElementById("interviewSection");
+				if (sec) sec.style.display = "none";
+			}
+
+			const restore = params.get("restore") === "1";
+			if (restore) {
+				const pending = TeamC.getPending("grade");
+				const r = (pending && pending.mode === "create" && pending.data) ? pending.data : null;
+				if (r) {
+					["subjectId", "testType", "testName", "testDate", "score", "deviationValue", "testRank", "comment",
+						"nextGoal", "proposalContent", "teacherOpinion", "attendanceRate", "homeworkSubmissionRate"].forEach(k => {
+						if (f[k] != null && r[k] != null) f[k].value = r[k];
+					});
+				}
+			} else {
+				TeamC.clearPending("grade");
+			}
+
+			f.addEventListener("submit", e => {
+				e.preventDefault();
+				const numOrNull = v => (v === "" || v == null ? null : Number(v));
+				const data = {
+					studentId: studentId,
+					subjectId: Number(f.subjectId.value),
+					testType: f.testType.value,
+					testName: f.testName.value,
+					testDate: f.testDate.value,
+					score: Number(f.score.value),
+					maxScore: 100,
+					deviationValue: numOrNull(f.deviationValue.value),
+					testRank: numOrNull(f.testRank.value),
+					comment: f.comment.value
+				};
+				if (!isStudent) {
+					data.nextGoal = f.nextGoal.value;
+					data.proposalContent = f.proposalContent.value;
+					data.teacherOpinion = f.teacherOpinion.value;
+					data.attendanceRate = numOrNull(f.attendanceRate.value);
+					data.homeworkSubmissionRate = numOrNull(f.homeworkSubmissionRate.value);
+				} else {
+					data.nextGoal = null;
+					data.proposalContent = null;
+					data.teacherOpinion = null;
+					data.attendanceRate = null;
+					data.homeworkSubmissionRate = null;
+				}
+				TeamC.setPending("grade", { mode: "create", studentId: studentId, data: data });
+				location.href = "./grade_add_confirm.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

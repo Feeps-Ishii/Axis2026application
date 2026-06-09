@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>講師削除確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="appHeader"></div>
+	<div class="container">
+		<a href="./teachers.html" class="btn btn-back">◀ 講師一覧に戻る</a>
+		<div class="card">
+			<div class="card-header"><span class="card-title" style="color:var(--danger);">講師削除確認</span></div>
+			<p>以下の講師情報を削除します。よろしければ「削除を確定する」を押してください。</p>
+			<table>
+				<tr>
+					<th>講師ID</th>
+					<td id="v-id"></td>
+				</tr>
+				<tr>
+					<th>氏名</th>
+					<td id="v-name"></td>
+				</tr>
+				<tr>
+					<th>勤務希望要件</th>
+					<td id="v-work"></td>
+				</tr>
+			</table>
+			<div style="display:flex; gap:1rem; margin-top:1.5rem;">
+				<div style="flex:1;">
+					<button type="button" id="deleteBtn" class="btn btn-primary" style="width:100%; padding:0.8rem;">
+						削除を確定する
+					</button>
+				</div>
+				<a href="./teachers.html" class="btn"
+					style="background:#64748b; color:white; flex:1; padding:0.8rem;">戻る</a>
+			</div>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+
+			const id = Number(new URLSearchParams(location.search).get("teacherId"));
+			const view = TeamC.teacherView(id);
+			if (!view || !view.teacher) {
+				document.querySelector(".container").innerHTML =
+					'<p>該当する講師が見つかりませんでした。</p>' +
+					'<a href="./teachers.html" class="btn btn-secondary">◀ 講師一覧に戻る</a>';
+				return;
+			}
+			const t = view.teacher;
+			document.getElementById("v-id").textContent = t.teacherId;
+			document.getElementById("v-name").textContent = t.teacherName != null ? t.teacherName : "";
+			document.getElementById("v-work").textContent = t.workPreference != null ? t.workPreference : "";
+
+			document.getElementById("deleteBtn").addEventListener("click", () => {
+				TeamC.deleteTeacher(id);
+				location.href = "./teacher_delete_complete.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

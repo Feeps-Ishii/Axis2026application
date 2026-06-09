@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>授業記録詳細・変更 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		.section-title {
+			font-size: 1rem;
+			font-weight: bold;
+			color: var(--student, #0f766e);
+			margin-bottom: 1rem;
+			border-left: 5px solid var(--student, #0f766e);
+			padding-left: 0.6rem;
+		}
+
+		.form-grid-2 {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 1rem;
+		}
+
+		.form-grid-3 {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 1rem;
+		}
+
+		@media (max-width: 800px) {
+
+			.form-grid-2,
+			.form-grid-3 {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+</head>
+
+<body class="student-theme">
+
+	<div id="appHeader"></div>
+
+	<div class="container" style="max-width: 900px;">
+
+		<a id="backToList" class="btn btn-back">◀ 授業記録一覧に戻る</a>
+
+		<div class="card">
+			<div class="card-header">
+				<span class="card-title">授業記録詳細・変更 (入力)</span>
+			</div>
+
+			<form id="recordForm">
+
+				<div class="section-title">① 授業の事実</div>
+				<div class="form-grid-3">
+
+					<div class="form-group">
+						<label>授業日</label>
+						<input type="date" class="form-control" name="classDate" required>
+					</div>
+
+					<div class="form-group">
+						<label>教室</label>
+						<select class="form-control" name="classroomId"></select>
+					</div>
+
+					<div class="form-group">
+						<label>コマ</label>
+						<select class="form-control" name="scheduleSlotId"></select>
+					</div>
+
+				</div>
+
+				<div class="form-grid-3">
+
+					<div class="form-group">
+						<label>講師</label>
+						<select class="form-control" name="teacherId"></select>
+					</div>
+
+					<div class="form-group">
+						<label>生徒</label>
+						<input type="text" class="form-control" id="studentName" readonly>
+					</div>
+
+					<div class="form-group">
+						<label>科目</label>
+						<select class="form-control" name="subjectId"></select>
+					</div>
+
+				</div>
+
+				<div class="form-grid-2">
+
+					<div class="form-group">
+						<label>単元</label>
+						<input type="text" class="form-control" name="unit">
+					</div>
+
+					<div class="form-group">
+						<label>使用教材ページ</label>
+						<input type="text" class="form-control" name="materialPages">
+					</div>
+
+				</div>
+
+				<div class="form-grid-2">
+
+					<div class="form-group">
+						<label>実施演習問題番号</label>
+						<input type="text" class="form-control" name="exerciseNumbers">
+					</div>
+
+					<div class="form-group">
+						<label>正答数</label>
+						<input type="number" class="form-control" name="correctCount" min="0">
+					</div>
+
+				</div>
+
+				<div class="section-title">② 学習状況</div>
+
+				<div class="form-grid-3">
+
+					<div class="form-group">
+						<label>理解度</label>
+						<select class="form-control" name="understandingLevel" required>
+							<option value="1">1：かなり不安</option>
+							<option value="2">2：やや不安</option>
+							<option value="3">3：普通</option>
+							<option value="4">4：おおむね理解</option>
+							<option value="5">5：十分理解</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label>集中度</label>
+						<select class="form-control" name="concentrationLevel" required>
+							<option value="1">低い</option>
+							<option value="2">普通</option>
+							<option value="3">高い</option>
+						</select>
+					</div>
+
+				</div>
+
+				<div class="form-group">
+					<label>質問内容</label>
+					<textarea class="form-control" name="questionContent"></textarea>
+				</div>
+
+				<div class="section-title">③ コミュニケーション</div>
+
+				<div class="form-group">
+					<label>生徒の様子</label>
+					<textarea class="form-control" name="studentCondition"></textarea>
+				</div>
+
+				<div class="form-group">
+					<label>励ましコメント</label>
+					<textarea class="form-control" name="encouragementComment"></textarea>
+				</div>
+
+				<div class="form-group">
+					<label>次回宿題</label>
+					<textarea class="form-control" name="nextHomework"></textarea>
+				</div>
+
+				<div style="margin-top:2rem; display:flex; gap:10px;">
+					<button type="submit" class="btn btn-primary" style="flex:1;">
+						確認画面へ進む ➔
+					</button>
+
+					<a id="cancelBtn" class="btn" style="background:#e2e8f0; color:#475569;">
+						キャンセル
+					</a>
+				</div>
+
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+
+			const params = new URLSearchParams(location.search);
+			const studentId = Number(params.get("studentId"));
+			const recordId = Number(params.get("recordId"));
+			const restore = params.get("restore") === "1";
+
+			const student = TeamC.student(studentId);
+			const record = TeamC.classRecord(recordId);
+			if (!student || !record) {
+				location.href = "./student_class_records.html?studentId=" + studentId;
+				return;
+			}
+
+			if (!TeamC.isStaff(me)) {
+				location.href = "./student_class_records.html?studentId=" + studentId;
+				return;
+			}
+
+			const listHref = "./student_class_records.html?studentId=" + studentId;
+			document.getElementById("backToList").href = listHref;
+			document.getElementById("cancelBtn").href = listHref;
+			document.getElementById("studentName").value = student.studentName;
+
+			const form = document.getElementById("recordForm");
+
+			const fill = (name, items, idKey, labelFn) => {
+				const sel = form.elements[name];
+				items.forEach((it) => {
+					const o = document.createElement("option");
+					o.value = it[idKey];
+					o.textContent = labelFn(it);
+					sel.appendChild(o);
+				});
+			};
+			fill("classroomId", TeamC.classrooms(), "classroomId", (c) => c.roomName);
+			fill("scheduleSlotId", TeamC.scheduleSlots(), "scheduleSlotId", (s) => s.slotName);
+			fill("teacherId", TeamC.teachers(), "teacherId", (t) => t.teacherName);
+			fill("subjectId", TeamC.subjects(), "subjectId", (s) => s.subjectName);
+
+			let init = record;
+			if (restore) {
+				const p = TeamC.getPending("record_edit");
+				if (p && Number(p.id) === recordId && p.patch) {
+					init = Object.assign({}, record, p.patch);
+				}
+			}
+			const fields = [
+				"classDate", "classroomId", "scheduleSlotId", "teacherId", "subjectId",
+				"unit", "materialPages", "exerciseNumbers", "correctCount",
+				"understandingLevel", "concentrationLevel",
+				"questionContent", "studentCondition", "encouragementComment", "nextHomework",
+			];
+			fields.forEach((k) => {
+				if (form.elements[k] != null && init[k] != null) {
+					form.elements[k].value = k === "classDate"
+						? String(init[k]).slice(0, 10)
+						: init[k];
+				}
+			});
+
+			form.addEventListener("submit", (e) => {
+				e.preventDefault();
+				const patch = {
+					classDate: form.elements.classDate.value || null,
+					classroomId: Number(form.elements.classroomId.value) || null,
+					scheduleSlotId: Number(form.elements.scheduleSlotId.value) || null,
+					teacherId: Number(form.elements.teacherId.value) || null,
+					subjectId: Number(form.elements.subjectId.value) || null,
+					unit: form.elements.unit.value.trim(),
+					materialPages: form.elements.materialPages.value.trim(),
+					exerciseNumbers: form.elements.exerciseNumbers.value.trim(),
+					correctCount: form.elements.correctCount.value === "" ? null : Number(form.elements.correctCount.value),
+					understandingLevel: Number(form.elements.understandingLevel.value),
+					concentrationLevel: Number(form.elements.concentrationLevel.value),
+					questionContent: form.elements.questionContent.value.trim(),
+					studentCondition: form.elements.studentCondition.value.trim(),
+					encouragementComment: form.elements.encouragementComment.value.trim(),
+					nextHomework: form.elements.nextHomework.value.trim(),
+				};
+				TeamC.setPending("record_edit", { studentId: studentId, id: recordId, patch: patch });
+				location.href = "./class_record_edit_confirm.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

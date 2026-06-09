@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>新規予約登録 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<main class="page-container">
+
+		<section class="page-title-area">
+			<h1>新規予約登録</h1>
+			<p>授業予約の情報を入力してください。</p>
+		</section>
+
+		<section class="form-card">
+
+			<p id="errorMessage" class="error-message" style="display:none;"></p>
+
+			<form id="reservationForm">
+
+				<div class="form-grid">
+
+					<div class="form-group">
+						<label for="lessonType">授業形式</label>
+						<select id="lessonType" name="lessonType" class="form-control">
+							<option value="">選択してください</option>
+							<option value="個別">個別</option>
+							<option value="自習室">自習室</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label for="reservationDate">予約日</label>
+						<input type="date" id="reservationDate" name="reservationDate" class="form-control">
+						<p id="dateHelpText" style="font-size:0.85rem; color:#64748b; margin-top:4px;"></p>
+					</div>
+
+					<div class="form-group">
+						<label for="scheduleSlotId">コマ</label>
+						<select id="scheduleSlotId" name="scheduleSlotId" class="form-control">
+							<option value="">授業形式と予約日を選択してください</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label for="classroomId">教室</label>
+						<select id="classroomId" name="classroomId" class="form-control">
+							<option value="">授業形式を選択してください</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label for="teacherId">講師</label>
+						<select id="teacherId" name="teacherId" class="form-control">
+							<option value="">コマを選択してください</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label for="subjectId">科目</label>
+						<select id="subjectId" name="subjectId" class="form-control">
+							<option value="">講師を選択してください</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label for="studentId">生徒</label>
+						<select id="studentId" name="studentId" class="form-control">
+							<option value="">選択してください</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label for="reservationRole">予約者区分</label>
+						<div class="form-control" style="background:#f8fafc;">
+							<span id="loginRoleText"></span>
+						</div>
+						<input type="hidden" id="reservationRole" name="reservationRole">
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="memo">備考</label>
+					<textarea id="memo" name="memo" class="form-control textarea-control" rows="4"
+						placeholder="必要に応じて備考を入力してください"></textarea>
+				</div>
+
+				<div class="form-actions">
+					<a href="./schedule_week.html" class="btn btn-secondary">戻る</a>
+					<button type="submit" class="btn btn-primary">確認へ進む</button>
+				</div>
+
+			</form>
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+
+			const loginRole = me.role || "";
+			const userLoc = TeamC.userLocation(me);
+
+			const params = new URLSearchParams(window.location.search);
+			const restore = params.get("restore") === "1";
+
+			// 初期値（URL クエリ or 復元 pending）
+			const pending = restore ? (TeamC.getPending("reservation") || {}) : {};
+			const pdata = pending.data || {};
+
+			const initialLessonType = pdata.lessonType || params.get("lessonType") || "";
+			const initialReservationDate = pdata.reservationDate || params.get("date") || "";
+			const initialScheduleSlotId = pdata.scheduleSlotId != null ? pdata.scheduleSlotId : params.get("scheduleSlotId");
+			const initialClassroomId = pdata.classroomId != null ? pdata.classroomId : null;
+			const initialTeacherId = pdata.teacherId != null ? pdata.teacherId : null;
+			const initialSubjectId = pdata.subjectId != null ? pdata.subjectId : null;
+			const initialStudentId = pdata.studentId != null ? pdata.studentId : null;
+			const initialMemo = pdata.memo != null ? pdata.memo : "";
+
+			const form = document.getElementById("reservationForm");
+			const lessonTypeSelect = document.getElementById("lessonType");
+			const reservationDateInput = document.getElementById("reservationDate");
+			const scheduleSlotSelect = document.getElementById("scheduleSlotId");
+			const classroomSelect = document.getElementById("classroomId");
+			const teacherSelect = document.getElementById("teacherId");
+			const subjectSelect = document.getElementById("subjectId");
+			const studentSelect = document.getElementById("studentId");
+			const dateHelpText = document.getElementById("dateHelpText");
+
+			// 予約者区分（ログインロール固定）
+			document.getElementById("loginRoleText").textContent = loginRole;
+			document.getElementById("reservationRole").value = loginRole;
+
+			// 予約日の min（today）
+			reservationDateInput.min = TeamC.today();
+
+			// 生徒選択肢（スタッフ：全生徒／生徒：自分のみ固定）
+			const isStudentUser = TeamC.isStudent(me);
+			(function populateStudents() {
+				let students;
+				if (isStudentUser) {
+					const sid = TeamC.loginStudentId();
+					const stu = sid != null ? TeamC.student(sid) : null;
+					students = stu ? [stu] : [];
+				} else {
+					students = TeamC.students();
+				}
+				studentSelect.innerHTML = '<option value="">選択してください</option>';
+				students.forEach((stu) => {
+					const opt = document.createElement("option");
+					opt.value = stu.studentId;
+					opt.textContent = stu.studentName;
+					if (initialStudentId != null && String(initialStudentId) === String(stu.studentId)) opt.selected = true;
+					studentSelect.appendChild(opt);
+				});
+				// 1件だけなら自動選択
+				const selectable = Array.from(studentSelect.options).filter((o) => o.value !== "");
+				if (selectable.length === 1) studentSelect.value = selectable[0].value;
+			})();
+
+			if (initialMemo) document.getElementById("memo").value = initialMemo;
+
+			function clearSelect(select, placeholder) {
+				select.innerHTML = "";
+				const option = document.createElement("option");
+				option.value = "";
+				option.textContent = placeholder;
+				select.appendChild(option);
+				select.value = "";
+			}
+			function addOption(select, value, text, selectedValue) {
+				const option = document.createElement("option");
+				option.value = value;
+				option.textContent = text;
+				if (selectedValue != null && String(selectedValue) === String(value)) option.selected = true;
+				select.appendChild(option);
+			}
+			function setDisabled(el, disabled) { el.disabled = disabled; }
+
+			function resetClassrooms() { clearSelect(classroomSelect, "授業形式を選択してください"); setDisabled(classroomSelect, true); }
+			function resetSlots() { clearSelect(scheduleSlotSelect, "授業形式と予約日を選択してください"); setDisabled(scheduleSlotSelect, true); }
+			function resetTeachers() { clearSelect(teacherSelect, "コマを選択してください"); setDisabled(teacherSelect, true); }
+			function resetSubjects() { clearSelect(subjectSelect, "講師を選択してください"); setDisabled(subjectSelect, true); }
+			function disableTeacherAndSubjectForStudyRoom() {
+				clearSelect(teacherSelect, "自習室では講師選択不要");
+				clearSelect(subjectSelect, "自習室では科目選択不要");
+				setDisabled(teacherSelect, true);
+				setDisabled(subjectSelect, true);
+			}
+
+			// --- カスケード（fetch → db.js 同期呼び出しに置換） ---
+			function loadClassrooms(selectedClassroomId) {
+				const lessonType = lessonTypeSelect.value;
+				resetClassrooms();
+				if (!lessonType) return;
+
+				const classrooms = TeamC.availableClassrooms(lessonType, userLoc);
+				clearSelect(classroomSelect, "選択してください");
+				classrooms.forEach((c) => addOption(classroomSelect, c.classroomId, c.roomName, selectedClassroomId));
+
+				if (classrooms.length === 0) {
+					clearSelect(classroomSelect, "選択できる教室がありません");
+					setDisabled(classroomSelect, true);
+					return;
+				}
+				setDisabled(classroomSelect, false);
+				if ((selectedClassroomId == null || selectedClassroomId === "") && classrooms.length === 1) {
+					classroomSelect.value = classrooms[0].classroomId;
+				}
+			}
+
+			function enableReservationDateByLessonType() {
+				const lessonType = lessonTypeSelect.value;
+				dateHelpText.textContent = "";
+				if (!lessonType) {
+					setDisabled(reservationDateInput, true);
+					dateHelpText.textContent = "授業形式を選択してください。";
+					return;
+				}
+				setDisabled(reservationDateInput, false);
+				if (lessonType === "個別") {
+					dateHelpText.textContent = "個別は、選択した日に講師シフトがあるコマのみ表示されます。";
+				} else if (lessonType === "自習室") {
+					dateHelpText.textContent = "自習室は講師シフトに関係なく予約日を選択できます。";
+				}
+			}
+
+			function loadSlots(selectedScheduleSlotId) {
+				const lessonType = lessonTypeSelect.value;
+				const reservationDate = reservationDateInput.value;
+				resetSlots(); resetTeachers(); resetSubjects();
+				if (!lessonType || !reservationDate) return 0;
+
+				const slots = TeamC.availableSlots(lessonType, reservationDate, userLoc);
+				clearSelect(scheduleSlotSelect, "選択してください");
+				slots.forEach((sl) => addOption(scheduleSlotSelect, sl.scheduleSlotId, TeamC.slotLabel(sl), selectedScheduleSlotId));
+
+				if (slots.length === 0) {
+					if (lessonType === "個別") {
+						clearSelect(scheduleSlotSelect, "この日に講師シフトがあるコマはありません");
+					} else {
+						clearSelect(scheduleSlotSelect, "選択できるコマがありません");
+					}
+					setDisabled(scheduleSlotSelect, true);
+				} else {
+					setDisabled(scheduleSlotSelect, false);
+				}
+
+				if (lessonType === "自習室") disableTeacherAndSubjectForStudyRoom();
+				return slots.length;
+			}
+
+			function loadTeachers(selectedTeacherId) {
+				const lessonType = lessonTypeSelect.value;
+				const reservationDate = reservationDateInput.value;
+				const scheduleSlotId = scheduleSlotSelect.value;
+				resetTeachers(); resetSubjects();
+				if (lessonType === "自習室") { disableTeacherAndSubjectForStudyRoom(); return; }
+				if (!reservationDate || !scheduleSlotId) return;
+
+				const teachers = TeamC.availableTeachers(reservationDate, scheduleSlotId, userLoc);
+				clearSelect(teacherSelect, "選択してください");
+				teachers.forEach((t) => addOption(teacherSelect, t.teacherId, t.teacherName, selectedTeacherId));
+				if (teachers.length === 0) {
+					clearSelect(teacherSelect, "選択できる講師がいません");
+					setDisabled(teacherSelect, true);
+				} else {
+					setDisabled(teacherSelect, false);
+				}
+			}
+
+			function loadSubjects(selectedSubjectId) {
+				const lessonType = lessonTypeSelect.value;
+				const teacherId = teacherSelect.value;
+				resetSubjects();
+				if (lessonType === "自習室") { disableTeacherAndSubjectForStudyRoom(); return; }
+				if (!teacherId) return;
+
+				const subjects = TeamC.availableSubjects(teacherId);
+				clearSelect(subjectSelect, "選択してください");
+				subjects.forEach((sb) => addOption(subjectSelect, sb.subjectId, sb.subjectName, selectedSubjectId));
+				if (subjects.length === 0) {
+					clearSelect(subjectSelect, "この講師の担当科目がありません");
+					setDisabled(subjectSelect, true);
+				} else {
+					setDisabled(subjectSelect, false);
+				}
+			}
+
+			function onLessonTypeChanged() {
+				reservationDateInput.value = "";
+				resetSlots(); resetTeachers(); resetSubjects(); resetClassrooms();
+				const lessonType = lessonTypeSelect.value;
+				if (!lessonType) {
+					setDisabled(reservationDateInput, true);
+					dateHelpText.textContent = "授業形式を選択してください。";
+					return;
+				}
+				loadClassrooms(null);
+				enableReservationDateByLessonType();
+				if (lessonType === "自習室") disableTeacherAndSubjectForStudyRoom();
+			}
+
+			function onReservationDateChanged() {
+				resetSlots(); resetTeachers(); resetSubjects();
+				const lessonType = lessonTypeSelect.value;
+				const reservationDate = reservationDateInput.value;
+				if (!lessonType || !reservationDate) return;
+				const slotCount = loadSlots(null);
+				if (lessonType === "個別" && slotCount === 0) {
+					alert("この日は講師シフトが登録されていないため、個別予約はできません。");
+				}
+			}
+
+			function onScheduleSlotChanged() {
+				resetTeachers(); resetSubjects();
+				const lessonType = lessonTypeSelect.value;
+				if (lessonType === "自習室") { disableTeacherAndSubjectForStudyRoom(); return; }
+				loadTeachers(null);
+			}
+
+			function onTeacherChanged() { loadSubjects(null); }
+
+			function validateBeforeSubmit(event) {
+				const lessonType = lessonTypeSelect.value;
+				if (!lessonType) { alert("授業形式を選択してください。"); event.preventDefault(); return false; }
+				if (!reservationDateInput.value) { alert("予約日を選択してください。"); event.preventDefault(); return false; }
+				if (!scheduleSlotSelect.value) { alert("コマを選択してください。"); event.preventDefault(); return false; }
+				if (!classroomSelect.value) { alert("教室を選択してください。"); event.preventDefault(); return false; }
+				if (lessonType === "個別") {
+					if (!teacherSelect.value) { alert("講師を選択してください。"); event.preventDefault(); return false; }
+					if (!subjectSelect.value) { alert("科目を選択してください。"); event.preventDefault(); return false; }
+				}
+				if (!studentSelect.value) { alert("生徒を選択してください。"); event.preventDefault(); return false; }
+				return true;
+			}
+
+			function initializeControls() {
+				resetClassrooms(); resetSlots(); resetTeachers(); resetSubjects();
+				setDisabled(reservationDateInput, true);
+				setDisabled(classroomSelect, true);
+				setDisabled(scheduleSlotSelect, true);
+				setDisabled(teacherSelect, true);
+				setDisabled(subjectSelect, true);
+				dateHelpText.textContent = "授業形式を選択してください。";
+			}
+
+			function restoreInitialValues() {
+				if (!initialLessonType) return;
+				lessonTypeSelect.value = initialLessonType;
+				loadClassrooms(initialClassroomId);
+				enableReservationDateByLessonType();
+				if (initialReservationDate) {
+					reservationDateInput.value = initialReservationDate;
+					loadSlots(initialScheduleSlotId);
+				}
+				if (initialLessonType === "個別") {
+					if (initialScheduleSlotId) loadTeachers(initialTeacherId);
+					if (initialTeacherId) loadSubjects(initialSubjectId);
+				} else if (initialLessonType === "自習室") {
+					disableTeacherAndSubjectForStudyRoom();
+				}
+			}
+
+			lessonTypeSelect.addEventListener("change", onLessonTypeChanged);
+			reservationDateInput.addEventListener("change", onReservationDateChanged);
+			scheduleSlotSelect.addEventListener("change", onScheduleSlotChanged);
+			teacherSelect.addEventListener("change", onTeacherChanged);
+
+			form.addEventListener("submit", function (event) {
+				event.preventDefault();
+				if (!validateBeforeSubmit(event)) return;
+				const lessonType = lessonTypeSelect.value;
+				const data = {
+					studentId: studentSelect.value ? Number(studentSelect.value) : null,
+					teacherId: lessonType === "自習室" ? null : (teacherSelect.value ? Number(teacherSelect.value) : null),
+					subjectId: lessonType === "自習室" ? null : (subjectSelect.value ? Number(subjectSelect.value) : null),
+					classroomId: classroomSelect.value ? Number(classroomSelect.value) : null,
+					scheduleSlotId: scheduleSlotSelect.value ? Number(scheduleSlotSelect.value) : null,
+					reservationDate: reservationDateInput.value,
+					lessonType: lessonType,
+					reservationRole: loginRole,
+					memo: document.getElementById("memo").value
+				};
+				// 生徒ログイン時は自分の studentId に固定
+				if (isStudentUser) {
+					const sid = TeamC.loginStudentId();
+					if (sid != null) data.studentId = sid;
+				}
+				TeamC.setPending("reservation", { mode: "create", data: data });
+				window.location.href = "./reservation_input_confirm.html";
+			});
+
+			initializeControls();
+			restoreInitialValues();
+		});
+	</script>
+
+</body>
+
+</html>

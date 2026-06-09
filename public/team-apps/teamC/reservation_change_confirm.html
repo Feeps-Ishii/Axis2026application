@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約変更確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<div class="container" style="max-width:760px;">
+		<div class="card">
+			<div class="card-header">
+				<span class="card-title">予約変更確認</span>
+			</div>
+
+			<table class="detail-table">
+				<tr><th>予約登録者区分</th><td id="cRole"></td></tr>
+				<tr><th>教室</th><td id="cClassroom"></td></tr>
+				<tr><th>生徒</th><td id="cStudent"></td></tr>
+				<tr><th>担当講師</th><td id="cTeacher"></td></tr>
+				<tr><th>希望日</th><td id="cReservationDate"></td></tr>
+				<tr><th>希望コマ</th><td id="cSlot"></td></tr>
+				<tr><th>科目</th><td id="cSubject"></td></tr>
+				<tr><th>受講形式</th><td id="cLessonType"></td></tr>
+				<tr><th>備考</th><td id="cMemo"></td></tr>
+			</table>
+
+			<div style="margin-top:2rem; display:flex; gap:10px;">
+				<button type="button" id="updateBtn" class="btn btn-primary" style="flex:1;">変更を確定する</button>
+				<a id="backLink" class="btn" style="background:#e2e8f0; color:#475569;">戻る</a>
+			</div>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+
+			const pending = TeamC.getPending("reservation_edit");
+			if (!pending || !pending.patch || pending.id == null) {
+				window.location.href = "./schedule_week.html";
+				return;
+			}
+			const id = pending.id;
+			const patch = pending.patch;
+
+			document.getElementById("backLink").href = "./reservation_change.html?reservationId=" + id + "&restore=1";
+
+			const slot = patch.scheduleSlotId != null ? TeamC.slot(patch.scheduleSlotId) : null;
+			const student = patch.studentId != null ? TeamC.student(patch.studentId) : null;
+			const teacher = patch.teacherId != null ? TeamC.teacher(patch.teacherId) : null;
+			const subject = patch.subjectId != null ? TeamC.subject(patch.subjectId) : null;
+			const classroom = patch.classroomId != null ? TeamC.classroom(patch.classroomId) : null;
+			const isStudyRoom = patch.lessonType === "自習室";
+
+			document.getElementById("cRole").textContent = patch.reservationRole || "";
+			document.getElementById("cClassroom").textContent = classroom ? classroom.roomName : "";
+			document.getElementById("cStudent").textContent = student ? student.studentName : "";
+			document.getElementById("cTeacher").textContent = isStudyRoom ? "不要" : (teacher ? teacher.teacherName : "");
+			document.getElementById("cReservationDate").textContent = patch.reservationDate || "";
+			document.getElementById("cSlot").textContent = slot ? TeamC.slotLabel(slot) : "";
+			document.getElementById("cSubject").textContent = isStudyRoom ? "不要" : (subject ? subject.subjectName : "");
+			document.getElementById("cLessonType").textContent = patch.lessonType || "";
+			document.getElementById("cMemo").textContent = patch.memo || "";
+
+			document.getElementById("updateBtn").addEventListener("click", function () {
+				TeamC.updateReservation(id, patch);
+				TeamC.clearPending("reservation_edit");
+				window.location.href = "./reservation_change_complete.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

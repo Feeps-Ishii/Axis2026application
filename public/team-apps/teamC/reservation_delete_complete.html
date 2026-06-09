@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約削除完了 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<main class="page-container">
+
+		<section class="page-title-area">
+			<h1>予約削除完了</h1>
+			<p>予約の削除が完了しました。</p>
+		</section>
+
+		<section class="form-card">
+
+			<p>対象の予約を削除しました。</p>
+
+			<div class="form-actions">
+				<a href="./schedule_week.html" class="btn btn-primary">
+					週間スケジュールへ戻る
+				</a>
+
+				<a href="./schedule_month.html" class="btn btn-secondary">
+					月間スケジュールへ戻る
+				</a>
+			</div>
+
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>生徒カルテ | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-carte-theme">
+
+	<div id="appHeader"></div>
+
+	<main class="student-carte-page">
+
+		<div class="student-carte-bg-decoration">
+			<div class="student-carte-bg-circle circle-one"></div>
+			<div class="student-carte-bg-circle circle-two"></div>
+			<div class="student-carte-bg-circle circle-three"></div>
+		</div>
+
+		<section class="student-carte-hero fade-in-section">
+			<div class="student-carte-hero-main">
+				<p class="student-carte-label">Student Portal</p>
+
+				<h1>
+					<span id="heroName">生徒名</span>
+					さんのカルテ
+				</h1>
+
+				<p class="student-carte-lead">
+					授業予定・お知らせ・学習状況を確認できます。
+				</p>
+
+				<div class="student-carte-hero-badges">
+					<span class="student-carte-badge" id="heroGrade">学年未設定</span>
+					<span class="student-carte-badge" id="heroSchool">学校名未設定</span>
+					<span class="student-carte-badge" id="heroRoom">教室未設定</span>
+				</div>
+			</div>
+
+			<div class="student-carte-hero-actions" id="heroActions"></div>
+		</section>
+
+		<section class="student-carte-nav-card fade-in-section">
+			<div class="student-carte-section-header">
+				<div>
+					<p class="student-carte-label">Menu</p>
+					<h2>管理メニュー</h2>
+				</div>
+			</div>
+
+			<div class="student-carte-menu-grid" id="menuGrid"></div>
+		</section>
+
+		<section class="student-carte-content-grid">
+
+			<section class="student-carte-notice-card fade-in-section">
+				<div class="student-carte-section-header">
+					<div>
+						<p class="student-carte-label">Notice</p>
+						<h2>📢 お知らせ</h2>
+					</div>
+
+					<a id="noticeAddBtn" href="./announce_input.html" class="btn btn-primary" style="display:none;">
+						＋ お知らせ入力
+					</a>
+				</div>
+
+				<p class="student-carte-readonly-note">
+					生徒・保護者アカウントでは、お知らせの閲覧のみ可能です。
+				</p>
+
+				<div class="student-carte-table-scroll">
+					<table class="student-carte-notice-table">
+						<thead>
+							<tr>
+								<th>タイトル</th>
+								<th>内容</th>
+								<th>公開対象</th>
+								<th>公開開始</th>
+								<th>公開終了</th>
+							</tr>
+						</thead>
+
+						<tbody id="noticeTableBody"></tbody>
+					</table>
+				</div>
+			</section>
+
+			<section class="student-carte-summary-card fade-in-section">
+				<div class="student-carte-section-header">
+					<div>
+						<p class="student-carte-label">Profile</p>
+						<h2>生徒カルテ概要</h2>
+					</div>
+				</div>
+
+				<div class="student-carte-summary-grid">
+
+					<div class="student-carte-summary-box">
+						<div class="student-carte-summary-icon">🏫</div>
+						<div>
+							<div class="student-carte-summary-label">学年・学校名</div>
+							<div class="student-carte-summary-value" id="sumGradeSchool"></div>
+						</div>
+					</div>
+
+					<div class="student-carte-summary-box">
+						<div class="student-carte-summary-icon">🎯</div>
+						<div>
+							<div class="student-carte-summary-label">志望校・通塾目的</div>
+							<div class="student-carte-summary-value" id="sumTargetPurpose"></div>
+						</div>
+					</div>
+
+					<div class="student-carte-summary-box">
+						<div class="student-carte-summary-icon">☎</div>
+						<div>
+							<div class="student-carte-summary-label">保護者連絡先</div>
+							<div class="student-carte-summary-value" id="sumGuardianTel"></div>
+						</div>
+					</div>
+
+					<div class="student-carte-summary-box">
+						<div class="student-carte-summary-icon">👪</div>
+						<div>
+							<div class="student-carte-summary-label">兄弟状況・備考</div>
+							<div class="student-carte-summary-value" id="sumRemark"></div>
+						</div>
+					</div>
+
+				</div>
+			</section>
+
+			<section class="student-carte-memo-card fade-in-section" id="memoCard" style="display:none;">
+				<div class="student-carte-section-header">
+					<div>
+						<p class="student-carte-label">Staff Memo</p>
+						<h2>講師間共有メモ</h2>
+					</div>
+				</div>
+
+				<div class="student-carte-memo-box" id="memoBox"></div>
+			</section>
+
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			const esc = TeamC.esc;
+
+			const params = new URLSearchParams(location.search);
+			let studentId = params.get("studentId");
+
+			// 生徒本人ログインで studentId 未指定なら自分のカルテに
+			if (!studentId && TeamC.isStudent(me)) {
+				studentId = TeamC.loginStudentId();
+			}
+
+			const view = studentId ? TeamC.studentView(studentId) : null;
+			if (!view || !view.student) {
+				document.querySelector(".student-carte-page").innerHTML =
+					'<p style="padding:2rem;">対象の生徒が見つかりません。</p>';
+				return;
+			}
+			const student = view.student;
+
+			const isStaff = TeamC.isStaff(me);
+			const isManager = TeamC.isManager(me);
+			// 編集可否: スタッフ または 本人
+			const canEditStudentInfo = isStaff ||
+				(TeamC.isStudent(me) && student.userId === me.userId);
+			const canViewMemo = isStaff;
+
+			// hero
+			document.getElementById("heroName").textContent = student.studentName || "";
+			document.getElementById("heroGrade").textContent =
+				(student.grade && student.grade !== "") ? student.grade : "学年未設定";
+			document.getElementById("heroSchool").textContent =
+				(student.schoolName && student.schoolName !== "") ? student.schoolName : "学校名未設定";
+			document.getElementById("heroRoom").textContent =
+				view.classroom ? view.classroom.roomName : "教室未設定";
+
+			if (canViewMemo) {
+				document.getElementById("heroActions").innerHTML =
+					'<a href="./students.html" class="btn btn-secondary">◀ 生徒一覧に戻る</a>';
+			}
+
+			// メニュー
+			const menu = [];
+			if (canEditStudentInfo) {
+				menu.push({
+					href: "./student_info_edit.html?studentId=" + student.studentId,
+					icon: "👤", title: "生徒情報変更", desc: "登録情報を確認・変更",
+				});
+			}
+			menu.push({
+				href: "./student_class_records.html?studentId=" + student.studentId,
+				icon: "📖", title: "授業記録", desc: "授業内容や学習記録を確認",
+			});
+			menu.push({
+				href: "./student_homework.html?studentId=" + student.studentId,
+				icon: "📝", title: "宿題管理", desc: "宿題状況を確認",
+			});
+			menu.push({
+				href: "./student_grades.html?studentId=" + student.studentId,
+				icon: "📊", title: "成績管理", desc: "成績推移を確認",
+			});
+			// スタッフ時は予約作成への導線
+			if (isStaff) {
+				menu.push({
+					href: "./reservation_input.html?studentId=" + student.studentId,
+					icon: "📅", title: "予約作成", desc: "授業・自習室の予約を作成",
+				});
+			}
+
+			document.getElementById("menuGrid").innerHTML = menu.map((m) =>
+				'<a href="' + m.href + '" class="student-carte-menu-card">' +
+					'<div class="student-carte-menu-icon">' + m.icon + '</div>' +
+					'<div>' +
+						'<div class="student-carte-menu-title">' + esc(m.title) + '</div>' +
+						'<div class="student-carte-menu-desc">' + esc(m.desc) + '</div>' +
+					'</div>' +
+					'<span class="student-carte-menu-arrow">›</span>' +
+				'</a>'
+			).join("");
+
+			// お知らせ
+			if (isManager) {
+				document.getElementById("noticeAddBtn").style.display = "";
+			}
+			const notices = TeamC.noticesFor(me.role);
+			const noticeBody = document.getElementById("noticeTableBody");
+			if (!notices.length) {
+				noticeBody.innerHTML =
+					'<tr><td colspan="5" class="student-carte-empty-cell">現在表示できるお知らせはありません。</td></tr>';
+			} else {
+				noticeBody.innerHTML = notices.map((n) =>
+					'<tr>' +
+						'<td><div class="student-notice-title">' + esc(n.title) + '</div></td>' +
+						'<td><div class="student-notice-content">' + esc(n.content) + '</div></td>' +
+						'<td><span class="student-notice-badge">' + esc(n.targetRole) + '</span></td>' +
+						'<td><span class="student-notice-date">' + esc(TeamC.fmtDate(n.startDate)) + '</span></td>' +
+						'<td><span class="student-notice-date">' + esc(TeamC.fmtDate(n.endDate)) + '</span></td>' +
+					'</tr>'
+				).join("");
+			}
+
+			// 概要
+			const orDash = (v) => (v != null && v !== "") ? v : "未登録";
+			document.getElementById("sumGradeSchool").textContent =
+				(student.grade || "") + " / " + (student.schoolName || "");
+			document.getElementById("sumTargetPurpose").textContent =
+				(student.targetSchool || "") + " / " + (student.purpose || "");
+			document.getElementById("sumGuardianTel").textContent = orDash(student.guardianTel);
+			document.getElementById("sumRemark").textContent = orDash(student.remark);
+
+			// 講師間共有メモ
+			if (canViewMemo) {
+				document.getElementById("memoCard").style.display = "";
+				document.getElementById("memoBox").textContent =
+					(student.personalityMemo && student.personalityMemo !== "")
+						? student.personalityMemo : "共有メモは登録されていません。";
+			}
+
+			// fade-in 演出
+			const targets = document.querySelectorAll(".fade-in-section");
+			const observer = new IntersectionObserver(function (entries) {
+				entries.forEach(function (entry) {
+					if (entry.isIntersecting) {
+						entry.target.classList.add("is-visible");
+						observer.unobserve(entry.target);
+					}
+				});
+			}, { threshold: 0.12 });
+			targets.forEach((t) => observer.observe(t));
+
+			document.querySelectorAll(".student-carte-menu-card").forEach(function (card, index) {
+				card.style.animationDelay = (index * 0.08) + "s";
+				card.classList.add("menu-card-pop");
+			});
+		});
+	</script>
+
+</body>
+
+</html>

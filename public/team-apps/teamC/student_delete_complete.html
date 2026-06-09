@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>生徒削除完了</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<main class="complete-page">
+		<section class="complete-card">
+
+			<div class="complete-icon">✓</div>
+
+			<h1 class="complete-title">生徒削除完了</h1>
+
+			<p class="complete-message">
+				対象データの削除が完了しました。
+			</p>
+
+			<div class="complete-actions">
+				<a href="./students.html" class="btn btn-primary">
+					生徒一覧へ戻る
+				</a>
+
+				<a href="./admin_dashboard.html" class="btn btn-secondary">
+					ポータルへ戻る
+				</a>
+			</div>
+
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			TeamC.requireLogin();
+		});
+	</script>
+
+</body>
+
+</html>

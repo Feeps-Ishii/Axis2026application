@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<title>成績変更完了 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+<body class="student-theme">
+<div id="appHeader"></div>
+
+<main class="complete-page">
+	<section class="complete-card">
+		<div class="complete-icon">✓</div>
+		<h1 class="complete-title">成績変更が完了しました</h1>
+		<p class="complete-message">入力内容の変更が完了しました。</p>
+		<div class="complete-actions">
+			<a id="toList" href="#" class="btn btn-primary">成績管理へ戻る</a>
+		</div>
+	</section>
+</main>
+
+<script src="./js/db.js"></script>
+<script src="./js/header.js"></script>
+<script>
+	TeamC.init().then(() => {
+		const s = TeamC.requireLogin();
+		if (!s) return;
+		let studentId = new URLSearchParams(location.search).get("studentId");
+		if (TeamC.isStudent(s.user)) studentId = TeamC.loginStudentId();
+		document.getElementById("toList").href = "./student_grades.html?studentId=" + studentId;
+	});
+</script>
+</body>
+</html>

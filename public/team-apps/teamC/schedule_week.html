@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>週間スケジュール | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<main class="page-container">
+
+		<section class="page-title-area">
+			<h1>週間スケジュール</h1>
+			<p>
+				<span id="startDateLabel"></span>
+				〜
+				<span id="endDateLabel"></span>
+			</p>
+		</section>
+
+		<section class="schedule-toolbar">
+
+			<div class="schedule-nav">
+				<a class="btn btn-secondary" id="prevWeek">前週</a>
+				<a class="btn btn-secondary" href="./schedule_week.html">今週</a>
+				<a class="btn btn-secondary" id="nextWeek">翌週</a>
+			</div>
+
+			<div class="schedule-actions">
+				<a class="btn btn-secondary" id="monthLink">月間スケジュール</a>
+				<a class="btn btn-primary" href="./reservation_input.html">新規予約</a>
+			</div>
+
+		</section>
+
+		<section class="schedule-mode-note">
+			<p id="classroomNote" style="display:none;">表示教室：<span id="classroomName"></span></p>
+			<p id="normalNote" style="display:none;">
+				現在の表示：通常講習
+				平日 13:00〜22:00 / 6コマ、土曜 13:00〜21:00 / 5コマ
+			</p>
+			<p id="eventNote" style="display:none;">
+				現在の表示：通常講習・イベント講習 混在週
+				<br>
+				イベント講習期間に該当する日のみ8コマ表示
+			</p>
+		</section>
+
+		<section class="schedule-card">
+			<div class="table-scroll">
+				<table class="weekly-schedule-table">
+					<thead>
+						<tr id="weekHeadRow">
+							<th class="slot-header">コマ</th>
+						</tr>
+					</thead>
+					<tbody id="weekBody"></tbody>
+				</table>
+			</div>
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			const esc = TeamC.esc;
+
+			const role = me.role || "";
+			const isStudent = TeamC.isStudent(me);
+			const isReservationManager = TeamC.isStaff(me);
+			const userLoc = TeamC.userLocation(me);
+			const STUDY_ROOM_CAPACITY = 30;
+
+			const params = new URLSearchParams(window.location.search);
+			const baseStr = params.get("date") || TeamC.today();
+
+			function pad(n) { return String(n).padStart(2, "0"); }
+			function ymd(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+			function parse(str) { return new Date(str.slice(0, 10) + "T00:00:00"); }
+
+			// 週の開始（月曜）・終了（日曜）。WeeklyScheduleService 相当。
+			const base = parse(baseStr);
+			const start = new Date(base);
+			const diffToMon = (start.getDay() + 6) % 7; // 月曜=0
+			start.setDate(start.getDate() - diffToMon);
+			const end = new Date(start);
+			end.setDate(end.getDate() + 6);
+
+			const weekDates = [];
+			for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) weekDates.push(new Date(d));
+
+			const startStr = ymd(start);
+			const endStr = ymd(end);
+
+			// 日別 mode 判定
+			const dayModeMap = {};
+			let hasEventDay = false;
+			weekDates.forEach((d) => {
+				const ds = ymd(d);
+				const mode = TeamC.slotMode(ds);
+				dayModeMap[ds] = mode;
+				if (mode === "event") hasEventDay = true;
+			});
+			const mode = hasEventDay ? "event" : "normal";
+			const maxRow = mode === "event" ? 8 : 6;
+
+			// 当校舎の予約
+			function reservationLocation(r) {
+				const c = TeamC.classroom(r.classroomId);
+				return c ? c.location : "";
+			}
+			const reservations = TeamC.reservationsInRange(startStr, endStr)
+				.filter((r) => !userLoc || reservationLocation(r) === userLoc);
+
+			// 当校舎の講師シフト（勤務可）
+			const teacherShifts = TeamC.teacherShifts().filter((sh) => {
+				if (!sh.isAvailable || !sh.shiftDate) return false;
+				if (sh.shiftDate < startStr || sh.shiftDate > endStr) return false;
+				const t = TeamC.teacher(sh.teacherId);
+				if (!t) return false;
+				const c = TeamC.classroom(t.classroomId);
+				return c && (!userLoc || c.location === userLoc);
+			});
+
+			// date_slot → [shift]
+			const teacherShiftMap = {};
+			teacherShifts.forEach((sh) => {
+				const key = sh.shiftDate + "_" + sh.scheduleSlotId;
+				(teacherShiftMap[key] = teacherShiftMap[key] || []).push(sh);
+			});
+
+			// date_slot_teacher → [reservation]（対面/個別のみ。自習室は別集計）
+			const teacherReservationMap = {};
+			reservations.forEach((r) => {
+				if (r.lessonType === "自習室") return;
+				const key = r.reservationDate + "_" + r.scheduleSlotId + "_" + r.teacherId;
+				(teacherReservationMap[key] = teacherReservationMap[key] || []).push(r);
+			});
+
+			// date_slot → 自習室の生徒利用数
+			const studyRoomCountMap = {};
+			reservations.forEach((r) => {
+				if (r.lessonType !== "自習室") return;
+				const key = r.reservationDate + "_" + r.scheduleSlotId;
+				studyRoomCountMap[key] = (studyRoomCountMap[key] || 0) + 1;
+			});
+
+			// 各日のコマ（mode 別、曜日でフィルタ、startTime 昇順）
+			function slotsForDate(dateStr) {
+				const dayMode = dayModeMap[dateStr];
+				const dow = TeamC.dayOfWeek(dateStr);
+				return TeamC.slotsByMode(dayMode)
+					.filter((sl) => sl.dayOfWeek === dow)
+					.sort((a, b) => String(a.startTime).localeCompare(String(b.startTime)));
+			}
+
+			// 左端の時間帯：mode に合う月曜コマを代表として使用
+			const repSlots = TeamC.slotsByMode(mode)
+				.filter((sl) => sl.dayOfWeek === "月")
+				.sort((a, b) => String(a.startTime).localeCompare(String(b.startTime)));
+
+			// --- 表示まわり ---
+			document.getElementById("startDateLabel").textContent = TeamC.fmtDate(startStr);
+			document.getElementById("endDateLabel").textContent = TeamC.fmtDate(endStr);
+			document.getElementById("monthLink").href =
+				"./schedule_month.html?year=" + base.getFullYear() + "&month=" + (base.getMonth() + 1);
+
+			const prev = new Date(base); prev.setDate(prev.getDate() - 7);
+			const next = new Date(base); next.setDate(next.getDate() + 7);
+			document.getElementById("prevWeek").href = "./schedule_week.html?date=" + ymd(prev);
+			document.getElementById("nextWeek").href = "./schedule_week.html?date=" + ymd(next);
+
+			if (userLoc) {
+				document.getElementById("classroomNote").style.display = "";
+				document.getElementById("classroomName").textContent = userLoc;
+			}
+			document.getElementById(mode === "event" ? "eventNote" : "normalNote").style.display = "";
+
+			// --- ヘッダー ---
+			const headRow = document.getElementById("weekHeadRow");
+			weekDates.forEach((d) => {
+				const th = document.createElement("th");
+				const ds = ymd(d);
+				th.innerHTML = '<div class="date-label"><span>' + (d.getMonth() + 1) + '/' + d.getDate() +
+					'</span><span>（' + TeamC.dayOfWeek(ds) + '）</span></div>';
+				headRow.appendChild(th);
+			});
+
+			// --- 本体 ---
+			const body = document.getElementById("weekBody");
+			let html = "";
+			for (let rowNumber = 1; rowNumber <= maxRow; rowNumber++) {
+				const repSlot = repSlots[rowNumber - 1];
+				const timeText = repSlot
+					? TeamC.fmtTime(repSlot.startTime) + "〜" + TeamC.fmtTime(repSlot.endTime)
+					: "";
+
+				html += '<tr>';
+				html += '<th class="slot-cell"><div class="slot-name"><span>' + rowNumber + '</span>コマ</div>' +
+					'<div class="slot-time">' + esc(timeText) + '</div></th>';
+
+				weekDates.forEach((d) => {
+					const dateStr = ymd(d);
+					const dayMode = dayModeMap[dateStr];
+					const slots = slotsForDate(dateStr);
+					const slot = slots[rowNumber - 1] || null;
+
+					html += '<td>';
+
+					if (dayMode === "normal" && rowNumber > 6) {
+						html += '<div class="unused-slot"></div>';
+					} else if (!slot) {
+						html += '<div class="closed-slot">休講</div>';
+					} else {
+						const shiftKey = dateStr + "_" + slot.scheduleSlotId;
+						const shifts = teacherShiftMap[shiftKey] || null;
+
+						// 講師シフトブロック
+						if (!shifts) {
+							html += '<div class="closed-slot">講師なし</div>';
+						} else {
+							shifts.forEach((sh) => {
+								const teacher = TeamC.teacher(sh.teacherId);
+								const teacherName = teacher ? teacher.teacherName : "";
+								const trKey = dateStr + "_" + slot.scheduleSlotId + "_" + sh.teacherId;
+								const trs = teacherReservationMap[trKey] || null;
+								const trCount = trs ? trs.length : 0;
+
+								html += '<div class="reservation-box">';
+								html += '<div class="reservation-status">講師シフト</div>';
+								html += '<div class="reservation-main"><span>' + esc(teacherName) + '</span></div>';
+								html += '<div class="reservation-sub">生徒 <span>' + trCount + '</span> / 2</div>';
+								if (trs) {
+									trs.forEach((r) => {
+										const stu = TeamC.student(r.studentId);
+										const subj = TeamC.subject(r.subjectId);
+										html += '<div class="reservation-sub">' +
+											'<span>' + esc(stu ? stu.studentName : "") + '</span> / ' +
+											'<span>' + esc(subj ? subj.subjectName : "") + '</span>' +
+											'<div class="reservation-actions">' +
+												'<a class="mini-btn" href="./reservation_change.html?reservationId=' + r.reservationId + '">変更</a>' +
+												'<a class="mini-btn mini-btn-danger" href="./reservation_delete_confirm.html?reservationId=' + r.reservationId + '">削除</a>' +
+											'</div>' +
+										'</div>';
+									});
+								}
+								if (!trs || trCount < 2) {
+									html += '<div class="empty-slot">予約可</div>';
+								} else {
+									html += '<div class="full">満員</div>';
+								}
+								html += '</div>'; // reservation-box
+							});
+						}
+
+						// 自習室ブロック（講師シフト有無に依存しない）
+						const studyRoomCount = studyRoomCountMap[shiftKey] || 0;
+						const studyRoomAvailable = STUDY_ROOM_CAPACITY - studyRoomCount;
+						const srHref = "./reservation_input.html?date=" + dateStr +
+							"&scheduleSlotId=" + slot.scheduleSlotId + "&lessonType=" + encodeURIComponent("自習室");
+
+						html += '<div class="study-room-box">';
+						html += '<div class="reservation-status">自習室</div>';
+						html += '<div class="reservation-sub">利用 <span>' + studyRoomCount + '</span> / <span>' + STUDY_ROOM_CAPACITY + '</span></div>';
+						if (isStudent && studyRoomAvailable > 0) {
+							html += '<a class="empty-slot" href="' + srHref + '">自習室予約可 <span>' + studyRoomAvailable + '</span> 席</a>';
+						} else if (isStudent && studyRoomAvailable <= 0) {
+							html += '<div class="full">自習室満席</div>';
+						}
+						if (isReservationManager && studyRoomCount > 0) {
+							html += '<a class="empty-slot" href="' + srHref + '">自習室対応可</a>';
+						} else if (isReservationManager && studyRoomCount <= 0) {
+							html += '<div class="closed-slot">生徒予約なし</div>';
+						}
+						html += '</div>'; // study-room-box
+					}
+
+					html += '</td>';
+				});
+
+				html += '</tr>';
+			}
+			body.innerHTML = html;
+		});
+	</script>
+
+</body>
+
+</html>

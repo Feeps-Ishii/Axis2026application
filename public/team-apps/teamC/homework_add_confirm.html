@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>宿題追加確認</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+	<div id="appHeader"></div>
+
+	<main class="homework-new-confirm-page">
+
+		<section class="homework-new-confirm-hero">
+			<div class="homework-new-confirm-hero-main">
+				<p class="homework-new-confirm-label">CONFIRM HOMEWORK</p>
+				<h1>宿題追加確認</h1>
+				<p class="homework-new-confirm-lead">
+					入力した宿題内容を確認し、問題がなければ追加を確定してください。
+				</p>
+			</div>
+
+			<div class="homework-new-confirm-hero-actions">
+				<a id="backToInput" class="btn btn-back">
+					◀ 入力画面に戻る
+				</a>
+			</div>
+		</section>
+
+		<section class="homework-new-confirm-card">
+			<div class="homework-new-confirm-card-header">
+				<div>
+					<p class="homework-new-confirm-label">CONFIRM DETAILS</p>
+					<h2>登録内容の確認</h2>
+				</div>
+			</div>
+
+			<p class="homework-new-confirm-note">
+				以下の内容で宿題を追加します。科目・提出期限・宿題内容に間違いがないか確認してください。
+			</p>
+
+			<div class="homework-new-confirm-section">
+				<h3>① 宿題の基本情報</h3>
+
+				<div class="homework-new-confirm-grid">
+					<div class="homework-new-confirm-item">
+						<div class="homework-new-confirm-item-label">科目</div>
+						<div class="homework-subject-pill" id="vSubject"></div>
+					</div>
+
+					<div class="homework-new-confirm-item">
+						<div class="homework-new-confirm-item-label">提出期限</div>
+						<div class="homework-date-badge" id="vDue"></div>
+					</div>
+
+					<div class="homework-new-confirm-item">
+						<div class="homework-new-confirm-item-label">提出確認</div>
+						<div class="homework-status-badge" id="vStatus"></div>
+					</div>
+
+					<div class="homework-new-confirm-item">
+						<div class="homework-new-confirm-item-label">点数</div>
+						<div class="homework-score-badge" id="vScore"></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="homework-new-confirm-section">
+				<h3>② 宿題内容</h3>
+
+				<div class="homework-new-confirm-memo">
+					<div class="homework-new-confirm-memo-label">宿題内容</div>
+					<p id="vContent"></p>
+				</div>
+			</div>
+
+			<div class="homework-new-confirm-section">
+				<h3>③ コメント</h3>
+
+				<div class="homework-new-confirm-memo">
+					<div class="homework-new-confirm-memo-label">コメント</div>
+					<p id="vComment"></p>
+				</div>
+			</div>
+
+			<div class="homework-new-confirm-actions">
+
+				<a id="fixLink" class="btn btn-secondary homework-new-confirm-back-btn">
+					⬅ 修正する
+				</a>
+
+				<button type="button" id="submitBtn" class="btn btn-primary homework-new-confirm-submit-btn">
+					追加を確定する
+				</button>
+
+			</div>
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			const esc = TeamC.esc, fmtDate = TeamC.fmtDate;
+
+			const pending = TeamC.getPending("homework");
+			if (!pending || pending.mode !== "create" || !pending.data) {
+				location.href = "./login.html";
+				return;
+			}
+			const studentId = pending.studentId;
+			const d = pending.data;
+
+			if (!TeamC.isStaff(me)) {
+				location.href = "./student_homework.html?studentId=" + studentId;
+				return;
+			}
+
+			const inputHref = "./homework_add.html?studentId=" + studentId + "&restore=1";
+			document.getElementById("backToInput").href = inputHref;
+			document.getElementById("fixLink").href = inputHref;
+
+			const subj = TeamC.subject(d.subjectId);
+			document.getElementById("vSubject").textContent = subj ? subj.subjectName : "";
+			document.getElementById("vDue").textContent = fmtDate(d.dueDate);
+			const statusEl = document.getElementById("vStatus");
+			statusEl.textContent = d.submissionStatus;
+			statusEl.classList.add(d.submissionStatus === "提出済" ? "is-done" : "is-pending");
+			document.getElementById("vScore").textContent = (d.score != null && d.score !== "") ? d.score : "-";
+			document.getElementById("vContent").textContent = d.homeworkContent;
+			document.getElementById("vComment").textContent =
+				(d.comment != null && String(d.comment) !== "") ? d.comment : "コメントはありません。";
+
+			document.getElementById("submitBtn").addEventListener("click", () => {
+				TeamC.addHomework(d);
+				TeamC.clearPending("homework");
+				location.href = "./homework_add_complete.html?studentId=" + studentId;
+			});
+		});
+	</script>
+
+</body>
+
+</html>

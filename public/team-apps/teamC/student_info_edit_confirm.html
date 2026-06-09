@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>生徒情報変更確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<main class="student-edit-confirm-page">
+
+		<section class="student-edit-confirm-hero">
+			<div>
+				<p class="student-edit-confirm-label">Student Edit Confirm</p>
+				<h1>生徒情報の変更確認</h1>
+				<p class="student-edit-confirm-lead">
+					変更内容を確認し、問題がなければ「変更を確定する」を押してください。
+				</p>
+			</div>
+
+			<div class="student-edit-confirm-hero-actions">
+				<a id="backBtnTop" href="#" class="btn btn-secondary">
+					◀ 修正する
+				</a>
+			</div>
+		</section>
+
+		<section class="student-edit-confirm-card">
+
+			<div class="student-edit-confirm-header">
+				<div>
+					<p class="student-edit-confirm-label">Confirm Details</p>
+					<h2>変更内容</h2>
+				</div>
+
+				<div class="student-edit-confirm-badge">
+					確認画面
+				</div>
+			</div>
+
+			<section class="student-edit-confirm-section">
+				<div class="student-edit-confirm-section-title">基本情報</div>
+				<div class="student-edit-confirm-grid">
+					<div class="student-edit-confirm-item">
+						<div class="student-edit-confirm-item-label">教室</div>
+						<div class="student-edit-confirm-item-value" id="v-classroom"></div>
+					</div>
+					<div class="student-edit-confirm-item">
+						<div class="student-edit-confirm-item-label">生徒氏名</div>
+						<div class="student-edit-confirm-item-value" id="v-studentName"></div>
+					</div>
+					<div class="student-edit-confirm-item">
+						<div class="student-edit-confirm-item-label">フリガナ</div>
+						<div class="student-edit-confirm-item-value" id="v-studentKana"></div>
+					</div>
+					<div class="student-edit-confirm-item">
+						<div class="student-edit-confirm-item-label">学年</div>
+						<div class="student-edit-confirm-item-value" id="v-grade"></div>
+					</div>
+					<div class="student-edit-confirm-item">
+						<div class="student-edit-confirm-item-label">学校名</div>
+						<div class="student-edit-confirm-item-value" id="v-schoolName"></div>
+					</div>
+					<div class="student-edit-confirm-item">
+						<div class="student-edit-confirm-item-label">電話番号</div>
+						<div class="student-edit-confirm-item-value" id="v-phoneNumber"></div>
+					</div>
+				</div>
+			</section>
+
+			<section class="student-edit-confirm-section">
+				<div class="student-edit-confirm-section-title">保護者情報</div>
+				<div class="student-edit-confirm-grid">
+					<div class="student-edit-confirm-item">
+						<div class="student-edit-confirm-item-label">保護者氏名</div>
+						<div class="student-edit-confirm-item-value" id="v-guardianName"></div>
+					</div>
+					<div class="student-edit-confirm-item">
+						<div class="student-edit-confirm-item-label">保護者電話番号</div>
+						<div class="student-edit-confirm-item-value" id="v-guardianTel"></div>
+					</div>
+					<div class="student-edit-confirm-item student-edit-confirm-wide">
+						<div class="student-edit-confirm-item-label">保護者メールアドレス</div>
+						<div class="student-edit-confirm-item-value" id="v-guardianEmail"></div>
+					</div>
+					<div class="student-edit-confirm-item student-edit-confirm-wide">
+						<div class="student-edit-confirm-item-label">住所</div>
+						<div class="student-edit-confirm-item-value" id="v-address"></div>
+					</div>
+				</div>
+			</section>
+
+			<section class="student-edit-confirm-section">
+				<div class="student-edit-confirm-section-title">学習情報</div>
+				<div class="student-edit-confirm-grid">
+					<div class="student-edit-confirm-item">
+						<div class="student-edit-confirm-item-label">授業形態</div>
+						<div class="student-edit-confirm-item-value">
+							<span class="student-edit-confirm-pill" id="v-lessonStyle"></span>
+						</div>
+					</div>
+					<div class="student-edit-confirm-item">
+						<div class="student-edit-confirm-item-label">通塾目的</div>
+						<div class="student-edit-confirm-item-value" id="v-purpose"></div>
+					</div>
+					<div class="student-edit-confirm-item">
+						<div class="student-edit-confirm-item-label">志望校</div>
+						<div class="student-edit-confirm-item-value" id="v-targetSchool"></div>
+					</div>
+					<div class="student-edit-confirm-item student-edit-confirm-wide">
+						<div class="student-edit-confirm-item-label">通塾希望条件</div>
+						<div class="student-edit-confirm-item-value student-edit-confirm-memo" id="v-desiredCondition"></div>
+					</div>
+				</div>
+			</section>
+
+			<section class="student-edit-confirm-section">
+				<div class="student-edit-confirm-section-title">補足情報</div>
+				<div class="student-edit-confirm-grid">
+					<div class="student-edit-confirm-item student-edit-confirm-wide" id="memoItem">
+						<div class="student-edit-confirm-item-label">講師間共有メモ</div>
+						<div class="student-edit-confirm-item-value student-edit-confirm-memo" id="v-personalityMemo"></div>
+					</div>
+					<div class="student-edit-confirm-item student-edit-confirm-wide">
+						<div class="student-edit-confirm-item-label">備考</div>
+						<div class="student-edit-confirm-item-value student-edit-confirm-memo" id="v-remark"></div>
+					</div>
+					<div class="student-edit-confirm-item student-edit-confirm-wide">
+						<div class="student-edit-confirm-item-label">パスワード変更</div>
+						<div class="student-edit-confirm-item-value">
+							<span class="student-edit-confirm-password-badge" id="v-password">変更なし</span>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<div class="student-edit-confirm-actions">
+				<button type="button" id="confirmBtn" class="btn btn-primary student-edit-confirm-submit-btn">
+					変更を確定する
+				</button>
+
+				<a id="backBtnBottom" href="#" class="btn btn-secondary student-edit-confirm-back-btn">
+					⬅ 修正する
+				</a>
+			</div>
+
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const CLASSROOM_NAMES = { 1: "本校", 2: "西口校", 3: "北口校", 4: "南校" };
+
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+
+			const pending = TeamC.getPending("student_edit");
+			if (!pending || !pending.patch || pending.id == null) {
+				location.href = "./students.html";
+				return;
+			}
+			const p = pending.patch;
+			const studentId = pending.id;
+
+			const backHref = "./student_info_edit.html?studentId=" + studentId + "&restore=1";
+			document.getElementById("backBtnTop").href = backHref;
+			document.getElementById("backBtnBottom").href = backHref;
+
+			const orDash = (v) => (v != null && v !== "") ? v : "未入力";
+			const set = (id, v) => { document.getElementById(id).textContent = v; };
+
+			document.getElementById("v-classroom").textContent =
+				CLASSROOM_NAMES[p.classroomId] || (p.classroomId != null ? p.classroomId : "未設定");
+			set("v-studentName", orDash(p.studentName));
+			set("v-studentKana", orDash(p.studentKana));
+			set("v-grade", orDash(p.grade));
+			set("v-schoolName", orDash(p.schoolName));
+			set("v-phoneNumber", orDash(p.phoneNumber));
+			set("v-guardianName", orDash(p.guardianName));
+			set("v-guardianTel", orDash(p.guardianTel));
+			set("v-guardianEmail", orDash(p.guardianEmail));
+			set("v-address", orDash(p.address));
+			set("v-lessonStyle", orDash(p.lessonStyle));
+			set("v-purpose", orDash(p.purpose));
+			set("v-targetSchool", orDash(p.targetSchool));
+			set("v-desiredCondition", orDash(p.desiredCondition));
+			set("v-remark", orDash(p.remark));
+
+			if (Object.prototype.hasOwnProperty.call(p, "personalityMemo")) {
+				set("v-personalityMemo", orDash(p.personalityMemo));
+			} else {
+				document.getElementById("memoItem").style.display = "none";
+			}
+
+			const pwBadge = document.getElementById("v-password");
+			if (pending.newPassword && pending.newPassword !== "") {
+				pwBadge.textContent = "変更あり";
+				pwBadge.classList.add("password-change-on");
+			} else {
+				pwBadge.textContent = "変更なし";
+				pwBadge.classList.add("password-change-off");
+			}
+
+			document.getElementById("confirmBtn").addEventListener("click", function () {
+				TeamC.updateStudent(studentId, p);
+				sessionStorage.setItem("teamC:lastEditedStudentId", String(studentId));
+				TeamC.clearPending("student_edit");
+				location.href = "./student_info_edit_complete.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

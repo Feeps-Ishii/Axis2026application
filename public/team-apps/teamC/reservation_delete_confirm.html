@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約削除確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<main class="page-container">
+
+		<section class="page-title-area">
+			<h1>予約削除確認</h1>
+			<p>以下の予約を削除してもよろしいですか？</p>
+		</section>
+
+		<section class="delete-confirm-card">
+
+			<div class="delete-warning-box">
+				<div class="delete-warning-title">削除前の確認</div>
+				<p>
+					この操作を行うと、対象の予約情報は削除されます。<br>
+					内容を確認してから「削除する」ボタンを押してください。
+				</p>
+			</div>
+
+			<div class="reservation-summary-header">
+				<div>
+					<span class="reservation-summary-label">削除対象予約</span>
+					<h2 id="dDate">2026/06/11</h2>
+				</div>
+				<span class="reservation-status-badge" id="dStatus">予約済</span>
+			</div>
+
+			<div class="delete-detail-grid">
+				<div class="delete-detail-item">
+					<div class="delete-detail-label">コマ</div>
+					<div class="delete-detail-value" id="dSlot"></div>
+				</div>
+				<div class="delete-detail-item">
+					<div class="delete-detail-label">生徒</div>
+					<div class="delete-detail-value" id="dStudent"></div>
+				</div>
+				<div class="delete-detail-item">
+					<div class="delete-detail-label">講師</div>
+					<div class="delete-detail-value" id="dTeacher"></div>
+				</div>
+				<div class="delete-detail-item">
+					<div class="delete-detail-label">科目</div>
+					<div class="delete-detail-value" id="dSubject"></div>
+				</div>
+				<div class="delete-detail-item">
+					<div class="delete-detail-label">教室</div>
+					<div class="delete-detail-value" id="dClassroom"></div>
+				</div>
+				<div class="delete-detail-item">
+					<div class="delete-detail-label">授業形式</div>
+					<div class="delete-detail-value" id="dLessonType"></div>
+				</div>
+			</div>
+
+			<div class="delete-memo-box">
+				<div class="delete-detail-label">備考</div>
+				<p id="dMemo"></p>
+			</div>
+
+			<div class="delete-form-actions">
+				<a id="backLink" class="btn btn-secondary">戻る</a>
+				<button type="button" id="deleteBtn" class="btn btn-danger">削除する</button>
+			</div>
+
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const esc = TeamC.esc;
+
+			const params = new URLSearchParams(window.location.search);
+			const reservationId = params.get("reservationId");
+
+			const view = reservationId != null ? TeamC.reservationView(reservationId) : null;
+			if (!view) {
+				alert("指定された予約が見つかりません。");
+				window.location.href = "./schedule_week.html";
+				return;
+			}
+			const res = view.reservation;
+			const slot = view.slot;
+			const isStudyRoom = res.lessonType === "自習室";
+
+			document.getElementById("backLink").href = "./schedule_week.html?date=" + res.reservationDate;
+			document.getElementById("dDate").textContent = TeamC.fmtDate(res.reservationDate);
+			document.getElementById("dStatus").textContent = res.status || "予約済";
+
+			if (slot) {
+				document.getElementById("dSlot").textContent =
+					slot.dayOfWeek + "曜 " + slot.slotName + "（" + TeamC.fmtTime(slot.startTime) + "〜" + TeamC.fmtTime(slot.endTime) + "）";
+			}
+			document.getElementById("dStudent").textContent = view.student ? view.student.studentName : "";
+			document.getElementById("dTeacher").textContent = isStudyRoom ? "不要" : (view.teacher ? view.teacher.teacherName : "");
+			document.getElementById("dSubject").textContent = isStudyRoom ? "不要" : (view.subject ? view.subject.subjectName : "");
+			document.getElementById("dClassroom").textContent = view.classroom ? view.classroom.roomName : "";
+			document.getElementById("dLessonType").textContent = res.lessonType || "";
+			document.getElementById("dMemo").textContent = res.memo || "";
+
+			document.getElementById("deleteBtn").addEventListener("click", function () {
+				TeamC.deleteReservation(res.reservationId);
+				window.location.href = "./reservation_delete_complete.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>生徒一覧 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<main class="student-list-page">
+
+		<section class="student-list-hero">
+			<div>
+				<p class="student-list-label">Student Management</p>
+				<h1>生徒一覧</h1>
+				<p class="student-list-lead">
+					登録されている生徒情報を確認し、カルテ閲覧や削除操作を行えます。
+				</p>
+			</div>
+
+			<div class="student-list-hero-actions">
+				<a href="./admin_dashboard.html" class="btn btn-secondary">
+					◀ ホームに戻る
+				</a>
+			</div>
+		</section>
+
+		<section class="student-table-card student-list-combined-card">
+
+			<div class="student-section-header student-table-header">
+				<div>
+					<p class="student-list-label">Student List</p>
+					<h2>生徒情報</h2>
+				</div>
+
+				<div class="student-table-header-actions">
+					<div class="student-count-badge">
+						登録件数：
+						<span id="studentCount">0</span>
+						件
+					</div>
+
+					<a href="./student_register.html" class="btn btn-primary">
+						＋ 生徒の新規登録
+					</a>
+				</div>
+			</div>
+
+			<div class="student-inner-search-area">
+				<div class="student-inner-search-title">
+					<span class="student-inner-search-icon">🔍</span>
+					<span>生徒検索</span>
+				</div>
+
+				<div class="student-search-area">
+					<div class="student-search-input-wrap">
+						<span class="student-search-icon">🔍</span>
+						<input type="text"
+							   id="studentSearchInput"
+							   class="form-control student-search-input"
+							   placeholder="生徒名・学年・学校名・教室名・電話番号で検索">
+					</div>
+
+					<button type="button" class="btn btn-primary student-search-btn" onclick="filterStudentTable()">
+						検索
+					</button>
+
+					<button type="button" class="btn btn-secondary student-clear-btn" onclick="clearStudentSearch()">
+						クリア
+					</button>
+				</div>
+			</div>
+
+			<div class="student-table-scroll">
+				<table class="student-list-table">
+					<colgroup>
+						<col class="student-col-id">
+						<col class="student-col-classroom">
+						<col class="student-col-name">
+						<col class="student-col-grade">
+						<col class="student-col-school">
+						<col class="student-col-phone">
+						<col class="student-col-actions">
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th>生徒ID</th>
+							<th>教室</th>
+							<th>生徒氏名</th>
+							<th>学年</th>
+							<th>学校名</th>
+							<th>電話番号</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+
+					<tbody id="studentTableBody">
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+
+			// 教室長・講師以外（生徒本人）は自分のカルテへリダイレクト
+			if (!TeamC.isStaff(me)) {
+				const sid = TeamC.loginStudentId();
+				location.href = sid ? "./student_carte.html?studentId=" + sid : "./login.html";
+				return;
+			}
+
+			const esc = TeamC.esc;
+			const students = TeamC.activeStudents();
+
+			document.getElementById("studentCount").textContent = students.length;
+
+			const body = document.getElementById("studentTableBody");
+
+			if (!students.length) {
+				body.innerHTML =
+					'<tr><td colspan="7" class="student-empty-cell">該当する生徒が存在しません</td></tr>';
+				return;
+			}
+
+			body.innerHTML = students.map((stu) => {
+				const room = TeamC.classroom(stu.classroomId);
+				const roomName = room ? room.roomName : "未設定";
+				const avatar = (stu.studentName && stu.studentName.length > 0)
+					? stu.studentName.substring(0, 1) : "生";
+				const carteHref = "./student_carte.html?studentId=" + stu.studentId;
+				const deleteHref = "./student_delete_confirm.html?studentId=" + stu.studentId;
+				return (
+					'<tr class="student-row">' +
+						'<td><span class="student-id-badge">' + esc(stu.studentId) + '</span></td>' +
+						'<td><span class="student-classroom-badge">' + esc(roomName) + '</span></td>' +
+						'<td>' +
+							'<div class="student-name-cell">' +
+								'<div class="student-avatar">' + esc(avatar) + '</div>' +
+								'<div class="student-name-info">' +
+									'<span class="student-name">' + esc(stu.studentName) + '</span>' +
+									'<span class="student-sub-text">カルテ情報を確認できます</span>' +
+								'</div>' +
+							'</div>' +
+						'</td>' +
+						'<td><span class="student-grade-badge">' + esc(stu.grade) + '</span></td>' +
+						'<td><span class="student-school">' + esc(stu.schoolName) + '</span></td>' +
+						'<td><span class="student-phone">' + esc(stu.phoneNumber) + '</span></td>' +
+						'<td class="student-actions-cell">' +
+							'<div class="student-actions">' +
+								'<a href="' + carteHref + '" class="student-action-btn student-carte-btn">カルテ</a>' +
+								'<a href="' + deleteHref + '" class="student-action-btn student-delete-btn">削除</a>' +
+							'</div>' +
+						'</td>' +
+					'</tr>'
+				);
+			}).join("");
+		});
+
+		function filterStudentTable() {
+			const keyword = document.getElementById("studentSearchInput").value.toLowerCase();
+			const rows = document.querySelectorAll("#studentTableBody .student-row");
+
+			rows.forEach(row => {
+				const text = row.innerText.toLowerCase();
+				row.style.display = text.includes(keyword) ? "" : "none";
+			});
+		}
+
+		function clearStudentSearch() {
+			document.getElementById("studentSearchInput").value = "";
+			filterStudentTable();
+		}
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>講師情報変更</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<div class="container" style="max-width: 760px;">
+		<a id="backLink" href="#" class="btn btn-back">
+			◀ 講師詳細に戻る
+		</a>
+
+		<div class="card">
+			<div class="card-header">
+				<span class="card-title">講師情報の変更 (入力)</span>
+			</div>
+
+			<form id="teacherForm" onsubmit="return submitForm(event);">
+
+				<div id="errorBox" style="color:red; margin-bottom:1rem; display:none;"></div>
+
+				<div class="form-group">
+					<label>教室 (必須)</label>
+					<select class="form-control" name="classroomId" required>
+						<option value="">選択してください</option>
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label>講師氏名 (必須)</label>
+					<input type="text" class="form-control" name="teacherName" required>
+				</div>
+
+				<div class="form-group">
+					<label>講師カナ</label>
+					<input type="text" class="form-control" name="teacherKana">
+				</div>
+
+				<div class="form-group">
+					<label>電話番号</label>
+					<input type="text" class="form-control" name="tel">
+				</div>
+
+				<div class="form-group">
+					<label>メールアドレス</label>
+					<input type="text" class="form-control" name="email">
+				</div>
+
+				<div class="form-group">
+					<label>住所</label>
+					<input type="text" class="form-control" name="address">
+				</div>
+
+				<div class="form-group">
+					<label>勤務開始日</label>
+					<input type="date" class="form-control" name="hireDate">
+				</div>
+
+				<div class="form-group">
+					<label>担当可能科目</label>
+					<div id="subjectArea"></div>
+				</div>
+
+				<div class="form-group">
+					<label>通常勤務可能コマ (必須)</label>
+					<div id="normal-schedule-slot-select-area"></div>
+				</div>
+
+				<div class="form-group">
+					<label>イベント講習 勤務可能コマ (任意)</label>
+					<div id="event-schedule-slot-select-area"></div>
+				</div>
+
+				<div class="form-group">
+					<label>勤務希望要件</label>
+					<input type="text" class="form-control" name="workPreference" placeholder="補足があれば入力">
+				</div>
+
+				<div class="form-group">
+					<label>備考</label>
+					<input type="text" class="form-control" name="remark" placeholder="備考">
+				</div>
+
+				<div class="form-group">
+					<label>パスワード変更</label>
+					<input type="password" class="form-control" name="newPassword" placeholder="変更する場合のみ8文字以上で入力" minlength="8">
+					<small style="color:#64748b;">変更しない場合は空欄のままにしてください。</small>
+				</div>
+
+				<div class="form-group">
+					<label>確認用パスワード</label>
+					<input type="password" class="form-control" name="confirmPassword" placeholder="パスワード変更時のみ入力" minlength="8">
+				</div>
+
+				<div style="margin-top:2rem; display:flex; gap:10px;">
+					<button type="submit" class="btn btn-primary" style="flex:1;">
+						確認画面へ進む ➔
+					</button>
+
+					<a id="cancelLink" href="#" class="btn" style="background:#e2e8f0; color:#475569;">
+						キャンセル
+					</a>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		let SUBJECTS = [], NORMAL_SLOTS = [], EVENT_SLOTS = [], TEACHER_ID = null;
+
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+
+			TEACHER_ID = Number(new URLSearchParams(location.search).get("teacherId"));
+			const view = TeamC.teacherView(TEACHER_ID);
+			if (!view || !view.teacher) {
+				document.querySelector(".container").innerHTML =
+					'<p>該当する講師が見つかりませんでした。</p>' +
+					'<a href="./teachers.html" class="btn btn-secondary">◀ 講師一覧に戻る</a>';
+				return;
+			}
+			const t = view.teacher;
+
+			document.getElementById("backLink").href = "./teacher_detail.html?teacherId=" + TEACHER_ID;
+			document.getElementById("cancelLink").href = "./teacher_detail.html?teacherId=" + TEACHER_ID;
+
+			SUBJECTS = TeamC.subjects();
+			NORMAL_SLOTS = TeamC.scheduleSlots().filter((x) => x.isActive && x.slotType === "通常講習");
+			EVENT_SLOTS = TeamC.scheduleSlots().filter((x) => x.isActive && x.slotType === "イベント講習");
+
+			const sel = document.querySelector('select[name="classroomId"]');
+			TeamC.classrooms()
+				.filter((c) => c.classroomId >= 1 && c.classroomId <= 4)
+				.forEach((c) => {
+					const o = document.createElement("option");
+					o.value = c.classroomId; o.textContent = c.roomName;
+					sel.appendChild(o);
+				});
+
+			// 現在値 or 復元値
+			const p = TeamC.getPending("teacher_edit");
+			const restore = new URLSearchParams(location.search).get("restore") === "1" && p && p.id === TEACHER_ID;
+
+			const f = document.getElementById("teacherForm");
+			let checkedSubjectIds, normalIds, eventIds, newPassword;
+			if (restore) {
+				const d = p.patch || {};
+				f.classroomId.value = d.classroomId || "";
+				f.teacherName.value = d.teacherName || "";
+				f.teacherKana.value = d.teacherKana || "";
+				f.tel.value = d.tel || "";
+				f.email.value = d.email || "";
+				f.address.value = d.address || "";
+				f.hireDate.value = d.hireDate || "";
+				f.workPreference.value = d.workPreference || "";
+				f.remark.value = d.remark || "";
+				newPassword = p.newPassword || "";
+				checkedSubjectIds = p.subjectIds || [];
+				normalIds = p.normalSlotIds || [];
+				eventIds = p.eventSlotIds || [];
+			} else {
+				f.classroomId.value = t.classroomId || "";
+				f.teacherName.value = t.teacherName || "";
+				f.teacherKana.value = t.teacherKana || "";
+				f.tel.value = t.tel || "";
+				f.email.value = t.email || "";
+				f.address.value = t.address || "";
+				f.hireDate.value = t.hireDate ? String(t.hireDate).slice(0, 10) : "";
+				f.workPreference.value = t.workPreference || "";
+				f.remark.value = t.remark || "";
+				newPassword = "";
+				checkedSubjectIds = view.subjects.map((su) => su.subjectId);
+				const shifts = TeamC.teacherShifts().filter((sh) => sh.teacherId === TEACHER_ID);
+				normalIds = shifts.filter((sh) => { const sl = TeamC.slot(sh.scheduleSlotId); return sl && sl.slotType === "通常講習"; })
+					.map((sh) => sh.scheduleSlotId);
+				eventIds = shifts.filter((sh) => { const sl = TeamC.slot(sh.scheduleSlotId); return sl && sl.slotType === "イベント講習"; })
+					.map((sh) => sh.scheduleSlotId);
+			}
+			if (newPassword) { f.newPassword.value = newPassword; f.confirmPassword.value = newPassword; }
+
+			// 担当科目チェックボックス
+			const subjArea = document.getElementById("subjectArea");
+			if (!SUBJECTS.length) {
+				subjArea.innerHTML = '<div class="form-text-static">科目が登録されていません</div>';
+			} else {
+				subjArea.innerHTML = SUBJECTS.map((sub) =>
+					'<label style="display:block; margin-bottom:6px;">' +
+						'<input type="checkbox" name="subjectIds" value="' + sub.subjectId + '"' +
+							(checkedSubjectIds.includes(sub.subjectId) ? " checked" : "") + "> " +
+						'<span>' + TeamC.esc(sub.subjectName) + "</span>" +
+					"</label>"
+				).join("");
+			}
+
+			buildSlotArea("normal-schedule-slot-select-area", "normal-schedule-slot-select", NORMAL_SLOTS, normalIds, true);
+			buildSlotArea("event-schedule-slot-select-area", "event-schedule-slot-select", EVENT_SLOTS, eventIds, false);
+		});
+
+		function slotLabel(slot) {
+			return slot.dayOfWeek + " " + slot.slotName + " " +
+				TeamC.fmtTime(slot.startTime) + "〜" + TeamC.fmtTime(slot.endTime);
+		}
+
+		function makeSlotSelect(className, slots, required) {
+			const sel = document.createElement("select");
+			sel.className = "form-control " + className;
+			sel.name = className === "normal-schedule-slot-select" ? "normalScheduleSlotIds" : "eventScheduleSlotIds";
+			if (required) sel.required = true;
+			sel.onchange = function () { handleSlotChange(sel); };
+			let html = '<option value="">選択してください</option>';
+			slots.forEach((slot) => {
+				html += '<option value="' + slot.scheduleSlotId + '">' + TeamC.esc(slotLabel(slot)) + "</option>";
+			});
+			sel.innerHTML = html;
+			return sel;
+		}
+
+		function buildSlotArea(areaId, className, slots, selectedIds, required) {
+			const area = document.getElementById(areaId);
+			if (!slots.length) {
+				area.innerHTML = '<div class="form-text-static">' +
+					(className.indexOf("normal") === 0 ? "通常講習" : "イベント講習") + "のコマが登録されていません</div>";
+				area.dataset.empty = "1";
+				return;
+			}
+			area.innerHTML = "";
+			(selectedIds || []).forEach((id, i) => {
+				const sel = makeSlotSelect(className, slots, required && i === 0);
+				if (i > 0) sel.style.marginTop = "8px";
+				sel.value = id;
+				area.appendChild(sel);
+			});
+			// 末尾の空セレクト
+			const trailing = makeSlotSelect(className, slots, required && !(selectedIds && selectedIds.length));
+			if (selectedIds && selectedIds.length) trailing.style.marginTop = "8px";
+			area.appendChild(trailing);
+			updateDisabledOptions(area, className);
+		}
+
+		function handleSlotChange(changed) {
+			const area = changed.parentElement;
+			const className = changed.classList.contains("normal-schedule-slot-select")
+				? "normal-schedule-slot-select" : "event-schedule-slot-select";
+			updateDisabledOptions(area, className);
+			const selects = area.querySelectorAll("." + className);
+			const last = selects[selects.length - 1];
+			if (last.value !== "") {
+				const slots = className === "normal-schedule-slot-select" ? NORMAL_SLOTS : EVENT_SLOTS;
+				const ns = makeSlotSelect(className, slots, false);
+				ns.style.marginTop = "8px";
+				area.appendChild(ns);
+				updateDisabledOptions(area, className);
+			}
+		}
+
+		function updateDisabledOptions(area, className) {
+			const selects = area.querySelectorAll("." + className);
+			const selectedValues = Array.from(selects).map((x) => x.value).filter((v) => v !== "");
+			selects.forEach((select) => {
+				const currentValue = select.value;
+				Array.from(select.options).forEach((option) => {
+					if (option.value === "") { option.disabled = false; return; }
+					option.disabled = selectedValues.includes(option.value) && option.value !== currentValue;
+				});
+			});
+		}
+
+		function collectSlotIds(areaId) {
+			const area = document.getElementById(areaId);
+			if (area.dataset.empty === "1") return [];
+			return Array.from(area.querySelectorAll("select"))
+				.map((s) => s.value).filter((v) => v !== "").map(Number);
+		}
+
+		function submitForm(e) {
+			e.preventDefault();
+			const f = e.target;
+			const err = document.getElementById("errorBox");
+			err.style.display = "none";
+
+			const patch = {
+				classroomId: Number(f.classroomId.value),
+				teacherName: f.teacherName.value.trim(),
+				teacherKana: f.teacherKana.value.trim(),
+				tel: f.tel.value.trim(),
+				email: f.email.value.trim(),
+				address: f.address.value.trim(),
+				hireDate: f.hireDate.value,
+				workPreference: f.workPreference.value.trim(),
+				remark: f.remark.value.trim(),
+			};
+			const newPassword = f.newPassword.value;
+			const confirmPassword = f.confirmPassword.value;
+			const subjectIds = Array.from(f.querySelectorAll('input[name="subjectIds"]:checked')).map((x) => Number(x.value));
+			const normalSlotIds = collectSlotIds("normal-schedule-slot-select-area");
+			const eventSlotIds = collectSlotIds("event-schedule-slot-select-area");
+
+			if (newPassword && newPassword !== confirmPassword) {
+				err.textContent = "パスワードと確認用パスワードが一致しません。";
+				err.style.display = ""; return false;
+			}
+			if (!subjectIds.length) {
+				err.textContent = "担当可能科目を1つ以上選択してください。";
+				err.style.display = ""; return false;
+			}
+			if (!normalSlotIds.length) {
+				err.textContent = "通常勤務可能コマを1つ以上選択してください。";
+				err.style.display = ""; return false;
+			}
+
+			const classroom = TeamC.classroom(patch.classroomId);
+			const labelOf = (ids) => ids.map((id) => { const sl = TeamC.slot(id); return sl ? slotLabel(sl) : ""; });
+
+			TeamC.setPending("teacher_edit", {
+				id: TEACHER_ID,
+				patch: patch,
+				newPassword: newPassword,
+				subjectIds: subjectIds,
+				normalSlotIds: normalSlotIds,
+				eventSlotIds: eventSlotIds,
+				classroomName: classroom ? classroom.roomName : "",
+				subjectNames: subjectIds.map((id) => { const su = TeamC.subject(id); return su ? su.subjectName : ""; }),
+				normalSlotLabels: labelOf(normalSlotIds),
+				eventSlotLabels: labelOf(eventSlotIds),
+			});
+			location.href = "./teacher_edit_confirm.html";
+			return false;
+		}
+	</script>
+</body>
+
+</html>

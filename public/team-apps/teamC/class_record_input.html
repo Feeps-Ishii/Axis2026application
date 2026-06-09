@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>授業記録新規登録 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+
+	<div id="appHeader"></div>
+
+	<main class="record-new-page">
+
+		<section class="record-new-hero">
+
+			<div class="record-new-hero-main">
+				<p class="record-new-label">Class Record Entry</p>
+
+				<h1>授業記録新規登録</h1>
+
+				<p class="record-new-lead">
+					授業内容・学習状況・次回への引き継ぎ内容を入力してください。
+				</p>
+			</div>
+
+			<div class="record-new-hero-actions">
+				<a id="backToList" class="btn btn-secondary">
+					◀ 授業記録一覧に戻る
+				</a>
+			</div>
+
+		</section>
+
+		<section class="record-new-card">
+
+			<div class="record-new-card-header">
+				<div>
+					<p class="record-new-label">Input Form</p>
+					<h2>授業記録新規登録（入力）</h2>
+				</div>
+
+				<div class="record-new-badge">
+					入力画面
+				</div>
+			</div>
+
+			<form id="recordForm">
+
+				<section class="record-new-section">
+					<div class="record-new-section-title">
+						① 授業の事実
+					</div>
+
+					<div class="record-new-grid record-new-grid-3">
+
+						<div class="record-new-field">
+							<label>授業日 <span class="required-badge">必須</span></label>
+							<input type="date" class="form-control" name="classDate" required>
+						</div>
+
+						<div class="record-new-field">
+							<label>教室 <span class="required-badge">必須</span></label>
+							<select class="form-control" name="classroomId" required>
+								<option value="">選択してください</option>
+							</select>
+						</div>
+
+						<div class="record-new-field">
+							<label>コマ <span class="required-badge">必須</span></label>
+							<select class="form-control" name="scheduleSlotId" required>
+								<option value="">選択してください</option>
+							</select>
+						</div>
+
+					</div>
+
+					<div class="record-new-grid record-new-grid-3 record-new-grid-margin">
+
+						<div class="record-new-field">
+							<label>講師 <span class="required-badge">必須</span></label>
+							<select class="form-control" name="teacherId" required>
+								<option value="">選択してください</option>
+							</select>
+						</div>
+
+						<div class="record-new-field">
+							<label>生徒名</label>
+							<input type="text" class="form-control" id="studentName" readonly>
+						</div>
+
+						<div class="record-new-field">
+							<label>科目 <span class="required-badge">必須</span></label>
+							<select class="form-control" name="subjectId" required>
+								<option value="">選択してください</option>
+							</select>
+						</div>
+
+					</div>
+
+					<div class="record-new-grid record-new-grid-2 record-new-grid-margin">
+
+						<div class="record-new-field">
+							<label>単元</label>
+							<input type="text" class="form-control" name="unit" placeholder="例：一次関数">
+						</div>
+
+						<div class="record-new-field">
+							<label>使用教材ページ</label>
+							<input type="text" class="form-control" name="materialPages" placeholder="例：P.32-P.35">
+						</div>
+
+						<div class="record-new-field">
+							<label>演習問題番号</label>
+							<input type="text" class="form-control" name="exerciseNumbers" placeholder="例：問1〜問8">
+						</div>
+
+						<div class="record-new-field">
+							<label>正答数</label>
+							<input type="number" class="form-control" name="correctCount" min="0" placeholder="例：6">
+						</div>
+
+					</div>
+				</section>
+
+				<section class="record-new-section">
+					<div class="record-new-section-title">
+						② 学習状況
+					</div>
+
+					<div class="record-new-grid record-new-grid-2">
+
+						<div class="record-new-field">
+							<label>理解度</label>
+							<select class="form-control" name="understandingLevel">
+								<option value="1">1：かなり不安</option>
+								<option value="2">2：やや不安</option>
+								<option value="3" selected>3：普通</option>
+								<option value="4">4：おおむね理解</option>
+								<option value="5">5：十分理解</option>
+							</select>
+						</div>
+
+						<div class="record-new-field">
+							<label>集中度</label>
+							<select class="form-control" name="concentrationLevel">
+								<option value="1">低い</option>
+								<option value="2" selected>普通</option>
+								<option value="3">高い</option>
+							</select>
+						</div>
+
+						<div class="record-new-field record-new-wide">
+							<label>質問内容</label>
+							<textarea class="form-control" name="questionContent" rows="4"
+									  placeholder="授業中に出た質問やつまずいた内容を入力してください"></textarea>
+						</div>
+
+					</div>
+				</section>
+
+				<section class="record-new-section">
+					<div class="record-new-section-title">
+						③ コミュニケーション・次回への引き継ぎ
+					</div>
+
+					<div class="record-new-grid record-new-grid-1">
+
+						<div class="record-new-field record-new-wide">
+							<label>生徒の様子</label>
+							<textarea class="form-control" name="studentCondition" rows="4"
+									  placeholder="集中度、表情、理解の様子などを入力してください"></textarea>
+						</div>
+
+						<div class="record-new-field record-new-wide">
+							<label>励ましコメント</label>
+							<textarea class="form-control" name="encouragementComment" rows="4"
+									  placeholder="生徒・保護者に向けた前向きなコメントを入力してください"></textarea>
+						</div>
+
+						<div class="record-new-field record-new-wide">
+							<label>次回宿題</label>
+							<textarea class="form-control" name="nextHomework" rows="4"
+									  placeholder="次回までに取り組む宿題を入力してください"></textarea>
+						</div>
+
+					</div>
+				</section>
+
+				<div class="record-new-actions">
+					<button type="submit" class="btn btn-primary record-new-submit-btn">
+						確認画面へ進む ➔
+					</button>
+
+					<a id="cancelBtn" class="btn btn-secondary record-new-cancel-btn">
+						キャンセル
+					</a>
+				</div>
+
+			</form>
+
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			const E = TeamC.esc;
+
+			const params = new URLSearchParams(location.search);
+			const studentId = Number(params.get("studentId"));
+			const restore = params.get("restore") === "1";
+
+			const student = TeamC.student(studentId);
+			if (!student) { location.href = "./login.html"; return; }
+
+			// 教室長/講師のみ作成可
+			if (!TeamC.isStaff(me)) {
+				location.href = "./student_class_records.html?studentId=" + studentId;
+				return;
+			}
+
+			const listHref = "./student_class_records.html?studentId=" + studentId;
+			document.getElementById("backToList").href = listHref;
+			document.getElementById("cancelBtn").href = listHref;
+			document.getElementById("studentName").value = student.studentName;
+
+			const form = document.getElementById("recordForm");
+
+			// セレクト充填
+			const fill = (name, items, idKey, labelFn) => {
+				const sel = form.elements[name];
+				items.forEach((it) => {
+					const o = document.createElement("option");
+					o.value = it[idKey];
+					o.textContent = labelFn(it);
+					sel.appendChild(o);
+				});
+			};
+			fill("classroomId", TeamC.classrooms(), "classroomId", (c) => c.roomName);
+			fill("scheduleSlotId", TeamC.scheduleSlots(), "scheduleSlotId", (s) => s.slotName);
+			fill("teacherId", TeamC.teachers(), "teacherId", (t) => t.teacherName);
+			fill("subjectId", TeamC.subjects(), "subjectId", (s) => s.subjectName);
+
+			// 初期値（restore時はpending.data）
+			let init = { classDate: TeamC.today() };
+			if (restore) {
+				const p = TeamC.getPending("record");
+				if (p && p.mode === "create" && Number(p.studentId) === studentId && p.data) {
+					init = p.data;
+				}
+			}
+			Object.keys(init).forEach((k) => {
+				if (form.elements[k] != null && init[k] != null) {
+					form.elements[k].value = init[k];
+				}
+			});
+
+			form.addEventListener("submit", (e) => {
+				e.preventDefault();
+				const data = {
+					studentId: studentId,
+					classDate: form.elements.classDate.value || null,
+					classroomId: Number(form.elements.classroomId.value) || null,
+					scheduleSlotId: Number(form.elements.scheduleSlotId.value) || null,
+					teacherId: Number(form.elements.teacherId.value) || null,
+					subjectId: Number(form.elements.subjectId.value) || null,
+					unit: form.elements.unit.value.trim(),
+					materialPages: form.elements.materialPages.value.trim(),
+					exerciseNumbers: form.elements.exerciseNumbers.value.trim(),
+					correctCount: form.elements.correctCount.value === "" ? null : Number(form.elements.correctCount.value),
+					understandingLevel: Number(form.elements.understandingLevel.value),
+					concentrationLevel: Number(form.elements.concentrationLevel.value),
+					questionContent: form.elements.questionContent.value.trim(),
+					studentCondition: form.elements.studentCondition.value.trim(),
+					encouragementComment: form.elements.encouragementComment.value.trim(),
+					nextHomework: form.elements.nextHomework.value.trim(),
+				};
+				TeamC.setPending("record", { mode: "create", studentId: studentId, data: data });
+				location.href = "./class_record_confirm.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

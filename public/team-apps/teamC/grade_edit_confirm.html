@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>成績変更確認</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+	<div id="appHeader"></div>
+
+	<main class="grade-edit-confirm-page">
+		<section class="grade-edit-confirm-hero">
+			<div class="grade-edit-confirm-hero-main">
+				<p class="grade-edit-confirm-label">CONFIRM GRADE EDIT</p>
+				<h1>成績変更確認</h1>
+				<p class="grade-edit-confirm-lead">変更内容を確認し、問題がなければ成績情報の変更を確定してください。</p>
+			</div>
+			<div class="grade-edit-confirm-hero-actions">
+				<a id="backToFormTop" href="#" class="btn btn-back">◀ 入力画面に戻る</a>
+			</div>
+		</section>
+
+		<section class="grade-edit-confirm-card">
+			<div class="grade-edit-confirm-card-header">
+				<div><p class="grade-edit-confirm-label">CONFIRM DETAILS</p><h2>変更内容の確認</h2></div>
+			</div>
+			<p class="grade-edit-confirm-note">以下の内容で成績情報を変更します。科目・テスト名・点数などに間違いがないか確認してください。</p>
+
+			<div class="grade-edit-confirm-section">
+				<h3>① 成績情報</h3>
+				<div class="grade-edit-confirm-grid grade-edit-confirm-grid-2">
+					<div class="grade-edit-confirm-item"><div class="grade-edit-confirm-item-label">科目</div><div class="grade-subject-pill" id="vSubject"></div></div>
+					<div class="grade-edit-confirm-item"><div class="grade-edit-confirm-item-label">テスト種別</div><div class="grade-type-badge" id="vTestType"></div></div>
+				</div>
+				<div class="grade-edit-confirm-grid grade-edit-confirm-grid-2">
+					<div class="grade-edit-confirm-item"><div class="grade-edit-confirm-item-label">テスト名</div><div class="grade-edit-confirm-main-text" id="vTestName"></div></div>
+					<div class="grade-edit-confirm-item"><div class="grade-edit-confirm-item-label">テスト日</div><div class="grade-date-badge" id="vTestDate"></div></div>
+				</div>
+				<div class="grade-edit-confirm-grid grade-edit-confirm-grid-4">
+					<div class="grade-edit-confirm-item"><div class="grade-edit-confirm-item-label">点数</div><div class="grade-score-badge" id="vScore"></div></div>
+					<div class="grade-edit-confirm-item"><div class="grade-edit-confirm-item-label">満点</div><div class="grade-edit-confirm-value-badge" id="vMaxScore"></div></div>
+					<div class="grade-edit-confirm-item"><div class="grade-edit-confirm-item-label">偏差値</div><div class="grade-edit-confirm-value-badge" id="vDeviation"></div></div>
+					<div class="grade-edit-confirm-item"><div class="grade-edit-confirm-item-label">順位</div><div class="grade-edit-confirm-value-badge" id="vRank"></div></div>
+				</div>
+				<div class="grade-edit-confirm-memo"><div class="grade-edit-confirm-memo-label">コメント</div><p id="vComment"></p></div>
+			</div>
+
+			<div class="grade-edit-confirm-section" id="interviewSection">
+				<h3>② 保護者面談・次期提案用情報</h3>
+				<div class="grade-edit-confirm-grid grade-edit-confirm-grid-2">
+					<div class="grade-edit-confirm-memo"><div class="grade-edit-confirm-memo-label">次期目標</div><p id="vNextGoal"></p></div>
+					<div class="grade-edit-confirm-memo"><div class="grade-edit-confirm-memo-label">提案内容</div><p id="vProposal"></p></div>
+				</div>
+				<div class="grade-edit-confirm-memo"><div class="grade-edit-confirm-memo-label">各講師の所見</div><p id="vTeacherOpinion"></p></div>
+				<div class="grade-edit-confirm-grid grade-edit-confirm-grid-2">
+					<div class="grade-edit-confirm-item"><div class="grade-edit-confirm-item-label">出席率</div><div class="grade-edit-confirm-value-badge" id="vAttendance"></div></div>
+					<div class="grade-edit-confirm-item"><div class="grade-edit-confirm-item-label">宿題提出率</div><div class="grade-edit-confirm-value-badge" id="vHomework"></div></div>
+				</div>
+			</div>
+
+			<div class="grade-edit-confirm-actions">
+				<a id="backToForm" href="#" class="btn btn-secondary grade-edit-confirm-back-btn">⬅ 修正する</a>
+				<button type="button" id="submitBtn" class="btn btn-primary grade-edit-confirm-submit-btn">変更を確定する</button>
+			</div>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			// 生徒は変更不可
+			if (TeamC.isStudent(me)) { location.href = "./student_grades.html?studentId=" + TeamC.loginStudentId(); return; }
+
+			const pending = TeamC.getPending("grade_edit");
+			if (!pending || !pending.patch || pending.id == null) { location.href = "./student_grades.html"; return; }
+			const studentId = pending.studentId;
+			const gradeId = pending.id;
+			const d = pending.patch;
+
+			const subjectNameMap = {};
+			TeamC.subjects().forEach(sub => { subjectNameMap[sub.subjectId] = sub.subjectName; });
+
+			const backHref = "./grade_edit.html?studentId=" + studentId + "&gradeId=" + gradeId + "&restore=1";
+			document.getElementById("backToFormTop").href = backHref;
+			document.getElementById("backToForm").href = backHref;
+
+			const set = (id, v) => { document.getElementById(id).textContent = v; };
+			set("vSubject", subjectNameMap[d.subjectId] || "");
+			set("vTestType", d.testType || "");
+			set("vTestName", d.testName || "");
+			set("vTestDate", d.testDate || "");
+			set("vScore", (d.score != null ? d.score : "") + "点");
+			set("vMaxScore", d.maxScore != null ? d.maxScore + "点" : "-");
+			set("vDeviation", d.deviationValue != null ? d.deviationValue : "-");
+			set("vRank", d.testRank != null ? d.testRank + "位" : "-");
+			set("vComment", d.comment ? d.comment : "コメントはありません。");
+			set("vNextGoal", d.nextGoal ? d.nextGoal : "未入力");
+			set("vProposal", d.proposalContent ? d.proposalContent : "未入力");
+			set("vTeacherOpinion", d.teacherOpinion ? d.teacherOpinion : "未入力");
+			set("vAttendance", d.attendanceRate != null ? d.attendanceRate + "%" : "-");
+			set("vHomework", d.homeworkSubmissionRate != null ? d.homeworkSubmissionRate + "%" : "-");
+
+			document.getElementById("submitBtn").addEventListener("click", () => {
+				TeamC.updateGrade(gradeId, d);
+				TeamC.clearPending("grade_edit");
+				location.href = "./grade_edit_complete.html?studentId=" + studentId;
+			});
+		});
+	</script>
+</body>
+
+</html>

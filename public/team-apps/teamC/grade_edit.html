@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>成績詳細・変更</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+	<div id="appHeader"></div>
+
+	<main class="grade-edit-page">
+		<section class="grade-edit-hero">
+			<div class="grade-edit-hero-main">
+				<p class="grade-edit-label" id="heroLabel">EDIT GRADE</p>
+				<h1 id="heroTitle">成績詳細・変更</h1>
+				<p class="grade-edit-lead" id="heroLead">登録済みの成績情報を確認し、必要に応じて内容を変更できます。</p>
+			</div>
+			<div class="grade-edit-hero-actions">
+				<a id="backToList" href="#" class="btn btn-back">◀ 成績管理に戻る</a>
+			</div>
+		</section>
+
+		<section class="grade-edit-card">
+			<div class="grade-edit-card-header">
+				<div><p class="grade-edit-label" id="cardLabel">INPUT FORM</p><h2 id="cardTitle">成績詳細・変更（入力）</h2></div>
+			</div>
+			<p class="grade-edit-note" id="cardNote">成績情報を変更する場合は、内容を修正して確認画面へ進んでください。</p>
+
+			<form id="form" class="grade-edit-form">
+				<div class="grade-edit-section">
+					<h3>① 成績情報</h3>
+					<div class="grade-edit-grid grade-edit-grid-2">
+						<div class="grade-edit-field">
+							<label>科目 <span class="required-badge staff-only">必須</span></label>
+							<select class="form-control" name="subjectId" required>
+								<option value="1">国語</option>
+								<option value="2">数学</option>
+								<option value="3">英語</option>
+								<option value="4">理科</option>
+								<option value="5">社会</option>
+							</select>
+						</div>
+						<div class="grade-edit-field">
+							<label>テスト種別 <span class="required-badge staff-only">必須</span></label>
+							<select class="form-control" name="testType" required>
+								<option value="定期テスト">定期テスト</option>
+								<option value="模試">模試</option>
+								<option value="塾内テスト">塾内テスト</option>
+							</select>
+						</div>
+					</div>
+					<div class="grade-edit-grid grade-edit-grid-2">
+						<div class="grade-edit-field">
+							<label>テスト名 <span class="required-badge staff-only">必須</span></label>
+							<input type="text" class="form-control" name="testName" placeholder="例：1学期期末テスト" required>
+						</div>
+						<div class="grade-edit-field">
+							<label>テスト日 <span class="required-badge staff-only">必須</span></label>
+							<input type="date" class="form-control" name="testDate" required>
+						</div>
+					</div>
+					<div class="grade-edit-grid grade-edit-grid-3">
+						<div class="grade-edit-field">
+							<label>点数 <span class="required-badge staff-only">必須</span></label>
+							<input type="number" class="form-control" name="score" min="0" max="100" placeholder="0〜100" required>
+						</div>
+						<div class="grade-edit-field">
+							<label>偏差値</label>
+							<input type="number" class="form-control" name="deviationValue" min="0" max="100" placeholder="例：55">
+						</div>
+						<div class="grade-edit-field">
+							<label>順位</label>
+							<input type="number" class="form-control" name="testRank" min="1" placeholder="例：10">
+						</div>
+					</div>
+					<div class="grade-edit-field">
+						<label>コメント</label>
+						<textarea class="form-control grade-edit-textarea-small" name="comment" rows="3" placeholder="例：前回より点数が上がっている。計算ミスの見直しを継続する。"></textarea>
+					</div>
+				</div>
+
+				<div class="grade-edit-section" id="interviewSection">
+					<h3>② 保護者面談・次期提案用情報</h3>
+					<div class="grade-edit-grid grade-edit-grid-2">
+						<div class="grade-edit-field">
+							<label>次期目標</label>
+							<textarea class="form-control grade-edit-textarea-small" name="nextGoal" rows="3" placeholder="例：次回テストで85点以上を目指す"></textarea>
+						</div>
+						<div class="grade-edit-field">
+							<label>提案内容</label>
+							<textarea class="form-control grade-edit-textarea-small" name="proposalContent" rows="3" placeholder="例：苦手単元の復習時間を増やす"></textarea>
+						</div>
+					</div>
+					<div class="grade-edit-field">
+						<label>各講師の所見</label>
+						<textarea class="form-control grade-edit-textarea" name="teacherOpinion" rows="4" placeholder="例：授業態度は良好。応用問題への取り組みを増やしたい。"></textarea>
+					</div>
+					<div class="grade-edit-grid grade-edit-grid-2">
+						<div class="grade-edit-field">
+							<label>出席率</label>
+							<input type="number" class="form-control" name="attendanceRate" min="0" max="100" placeholder="0〜100">
+						</div>
+						<div class="grade-edit-field">
+							<label>宿題提出率</label>
+							<input type="number" class="form-control" name="homeworkSubmissionRate" min="0" max="100" placeholder="0〜100">
+						</div>
+					</div>
+				</div>
+
+				<div class="grade-edit-actions">
+					<a id="cancelBtn" href="#" class="btn btn-secondary grade-edit-cancel-btn">キャンセル</a>
+					<button type="submit" id="submitBtn" class="btn btn-primary grade-edit-submit-btn">確認画面へ進む ➔</button>
+				</div>
+			</form>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const me = s.user;
+			const isStudent = TeamC.isStudent(me);
+
+			const params = new URLSearchParams(location.search);
+			let studentId = params.get("studentId");
+			if (isStudent) studentId = TeamC.loginStudentId();
+			studentId = studentId != null ? Number(studentId) : null;
+			const gradeId = Number(params.get("gradeId"));
+
+			document.getElementById("backToList").href = "./student_grades.html?studentId=" + studentId;
+			document.getElementById("cancelBtn").href = "./student_grades.html?studentId=" + studentId;
+
+			const grade = TeamC.grade(gradeId);
+			if (!grade) { location.href = "./student_grades.html?studentId=" + studentId; return; }
+
+			const f = document.getElementById("form");
+			const restore = params.get("restore") === "1";
+			let src = grade;
+			if (restore) {
+				const pending = TeamC.getPending("grade_edit");
+				if (pending && pending.id === gradeId && pending.patch) {
+					src = Object.assign({}, grade, pending.patch);
+				}
+			} else {
+				TeamC.clearPending("grade_edit");
+			}
+
+			f.subjectId.value = src.subjectId != null ? src.subjectId : "";
+			f.testType.value = src.testType != null ? src.testType : "";
+			f.testName.value = src.testName != null ? src.testName : "";
+			f.testDate.value = src.testDate ? String(src.testDate).slice(0, 10) : "";
+			f.score.value = src.score != null ? src.score : "";
+			f.deviationValue.value = src.deviationValue != null ? src.deviationValue : "";
+			f.testRank.value = src.testRank != null ? src.testRank : "";
+			f.comment.value = src.comment != null ? src.comment : "";
+			f.nextGoal.value = src.nextGoal != null ? src.nextGoal : "";
+			f.proposalContent.value = src.proposalContent != null ? src.proposalContent : "";
+			f.teacherOpinion.value = src.teacherOpinion != null ? src.teacherOpinion : "";
+			f.attendanceRate.value = src.attendanceRate != null ? src.attendanceRate : "";
+			f.homeworkSubmissionRate.value = src.homeworkSubmissionRate != null ? src.homeworkSubmissionRate : "";
+
+			if (isStudent) {
+				// 生徒は詳細閲覧のみ：面談用情報非表示、入力ロック、送信ボタン非表示
+				document.getElementById("heroLabel").textContent = "GRADE DETAIL";
+				document.getElementById("heroTitle").textContent = "成績詳細";
+				document.getElementById("heroLead").textContent = "登録済みの成績情報を確認できます。";
+				document.getElementById("cardLabel").textContent = "DETAIL";
+				document.getElementById("cardTitle").textContent = "成績詳細";
+				document.getElementById("cardNote").textContent = "成績情報を確認できます。変更はできません。";
+				const sec = document.getElementById("interviewSection");
+				if (sec) sec.style.display = "none";
+				document.querySelectorAll(".staff-only").forEach(el => el.style.display = "none");
+				["subjectId", "testType"].forEach(k => f[k].disabled = true);
+				["testName", "testDate", "score", "deviationValue", "testRank", "comment"].forEach(k => f[k].readOnly = true);
+				document.getElementById("submitBtn").style.display = "none";
+				document.getElementById("cancelBtn").textContent = "戻る";
+				return;
+			}
+
+			f.addEventListener("submit", e => {
+				e.preventDefault();
+				const numOrNull = v => (v === "" || v == null ? null : Number(v));
+				const patch = {
+					subjectId: Number(f.subjectId.value),
+					testType: f.testType.value,
+					testName: f.testName.value,
+					testDate: f.testDate.value,
+					score: Number(f.score.value),
+					maxScore: 100,
+					deviationValue: numOrNull(f.deviationValue.value),
+					testRank: numOrNull(f.testRank.value),
+					comment: f.comment.value,
+					nextGoal: f.nextGoal.value,
+					proposalContent: f.proposalContent.value,
+					teacherOpinion: f.teacherOpinion.value,
+					attendanceRate: numOrNull(f.attendanceRate.value),
+					homeworkSubmissionRate: numOrNull(f.homeworkSubmissionRate.value)
+				};
+				TeamC.setPending("grade_edit", { studentId: studentId, id: gradeId, patch: patch });
+				location.href = "./grade_edit_confirm.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

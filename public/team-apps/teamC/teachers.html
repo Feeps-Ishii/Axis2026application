@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>講師一覧 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<main class="teacher-list-page">
+
+		<section class="teacher-list-hero">
+			<div>
+				<p class="teacher-list-label">Teacher Management</p>
+				<h1>講師一覧</h1>
+				<p class="teacher-list-lead">
+					登録されている講師情報・担当科目・勤務希望要件を確認できます。
+				</p>
+			</div>
+
+			<div class="teacher-list-hero-actions">
+				<a href="./admin_dashboard.html" class="btn btn-secondary">
+					◀ ホームに戻る
+				</a>
+			</div>
+		</section>
+
+		<section class="teacher-table-card teacher-list-combined-card">
+
+			<div class="teacher-section-header teacher-table-header">
+				<div>
+					<p class="teacher-list-label">Teacher List</p>
+					<h2>講師情報</h2>
+				</div>
+
+				<div class="teacher-table-header-actions">
+					<div class="teacher-count-badge">
+						登録件数：
+						<span id="teacherCount">0</span>
+						件
+					</div>
+
+					<a href="./teacher_register.html" class="btn btn-primary">
+						＋ 講師の新規登録
+					</a>
+				</div>
+			</div>
+
+			<div class="teacher-inner-search-area">
+				<div class="teacher-inner-search-title">
+					<span class="teacher-inner-search-icon">🔍</span>
+					<span>講師検索</span>
+				</div>
+
+				<div class="teacher-search-area">
+					<div class="teacher-search-input-wrap">
+						<span class="teacher-search-icon">🔍</span>
+						<input type="text"
+							   id="teacherSearchInput"
+							   class="form-control teacher-search-input"
+							   placeholder="講師ID・講師名・指導可能科目・勤務希望要件などで検索">
+					</div>
+
+					<select id="teacherClassroomSearch" class="form-control teacher-classroom-select">
+						<option value="">全教室</option>
+						<option>本校</option>
+						<option>西口校</option>
+						<option>北口校</option>
+						<option>南校</option>
+					</select>
+
+					<button type="button" class="btn btn-primary teacher-search-btn" onclick="filterTeacherTable()">
+						検索
+					</button>
+
+					<button type="button" class="btn btn-secondary teacher-clear-btn" onclick="clearTeacherSearch()">
+						クリア
+					</button>
+				</div>
+			</div>
+
+			<div class="teacher-table-scroll">
+				<table class="teacher-list-table">
+					<colgroup>
+						<col class="teacher-col-id">
+						<col class="teacher-col-classroom">
+						<col class="teacher-col-name">
+						<col class="teacher-col-subjects">
+						<col class="teacher-col-work">
+						<col class="teacher-col-actions">
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th>講師ID</th>
+							<th>教室</th>
+							<th>講師氏名</th>
+							<th>指導可能科目</th>
+							<th>勤務希望要件</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+
+					<tbody id="teacherTableBody"></tbody>
+				</table>
+			</div>
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+
+			const esc = TeamC.esc;
+			const teachers = TeamC.activeTeachers();
+			const tbody = document.getElementById("teacherTableBody");
+
+			document.getElementById("teacherCount").textContent = teachers.length;
+
+			if (!teachers.length) {
+				tbody.innerHTML =
+					'<tr><td colspan="6" class="teacher-empty-cell">該当する講師が存在しません</td></tr>';
+				return;
+			}
+
+			tbody.innerHTML = teachers.map((teacher) => {
+				const view = TeamC.teacherView(teacher.teacherId);
+				const classroom = view.classroom;
+				const subjects = view.subjects;
+				const avatar = teacher.teacherName && teacher.teacherName.length > 0
+					? teacher.teacherName.charAt(0) : "講";
+
+				const subjectsHtml = subjects.length
+					? '<div class="teacher-subject-list">' +
+						subjects.map((sub) =>
+							'<span class="teacher-subject-badge">' +
+								esc(sub ? sub.subjectName : "未設定") + "</span>"
+						).join("") +
+					  "</div>"
+					: '<span class="teacher-empty-badge">未設定</span>';
+
+				const work = teacher.workPreference != null && teacher.workPreference !== ""
+					? teacher.workPreference : "未設定";
+
+				return (
+					'<tr class="teacher-row">' +
+						'<td><span class="teacher-id-badge">' + esc(teacher.teacherId) + "</span></td>" +
+						'<td><span class="teacher-classroom-badge">' +
+							esc(classroom ? classroom.roomName : "未設定") + "</span></td>" +
+						"<td>" +
+							'<div class="teacher-name-cell">' +
+								'<div class="teacher-avatar">' + esc(avatar) + "</div>" +
+								'<div class="teacher-name-info">' +
+									'<span class="teacher-name">' + esc(teacher.teacherName) + "</span>" +
+									'<span class="teacher-sub-text">講師詳細を確認できます</span>' +
+								"</div>" +
+							"</div>" +
+						"</td>" +
+						"<td>" + subjectsHtml + "</td>" +
+						'<td><div class="teacher-work-box">' + esc(work) + "</div></td>" +
+						'<td class="teacher-actions-cell">' +
+							'<div class="teacher-actions">' +
+								'<a href="./teacher_detail.html?teacherId=' + teacher.teacherId + '" ' +
+									'class="teacher-action-btn teacher-detail-btn">詳細</a>' +
+								'<a href="./teacher_delete_confirm.html?teacherId=' + teacher.teacherId + '" ' +
+									'class="teacher-action-btn teacher-delete-btn">削除</a>' +
+							"</div>" +
+						"</td>" +
+					"</tr>"
+				);
+			}).join("");
+		});
+
+		function filterTeacherTable() {
+			const keyword = document.getElementById("teacherSearchInput").value.toLowerCase();
+			const classroom = document.getElementById("teacherClassroomSearch").value;
+			const rows = document.querySelectorAll("#teacherTableBody .teacher-row");
+
+			rows.forEach(row => {
+				const text = row.innerText.toLowerCase();
+				const classroomCell = row.querySelector(".teacher-classroom-badge");
+				const classroomText = classroomCell ? classroomCell.innerText.trim() : "";
+
+				const keywordMatched = text.includes(keyword);
+				const classroomMatched = classroom === "" || classroomText === classroom;
+
+				row.style.display = keywordMatched && classroomMatched ? "" : "none";
+			});
+		}
+
+		function clearTeacherSearch() {
+			document.getElementById("teacherSearchInput").value = "";
+			document.getElementById("teacherClassroomSearch").value = "";
+			filterTeacherTable();
+		}
+	</script>
+
+</body>
+
+</html>

@@ -30,13 +30,14 @@
     "entry": "login.html"
   },
   {
-    "slug": "team4",
-    "name": "グループ4",
-    "appName": "（アプリ名未定）",
-    "description": "チームの成果物を public/team-apps/team4/ に配置してください。",
-    "category": "未分類",
+    "slug": "teamC",
+    "name": "グループC",
+    "appName": "進学ゼミナール松風（学習塾 管理システム）",
+    "description": "教室長・講師・生徒のログイン、生徒カルテ、授業記録・宿題・成績管理、月/週スケジュールと個別/自習室の予約、お知らせ配信を JSON + localStorage で擬似再現したモックです。",
+    "category": "業務系",
     "accent": "#ea580c",
-    "ready": false
+    "ready": true,
+    "entry": "login.html"
   },
   {
     "slug": "team5",

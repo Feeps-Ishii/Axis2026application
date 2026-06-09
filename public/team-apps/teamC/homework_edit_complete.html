@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>宿題変更完了 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="student-theme">
+	<div id="appHeader"></div>
+
+	<main class="complete-page">
+		<section class="complete-card">
+			<div class="complete-icon">✓</div>
+			<h1 class="complete-title">宿題変更完了 | 進学ゼミナール松風</h1>
+			<p class="complete-message">入力内容の変更が完了しました。</p>
+			<div class="complete-actions">
+				<a id="backLink" class="btn btn-primary">宿題管理へ戻る</a>
+			</div>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const params = new URLSearchParams(location.search);
+			let studentId = Number(params.get("studentId"));
+			if (!studentId && TeamC.isStudent(s.user)) studentId = TeamC.loginStudentId();
+			document.getElementById("backLink").href =
+				studentId ? "./student_homework.html?studentId=" + studentId : "./login.html";
+		});
+	</script>
+
+</body>
+
+</html>

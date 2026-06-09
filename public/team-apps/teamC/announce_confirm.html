@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>お知らせ登録確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<div class="container" style="max-width:760px;">
+
+		<div class="card">
+
+			<div class="card-header">
+				<span class="card-title">お知らせ新規登録（確認）</span>
+			</div>
+
+			<p style="margin-bottom:1rem;">以下の内容でお知らせを登録します。</p>
+
+			<div class="form-group">
+				<label>タイトル</label>
+				<div class="form-text-static" id="vTitle"></div>
+			</div>
+
+			<div class="form-group">
+				<label>お知らせ内容</label>
+				<div class="form-text-static" id="vContent"
+					style="background:#f8fafc;padding:10px;border-radius:6px;white-space:pre-wrap;"></div>
+			</div>
+
+			<div class="form-group">
+				<label>公開対象</label>
+				<div class="form-text-static" id="vTargetRole"></div>
+			</div>
+
+			<div class="form-group">
+				<label>公開開始日</label>
+				<div class="form-text-static" id="vStartDate"></div>
+			</div>
+
+			<div class="form-group">
+				<label>公開終了日</label>
+				<div class="form-text-static" id="vEndDate"></div>
+			</div>
+
+			<div style="margin-top:2rem; display:flex; gap:10px;">
+				<button type="button" id="registerBtn" class="btn btn-primary" style="flex:1;">
+					登録を確定する
+				</button>
+				<a href="./announce_input.html?restore=1" class="btn" style="flex:1;background:#e2e8f0;color:#475569;">
+					修正する
+				</a>
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			if (!TeamC.isManager(s.user)) { location.href = "./admin_dashboard.html"; return; }
+			const me = s.user;
+
+			const p = TeamC.getPending("notice");
+			if (!p || p.mode !== "create" || !p.data) {
+				location.href = "./announce_input.html";
+				return;
+			}
+			const d = p.data;
+
+			document.getElementById("vTitle").textContent = d.title || "";
+			document.getElementById("vContent").textContent = d.content || "";
+			document.getElementById("vTargetRole").textContent = d.targetRole || "";
+			document.getElementById("vStartDate").textContent = d.startDate || "";
+			document.getElementById("vEndDate").textContent = d.endDate || "";
+
+			document.getElementById("registerBtn").addEventListener("click", function () {
+				TeamC.addNotice({
+					userId: me.userId,
+					title: d.title,
+					content: d.content,
+					targetRole: d.targetRole,
+					startDate: d.startDate,
+					endDate: d.endDate,
+					isPublished: 1,
+				});
+				TeamC.clearPending("notice");
+				location.href = "./announce_complete.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>新規予約登録確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<main class="page-container">
+
+		<section class="page-title-area">
+			<h1>新規予約登録確認</h1>
+			<p>入力内容を確認し、問題がなければ登録してください。</p>
+		</section>
+
+		<section class="form-card">
+
+			<table class="confirm-table">
+				<tr><th>予約日</th><td id="cReservationDate"></td></tr>
+				<tr><th>コマ</th><td id="cSlot"></td></tr>
+				<tr><th>生徒</th><td id="cStudent"></td></tr>
+				<tr><th>講師</th><td id="cTeacher"></td></tr>
+				<tr><th>科目</th><td id="cSubject"></td></tr>
+				<tr><th>教室</th><td id="cClassroom"></td></tr>
+				<tr><th>授業形式</th><td id="cLessonType"></td></tr>
+				<tr><th>予約者区分</th><td id="cRole"></td></tr>
+				<tr><th>備考</th><td id="cMemo"></td></tr>
+			</table>
+
+			<div class="form-actions confirm-actions">
+				<a href="./reservation_input.html?restore=1" class="btn btn-secondary">入力画面へ戻る</a>
+				<button type="button" id="registerBtn" class="btn btn-primary">登録する</button>
+			</div>
+
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+			const esc = TeamC.esc;
+
+			const pending = TeamC.getPending("reservation");
+			if (!pending || !pending.data) {
+				window.location.href = "./reservation_input.html";
+				return;
+			}
+			const data = pending.data;
+
+			const slot = data.scheduleSlotId != null ? TeamC.slot(data.scheduleSlotId) : null;
+			const student = data.studentId != null ? TeamC.student(data.studentId) : null;
+			const teacher = data.teacherId != null ? TeamC.teacher(data.teacherId) : null;
+			const subject = data.subjectId != null ? TeamC.subject(data.subjectId) : null;
+			const classroom = data.classroomId != null ? TeamC.classroom(data.classroomId) : null;
+			const isStudyRoom = data.lessonType === "自習室";
+
+			document.getElementById("cReservationDate").textContent = data.reservationDate || "";
+			document.getElementById("cSlot").textContent = slot ? TeamC.slotLabel(slot) : "";
+			document.getElementById("cStudent").textContent = student ? student.studentName : "";
+			document.getElementById("cTeacher").textContent = isStudyRoom ? "不要" : (teacher ? teacher.teacherName : "");
+			document.getElementById("cSubject").textContent = isStudyRoom ? "不要" : (subject ? subject.subjectName : "");
+			document.getElementById("cClassroom").textContent = classroom ? classroom.roomName : "";
+			document.getElementById("cLessonType").textContent = data.lessonType || "";
+			document.getElementById("cRole").textContent = data.reservationRole || "";
+			document.getElementById("cMemo").textContent = data.memo || "";
+
+			document.getElementById("registerBtn").addEventListener("click", function () {
+				TeamC.addReservation({
+					studentId: data.studentId,
+					teacherId: data.teacherId,
+					subjectId: data.subjectId,
+					classroomId: data.classroomId,
+					scheduleSlotId: data.scheduleSlotId,
+					reservationDate: data.reservationDate,
+					lessonType: data.lessonType,
+					reservationRole: data.reservationRole,
+					memo: data.memo
+				});
+				TeamC.clearPending("reservation");
+				window.location.href = "./reservation_input_complete.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

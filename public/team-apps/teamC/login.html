@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ログイン | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="login-body">
+
+	<div class="login-container">
+		<div class="login-card">
+			<div class="login-title-area">
+				<h1>進学ゼミナール松風</h1>
+				<p>学習管理支援システム</p>
+			</div>
+
+			<form id="loginForm">
+				<div class="form-group">
+					<label for="loginId">ログインID</label>
+					<input type="text" id="loginId" name="loginId" class="form-control" placeholder="ログインIDを入力" autocomplete="username">
+				</div>
+
+				<div class="form-group">
+					<label for="password">パスワード</label>
+					<input type="password" id="password" name="password" class="form-control" placeholder="パスワードを入力" autocomplete="current-password">
+				</div>
+
+				<p id="errorMessage" class="error-message" style="display:none;"></p>
+
+				<button type="submit" class="btn btn-primary login-btn">ログイン</button>
+			</form>
+
+			<div class="footer-text" style="margin-top:24px; color:#64748b; font-size:0.85rem; line-height:1.9; text-align:center;">
+				<strong>デモ用アカウント（パスワードは全員 password）</strong><br>
+				教室長: <code>manager1</code><br>
+				講師: <code>teacher01</code><br>
+				生徒: <code>student01</code>
+			</div>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const form = document.getElementById("loginForm");
+			const errEl = document.getElementById("errorMessage");
+
+			function showError(msg) {
+				errEl.textContent = msg;
+				errEl.style.display = "block";
+			}
+
+			form.addEventListener("submit", function (e) {
+				e.preventDefault();
+				errEl.style.display = "none";
+
+				const loginId = document.getElementById("loginId").value.trim();
+				const password = document.getElementById("password").value;
+
+				const user = TeamC.login(loginId, password);
+				if (!user) {
+					showError("ログインIDまたはパスワードが正しくありません。");
+					return;
+				}
+
+				// 教室長・講師は講師ポータルへ（AuthController のロール分岐に忠実）
+				if (TeamC.isManager(user) || TeamC.isTeacher(user)) {
+					location.href = "./admin_dashboard.html";
+					return;
+				}
+
+				// 生徒は生徒ポータル（カルテ）へ
+				if (TeamC.isStudent(user)) {
+					const studentId = TeamC.loginStudentId();
+					if (studentId == null) {
+						TeamC.logout();
+						showError("このユーザーに対応する生徒情報が登録されていません。");
+						return;
+					}
+					location.href = "./student_carte.html?studentId=" + studentId;
+					return;
+				}
+
+				TeamC.logout();
+				showError("このユーザーには有効な権限が設定されていません。");
+			});
+		});
+	</script>
+
+</body>
+
+</html>

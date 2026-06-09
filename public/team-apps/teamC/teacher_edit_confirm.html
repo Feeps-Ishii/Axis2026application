@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>講師情報変更確認 | 進学ゼミナール松風</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<div id="appHeader"></div>
+
+	<main class="teacher-edit-confirm-page">
+
+		<section class="teacher-edit-confirm-hero">
+			<div>
+				<p class="teacher-edit-confirm-label">Teacher Edit Confirm</p>
+				<h1>講師情報の変更確認</h1>
+				<p class="teacher-edit-confirm-lead">
+					変更内容を確認し、問題がなければ「変更を確定する」を押してください。
+				</p>
+			</div>
+
+			<div class="teacher-edit-confirm-hero-actions">
+				<a id="backLink" href="#" class="btn btn-secondary">
+					◀ 修正する
+				</a>
+			</div>
+		</section>
+
+		<section class="teacher-edit-confirm-card">
+
+			<div class="teacher-edit-confirm-header">
+				<div>
+					<p class="teacher-edit-confirm-label">Confirm Details</p>
+					<h2>変更内容</h2>
+				</div>
+
+				<div class="teacher-edit-confirm-badge">
+					確認画面
+				</div>
+			</div>
+
+			<div class="teacher-edit-confirm-grid">
+
+				<div class="teacher-edit-confirm-item">
+					<div class="teacher-edit-confirm-item-label">教室</div>
+					<div class="teacher-edit-confirm-item-value" id="v-classroom">本校</div>
+				</div>
+
+				<div class="teacher-edit-confirm-item">
+					<div class="teacher-edit-confirm-item-label">講師氏名</div>
+					<div class="teacher-edit-confirm-item-value" id="v-name">講師名</div>
+				</div>
+
+				<div class="teacher-edit-confirm-item">
+					<div class="teacher-edit-confirm-item-label">講師カナ</div>
+					<div class="teacher-edit-confirm-item-value" id="v-kana">未入力</div>
+				</div>
+
+				<div class="teacher-edit-confirm-item">
+					<div class="teacher-edit-confirm-item-label">電話番号</div>
+					<div class="teacher-edit-confirm-item-value" id="v-tel">未入力</div>
+				</div>
+
+				<div class="teacher-edit-confirm-item">
+					<div class="teacher-edit-confirm-item-label">メールアドレス</div>
+					<div class="teacher-edit-confirm-item-value" id="v-email">未入力</div>
+				</div>
+
+				<div class="teacher-edit-confirm-item">
+					<div class="teacher-edit-confirm-item-label">勤務開始日</div>
+					<div class="teacher-edit-confirm-item-value" id="v-hireDate">未入力</div>
+				</div>
+
+				<div class="teacher-edit-confirm-item teacher-edit-confirm-wide">
+					<div class="teacher-edit-confirm-item-label">住所</div>
+					<div class="teacher-edit-confirm-item-value" id="v-address">未入力</div>
+				</div>
+
+				<div class="teacher-edit-confirm-item teacher-edit-confirm-wide">
+					<div class="teacher-edit-confirm-item-label">勤務希望要件</div>
+					<div class="teacher-edit-confirm-item-value" id="v-work">未入力</div>
+				</div>
+
+			</div>
+
+			<div class="teacher-edit-confirm-section">
+				<div class="teacher-edit-confirm-section-title">担当可能科目</div>
+				<div id="v-subjects"></div>
+			</div>
+
+			<div class="teacher-edit-confirm-section">
+				<div class="teacher-edit-confirm-section-title">通常勤務可能コマ</div>
+				<div id="v-normal-slots"></div>
+			</div>
+
+			<div class="teacher-edit-confirm-section">
+				<div class="teacher-edit-confirm-section-title">イベント講習 勤務可能コマ</div>
+				<div id="v-event-slots"></div>
+			</div>
+
+			<div class="teacher-edit-confirm-grid teacher-edit-confirm-grid-bottom">
+
+				<div class="teacher-edit-confirm-item teacher-edit-confirm-wide">
+					<div class="teacher-edit-confirm-item-label">備考</div>
+					<div class="teacher-edit-confirm-item-value teacher-edit-confirm-memo" id="v-remark">未入力</div>
+				</div>
+
+				<div class="teacher-edit-confirm-item teacher-edit-confirm-wide">
+					<div class="teacher-edit-confirm-item-label">パスワード変更</div>
+					<div class="teacher-edit-confirm-item-value">
+						<span id="v-password" class="teacher-edit-confirm-password-badge password-change-off">変更なし</span>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="teacher-edit-confirm-actions">
+				<button type="button" id="updateBtn" class="btn btn-primary confirm-submit-btn">
+					変更を確定する
+				</button>
+
+				<a id="backLink2" href="#" class="btn btn-secondary confirm-back-btn">
+					⬅ 修正する
+				</a>
+			</div>
+
+		</section>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamC.init().then(() => {
+			const s = TeamC.requireLogin();
+			if (!s) return;
+
+			const esc = TeamC.esc;
+			const p = TeamC.getPending("teacher_edit");
+			if (!p) { location.href = "./teachers.html"; return; }
+
+			const backHref = "./teacher_edit.html?teacherId=" + p.id + "&restore=1";
+			document.getElementById("backLink").href = backHref;
+			document.getElementById("backLink2").href = backHref;
+
+			const d = p.patch || {};
+			const val = (x) => (x != null && x !== "") ? x : "未入力";
+			const set = (id, v) => { document.getElementById(id).textContent = v; };
+
+			set("v-classroom", p.classroomName || "未入力");
+			set("v-name", d.teacherName || "");
+			set("v-kana", val(d.teacherKana));
+			set("v-tel", val(d.tel));
+			set("v-email", val(d.email));
+			set("v-hireDate", d.hireDate ? d.hireDate : "未入力");
+			set("v-address", val(d.address));
+			set("v-work", val(d.workPreference));
+			set("v-remark", val(d.remark));
+
+			const pwBadge = document.getElementById("v-password");
+			if (p.newPassword) {
+				pwBadge.textContent = "変更あり";
+				pwBadge.className = "teacher-edit-confirm-password-badge password-change-on";
+			} else {
+				pwBadge.textContent = "変更なし";
+				pwBadge.className = "teacher-edit-confirm-password-badge password-change-off";
+			}
+
+			renderTags("v-subjects", (p.subjectNames || []), "teacher-edit-confirm-subject-tag", "teacher-edit-confirm-tag-list", "teacher-edit-confirm-empty");
+			renderSlots("v-normal-slots", (p.normalSlotLabels || []), "");
+			renderSlots("v-event-slots", (p.eventSlotLabels || []), " event-confirm-shift-tag");
+
+			function renderTags(id, names, tagClass, listClass, emptyClass) {
+				const el = document.getElementById(id);
+				if (!names.length) { el.innerHTML = '<div class="' + emptyClass + '">未選択</div>'; return; }
+				el.innerHTML = '<div class="' + listClass + '">' +
+					names.map((n) => '<span class="' + tagClass + '">' + esc(n) + "</span>").join("") + "</div>";
+			}
+			function renderSlots(id, labels, extra) {
+				const el = document.getElementById(id);
+				if (!labels.length) { el.innerHTML = '<div class="teacher-edit-confirm-empty">未選択</div>'; return; }
+				el.innerHTML = '<div class="teacher-edit-confirm-shift-list">' +
+					labels.map((l) =>
+						'<span class="teacher-edit-confirm-shift-tag' + extra + '">' + esc(l) + "</span>"
+					).join("") + "</div>";
+			}
+
+			document.getElementById("updateBtn").addEventListener("click", () => {
+				const patch = Object.assign({}, p.patch);
+				if (p.newPassword) {
+					// ユーザーのパスワードも更新
+					const tv = TeamC.teacherView(p.id);
+					if (tv && tv.user) {
+						const users = TeamC.users();
+						const u = users.find((x) => x.userId === tv.user.userId);
+						if (u) {
+							u.password = p.newPassword;
+							window.localStorage.setItem("teamC:users", JSON.stringify(users));
+						}
+					}
+				}
+				TeamC.updateTeacher(p.id, patch);
+				TeamC.setTeacherSubjects(p.id, p.subjectIds || []);
+				TeamC.clearPending("teacher_edit");
+				location.href = "./teacher_edit_complete.html?teacherId=" + p.id;
+			});
+		});
+	</script>
+
+</body>
+
+</html>
