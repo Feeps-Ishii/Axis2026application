@@ -77,12 +77,12 @@ npm run dev
 
 ## 主なコマンド
 
-| コマンド | 説明 |
-| --- | --- |
-| `npm run dev` | 開発サーバーを起動 |
-| `npm run build` | 本番用ビルドを作成 |
+| コマンド        | 説明                   |
+| --------------- | ---------------------- |
+| `npm run dev`   | 開発サーバーを起動     |
+| `npm run build` | 本番用ビルドを作成     |
 | `npm run start` | ビルド済みアプリを起動 |
-| `npm run lint` | ESLint を実行 |
+| `npm run lint`  | ESLint を実行          |
 
 ## 構成
 
