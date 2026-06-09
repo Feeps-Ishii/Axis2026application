@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>進捗一覧</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* { box-sizing: border-box; }
+		body { margin: 0; font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; background: #f4f7fb; color: #1f2937; }
+		a { color: inherit; text-decoration: none; }
+		.main { flex: 1; padding: 28px; }
+		.page-title { font-size: 28px; font-weight: bold; color: #102a43; margin: 0 0 24px 0; display: flex; align-items: center; }
+		.page-title::before { content: ''; display: inline-block; width: 5px; height: 32px; background: #153e75; border-radius: 3px; margin-right: 12px; }
+		.search-box { background: #fff; border: 1px solid #d9e2ec; border-radius: 14px; padding: 18px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 220px 120px; gap: 12px; box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06); }
+		input, select { width: 100%; padding: 11px 12px; border: 1px solid #bcccdc; border-radius: 8px; font-size: 14px; background: #fff; font-family: inherit; }
+		input:focus, select:focus { border-color: #153e75; outline: none; }
+		.btn { display: inline-flex; align-items: center; justify-content: center; padding: 11px 18px; border-radius: 8px; border: 1px solid #bcccdc; background: #fff; color: #334e68; font-weight: bold; font-size: 14px; cursor: pointer; font-family: inherit; }
+		.btn.primary { background: #153e75; color: #fff; border-color: #153e75; }
+		.btn.primary:hover { background: #102a43; }
+		.table-card { background: #fff; border: 1px solid #d9e2ec; border-radius: 14px; padding: 22px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06); }
+		table { width: 100%; border-collapse: collapse; background: #fff; }
+		th, td { border-bottom: 1px solid #e5eaf0; padding: 12px 10px; text-align: left; font-size: 14px; }
+		th { background: #f0f4f8; color: #334e68; font-weight: bold; }
+		td a { color: #153e75; text-decoration: underline; }
+		.empty-message { padding: 20px; text-align: center; color: #627d98; }
+		.clickable-row { cursor: pointer; }
+		.clickable-row:hover td { background: #e0ecff; }
+		.status-badge { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+		.status-working { background: #fef3c7; color: #92400e; }
+		.status-completed { background: #dcfce7; color: #166534; }
+		.status-default { background: #e5e7eb; color: #374151; }
+		.process-detail-row td { background: #f8fafc; padding: 16px; }
+		.inner-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid #d9e2ec; }
+		.inner-table th { background: #edf2f7; }
+		.inner-table th, .inner-table td { padding: 10px; border-bottom: 1px solid #e5eaf0; font-size: 13px; }
+		td span.st { display: inline-block; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: bold; }
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<h1 class="page-title">進捗一覧</h1>
+
+			<form class="search-box" id="searchForm" method="get">
+				<input type="text" name="keyword" id="keyword" placeholder="機械番号・受注番号・部品名・担当者で検索">
+				<select name="status" id="status">
+					<option value="">すべての状態</option>
+					<option value="not_started">未着手</option>
+					<option value="preparing">段取り中</option>
+					<option value="processing">加工中</option>
+					<option value="inspecting">検査中</option>
+					<option value="completed">完了</option>
+				</select>
+				<button type="submit" class="btn primary">検索</button>
+			</form>
+
+			<div class="table-card">
+				<table>
+					<thead><tr>
+						<th>受注番号</th><th>部品名</th><th>工程数</th><th>全体状態</th><th>開閉</th>
+					</tr></thead>
+					<tbody id="groupsBody"></tbody>
+				</table>
+				<div class="empty-message" id="emptyMsg" style="display:none;">表示する進捗はありません。</div>
+			</div>
+
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+		const STATUS_STYLE = {
+			not_started: "background:#e5e7eb;color:#374151;",
+			preparing: "background:#fef3c7;color:#92400e;",
+			processing: "background:#dbeafe;color:#1e40af;",
+			inspecting: "background:#ede9fe;color:#5b21b6;",
+			completed: "background:#dcfce7;color:#166534;",
+		};
+		const STATUS_TEXT = { not_started: "未着手", preparing: "段取り中", processing: "加工中", inspecting: "検査中", completed: "完了" };
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			TeamHNav.render("progress");
+
+			const params = new URLSearchParams(location.search);
+			const keyword = params.get("keyword") || "";
+			const status = params.get("status") || "";
+			document.getElementById("keyword").value = keyword;
+			document.getElementById("status").value = status;
+
+			document.getElementById("searchForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				const q = new URLSearchParams();
+				const kw = document.getElementById("keyword").value.trim();
+				const st = document.getElementById("status").value;
+				if (kw) q.set("keyword", kw);
+				if (st) q.set("status", st);
+				location.href = "./progress_list.html" + (q.toString() ? "?" + q.toString() : "");
+			});
+
+			const loginUserId = sess.role === "craftsman" ? sess.loginUser.userId : null;
+			const processes = TeamH.searchProgress(keyword, status, loginUserId);
+			const groups = TeamH.progressGroups(processes);
+
+			if (!groups.length) { document.getElementById("emptyMsg").style.display = "block"; }
+
+			document.getElementById("groupsBody").innerHTML = groups.map(function (g, idx) {
+				let inner = "";
+				g.processes.forEach(function (p) {
+					const reportId = p.progressReport ? p.progressReport.progressReportId : "";
+					const st = p.progressStatus;
+					inner += `<tr class="clickable-row" onclick="event.stopPropagation();location.href='./progress_detail.html?id=${reportId}'">
+						<td>${E(p.machineNoActual || "予定機械")}</td>
+						<td>${E(p.workOrderProcess ? p.workOrderProcess.processName : "")}</td>
+						<td>${E(p.assignedUser ? p.assignedUser.name : "")}</td>
+						<td><span class="st" style="${STATUS_STYLE[st] || ""}">${E(STATUS_TEXT[st] || st)}</span></td>
+						<td>${p.expectedEndTime ? E(TeamH.fmtTimeHM(p.expectedEndTime)) : "未定"}</td>
+						<td>詳細</td>
+					</tr>`;
+				});
+				return `<tr class="clickable-row" onclick="toggleRows('group-${idx}')">
+					<td>${E(g.orderNo)}</td><td>${E(g.partName)}</td><td>${g.processCount}工程</td>
+					<td><span class="status-badge ${g.statusClass}">${E(g.statusLabel)}</span></td><td>▼</td>
+				</tr>
+				<tr class="process-detail-row group-${idx}" style="display:none;"><td colspan="5">
+					<table class="inner-table"><thead><tr><th>機械番号</th><th>工程</th><th>担当</th><th>状態</th><th>予定完了</th><th>操作</th></tr></thead>
+					<tbody>${inner}</tbody></table></td></tr>`;
+			}).join("");
+		});
+
+		function toggleRows(cls) {
+			document.querySelectorAll("." + cls).forEach(function (row) {
+				row.style.display = row.style.display === "none" ? "table-row" : "none";
+			});
+		}
+	</script>
+
+</body>
+
+</html>

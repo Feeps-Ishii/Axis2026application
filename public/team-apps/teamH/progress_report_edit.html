@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>進捗管理書編集</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+			background: #f0f4f8;
+			color: #1f2937;
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+
+		.main {
+			flex: 1;
+			padding: 32px;
+		}
+
+		/* ページタイトル */
+		.page-title {
+			font-size: 28px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0 0 24px 0;
+			display: flex;
+			align-items: center;
+		}
+
+		.page-title::before {
+			content: '';
+			display: inline-block;
+			width: 5px;
+			height: 32px;
+			background: #153e75;
+			border-radius: 3px;
+			margin-right: 12px;
+		}
+
+		/* カード */
+		.card {
+			background: white;
+			border-radius: 14px;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+			border: 1px solid #d9e2ec;
+			padding: 24px;
+			margin-bottom: 24px;
+		}
+
+		.card-title {
+			font-size: 18px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0 0 16px 0;
+		}
+
+		/* テーブル */
+		.table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.table th,
+		.table td {
+			border-bottom: 1px solid #e5eaf0;
+			padding: 12px 16px;
+			font-size: 14px;
+			text-align: left;
+		}
+
+		.table th {
+			background-color: #f0f4f8;
+			color: #334e68;
+			font-weight: bold;
+		}
+
+		.table tbody tr:hover {
+			background-color: #e8f0fe;
+			cursor: pointer;
+		}
+
+		/* バッジ */
+		.badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			padding: 5px 12px;
+			border-radius: 999px;
+			font-size: 12px;
+			font-weight: bold;
+		}
+
+		.badge.not-started {
+			background: #e5e7eb;
+			color: #374151;
+		}
+
+		.badge.working {
+			background: #dbeafe;
+			color: #1e40af;
+		}
+
+		.badge.done {
+			background: #dcfce7;
+			color: #166534;
+		}
+
+		.badge.preparing {
+			background: #e9d8fd;
+			color: #553c9a;
+		}
+
+		.badge.inspecting {
+			background: #fefcbf;
+			color: #744210;
+		}
+
+		/* フォーム */
+		.form-row {
+			display: flex;
+			align-items: center;
+			margin-bottom: 16px;
+			gap: 16px;
+		}
+
+		.form-row label {
+			width: 160px;
+			font-size: 14px;
+			font-weight: bold;
+			color: #334e68;
+			flex-shrink: 0;
+		}
+
+		.form-row input,
+		.form-row select,
+		.form-row textarea {
+			flex: 1;
+			border: 1px solid #bcccdc;
+			border-radius: 8px;
+			padding: 10px 12px;
+			font-size: 14px;
+			color: #1f2937;
+			font-family: inherit;
+		}
+
+		.form-row input:focus,
+		.form-row select:focus,
+		.form-row textarea:focus {
+			border-color: #153e75;
+			outline: none;
+		}
+
+		.form-row textarea {
+			height: 80px;
+			resize: vertical;
+		}
+
+		.form-value {
+			font-size: 14px;
+			color: #1f2937;
+		}
+
+		.required {
+			color: #e53e3e;
+			margin-left: 4px;
+		}
+
+		/* エラーメッセージ */
+		.error-message {
+			background-color: #fef2f2;
+			border: 1px solid #fecaca;
+			color: #991b1b;
+			padding: 12px 16px;
+			border-radius: 8px;
+			font-size: 14px;
+			font-weight: bold;
+			margin: 0;
+		}
+
+		/* ボタン */
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 10px 18px;
+			border-radius: 8px;
+			border: 1px solid #bcccdc;
+			background: #fff;
+			color: #334e68;
+			font-weight: bold;
+			font-size: 14px;
+			cursor: pointer;
+			font-family: inherit;
+			text-decoration: none;
+		}
+
+		.btn:hover {
+			background: #f0f4f8;
+		}
+
+		.btn.primary {
+			background: #153e75;
+			color: #fff;
+			border-color: #153e75;
+		}
+
+		.btn.primary:hover {
+			background: #102a43;
+		}
+
+		.button-area {
+			margin-top: 24px;
+			display: flex;
+			gap: 12px;
+		}
+
+		.no-data {
+			color: #a0aec0;
+			font-size: 14px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<h1 class="page-title">進捗管理書編集</h1>
+
+			<div id="content"></div>
+
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+
+		function statusBadge(status) {
+			switch (status) {
+				case "completed": return '<span class="badge done">完了</span>';
+				case "processing": return '<span class="badge working">加工中</span>';
+				case "preparing": return '<span class="badge preparing">段取り中</span>';
+				case "inspecting": return '<span class="badge inspecting">検査中</span>';
+				case "not_started": return '<span class="badge not-started">未着手</span>';
+				default: return '<span class="badge not-started">' + E(status) + '</span>';
+			}
+		}
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			if (sess.role !== "admin") { location.href = "./login.html?authError=true"; return; }
+			TeamHNav.render("progress");
+
+			const params = new URLSearchParams(location.search);
+			const reportId = params.get("reportId");
+			const processIdParam = params.get("processId");
+			const processId = (processIdParam === null || processIdParam === "") ? null : processIdParam;
+
+			const report = TeamH.progressReport(reportId);
+			if (!report) {
+				document.getElementById("content").innerHTML =
+					'<div class="card"><p class="no-data">進捗管理書が見つかりません</p></div>';
+				return;
+			}
+			const reportWo = TeamH.workOrder(report.workOrderId);
+
+			const processes = TeamH.prpByReport(reportId).map(TeamH.prpView);
+			const errorMessage = processId ? TeamH.reportEditValidate(reportId, processId) : null;
+			const target = errorMessage ? null : TeamH.reportEditTarget(reportId, processId);
+
+			let html = "";
+
+			// エラーメッセージ
+			if (errorMessage != null) {
+				html += `<div class="card" style="margin-bottom: 24px;">
+					<p class="error-message">${E(errorMessage)}</p>
+				</div>`;
+			}
+
+			// 工程一覧
+			let procTable;
+			if (!processes.length) {
+				procTable = '<p class="no-data">工程データがありません</p>';
+			} else {
+				const rows = processes.map(function (p, i) {
+					const wop = p.workOrderProcess || {};
+					const url = "./progress_report_edit.html?reportId=" + reportId +
+						"&processId=" + p.progressReportProcessId;
+					const op = p.progressStatus === "completed" ? "✓" : "-";
+					return `<tr onclick="location.href='${E(url)}'" style="cursor: pointer;">
+						<td>${E(i + 1)}</td>
+						<td>${E(wop.processName)}</td>
+						<td>${E(p.machineNoActual)}</td>
+						<td>${statusBadge(p.progressStatus)}</td>
+						<td>${E(p.assignedUser ? p.assignedUser.name : "")}</td>
+						<td>${op}</td>
+					</tr>`;
+				}).join("");
+				procTable = `<table class="table">
+					<thead>
+						<tr><th>No</th><th>工程</th><th>機械番号</th><th>ステータス</th><th>担当職人</th><th></th></tr>
+					</thead>
+					<tbody>${rows}</tbody>
+				</table>`;
+			}
+			html += `<div class="card" style="margin-bottom: 24px;">
+				<h2 class="card-title">工程一覧</h2>
+				${procTable}
+			</div>`;
+
+			// 進捗更新入力
+			if (target != null) {
+				const tWop = target.workOrderProcess || {};
+				const machineOpts = TeamH.machines().map(function (m) {
+					const s = m.machineNo === target.machineNoActual ? " selected" : "";
+					return `<option value="${E(m.machineNo)}"${s}>${E(m.machineNo)}</option>`;
+				}).join("");
+				const userOpts = TeamH.users().map(function (u) {
+					const s = target.assignedUser && Number(u.userId) === Number(target.assignedUser.userId) ? " selected" : "";
+					return `<option value="${E(u.userId)}"${s}>${E(u.loginId + '　' + u.name)}</option>`;
+				}).join("");
+				const ps = target.progressStatus;
+				function selStatus(v) { return ps === v ? " selected" : ""; }
+
+				let endRow;
+				if (ps !== "completed") {
+					endRow = `<div class="form-row">
+						<label>完了予定時刻 <span class="required">*</span></label>
+						<input type="datetime-local" name="expectedEndTime" value="${E(TeamH.toLocalInput(target.expectedEndTime))}" required>
+					</div>`;
+				} else {
+					endRow = `<div class="form-row">
+						<label>完了時刻 <span class="required">*</span></label>
+						<input type="datetime-local" name="actualEnd" value="${E(TeamH.toLocalInput(target.actualEnd))}" required>
+					</div>`;
+				}
+
+				html += `<div class="card" id="update-form">
+					<h2 class="card-title">進捗更新入力</h2>
+					<form id="editForm">
+						<input type="hidden" name="progressReportProcessId" value="${E(target.progressReportProcessId)}">
+
+						<div class="form-row">
+							<label>対象作業</label>
+							<input type="text" name="targetWork" value="${E((reportWo ? reportWo.orderNo : '') + '　' + (reportWo ? reportWo.partName : ''))}">
+						</div>
+
+						<div class="form-row">
+							<label>対象工程</label>
+							<input type="text" name="targetProcessName" value="${E(tWop.processName)}">
+						</div>
+
+						<div class="form-row">
+							<label>機械番号 <span class="required">*</span></label>
+							<select name="machineNoActual" required>${machineOpts}</select>
+						</div>
+
+						<div class="form-row">
+							<label>担当者 <span class="required">*</span></label>
+							<select name="assignedUserId" required>${userOpts}</select>
+						</div>
+
+						<div class="form-row">
+							<label>ステータス <span class="required">*</span></label>
+							<select name="progressStatus" required>
+								<option value="not_started"${selStatus("not_started")}>未着手</option>
+								<option value="preparing"${selStatus("preparing")}>段取り中</option>
+								<option value="processing"${selStatus("processing")}>加工中</option>
+								<option value="inspecting"${selStatus("inspecting")}>検査中</option>
+								<option value="completed"${selStatus("completed")}>完了</option>
+							</select>
+						</div>
+
+						<div class="form-row">
+							<label>開始時刻 <span class="required">*</span></label>
+							<input type="datetime-local" name="actualStart" value="${E(TeamH.toLocalInput(target.actualStart))}" required>
+						</div>
+
+						${endRow}
+
+						<div class="form-row">
+							<label>引継ぎ予定時刻 <span class="required">*</span></label>
+							<input type="datetime-local" name="handoverScheduledAt" value="${E(TeamH.toLocalInput(target.handoverScheduledAt))}" required>
+						</div>
+
+						<div class="form-row">
+							<label>引継ぎメモ</label>
+							<textarea name="comment" maxlength="500" placeholder="引継ぎ内容を入力してください（500文字以内）">${E(target.comment)}</textarea>
+						</div>
+
+						<div class="button-area">
+							<button type="submit" class="btn primary">更新</button>
+							<a class="btn" href="./progress_detail.html?id=${E(reportId)}">戻る</a>
+						</div>
+					</form>
+				</div>`;
+			}
+
+			document.getElementById("content").innerHTML = html;
+
+			const form = document.getElementById("editForm");
+			if (form) {
+				form.addEventListener("submit", function (e) {
+					e.preventDefault();
+					const f = e.target;
+					const status = f.progressStatus.value;
+					TeamH.setDraft("reportEdit", {
+						reportId: reportId,
+						prpId: target.progressReportProcessId,
+						machineNoActual: f.machineNoActual.value,
+						assignedUserId: f.assignedUserId.value,
+						progressStatus: status,
+						actualStart: f.actualStart.value,
+						expectedEndTime: f.expectedEndTime ? f.expectedEndTime.value : "",
+						actualEnd: f.actualEnd ? f.actualEnd.value : "",
+						handoverScheduledAt: f.handoverScheduledAt.value,
+						comment: f.comment.value
+					});
+					location.href = "./progress_report_edit_confirm.html?reportId=" + reportId;
+				});
+			}
+		});
+	</script>
+
+</body>
+
+</html>

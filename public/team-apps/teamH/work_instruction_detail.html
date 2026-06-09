@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>作業指示書</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Yu Gothic", "Meiryo", sans-serif;
+			background-color: #f4f7fb;
+			color: #1f2937;
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+
+		.main {
+			flex: 1;
+			padding: 32px;
+			display: flex;
+			justify-content: center;
+		}
+
+		/* シート */
+		.sheet {
+			width: 760px;
+			background: white;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			overflow: hidden;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+			padding: 0 0 24px 0;
+		}
+
+		.sheet-header {
+			background: #102a43;
+			color: white;
+			padding: 20px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.sheet-title {
+			font-size: 24px;
+			font-weight: bold;
+		}
+
+		.sheet-sub {
+			text-align: right;
+			font-size: 13px;
+			line-height: 1.8;
+		}
+
+		/* セクションタイトル */
+		.section-title {
+			background: #1e3a5f;
+			color: white;
+			font-weight: bold;
+			padding: 8px 16px;
+			margin-top: 0;
+			font-size: 14px;
+		}
+
+		/* テーブル */
+		.table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 13px;
+			margin-bottom: 0;
+		}
+
+		.table th {
+			background: #f0f4f8;
+			border: 1px solid #d9e2ec;
+			padding: 10px 12px;
+			text-align: center;
+			color: #334e68;
+			font-weight: bold;
+		}
+
+		.table td {
+			border: 1px solid #d9e2ec;
+			padding: 10px 12px;
+		}
+
+		.center {
+			text-align: center;
+		}
+
+		/* ステータス */
+		.status-completed {
+			background: #dcfce7;
+			color: #166534;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		.status-processing {
+			background: #fef3c7;
+			color: #92400e;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		.status-not_started {
+			text-align: center;
+		}
+
+		.status-preparing {
+			background: #dbeafe;
+			color: #1d4ed8;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		.status-inspecting {
+			background: #ede9fe;
+			color: #6b21a8;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		/* ボタン */
+		.button-area {
+			margin-top: 20px;
+			padding: 0 24px;
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+		}
+
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 10px 18px;
+			border-radius: 8px;
+			border: 1px solid #bcccdc;
+			background: #fff;
+			color: #334e68;
+			font-weight: bold;
+			font-size: 14px;
+			cursor: pointer;
+			font-family: inherit;
+			text-decoration: none;
+		}
+
+		.btn:hover {
+			background: #f0f4f8;
+		}
+
+		.btn.primary {
+			background: #153e75;
+			color: white;
+			border-color: #153e75;
+		}
+
+		.btn.primary:hover {
+			background: #102a43;
+		}
+
+		.btn.danger {
+			background: #b91c1c;
+			color: white;
+			border-color: #b91c1c;
+		}
+
+		.btn.danger:hover {
+			background: #991b1b;
+		}
+
+		/* 空メッセージ */
+		.empty-message {
+			width: 760px;
+			background: white;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 24px;
+			color: #627d98;
+			font-size: 14px;
+		}
+
+		/* テーブルとセクションの間隔 */
+		.table-wrap {
+			padding: 0;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+
+		<div id="teamH-sidebar"></div>
+
+		<main class="main" id="main"></main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			TeamHNav.render("workOrders");
+
+			const params = new URLSearchParams(location.search);
+			const workOrderId = params.get("workOrderId");
+			const workOrderProcessId = params.get("workOrderProcessId");
+
+			let isAdmin, instruction;
+			if (workOrderId) {
+				isAdmin = true;
+				instruction = TeamH.workInstructionByWorkOrder(workOrderId);
+			} else if (workOrderProcessId) {
+				isAdmin = false;
+				instruction = TeamH.workInstructionByProcess(workOrderProcessId);
+			} else {
+				isAdmin = false;
+				instruction = null;
+			}
+
+			const main = document.getElementById("main");
+
+			if (!instruction) {
+				main.innerHTML = `<div class="empty-message">作業指示書の対象データが見つかりません。</div>`;
+				return;
+			}
+
+			const procRows = instruction.processes.map(function (p) {
+				return `<tr>
+					<td>${E(p.processOrder)}</td>
+					<td>${E(p.processName)}</td>
+					<td>${E(p.machineNo)}</td>
+					<td class="status-${E(p.status)}">${E(p.statusLabel)}</td>
+					<td>${E(p.assignedUserId)}</td>
+					<td class="center">${p.status === "completed" ? "✓" : "[ ]"}</td>
+				</tr>`;
+			}).join("");
+
+			const resultRows = instruction.results.map(function (r) {
+				return `<tr>
+					<td>${E(r.processOrder + ". " + r.processName)}</td>
+					<td>${E(r.assignedUserId)}</td>
+					<td>${r.actualStart ? E(r.actualStart) : "－"}</td>
+					<td>${r.actualEnd ? E(r.actualEnd) : "－"}</td>
+					<td>${E(r.comment)}</td>
+				</tr>`;
+			}).join("");
+
+			let buttons = "";
+			if (!isAdmin) {
+				buttons = `
+					<a class="btn primary" href="./worker_navigation.html?workOrderProcessId=${E(workOrderProcessId)}">戻る</a>
+					<a class="btn" href="./todo.html">一覧へ戻る</a>`;
+			} else {
+				buttons = `
+					<a class="btn primary" href="./work_orders.html">戻る</a>
+					<a class="btn" href="./work_orders.html">一覧へ戻る</a>
+					<a class="btn primary" href="./work_orders_edit.html?id=${E(instruction.workOrderId)}">変更</a>`;
+			}
+			buttons += `
+				<a class="btn danger" href="./work_orders_delete.html?id=${E(instruction.workOrderId)}">削除</a>`;
+
+			main.innerHTML = `
+				<div class="sheet">
+
+					<div class="sheet-header">
+						<div class="sheet-title">作業指示書</div>
+						<div class="sheet-sub">
+							<div>マルセイ精密工業株式会社</div>
+							<div>納期：${E(instruction.dueDate)}</div>
+						</div>
+					</div>
+
+					<div class="section-title">① 基本情報</div>
+					<table class="table">
+						<tr>
+							<th>機械番号</th>
+							<th>受注番号</th>
+							<th>部品名</th>
+							<th>数量</th>
+						</tr>
+						<tr>
+							<td>${E(instruction.machineNo)}</td>
+							<td>${E(instruction.orderNo)}</td>
+							<td>${E(instruction.partName)}</td>
+							<td>${E(instruction.quantity + " 個")}</td>
+						</tr>
+						<tr>
+							<th colspan="2">客先</th>
+							<th colspan="2">納期</th>
+						</tr>
+						<tr>
+							<td colspan="2">${E(instruction.clientName)}</td>
+							<td colspan="2" class="center" style="color:#b91c1c; font-weight:bold;">${E(instruction.dueDate)}</td>
+						</tr>
+						<tr>
+							<th colspan="4">備考</th>
+						</tr>
+						<tr>
+							<td colspan="4">${E(instruction.notes)}</td>
+						</tr>
+					</table>
+
+					<div class="section-title">② 工程</div>
+					<table class="table">
+						<tr>
+							<th>No</th>
+							<th>工程</th>
+							<th>機械番号</th>
+							<th>ステータス</th>
+							<th>担当職人</th>
+							<th>操作</th>
+						</tr>
+						${procRows}
+					</table>
+
+					<div class="section-title">③ 作業実績</div>
+					<table class="table">
+						<tr>
+							<th>工程</th>
+							<th>担当職人ID</th>
+							<th>開始時刻</th>
+							<th>完了時刻</th>
+							<th>コメント</th>
+						</tr>
+						${resultRows}
+					</table>
+
+					<div class="button-area">${buttons}</div>
+
+				</div>`;
+		});
+	</script>
+
+</body>
+
+</html>

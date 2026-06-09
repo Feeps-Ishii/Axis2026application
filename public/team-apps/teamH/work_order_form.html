@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>作業指示書登録</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			background: #f4f7fb;
+			font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+			color: #1f2937;
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+
+		.main {
+			flex: 1;
+			padding: 32px;
+		}
+
+		/* ページタイトル */
+		.page-title {
+			font-size: 28px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0 0 24px 0;
+			display: flex;
+			align-items: center;
+		}
+
+		.page-title::before {
+			content: '';
+			display: inline-block;
+			width: 5px;
+			height: 32px;
+			background: #153e75;
+			border-radius: 3px;
+			margin-right: 12px;
+		}
+
+		/* カード */
+		.card {
+			background: white;
+			border-radius: 14px;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+			border: 1px solid #d9e2ec;
+			padding: 28px;
+		}
+
+		/* フォーム行 */
+		.form-row {
+			margin-bottom: 18px;
+			display: flex;
+			align-items: flex-start;
+			gap: 16px;
+		}
+
+		.form-row label {
+			width: 120px;
+			font-weight: bold;
+			color: #334e68;
+			font-size: 14px;
+			flex-shrink: 0;
+			padding-top: 10px;
+		}
+
+		.form-row input,
+		.form-row select {
+			width: 320px;
+			padding: 10px 12px;
+			border: 1px solid #bcccdc;
+			border-radius: 8px;
+			font-size: 14px;
+			font-family: inherit;
+			color: #1f2937;
+		}
+
+
+		.form-row input:focus,
+		.form-row select:focus {
+			border-color: #153e75;
+			outline: none;
+		}
+
+		/* 工程エリア */
+		.process-area {
+			flex: 1;
+		}
+
+		.process-header,
+		.process-item {
+			display: grid;
+			grid-template-columns: 50px 180px 120px 120px 120px 70px;
+			gap: 10px;
+			margin-bottom: 10px;
+			align-items: center;
+		}
+
+		.process-header {
+			font-weight: bold;
+			color: #334e68;
+			font-size: 13px;
+		}
+
+		.process-item select,
+		.process-item input[type="text"] {
+			width: 100%;
+			padding: 8px 10px;
+			border: 1px solid #bcccdc;
+			border-radius: 8px;
+			font-size: 13px;
+			font-family: inherit;
+		}
+
+		/* ボタン */
+		.button-area {
+			margin-top: 16px;
+			display: flex;
+			gap: 10px;
+		}
+
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 10px 18px;
+			border-radius: 8px;
+			border: 1px solid #bcccdc;
+			background: #fff;
+			color: #334e68;
+			font-weight: bold;
+			font-size: 14px;
+			cursor: pointer;
+			font-family: inherit;
+			text-decoration: none;
+		}
+
+		.btn:hover {
+			background: #f0f4f8;
+		}
+
+		.btn.primary {
+			background: #153e75;
+			color: white;
+			border-color: #153e75;
+		}
+
+		.btn.primary:hover {
+			background: #102a43;
+		}
+
+		.btn.danger {
+			background: #b91c1c;
+			color: white;
+			border-color: #b91c1c;
+		}
+
+		.btn.danger:hover {
+			background: #991b1b;
+		}
+
+		.btn.small {
+			padding: 6px 10px;
+			font-size: 12px;
+		}
+
+
+		/* ユーザーメニュー全体 */
+		.dropdown {
+			position: relative;
+		}
+
+
+		/* ▼押下時に表示するメニュー */
+		.dropdown-content {
+			display: none;
+			position: absolute;
+			right: 0;
+			top: 40px;
+			background: white;
+			min-width: 180px;
+			border-radius: 10px;
+			overflow: hidden;
+			box-shadow: 0 6px 18px rgba(0, 0, 0, .15);
+			z-index: 1000;
+		}
+
+		/* メニュー内リンク */
+		.dropdown-content a {
+			display: block;
+			padding: 12px 16px;
+			color: #334e68;
+			border-bottom: 1px solid #eee;
+		}
+
+		/* メニュー内リンクにカーソルを乗せた時 */
+		.dropdown-content a:hover {
+			background: #f4f7fb;
+		}
+
+		/* JavaScriptでshowが付いた時だけメニュー表示 */
+		.dropdown.show .dropdown-content {
+			display: block;
+		}
+	</style>
+
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<h1 class="page-title">作業指示書登録</h1>
+
+			<div class="card">
+
+				<form id="woForm" onsubmit="return validateForm()">
+
+					<!-- 重複エラー -->
+					<div id="duplicateError" style="
+					            color:#dc2626;
+					            background:#fef2f2;
+					            border:1px solid #fecaca;
+					            padding:12px;
+					            border-radius:8px;
+					            margin-bottom:20px;
+					            font-weight:bold;
+					            display:none;">
+						<span id="duplicateErrorText"></span>
+					</div>
+
+
+					<div class="form-row">
+						<label>受注番号</label>
+						<input type="text" name="orderNo" id="orderNo" list="orderNoList" required>
+
+						<datalist id="orderNoList"></datalist>
+					</div>
+
+					<div class="form-row">
+						<label>部品名</label>
+						<input type="text" name="partName" id="partName" list="partNameList" required>
+
+						<datalist id="partNameList"></datalist>
+					</div>
+
+					<div class="form-row">
+						<label>数量</label>
+						<input type="number" name="quantity" id="quantity" min="1" required>
+					</div>
+
+					<div class="form-row">
+						<label>客先</label>
+						<input type="text" name="clientName" id="clientName" list="clientNameList" required>
+
+						<datalist id="clientNameList"></datalist>
+					</div>
+
+					<div class="form-row">
+						<label>納期</label>
+						<input type="date" name="dueDate" id="dueDate" required>
+					</div>
+
+					<div class="form-row">
+
+						<label>工程</label>
+
+						<div class="process-area" id="processArea">
+
+
+							<div class="process-header">
+								<span>No</span>
+								<span>工程名</span>
+								<span>機械番号</span>
+								<span>担当者</span>
+								<span>状態</span>
+								<span>削除</span>
+							</div>
+
+						</div>
+
+					</div>
+
+					<template id="processTemplate">
+						<div class="process-item">
+
+							<span></span>
+
+							<input type="hidden" data-name="processOrder">
+
+							<input type="text" data-name="processName" required>
+
+							<select data-name="machineId" required>
+								<option value="">選択してください</option>
+							</select>
+
+							<select data-name="assignedUserId" required>
+								<option value="">選択してください</option>
+							</select>
+
+							<select data-name="processStatus">
+								<option value="not_started">未着手</option>
+								<option value="preparing">段取り中</option>
+								<option value="processing">加工中</option>
+								<option value="inspecting">検査中</option>
+								<option value="completed">完了</option>
+							</select>
+
+							<button type="button" class="btn danger small" onclick="removeProcess(this)">
+								削除
+							</button>
+
+						</div>
+					</template>
+
+					<div class="button-area">
+						<button type="button" class="btn" onclick="addProcess()">
+							工程を追加
+						</button>
+					</div>
+
+					<div class="button-area">
+						<button type="submit" class="btn">
+							登録
+						</button>
+
+						<a class="btn" href="./work_orders.html">戻る</a>
+
+					</div>
+
+				</form>
+
+			</div>
+
+		</main>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+		let MACHINE_OPTIONS = "";
+		let CRAFTSMAN_OPTIONS = "";
+
+		function removeProcess(button) {
+			const row = button.closest(".process-item");
+			row.remove();
+			renumberProcesses();
+		}
+
+		function addProcess(process) {
+			const processArea = document.getElementById("processArea");
+			const template = document.getElementById("processTemplate");
+			const clone = template.content.cloneNode(true);
+			// 機械・担当者の選択肢を注入
+			const macSel = clone.querySelector('[data-name="machineId"]');
+			macSel.innerHTML = '<option value="">選択してください</option>' + MACHINE_OPTIONS;
+			const userSel = clone.querySelector('[data-name="assignedUserId"]');
+			userSel.innerHTML = '<option value="">選択してください</option>' + CRAFTSMAN_OPTIONS;
+			if (process) {
+				clone.querySelector('[data-name="processName"]').value = process.processName || "";
+				macSel.value = process.machineId != null ? String(process.machineId) : "";
+				userSel.value = process.assignedUserId != null ? String(process.assignedUserId) : "";
+				clone.querySelector('[data-name="processStatus"]').value = process.processStatus || "not_started";
+			}
+			processArea.appendChild(clone);
+			renumberProcesses();
+		}
+
+		function renumberProcesses() {
+			const rows = document.querySelectorAll("#processArea .process-item");
+			rows.forEach((row, index) => {
+				row.querySelector("span").textContent = index + 1;
+				const hiddenOrder = row.querySelector('input[type="hidden"]');
+				if (hiddenOrder) {
+					hiddenOrder.value = index + 1;
+				}
+			});
+		}
+
+		function validateForm() {
+			// 納期チェック
+			const dueDate = document.querySelector('input[name="dueDate"]').value;
+			if (dueDate) {
+				const today = new Date();
+				today.setHours(0, 0, 0, 0);
+				const inputDate = new Date(dueDate);
+				if (inputDate < today) {
+					alert("過去の日付は登録できません");
+					return false;
+				}
+			}
+
+			// 工程チェック
+			const processRows = document.querySelectorAll("#processArea .process-item");
+			if (processRows.length === 0) {
+				alert("工程を1件以上入力してください");
+				return false;
+			}
+
+			return submitForm();
+		}
+
+		function submitForm() {
+			const form = {
+				orderNo: document.getElementById("orderNo").value.trim(),
+				partName: document.getElementById("partName").value.trim(),
+				clientName: document.getElementById("clientName").value.trim(),
+				quantity: document.getElementById("quantity").value,
+				dueDate: document.getElementById("dueDate").value,
+			};
+			const processList = [];
+			document.querySelectorAll("#processArea .process-item").forEach((row, index) => {
+				processList.push({
+					processOrder: index + 1,
+					processName: row.querySelector('[data-name="processName"]').value.trim(),
+					machineId: row.querySelector('[data-name="machineId"]').value,
+					assignedUserId: row.querySelector('[data-name="assignedUserId"]').value,
+					processStatus: row.querySelector('[data-name="processStatus"]').value,
+				});
+			});
+
+			if (TeamH.existsDuplicateWorkOrder(form, processList)) {
+				const box = document.getElementById("duplicateError");
+				document.getElementById("duplicateErrorText").textContent = "同じ内容の作業指示書がすでに登録されています。";
+				box.style.display = "block";
+				window.scrollTo(0, 0);
+				return false;
+			}
+
+			TeamH.setDraft("workOrder", { form, processList });
+			location.href = "./work_order_form_confirm.html";
+			return false;
+		}
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			if (sess.role !== "admin") { location.href = "./login.html?authError=true"; return; }
+			TeamHNav.render("workOrders");
+
+			MACHINE_OPTIONS = TeamH.machines().map((m) => `<option value="${E(m.machineId)}">${E(m.machineNo)}</option>`).join("");
+			CRAFTSMAN_OPTIONS = TeamH.craftsmen().map((u) => `<option value="${E(u.userId)}">${E(u.name)}</option>`).join("");
+
+			document.getElementById("orderNoList").innerHTML = TeamH.distinctOrderNo().map((v) => `<option value="${E(v)}"></option>`).join("");
+			document.getElementById("partNameList").innerHTML = TeamH.distinctPartName().map((v) => `<option value="${E(v)}"></option>`).join("");
+			document.getElementById("clientNameList").innerHTML = TeamH.distinctClientName().map((v) => `<option value="${E(v)}"></option>`).join("");
+
+			const draft = TeamH.getDraft("workOrder");
+			if (draft && draft.form) {
+				document.getElementById("orderNo").value = draft.form.orderNo || "";
+				document.getElementById("partName").value = draft.form.partName || "";
+				document.getElementById("quantity").value = draft.form.quantity || "";
+				document.getElementById("clientName").value = draft.form.clientName || "";
+				document.getElementById("dueDate").value = draft.form.dueDate || "";
+				(draft.processList || []).forEach((p) => addProcess(p));
+				if (!(draft.processList || []).length) addProcess();
+			} else {
+				addProcess();
+			}
+		});
+	</script>
+
+</body>
+
+</html>

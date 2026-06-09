@@ -1,0 +1,782 @@
+{
+  "users": [
+    {
+      "name": "管理者 太郎",
+      "loginId": "admin001",
+      "passwordHash": "$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KbjQQ2",
+      "role": "admin",
+      "isActive": 1,
+      "userId": 1,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "name": "職人 一郎",
+      "loginId": "craftsman001",
+      "passwordHash": "$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KbjQQ2",
+      "role": "craftsman",
+      "isActive": 1,
+      "userId": 2,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "name": "職人 二郎",
+      "loginId": "craftsman002",
+      "passwordHash": "$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KbjQQ2",
+      "role": "craftsman",
+      "isActive": 1,
+      "userId": 3,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "name": "職人 三郎",
+      "loginId": "craftsman003",
+      "passwordHash": "$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KbjQQ2",
+      "role": "craftsman",
+      "isActive": 1,
+      "userId": 4,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "name": "営業 花子",
+      "loginId": "sales001",
+      "passwordHash": "$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KbjQQ2",
+      "role": "sales",
+      "isActive": 1,
+      "userId": 5,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    }
+  ],
+  "machines": [
+    {
+      "machineNo": "NC-001",
+      "name": "NC旋盤",
+      "isActive": 1,
+      "machineId": 1,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "NC-002",
+      "name": "NC旋盤",
+      "isActive": 1,
+      "machineId": 2,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "NC-003",
+      "name": "NC旋盤",
+      "isActive": 1,
+      "machineId": 3,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "NC-004",
+      "name": "NC旋盤",
+      "isActive": 1,
+      "machineId": 4,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "NC-005",
+      "name": "NC旋盤",
+      "isActive": 1,
+      "machineId": 5,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "NC-006",
+      "name": "NC旋盤",
+      "isActive": 1,
+      "machineId": 6,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "NC-007",
+      "name": "NC旋盤",
+      "isActive": 1,
+      "machineId": 7,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "NC-008",
+      "name": "NC旋盤",
+      "isActive": 1,
+      "machineId": 8,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "NC-009",
+      "name": "NC旋盤",
+      "isActive": 1,
+      "machineId": 9,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "NC-010",
+      "name": "NC旋盤",
+      "isActive": 1,
+      "machineId": 10,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "NC-011",
+      "name": "NC旋盤",
+      "isActive": 1,
+      "machineId": 11,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "NC-012",
+      "name": "NC旋盤",
+      "isActive": 1,
+      "machineId": 12,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "M-001",
+      "name": "マシニングセンタ",
+      "isActive": 1,
+      "machineId": 13,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "M-002",
+      "name": "マシニングセンタ",
+      "isActive": 1,
+      "machineId": 14,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "machineNo": "M-003",
+      "name": "マシニングセンタ",
+      "isActive": 1,
+      "machineId": 15,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    }
+  ],
+  "workOrders": [
+    {
+      "orderNo": "J-202606-001",
+      "partName": "医療機器用シャフト",
+      "clientName": "中央メディカル株式会社",
+      "quantity": 100,
+      "notes": "精度重視",
+      "dueDate": "2026-06-30",
+      "status": "active",
+      "createdBy": 1,
+      "workOrderId": 1,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "orderNo": "J-202606-002",
+      "partName": "半導体装置プレート",
+      "clientName": "東都半導体株式会社",
+      "quantity": 50,
+      "notes": "表面傷注意",
+      "dueDate": "2026-07-05",
+      "status": "not_started",
+      "createdBy": 1,
+      "workOrderId": 2,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "orderNo": "J-202606-003",
+      "partName": "産業ロボット用ギア",
+      "clientName": "未来ロボティクス株式会社",
+      "quantity": 200,
+      "notes": "熱処理あり",
+      "dueDate": "2026-07-10",
+      "status": "completed",
+      "createdBy": 1,
+      "workOrderId": 3,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "orderNo": "J-202606-004",
+      "partName": "自動車用ブラケット",
+      "clientName": "関東自動車工業株式会社",
+      "quantity": 80,
+      "notes": "公差厳しい",
+      "dueDate": "2026-07-15",
+      "status": "not_started",
+      "createdBy": 1,
+      "workOrderId": 4,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "orderNo": "J-202606-005",
+      "partName": "精密測定器用シャフト",
+      "clientName": "日本精密機器株式会社",
+      "quantity": 30,
+      "notes": "仕上げ重要",
+      "dueDate": "2026-07-20",
+      "status": "active",
+      "createdBy": 1,
+      "workOrderId": 5,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    }
+  ],
+  "workOrderProcesses": [
+    {
+      "workOrderId": 1,
+      "processOrder": 1,
+      "processName": "粗加工",
+      "machineId": 1,
+      "assignedUserId": 2,
+      "currentStatus": "completed",
+      "workOrderProcessId": 1,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 1,
+      "processOrder": 2,
+      "processName": "仕上げ加工",
+      "machineId": 2,
+      "assignedUserId": 2,
+      "currentStatus": "processing",
+      "workOrderProcessId": 2,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 1,
+      "processOrder": 3,
+      "processName": "検査",
+      "machineId": 13,
+      "assignedUserId": 3,
+      "currentStatus": "not_started",
+      "workOrderProcessId": 3,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 2,
+      "processOrder": 1,
+      "processName": "マシニング加工",
+      "machineId": 13,
+      "assignedUserId": 2,
+      "currentStatus": "not_started",
+      "workOrderProcessId": 4,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 2,
+      "processOrder": 2,
+      "processName": "検査",
+      "machineId": 14,
+      "assignedUserId": 3,
+      "currentStatus": "not_started",
+      "workOrderProcessId": 5,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 3,
+      "processOrder": 1,
+      "processName": "旋盤加工",
+      "machineId": 3,
+      "assignedUserId": 2,
+      "currentStatus": "completed",
+      "workOrderProcessId": 6,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 3,
+      "processOrder": 2,
+      "processName": "歯切り加工",
+      "machineId": 4,
+      "assignedUserId": 2,
+      "currentStatus": "completed",
+      "workOrderProcessId": 7,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 3,
+      "processOrder": 3,
+      "processName": "検査",
+      "machineId": 15,
+      "assignedUserId": 3,
+      "currentStatus": "completed",
+      "workOrderProcessId": 8,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 4,
+      "processOrder": 1,
+      "processName": "粗加工",
+      "machineId": 5,
+      "assignedUserId": 2,
+      "currentStatus": "not_started",
+      "workOrderProcessId": 9,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 4,
+      "processOrder": 2,
+      "processName": "仕上げ加工",
+      "machineId": 6,
+      "assignedUserId": 3,
+      "currentStatus": "not_started",
+      "workOrderProcessId": 10,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 5,
+      "processOrder": 1,
+      "processName": "旋盤加工",
+      "machineId": 7,
+      "assignedUserId": 2,
+      "currentStatus": "completed",
+      "workOrderProcessId": 11,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 5,
+      "processOrder": 2,
+      "processName": "研削加工",
+      "machineId": 8,
+      "assignedUserId": 2,
+      "currentStatus": "processing",
+      "workOrderProcessId": 12,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 5,
+      "processOrder": 3,
+      "processName": "検査",
+      "machineId": 13,
+      "assignedUserId": 3,
+      "currentStatus": "not_started",
+      "workOrderProcessId": 13,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    }
+  ],
+  "progressReports": [
+    {
+      "workOrderId": 1,
+      "status": "active",
+      "progressReportId": 1,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 2,
+      "status": "not_started",
+      "progressReportId": 2,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 3,
+      "status": "completed",
+      "progressReportId": 3,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 4,
+      "status": "not_started",
+      "progressReportId": 4,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "workOrderId": 5,
+      "status": "active",
+      "progressReportId": 5,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    }
+  ],
+  "progressReportProcesses": [
+    {
+      "progressReportId": 1,
+      "workOrderId": 1,
+      "workOrderProcessId": 1,
+      "assignedUserId": 2,
+      "progressStatus": "completed",
+      "machineNoActual": "NC-001",
+      "actualStart": "2026-06-20 08:00:00",
+      "expectedEndTime": "2026-06-20 10:00:00",
+      "actualEnd": "2026-06-20 09:40:00",
+      "handoverScheduledAt": "2026-06-20 10:00:00",
+      "comment": "問題なし",
+      "updatedBy": 2,
+      "progressReportProcessId": 1,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportId": 1,
+      "workOrderId": 1,
+      "workOrderProcessId": 2,
+      "assignedUserId": 2,
+      "progressStatus": "processing",
+      "machineNoActual": "NC-002",
+      "actualStart": "2026-06-21 08:00:00",
+      "expectedEndTime": "2026-06-21 17:00:00",
+      "actualEnd": null,
+      "handoverScheduledAt": "2026-06-21 17:00:00",
+      "comment": "加工中",
+      "updatedBy": 2,
+      "progressReportProcessId": 2,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportId": 1,
+      "workOrderId": 1,
+      "workOrderProcessId": 3,
+      "assignedUserId": 3,
+      "progressStatus": "not_started",
+      "machineNoActual": null,
+      "actualStart": null,
+      "expectedEndTime": null,
+      "actualEnd": null,
+      "handoverScheduledAt": null,
+      "comment": null,
+      "updatedBy": null,
+      "progressReportProcessId": 3,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportId": 2,
+      "workOrderId": 2,
+      "workOrderProcessId": 4,
+      "assignedUserId": 2,
+      "progressStatus": "not_started",
+      "machineNoActual": null,
+      "actualStart": null,
+      "expectedEndTime": null,
+      "actualEnd": null,
+      "handoverScheduledAt": null,
+      "comment": null,
+      "updatedBy": null,
+      "progressReportProcessId": 4,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportId": 2,
+      "workOrderId": 2,
+      "workOrderProcessId": 5,
+      "assignedUserId": 3,
+      "progressStatus": "not_started",
+      "machineNoActual": null,
+      "actualStart": null,
+      "expectedEndTime": null,
+      "actualEnd": null,
+      "handoverScheduledAt": null,
+      "comment": null,
+      "updatedBy": null,
+      "progressReportProcessId": 5,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportId": 3,
+      "workOrderId": 3,
+      "workOrderProcessId": 6,
+      "assignedUserId": 2,
+      "progressStatus": "completed",
+      "machineNoActual": "NC-003",
+      "actualStart": "2026-06-10 08:00:00",
+      "expectedEndTime": "2026-06-10 15:00:00",
+      "actualEnd": "2026-06-10 14:30:00",
+      "handoverScheduledAt": "2026-06-10 15:00:00",
+      "comment": "完了",
+      "updatedBy": 2,
+      "progressReportProcessId": 6,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportId": 3,
+      "workOrderId": 3,
+      "workOrderProcessId": 7,
+      "assignedUserId": 2,
+      "progressStatus": "completed",
+      "machineNoActual": "NC-004",
+      "actualStart": "2026-06-11 08:00:00",
+      "expectedEndTime": "2026-06-11 17:00:00",
+      "actualEnd": "2026-06-11 16:45:00",
+      "handoverScheduledAt": "2026-06-11 17:00:00",
+      "comment": "完了",
+      "updatedBy": 2,
+      "progressReportProcessId": 7,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportId": 3,
+      "workOrderId": 3,
+      "workOrderProcessId": 8,
+      "assignedUserId": 3,
+      "progressStatus": "completed",
+      "machineNoActual": "M-001",
+      "actualStart": "2026-06-12 08:00:00",
+      "expectedEndTime": "2026-06-12 12:00:00",
+      "actualEnd": "2026-06-12 11:50:00",
+      "handoverScheduledAt": "2026-06-12 12:00:00",
+      "comment": "検査完了",
+      "updatedBy": 2,
+      "progressReportProcessId": 8,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportId": 5,
+      "workOrderId": 5,
+      "workOrderProcessId": 11,
+      "assignedUserId": 2,
+      "progressStatus": "completed",
+      "machineNoActual": "NC-007",
+      "actualStart": "2026-06-18 08:00:00",
+      "expectedEndTime": "2026-06-18 14:00:00",
+      "actualEnd": "2026-06-18 13:30:00",
+      "handoverScheduledAt": "2026-06-18 14:00:00",
+      "comment": "問題なし",
+      "updatedBy": 2,
+      "progressReportProcessId": 9,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportId": 5,
+      "workOrderId": 5,
+      "workOrderProcessId": 12,
+      "assignedUserId": 2,
+      "progressStatus": "processing",
+      "machineNoActual": "NC-008",
+      "actualStart": "2026-06-19 08:00:00",
+      "expectedEndTime": "2026-06-19 17:00:00",
+      "actualEnd": null,
+      "handoverScheduledAt": "2026-06-19 17:00:00",
+      "comment": "研削中",
+      "updatedBy": 2,
+      "progressReportProcessId": 10,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportId": 5,
+      "workOrderId": 5,
+      "workOrderProcessId": 13,
+      "assignedUserId": 3,
+      "progressStatus": "not_started",
+      "machineNoActual": null,
+      "actualStart": null,
+      "expectedEndTime": null,
+      "actualEnd": null,
+      "handoverScheduledAt": null,
+      "comment": null,
+      "updatedBy": null,
+      "progressReportProcessId": 11,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    }
+  ],
+  "handoverNotes": [
+    {
+      "progressReportProcessId": 2,
+      "createdBy": 2,
+      "note": "工具の摩耗が見られるため次工程で確認してください",
+      "handoverNoteId": 1,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportProcessId": 2,
+      "createdBy": 2,
+      "note": "仕上げ寸法は図面通りです",
+      "handoverNoteId": 2,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportProcessId": 6,
+      "createdBy": 2,
+      "note": "旋盤加工完了。バリなし",
+      "handoverNoteId": 3,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "progressReportProcessId": 10,
+      "createdBy": 2,
+      "note": "研削途中。送り速度を落として加工中",
+      "handoverNoteId": 4,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    }
+  ],
+  "skillContents": [
+    {
+      "title": "薄物加工時のびびり対策",
+      "targetPart": "医療機器用シャフト",
+      "targetProcess": "仕上げ加工",
+      "description": "薄物加工で発生する振動対策",
+      "workContent": "回転数を下げて加工する",
+      "notes": "固定具の緩みに注意",
+      "registeredByName": "田中",
+      "createdBy": 1,
+      "updatedBy": 1,
+      "isDeleted": 0,
+      "skillContentsId": 1,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "title": "段取り替え時の確認ポイント",
+      "targetPart": "半導体装置プレート",
+      "targetProcess": "段取り替え",
+      "description": "段取り時間短縮のコツ",
+      "workContent": "工具配置を事前確認",
+      "notes": "締付確認必須",
+      "registeredByName": "山本",
+      "createdBy": 1,
+      "updatedBy": 1,
+      "isDeleted": 0,
+      "skillContentsId": 2,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "title": "検査工程のチェックリスト",
+      "targetPart": "産業ロボット用ギア",
+      "targetProcess": "検査",
+      "description": "検査漏れ防止",
+      "workContent": "寸法・外観を確認",
+      "notes": "記録を残す",
+      "registeredByName": "佐藤",
+      "createdBy": 1,
+      "updatedBy": 1,
+      "isDeleted": 0,
+      "skillContentsId": 3,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "title": "旋盤加工の段取り手順",
+      "targetPart": "自動車用ブラケット",
+      "targetProcess": "旋盤加工",
+      "description": "段取り時間を短縮するコツ",
+      "workContent": "チャック圧・芯出しを確認",
+      "notes": "芯出し必須",
+      "registeredByName": "田中",
+      "createdBy": 1,
+      "updatedBy": 1,
+      "isDeleted": 0,
+      "skillContentsId": 4,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "title": "研削加工の精度管理",
+      "targetPart": "精密測定器用シャフト",
+      "targetProcess": "研削加工",
+      "description": "研削焼けを防ぐ方法",
+      "workContent": "クーラント量を多めに設定",
+      "notes": "砥石ドレスを毎回実施",
+      "registeredByName": "田中",
+      "createdBy": 1,
+      "updatedBy": 1,
+      "isDeleted": 0,
+      "skillContentsId": 5,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    }
+  ],
+  "skillContentsFiles": [
+    {
+      "skillContentsId": 1,
+      "fileName": "vibration_countermeasure.mp4",
+      "fileType": "video",
+      "filePath": "/uploads/vibration_countermeasure.mp4",
+      "createdBy": 1,
+      "isDeleted": 0,
+      "skillContentsFilesId": 1,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "skillContentsId": 2,
+      "fileName": "setup_checklist.pdf",
+      "fileType": "pdf",
+      "filePath": "/uploads/setup_checklist.pdf",
+      "createdBy": 1,
+      "isDeleted": 0,
+      "skillContentsFilesId": 2,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "skillContentsId": 3,
+      "fileName": "inspection_manual.pdf",
+      "fileType": "pdf",
+      "filePath": "/uploads/inspection_manual.pdf",
+      "createdBy": 1,
+      "isDeleted": 0,
+      "skillContentsFilesId": 3,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "skillContentsId": 4,
+      "fileName": "lathe_setup_guide.pdf",
+      "fileType": "pdf",
+      "filePath": "/uploads/lathe_setup_guide.pdf",
+      "createdBy": 1,
+      "isDeleted": 0,
+      "skillContentsFilesId": 4,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    },
+    {
+      "skillContentsId": 5,
+      "fileName": "grinding_precision.pdf",
+      "fileType": "pdf",
+      "filePath": "/uploads/grinding_precision.pdf",
+      "createdBy": 1,
+      "isDeleted": 0,
+      "skillContentsFilesId": 5,
+      "createdAt": "2026-06-09T09:00:00",
+      "updatedAt": "2026-06-09T09:00:00"
+    }
+  ]
+}

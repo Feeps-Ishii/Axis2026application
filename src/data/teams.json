@@ -40,13 +40,14 @@
     "entry": "login.html"
   },
   {
-    "slug": "team5",
-    "name": "グループ5",
-    "appName": "（アプリ名未定）",
-    "description": "チームの成果物を public/team-apps/team5/ に配置してください。",
-    "category": "未分類",
-    "accent": "#9333ea",
-    "ready": false
+    "slug": "teamH",
+    "name": "グループH",
+    "appName": "進捗マルわかりシステム（マルセイ精密工業 製造進捗管理）",
+    "description": "管理者・職人・営業のログイン、作業指示書管理、工程進捗の更新と進捗管理書、設備稼働ダッシュボード、技能継承（ナレッジ）共有を JSON + localStorage で擬似再現したモックです。",
+    "category": "業務系",
+    "accent": "#0ea5e9",
+    "ready": true,
+    "entry": "login.html"
   },
   {
     "slug": "team6",

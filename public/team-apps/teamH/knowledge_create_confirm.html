@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>技能継承登録確認</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Yu Gothic", Meiryo, sans-serif;
+			background: #f4f7fb;
+			color: #1f2937;
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+
+		.main {
+			flex: 1;
+			padding: 32px;
+		}
+
+		/* ページタイトル */
+		.page-title {
+			font-size: 28px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0 0 24px 0;
+			display: flex;
+			align-items: center;
+		}
+
+		.page-title::before {
+			content: '';
+			display: inline-block;
+			width: 5px;
+			height: 32px;
+			background: #153e75;
+			border-radius: 3px;
+			margin-right: 12px;
+		}
+
+		/* カード */
+		.card {
+			max-width: 1000px;
+			background: white;
+			border-radius: 14px;
+			border: 1px solid #d9e2ec;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+			padding: 30px;
+		}
+
+		.notice {
+			background: #e0ecff;
+			color: #153e75;
+			padding: 14px;
+			border-radius: 8px;
+			margin-bottom: 20px;
+			font-size: 14px;
+		}
+
+		/* テーブル */
+		.confirm-table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.confirm-table th {
+			width: 180px;
+			background: #f0f4f8;
+			color: #334e68;
+			text-align: left;
+			padding: 14px;
+			border-bottom: 1px solid #d9e2ec;
+			vertical-align: top;
+			font-size: 14px;
+		}
+
+		.confirm-table td {
+			padding: 14px;
+			border-bottom: 1px solid #d9e2ec;
+			line-height: 1.8;
+			white-space: pre-wrap;
+			font-size: 14px;
+		}
+
+		.confirm-table tr:last-child th,
+		.confirm-table tr:last-child td {
+			border-bottom: none;
+		}
+
+		.file-box {
+			background: #f8fafc;
+			border: 1px solid #d9e2ec;
+			border-radius: 8px;
+			padding: 12px;
+			font-weight: bold;
+			color: #153e75;
+		}
+
+		/* ボタン */
+		.button-area {
+			display: flex;
+			justify-content: center;
+			gap: 15px;
+			margin-top: 30px;
+		}
+
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 10px 24px;
+			border-radius: 8px;
+			font-weight: bold;
+			font-size: 14px;
+			cursor: pointer;
+			border: 1px solid #bcccdc;
+			background: #fff;
+			color: #334e68;
+			text-decoration: none;
+		}
+
+		.btn:hover {
+			background: #f0f4f8;
+		}
+
+		.btn.primary {
+			background: #153e75;
+			color: #fff;
+			border-color: #153e75;
+		}
+
+		.btn.primary:hover {
+			background: #102a43;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<h1 class="page-title">技能継承登録確認</h1>
+
+			<div class="card">
+
+				<div class="notice">
+					以下の内容で登録します。内容をご確認のうえ「登録する」を押してください。
+				</div>
+
+				<table class="confirm-table" id="confirmTable"></table>
+
+				<div class="button-area">
+					<button type="button" id="submitBtn" class="btn primary">登録する</button>
+					<a href="./knowledge_form.html" class="btn">入力画面へ戻る</a>
+				</div>
+
+			</div>
+
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			TeamHNav.render("knowledge");
+
+			const d = TeamH.getDraft("knowledge");
+			if (!d) { location.href = "./knowledge_form.html"; return; }
+
+			document.getElementById("confirmTable").innerHTML = `
+				<tr><th>タイトル</th><td>${E(d.title)}</td></tr>
+				<tr><th>対象部品</th><td>${E(d.targetPart)}</td></tr>
+				<tr><th>対象工程</th><td>${E(d.targetProcess)}</td></tr>
+				<tr><th>概要</th><td>${E(d.description)}</td></tr>
+				<tr><th>作業内容</th><td>${E(d.workContent)}</td></tr>
+				<tr><th>注意事項</th><td>${E(d.notes)}</td></tr>
+				<tr><th>登録者</th><td>${E(d.registeredByName)}</td></tr>
+				<tr><th>添付ファイル</th><td><div class="file-box">${E(d.fileName || "添付なし")}</div></td></tr>`;
+
+			document.getElementById("submitBtn").addEventListener("click", function () {
+				TeamH.addSkillContent({
+					title: d.title,
+					targetPart: d.targetPart,
+					targetProcess: d.targetProcess,
+					description: d.description,
+					workContent: d.workContent,
+					notes: d.notes,
+					registeredByName: d.registeredByName
+				});
+				TeamH.clearDraft("knowledge");
+				location.href = "./complete.html?type=create";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

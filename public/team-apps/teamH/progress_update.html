@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>進捗更新</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Yu Gothic", "Meiryo", sans-serif;
+			background-color: #f4f7fb;
+			color: #1f2937;
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+
+		.main {
+			flex: 1;
+			padding: 32px;
+		}
+
+		/* ページタイトル */
+		.page-title {
+			font-size: 28px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0 0 24px 0;
+			display: flex;
+			align-items: center;
+		}
+
+		.page-title::before {
+			content: '';
+			display: inline-block;
+			width: 5px;
+			height: 32px;
+			background: #153e75;
+			border-radius: 3px;
+			margin-right: 12px;
+		}
+
+		/* カード */
+		.card {
+			background: white;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 22px;
+			margin-bottom: 24px;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+		}
+
+		.card-title {
+			margin: 0 0 18px 0;
+			font-size: 18px;
+			font-weight: bold;
+			color: #102a43;
+		}
+
+		/* テーブル */
+		.table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.table th {
+			background: #f0f4f8;
+			padding: 12px 14px;
+			text-align: left;
+			color: #334e68;
+			font-size: 13px;
+			font-weight: bold;
+			border-bottom: 1px solid #d9e2ec;
+		}
+
+		.table td {
+			padding: 12px 14px;
+			border-bottom: 1px solid #e5eaf0;
+			font-size: 14px;
+		}
+
+		.operation-cell {
+			text-align: center;
+			width: 80px;
+		}
+
+		/* バッジ */
+		.badge {
+			padding: 5px 12px;
+			border-radius: 999px;
+			font-weight: bold;
+			display: inline-block;
+			font-size: 12px;
+		}
+
+		.completed {
+			background: #dcfce7;
+			color: #166534;
+		}
+
+		.processing {
+			background: #fef3c7;
+			color: #92400e;
+		}
+
+		.not_started {
+			background: #e5e7eb;
+			color: #374151;
+		}
+
+		.preparing {
+			background: #dbeafe;
+			color: #1d4ed8;
+		}
+
+		.inspecting {
+			background: #ede9fe;
+			color: #6b21a8;
+		}
+
+		/* 行クリック */
+		.clickable-row {
+			cursor: pointer;
+		}
+
+		.clickable-row:hover td {
+			background: #e0ecff;
+		}
+
+		.disabled-row {
+			cursor: not-allowed;
+		}
+
+		.disabled-row:hover td {
+			background: transparent;
+		}
+
+		/* フォーム */
+		.form-row {
+			display: grid;
+			grid-template-columns: 160px 1fr;
+			gap: 10px;
+			align-items: center;
+			margin-bottom: 14px;
+		}
+
+		.form-row label {
+			font-weight: bold;
+			color: #334e68;
+			font-size: 14px;
+		}
+
+		.form-row input,
+		.form-row select,
+		.form-row textarea {
+			width: 100%;
+			padding: 10px 12px;
+			border: 1px solid #bcccdc;
+			border-radius: 8px;
+			font-size: 14px;
+			background: white;
+			font-family: inherit;
+			color: #1f2937;
+		}
+
+		.form-row input:focus,
+		.form-row select:focus,
+		.form-row textarea:focus {
+			border-color: #153e75;
+			outline: none;
+		}
+
+		.form-row textarea {
+			height: 86px;
+			resize: vertical;
+		}
+
+		/* ボタン */
+		.button-area {
+			display: flex;
+			gap: 10px;
+			margin-top: 20px;
+			flex-wrap: wrap;
+		}
+
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 10px 18px;
+			border-radius: 8px;
+			border: 1px solid #bcccdc;
+			background: #fff;
+			color: #334e68;
+			font-weight: bold;
+			font-size: 14px;
+			cursor: pointer;
+			font-family: inherit;
+			text-decoration: none;
+		}
+
+		.btn:hover {
+			background: #f0f4f8;
+		}
+
+		.btn.primary {
+			background: #153e75;
+			color: white;
+			border-color: #153e75;
+		}
+
+		.btn.primary:hover {
+			background: #102a43;
+		}
+
+		/* 空メッセージ */
+		.empty-message {
+			background: white;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 24px;
+			color: #627d98;
+			font-size: 14px;
+		}
+
+		/* モーダル */
+		.modal-bg {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.45);
+			justify-content: center;
+			align-items: center;
+			z-index: 9999;
+		}
+
+		.modal-bg.show {
+			display: flex;
+		}
+
+		.modal-box {
+			background: white;
+			border-radius: 14px;
+			padding: 32px;
+			width: 420px;
+			text-align: center;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, .2);
+		}
+
+		.modal-box h2 {
+			margin-top: 0;
+			color: #102a43;
+			font-size: 20px;
+		}
+
+		.modal-box p {
+			color: #627d98;
+			font-size: 14px;
+		}
+
+		.modal-buttons {
+			display: flex;
+			justify-content: center;
+			gap: 12px;
+			margin-top: 24px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<h1 class="page-title">進捗更新</h1>
+
+			<div id="content"></div>
+
+			<!-- モーダル -->
+			<div id="progressModal" class="modal-bg">
+				<div class="modal-box">
+					<h2 id="modalTitle">確認</h2>
+					<p id="modalMessage">作業を開始しますか？</p>
+					<div class="modal-buttons">
+						<form id="startForm" style="display:none;">
+							<input type="hidden" name="workOrderProcessId" id="startProcessId">
+							<button type="submit" class="btn primary">開始する</button>
+						</form>
+						<form id="finishForm" style="display:none;">
+							<input type="hidden" name="workOrderProcessId" id="finishProcessId">
+							<button type="submit" class="btn primary">終了する</button>
+						</form>
+						<a id="cancelSelectLink" class="btn">キャンセル</a>
+					</div>
+				</div>
+			</div>
+
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+		let IS_ADMIN = false;
+
+		function selectUrlFor(id) {
+			return IS_ADMIN
+				? "./progress_update.html?admin=1&workOrderProcessId=" + id
+				: "./progress_update.html?workOrderProcessId=" + id;
+		}
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+
+			const params = new URLSearchParams(location.search);
+			const isAdmin = (params.get("admin") === "1") && sess.role === "admin";
+			IS_ADMIN = isAdmin;
+
+			// 職人ガード
+			if (!isAdmin && sess.role !== "craftsman") {
+				location.href = "./login.html?authError=true";
+				return;
+			}
+
+			TeamHNav.render("progress");
+
+			const wopParam = params.get("workOrderProcessId");
+			const wopId = (wopParam === null || wopParam === "") ? null : wopParam;
+			const data = TeamH.progressPage(wopId, isAdmin);
+
+			if (!data) {
+				document.getElementById("content").innerHTML =
+					'<div class="empty-message">進捗管理書の対象データが見つかりません。</div>';
+				return;
+			}
+
+			const sel = data.selectedItem;
+			const loginUserId = sess.loginUser.userId;
+
+			// 工程一覧
+			const procRows = data.processList.map(function (p) {
+				const cls = p.updatable ? "clickable-row" : "disabled-row";
+				const op = p.status === "completed" ? "✓" : "-";
+				return `<tr class="${cls}"
+					data-updatable="${E(p.updatable)}" data-id="${E(p.workOrderProcessId)}"
+					data-status="${E(p.status)}" data-assigned-user-id="${E(p.assignedUserId)}"
+					data-login-user-id="${E(loginUserId)}" data-role="${E(sess.role)}"
+					data-select-url="${E(selectUrlFor(p.workOrderProcessId))}"
+					onclick="openProgressModal(this)">
+					<td>${E(p.processOrder)}</td>
+					<td>${E(p.processName)}</td>
+					<td>${E(p.machineNo)}</td>
+					<td><span class="badge ${E(p.status)}">${E(p.statusLabel)}</span></td>
+					<td>${E(p.assignedUserName)}</td>
+					<td class="operation-cell">${op}</td>
+				</tr>`;
+			}).join("");
+
+			// 機械番号 select
+			const machineOpts = TeamH.machines().map(function (m) {
+				const s = m.machineNo === sel.machineNo ? " selected" : "";
+				return `<option value="${E(m.machineNo)}"${s}>${E(m.machineNo)}</option>`;
+			}).join("");
+
+			// 担当者 select
+			const userOpts = TeamH.users().map(function (u) {
+				const s = Number(u.userId) === Number(sel.assignedUserId) ? " selected" : "";
+				return `<option value="${E(u.userId)}"${s}>${E(u.loginId + '　' + u.name)}</option>`;
+			}).join("");
+
+			const ro = isAdmin ? "" : " readonly";
+			const dis = isAdmin ? "" : " disabled";
+			const cs = sel.currentStatus;
+			function selStatus(v) { return cs === v ? " selected" : ""; }
+
+			// 完了前/完了後
+			let endRow;
+			if (cs !== "completed") {
+				endRow = `<div class="form-row">
+					<label>完了予定時刻</label>
+					<input type="datetime-local" name="expectedEndTime" value="${E(TeamH.toLocalInput(sel.expectedEndTime))}">
+				</div>`;
+			} else {
+				endRow = `<div class="form-row">
+					<label>完了時刻</label>
+					<input type="datetime-local" name="actualEnd" value="${E(TeamH.toLocalInput(sel.actualEnd))}">
+				</div>`;
+			}
+
+			const hiddenMachine = isAdmin ? "" :
+				`<input type="hidden" name="machineNoActual" value="${E(sel.machineNo)}">`;
+			const hiddenUser = isAdmin ? "" :
+				`<input type="hidden" name="assignedUserId" value="${E(sel.assignedUserId)}">`;
+
+			// 戻る / 作業指示書リンク
+			const backUrl = isAdmin
+				? "./progress_list.html"
+				: "./worker_navigation.html?workOrderProcessId=" + sel.workOrderProcessId;
+			const wiUrl = isAdmin
+				? "./work_instruction_detail.html?workOrderId=" + sel.workOrderId
+				: "./work_instruction_detail.html?workOrderProcessId=" + sel.workOrderProcessId;
+
+			document.getElementById("content").innerHTML = `
+				<div class="card">
+					<h2 class="card-title">工程一覧</h2>
+					<table class="table">
+						<tr>
+							<th>No</th><th>工程</th><th>機械番号</th><th>ステータス</th><th>担当職人</th><th></th>
+						</tr>
+						${procRows}
+					</table>
+				</div>
+
+				<div class="card">
+					<h2 class="card-title">進捗更新入力</h2>
+					<form id="updateForm">
+						<input type="hidden" name="workOrderProcessId" value="${E(sel.workOrderProcessId)}">
+
+						<div class="form-row">
+							<label>対象作業</label>
+							<input type="text" name="targetWork" value="${E(sel.orderNo + ' ' + sel.partName)}"${ro}>
+						</div>
+
+						<div class="form-row">
+							<label>対象工程</label>
+							<input type="text" name="targetProcessName" value="${E(sel.processName)}"${ro}>
+						</div>
+
+						<div class="form-row">
+							<label>機械番号</label>
+							<select name="machineNoActual"${dis}>${machineOpts}</select>
+							${hiddenMachine}
+						</div>
+
+						<div class="form-row">
+							<label>担当者</label>
+							<select name="assignedUserId"${dis}>${userOpts}</select>
+							${hiddenUser}
+						</div>
+
+						<div class="form-row">
+							<label>ステータス</label>
+							<select name="progressStatus">
+								<option value="not_started"${selStatus("not_started")}>未着手</option>
+								<option value="preparing"${selStatus("preparing")}>段取り中</option>
+								<option value="processing"${selStatus("processing")}>加工中</option>
+								<option value="inspecting"${selStatus("inspecting")}>検査中</option>
+								<option value="completed"${selStatus("completed")}>完了</option>
+							</select>
+						</div>
+
+						<div class="form-row">
+							<label>開始時刻</label>
+							<input type="text" name="actualStart" placeholder="2026-06-21 08:00:00" value="${E(sel.actualStart)}">
+						</div>
+
+						${endRow}
+
+						<div class="form-row">
+							<label>引継ぎ予定時刻</label>
+							<input type="datetime-local" name="handoverScheduledAt" value="${E(TeamH.toLocalInput(sel.handoverScheduledAt))}">
+						</div>
+
+						<div class="form-row">
+							<label>引継ぎメモ</label>
+							<textarea name="comment">${E(sel.comment)}</textarea>
+						</div>
+
+						<div class="button-area">
+							<button type="submit" class="btn primary">更新</button>
+							<a class="btn" href="${E(backUrl)}">戻る</a>
+							<a class="btn primary" href="${E(wiUrl)}">作業指示書を確認する</a>
+						</div>
+					</form>
+				</div>`;
+
+			// 更新フォーム送信
+			document.getElementById("updateForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				const f = e.target;
+				const status = f.progressStatus.value;
+				const expectedEndTime = f.expectedEndTime ? f.expectedEndTime.value : "";
+				const actualEnd = f.actualEnd ? f.actualEnd.value : "";
+				TeamH.updateProgress(
+					f.workOrderProcessId.value,
+					status,
+					f.actualStart.value,
+					status !== "completed" ? expectedEndTime : "",
+					status === "completed" ? actualEnd : "",
+					f.handoverScheduledAt.value,
+					f.comment.value
+				);
+				location.href = "./complete.html?type=update";
+			});
+
+			// 開始・終了フォーム
+			document.getElementById("startForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				const id = document.getElementById("startProcessId").value;
+				TeamH.startProgress(id);
+				location.href = selectUrlFor(id);
+			});
+			document.getElementById("finishForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				const id = document.getElementById("finishProcessId").value;
+				TeamH.finishProgress(id);
+				location.href = selectUrlFor(id);
+			});
+		});
+
+		function openProgressModal(row) {
+			const updatable = row.dataset.updatable;
+			const processId = row.dataset.id;
+			const status = row.dataset.status;
+			const selectUrl = row.dataset.selectUrl;
+
+			const assignedUserId = row.dataset.assignedUserId;
+			const loginUserId = row.dataset.loginUserId;
+			const role = row.dataset.role;
+
+			document.getElementById("startForm").style.display = "none";
+			document.getElementById("finishForm").style.display = "none";
+
+			/* 職人の場合、自分の担当工程でなければここで止める */
+			if (role === "craftsman" && assignedUserId !== loginUserId) {
+				document.getElementById("modalTitle").textContent = "編集できません";
+				document.getElementById("modalMessage").textContent =
+					"自分の担当工程ではないため、開始・終了はできません。";
+
+				document.getElementById("cancelSelectLink").removeAttribute("href");
+				document.getElementById("cancelSelectLink").textContent = "閉じる";
+				document.getElementById("cancelSelectLink").onclick = function () {
+					document.getElementById("progressModal").classList.remove("show");
+				};
+
+				document.getElementById("progressModal").classList.add("show");
+				return;
+			}
+
+			if (updatable !== "true") {
+				document.getElementById("modalTitle").textContent = "選択できません";
+				document.getElementById("modalMessage").textContent =
+					"前後の工程状態により、この工程は選択できません。";
+
+				document.getElementById("cancelSelectLink").removeAttribute("href");
+				document.getElementById("cancelSelectLink").textContent = "閉じる";
+				document.getElementById("cancelSelectLink").onclick = function () {
+					document.getElementById("progressModal").classList.remove("show");
+				};
+
+				document.getElementById("progressModal").classList.add("show");
+				return;
+			}
+
+			document.getElementById("startProcessId").value = processId;
+			document.getElementById("finishProcessId").value = processId;
+
+			document.getElementById("cancelSelectLink").href = selectUrl;
+			document.getElementById("cancelSelectLink").textContent = "キャンセル";
+			document.getElementById("cancelSelectLink").onclick = null;
+
+			if (status === "not_started") {
+				document.getElementById("modalTitle").textContent = "作業開始確認";
+				document.getElementById("modalMessage").textContent = "この工程の作業を開始しますか？";
+				document.getElementById("startForm").style.display = "block";
+			} else if (status === "preparing" || status === "processing" || status === "inspecting") {
+				document.getElementById("modalTitle").textContent = "作業終了確認";
+				document.getElementById("modalMessage").textContent = "この工程の作業を終了しますか？";
+				document.getElementById("finishForm").style.display = "block";
+			} else {
+				document.getElementById("modalTitle").textContent = "選択できません";
+				document.getElementById("modalMessage").textContent = "完了済みの工程は操作できません。";
+
+				document.getElementById("cancelSelectLink").removeAttribute("href");
+				document.getElementById("cancelSelectLink").textContent = "閉じる";
+				document.getElementById("cancelSelectLink").onclick = function () {
+					document.getElementById("progressModal").classList.remove("show");
+				};
+			}
+
+			document.getElementById("progressModal").classList.add("show");
+		}
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>技能継承コンテンツ登録</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+			background: #f4f7fb;
+			color: #1f2937;
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+
+		.main {
+			flex: 1;
+			padding: 32px;
+		}
+
+		/* ページタイトル */
+		.page-title {
+			font-size: 28px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0 0 24px 0;
+			display: flex;
+			align-items: center;
+		}
+
+		.page-title::before {
+			content: '';
+			display: inline-block;
+			width: 5px;
+			height: 32px;
+			background: #153e75;
+			border-radius: 3px;
+			margin-right: 12px;
+		}
+
+		/* カード */
+		.card {
+			background: #fff;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 24px;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+		}
+
+		/* フォーム */
+		.form-row {
+			margin-bottom: 18px;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.form-row label {
+			margin-bottom: 8px;
+			font-weight: bold;
+			color: #334e68;
+			font-size: 14px;
+		}
+
+		.form-row input,
+		.form-row select,
+		.form-row textarea {
+			width: 100%;
+			padding: 10px 12px;
+			border: 1px solid #bcccdc;
+			border-radius: 8px;
+			font-size: 14px;
+			background: #fff;
+			font-family: inherit;
+			color: #1f2937;
+		}
+
+		.form-row input:focus,
+		.form-row select:focus,
+		.form-row textarea:focus {
+			border-color: #153e75;
+			outline: none;
+		}
+
+		.form-row textarea {
+			min-height: 120px;
+			resize: vertical;
+			line-height: 1.7;
+		}
+
+		.form-row input[type="file"] {
+			background: #f8fafc;
+			padding: 10px;
+		}
+
+		/* ボタン */
+		.button-area {
+			display: flex;
+			gap: 12px;
+			margin-top: 24px;
+		}
+
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 10px 18px;
+			border-radius: 8px;
+			border: 1px solid #bcccdc;
+			background: #fff;
+			color: #334e68;
+			font-weight: bold;
+			font-size: 14px;
+			cursor: pointer;
+			font-family: inherit;
+			text-decoration: none;
+		}
+
+		.btn:hover {
+			background: #f0f4f8;
+		}
+
+		.btn.primary {
+			background: #153e75;
+			color: #fff;
+			border-color: #153e75;
+		}
+
+		.btn.primary:hover {
+			background: #102a43;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<h1 class="page-title">技能継承コンテンツ登録</h1>
+
+			<div class="card">
+				<form id="knowledgeForm" method="post" enctype="multipart/form-data">
+
+					<div class="form-row">
+						<label>タイトル</label>
+						<input type="text" name="title">
+					</div>
+
+					<div class="form-row">
+						<label>対象部品</label>
+						<input type="text" name="targetPart">
+					</div>
+
+					<div class="form-row">
+						<label>対象工程</label>
+						<select name="targetProcess">
+							<option value="旋盤加工">旋盤加工</option>
+							<option value="マシニング加工">マシニング加工</option>
+							<option value="検査">検査</option>
+							<option value="段取り替え">段取り替え</option>
+						</select>
+					</div>
+
+					<div class="form-row">
+						<label>概要</label>
+						<textarea name="description"></textarea>
+					</div>
+
+					<div class="form-row">
+						<label>参考資料ファイル</label>
+						<input type="file" name="uploadFile"
+							accept=".pdf,.txt,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.mp4">
+					</div>
+
+					<div class="form-row">
+						<label>作業内容</label>
+						<textarea name="workContent"></textarea>
+					</div>
+
+					<div class="form-row">
+						<label>注意事項</label>
+						<textarea name="notes"></textarea>
+					</div>
+
+					<div class="form-row">
+						<label>登録者名</label>
+						<input type="text" name="registeredByName">
+					</div>
+
+					<div class="button-area">
+						<button type="submit" class="btn primary">登録</button>
+						<a class="btn" href="./knowledge_list.html">戻る</a>
+					</div>
+
+				</form>
+			</div>
+
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			const role = sess.role;
+			if (role !== "admin" && role !== "craftsman") {
+				location.href = "./no_permission.html?message=" + encodeURIComponent("技能継承を登録する権限がありません。") +
+					"&backUrl=" + encodeURIComponent("./knowledge_list.html");
+				return;
+			}
+			TeamHNav.render("knowledge");
+
+			document.getElementById("knowledgeForm").addEventListener("submit", function (e) {
+				e.preventDefault();
+				const fields = [
+					{ name: 'title', label: 'タイトル' },
+					{ name: 'targetPart', label: '対象部品' },
+					{ name: 'description', label: '概要' },
+					{ name: 'workContent', label: '作業内容' },
+					{ name: 'notes', label: '注意事項' },
+					{ name: 'registeredByName', label: '登録者名' }
+				];
+
+				for (const field of fields) {
+					const el = document.querySelector('[name="' + field.name + '"]');
+					if (el && el.value.trim() === '') {
+						el.focus();
+						alert(field.label + 'は空白のみでは登録できません。');
+						return;
+					}
+				}
+
+				const fileInput = document.querySelector('[name="uploadFile"]');
+				const fileName = fileInput && fileInput.files && fileInput.files.length ? fileInput.files[0].name : "";
+
+				TeamH.setDraft("knowledge", {
+					title: document.querySelector('[name="title"]').value,
+					targetPart: document.querySelector('[name="targetPart"]').value,
+					targetProcess: document.querySelector('[name="targetProcess"]').value,
+					description: document.querySelector('[name="description"]').value,
+					workContent: document.querySelector('[name="workContent"]').value,
+					notes: document.querySelector('[name="notes"]').value,
+					registeredByName: document.querySelector('[name="registeredByName"]').value,
+					fileName: fileName
+				});
+				location.href = "./knowledge_create_confirm.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

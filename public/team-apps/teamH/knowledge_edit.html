@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>コンテンツ編集</title>
+
+	<link rel="stylesheet" href="./css/common.css">
+
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+			background: #f4f7fb;
+			color: #1f2937;
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+
+		.main {
+			flex: 1;
+			padding: 32px;
+		}
+
+		.page-title {
+			font-size: 28px;
+			font-weight: bold;
+			color: #102a43;
+			margin: 0 0 24px 0;
+			display: flex;
+			align-items: center;
+		}
+
+		.page-title::before {
+			content: '';
+			display: inline-block;
+			width: 5px;
+			height: 32px;
+			background: #153e75;
+			border-radius: 3px;
+			margin-right: 12px;
+		}
+
+		.card {
+			background: #fff;
+			border: 1px solid #d9e2ec;
+			border-radius: 14px;
+			padding: 24px;
+			box-shadow: 0 4px 12px rgba(16, 42, 67, 0.06);
+		}
+
+		.form-row {
+			margin-bottom: 18px;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.form-row label {
+			margin-bottom: 8px;
+			font-weight: bold;
+			color: #334e68;
+			font-size: 14px;
+		}
+
+		.form-row input,
+		.form-row select,
+		.form-row textarea {
+			width: 100%;
+			padding: 10px 12px;
+			border: 1px solid #bcccdc;
+			border-radius: 8px;
+			font-size: 14px;
+			background: #fff;
+			font-family: inherit;
+			color: #1f2937;
+		}
+
+		.form-row input:focus,
+		.form-row select:focus,
+		.form-row textarea:focus {
+			border-color: #153e75;
+			outline: none;
+		}
+
+		.form-row textarea {
+			min-height: 130px;
+			resize: vertical;
+			line-height: 1.7;
+		}
+
+		.button-area {
+			display: flex;
+			gap: 12px;
+			margin-top: 24px;
+		}
+
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 10px 18px;
+			border-radius: 8px;
+			border: 1px solid #bcccdc;
+			background: #fff;
+			color: #334e68;
+			font-weight: bold;
+			font-size: 14px;
+			cursor: pointer;
+			font-family: inherit;
+			text-decoration: none;
+		}
+
+		.btn:hover {
+			background: #f0f4f8;
+		}
+
+		.btn.primary {
+			background: #153e75;
+			color: #fff;
+			border-color: #153e75;
+		}
+
+		.btn.primary:hover {
+			background: #102a43;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="teamH-header"></div>
+
+	<div class="layout">
+
+		<div id="teamH-sidebar"></div>
+
+		<main class="main">
+
+			<h1 class="page-title">コンテンツ編集</h1>
+
+			<div class="card">
+				<form id="editForm" method="post" enctype="multipart/form-data">
+
+					<div class="form-row">
+						<label>タイトル <span style="color:#b91c1c;">*</span></label>
+						<input type="text" name="title">
+					</div>
+
+					<div class="form-row">
+						<label>対象部品 <span style="color:#b91c1c;">*</span></label>
+						<input type="text" name="targetPart">
+					</div>
+
+					<div class="form-row">
+						<label>対象工程</label>
+						<select name="targetProcess">
+							<option value="旋盤加工">旋盤加工</option>
+							<option value="マシニング加工">マシニング加工</option>
+							<option value="仕上げ加工">仕上げ加工</option>
+							<option value="検査">検査</option>
+							<option value="段取り替え">段取り替え</option>
+						</select>
+					</div>
+
+					<div class="form-row">
+						<label>概要 <span style="color:#b91c1c;">*</span></label>
+						<textarea name="description"></textarea>
+					</div>
+
+					<div class="form-row">
+						<label>作業内容 <span style="color:#b91c1c;">*</span></label>
+						<textarea name="workContent"></textarea>
+					</div>
+
+					<div class="form-row">
+						<label>注意事項 <span style="color:#b91c1c;">*</span></label>
+						<textarea name="notes"></textarea>
+					</div>
+
+					<div class="form-row">
+						<label>登録者名 <span style="color:#b91c1c;">*</span></label>
+						<input type="text" name="registeredByName">
+					</div>
+
+					<div class="form-row">
+						<label>現在の添付ファイル</label>
+						<div id="currentFiles"></div>
+					</div>
+
+					<div class="form-row">
+						<label>新しい添付ファイル</label>
+						<input type="file" name="uploadFile">
+					</div>
+
+					<div class="button-area">
+						<button type="submit" class="btn primary">変更</button>
+						<a class="btn" id="backLink" href="#">詳細へ戻る</a>
+					</div>
+
+				</form>
+			</div>
+
+		</main>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const E = (s) => TeamH.esc(s);
+
+		TeamH.init().then(function () {
+			const sess = TeamH.requireLogin();
+			if (!sess) return;
+			const role = sess.role;
+			if (role !== "admin" && role !== "craftsman") {
+				location.href = "./no_permission.html?message=" + encodeURIComponent("技能継承を編集する権限がありません。") +
+					"&backUrl=" + encodeURIComponent("./knowledge_list.html");
+				return;
+			}
+			TeamHNav.render("knowledge");
+
+			const id = new URLSearchParams(location.search).get("id");
+			const skill = TeamH.skillContent(id);
+			if (!skill) { location.href = "./knowledge_list.html"; return; }
+
+			document.getElementById("backLink").href = "./knowledge_detail.html?id=" + encodeURIComponent(id);
+
+			const f = document.getElementById("editForm");
+			f.title.value = skill.title || "";
+			f.targetPart.value = skill.targetPart || "";
+			f.targetProcess.value = skill.targetProcess || "";
+			f.description.value = skill.description || "";
+			f.workContent.value = skill.workContent || "";
+			f.notes.value = skill.notes || "";
+			f.registeredByName.value = skill.registeredByName || "";
+
+			const files = TeamH.skillFiles(id);
+			if (files.length) {
+				document.getElementById("currentFiles").innerHTML =
+					files.map((file) => `<div>${E(file.fileName)}</div>`).join("");
+			} else {
+				document.getElementById("currentFiles").textContent = "添付ファイルはありません。";
+			}
+
+			f.addEventListener("submit", function (e) {
+				e.preventDefault();
+				const fields = [
+					{ name: 'title', label: 'タイトル' },
+					{ name: 'targetPart', label: '対象部品' },
+					{ name: 'description', label: '概要' },
+					{ name: 'workContent', label: '作業内容' },
+					{ name: 'notes', label: '注意事項' },
+					{ name: 'registeredByName', label: '登録者名' }
+				];
+				for (const field of fields) {
+					const el = f.querySelector('[name="' + field.name + '"]');
+					if (el && el.value.trim() === '') {
+						el.focus();
+						alert(field.label + 'は空白のみでは登録できません。');
+						return;
+					}
+				}
+
+				const fileInput = f.querySelector('[name="uploadFile"]');
+				const fileName = fileInput && fileInput.files && fileInput.files.length ? fileInput.files[0].name : "";
+
+				TeamH.setDraft("knowledgeEdit", {
+					title: f.title.value,
+					targetPart: f.targetPart.value,
+					targetProcess: f.targetProcess.value,
+					description: f.description.value,
+					workContent: f.workContent.value,
+					notes: f.notes.value,
+					registeredByName: f.registeredByName.value,
+					fileName: fileName
+				});
+				location.href = "./knowledge_edit_confirm.html?id=" + encodeURIComponent(id);
+			});
+		});
+	</script>
+
+</body>
+
+</html>
