@@ -50,13 +50,14 @@
     "entry": "login.html"
   },
   {
-    "slug": "team6",
-    "name": "グループ6",
-    "appName": "（アプリ名未定）",
-    "description": "チームの成果物を public/team-apps/team6/ に配置してください。",
-    "category": "未分類",
-    "accent": "#0891b2",
-    "ready": false
+    "slug": "teamG",
+    "name": "グループG",
+    "appName": "ひだまり支援センター（訪問介護 事務作業管理システム）",
+    "description": "管理者・ヘルパー・家族のログイン、利用者/スタッフ/サービスプラン管理、訪問記録と全報告登録、家族報告の承認・差戻し、申し送り、家族連絡、請求情報を JSON + localStorage で擬似再現したモックです。",
+    "category": "業務系",
+    "accent": "#f59e0b",
+    "ready": true,
+    "entry": "login.html"
   },
   {
     "slug": "team7",

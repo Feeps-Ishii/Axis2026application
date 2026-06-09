@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>スタッフ更新</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="staff-update-page care-user-list-page">
+
+	<header class="site-header">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ゲスト</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="care-user-list-container compact-care-user-list-container compact-staff-update-container">
+
+		<section class="compact-page-top">
+
+			<div class="page-heading compact-page-heading">
+				<h2 class="page-title">スタッフ更新</h2>
+				<p class="page-description">
+					スタッフ情報、担当利用者、メインヘルパーを更新できます。
+				</p>
+			</div>
+
+			<div class="page-action-area compact-page-action-area">
+				<a href="#" id="backToDetail" class="secondary-button">
+					スタッフ詳細へ戻る
+				</a>
+			</div>
+
+		</section>
+
+		<section class="search-section compact-search-section staff-update-form-section">
+
+			<div class="compact-table-header">
+
+				<div class="list-title-action">
+					<h3 class="section-title">スタッフ情報</h3>
+				</div>
+
+				<p class="list-count">
+					変更する項目を入力し、更新内容を確認してください。
+				</p>
+
+			</div>
+
+			<form id="staffUpdateForm" class="staff-update-form compact-staff-update-form" onsubmit="return false;">
+
+				<input type="hidden" name="staffId" id="staffId">
+				<input type="hidden" name="accountId" id="accountId">
+
+				<input type="hidden" name="assignedCareUserIds" id="assignedCareUserIds">
+				<input type="hidden" name="mainHelperCareUserIds" id="mainHelperCareUserIds">
+
+				<div class="staff-update-grid">
+
+					<div class="form-group compact-form-group">
+						<label for="staffName" class="raised-field-label">
+							<span>氏名</span>
+						</label>
+						<input type="text" id="staffName" name="staffName" class="inset-field large-field">
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="birthDate" class="raised-field-label">
+							<span>生年月日</span>
+						</label>
+						<input type="date" id="birthDate" name="birthDate" class="inset-field large-field">
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="gender" class="raised-field-label">
+							<span>性別</span>
+						</label>
+						<select id="gender" name="gender" class="inset-field large-field">
+							<option value="1">男性</option>
+							<option value="2">女性</option>
+							<option value="3">その他</option>
+						</select>
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="postalCode" class="raised-field-label">
+							<span>郵便番号</span>
+						</label>
+						<input type="text" id="postalCode" name="postalCode" class="inset-field large-field">
+					</div>
+
+					<div class="form-group compact-form-group full-width">
+						<label for="address" class="raised-field-label">
+							<span>住所</span>
+						</label>
+						<input type="text" id="address" name="address" class="inset-field large-field">
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="phoneNumber" class="raised-field-label">
+							<span>電話番号</span>
+						</label>
+						<input type="text" id="phoneNumber" name="phoneNumber" class="inset-field large-field">
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="email" class="raised-field-label">
+							<span>メール</span>
+						</label>
+						<input type="email" id="email" name="email" class="inset-field large-field">
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label class="raised-field-label">
+							<span>権限</span>
+						</label>
+
+						<p class="inset-field readonly-inset-field" id="roleTypeLabel">
+							ヘルパー
+						</p>
+
+						<input type="hidden" name="roleType" id="roleType">
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="loginId" class="raised-field-label">
+							<span>ログインID</span>
+						</label>
+
+						<input type="text"
+							id="loginId"
+							name="loginId"
+							class="inset-field large-field">
+
+						<p class="field-error-message server-error-message" id="loginIdError"></p>
+					</div>
+
+				</div>
+
+				<section class="assignment-section compact-assignment-section" id="assignmentSection" style="display:none;">
+
+					<div class="compact-table-header">
+
+						<div class="list-title-action">
+							<h3 class="section-title">担当利用者割当</h3>
+						</div>
+
+					</div>
+
+					<p class="assignment-description">
+						未割当利用者を担当利用者へドラッグすると担当に追加されます。<br>
+						担当利用者を未割当利用者へドラッグして更新すると、担当から削除されます。<br>
+						「メイン」にチェックを入れると、このスタッフをその利用者のメインヘルパーに設定します。
+					</p>
+
+					<div class="assignment-area">
+
+						<div class="assignment-box">
+							<h4>担当利用者</h4>
+
+							<div id="assignedArea" class="user-drop-area" ondragover="allowDrop(event)"
+								ondrop="dropUser(event)">
+							</div>
+						</div>
+
+						<div class="assignment-box">
+							<h4>未割当利用者</h4>
+
+							<div id="unassignedArea" class="user-drop-area" ondragover="allowDrop(event)"
+								ondrop="dropUser(event)">
+							</div>
+						</div>
+
+					</div>
+
+				</section>
+
+				<div class="button-area compact-register-button-area">
+
+					<button type="button" class="primary-button large-action-button" id="confirmBtn">
+						更新内容を確認
+					</button>
+
+					<button type="reset" class="secondary-button large-action-button">
+						クリア
+					</button>
+
+				</div>
+
+			</form>
+
+		</section>
+
+	</main>
+
+	<section class="modal-section staff-update-confirm-modal" id="modal" hidden>
+
+		<div class="modal-overlay">
+
+			<div class="modal-card compact-modal-card">
+
+				<h3 class="modal-title">更新内容確認</h3>
+
+				<div class="confirm-panel">
+
+					<dl class="confirm-list compact-confirm-list">
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">氏名</dt>
+							<dd id="cName" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">生年月日</dt>
+							<dd id="cBirth" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">性別</dt>
+							<dd id="cGender" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">郵便番号</dt>
+							<dd id="cPostal" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row full-width">
+							<dt class="raised-confirm-label">住所</dt>
+							<dd id="cAddress" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">電話番号</dt>
+							<dd id="cPhone" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">メール</dt>
+							<dd id="cEmail" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">権限</dt>
+							<dd id="cRoleType" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">ログインID</dt>
+							<dd id="cLogin" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row full-width">
+							<dt class="raised-confirm-label">担当利用者</dt>
+							<dd id="cAssignedUsers" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row full-width">
+							<dt class="raised-confirm-label">メイン担当</dt>
+							<dd id="cMainHelperUsers" class="inset-confirm-value"></dd>
+						</div>
+
+					</dl>
+
+				</div>
+
+				<p class="confirm-message">
+					この内容で更新しますか？
+				</p>
+
+				<div class="modal-button-area compact-modal-button-area">
+
+					<button type="button" class="primary-button large-action-button" id="submitBtn">
+						更新する
+					</button>
+
+					<button type="button" class="secondary-button large-action-button" onclick="closeModal()">
+						キャンセル
+					</button>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</section>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const modal = document.getElementById("modal");
+
+		let draggedUser = null;
+
+		function dragUser(event) {
+			draggedUser = event.target.closest(".user-card");
+		}
+
+		function allowDrop(event) {
+			event.preventDefault();
+		}
+
+		function dropUser(event) {
+			event.preventDefault();
+			const dropArea = event.currentTarget;
+			if (draggedUser) {
+				dropArea.appendChild(draggedUser);
+				if (dropArea.id === "assignedArea") addMainHelperCheckIfNeeded(draggedUser);
+				if (dropArea.id === "unassignedArea") removeMainHelperCheck(draggedUser);
+				updateAssignedCareUserIds();
+				updateMainHelperCareUserIds();
+				draggedUser = null;
+			}
+		}
+
+		function addMainHelperCheckIfNeeded(card) {
+			const cardMain = card.querySelector(".user-card-main");
+			const existsCheck = card.querySelector(".main-helper-check");
+			if (!existsCheck && cardMain) {
+				const careUserId = card.dataset.careUserId;
+				const label = document.createElement("label");
+				label.className = "main-helper-label";
+				const input = document.createElement("input");
+				input.type = "checkbox";
+				input.className = "main-helper-check";
+				input.value = careUserId;
+				label.appendChild(input);
+				label.appendChild(document.createTextNode(" メイン"));
+				cardMain.appendChild(label);
+			}
+		}
+
+		function removeMainHelperCheck(card) {
+			const mainHelperLabel = card.querySelector(".main-helper-label");
+			if (mainHelperLabel) mainHelperLabel.remove();
+		}
+
+		function updateAssignedCareUserIds() {
+			const assignedArea = document.getElementById("assignedArea");
+			if (!assignedArea) { document.getElementById("assignedCareUserIds").value = ""; return; }
+			const cards = assignedArea.querySelectorAll(".user-card");
+			const ids = Array.from(cards).map(card => card.dataset.careUserId);
+			document.getElementById("assignedCareUserIds").value = ids.join(",");
+		}
+
+		function updateMainHelperCareUserIds() {
+			const assignedArea = document.getElementById("assignedArea");
+			if (!assignedArea) { document.getElementById("mainHelperCareUserIds").value = ""; return; }
+			const checks = assignedArea.querySelectorAll(".main-helper-check:checked");
+			const ids = Array.from(checks).map(check => check.value);
+			document.getElementById("mainHelperCareUserIds").value = ids.join(",");
+		}
+
+		function updateAssignedCareUserNamesForConfirm() {
+			const assignedArea = document.getElementById("assignedArea");
+			if (!assignedArea) { document.getElementById("cAssignedUsers").textContent = "なし"; return; }
+			const cards = assignedArea.querySelectorAll(".user-card");
+			const names = Array.from(cards).map(card => {
+				const span = card.querySelector("span");
+				return span ? span.textContent.trim() : "";
+			}).filter(name => name !== "");
+			document.getElementById("cAssignedUsers").textContent = names.length > 0 ? names.join("、") : "なし";
+		}
+
+		function updateMainHelperNamesForConfirm() {
+			const assignedArea = document.getElementById("assignedArea");
+			if (!assignedArea) { document.getElementById("cMainHelperUsers").textContent = "なし"; return; }
+			const checks = assignedArea.querySelectorAll(".main-helper-check:checked");
+			const names = Array.from(checks).map(check => {
+				const card = check.closest(".user-card");
+				const span = card.querySelector("span");
+				return span ? span.textContent.trim() : "";
+			}).filter(name => name !== "");
+			document.getElementById("cMainHelperUsers").textContent = names.length > 0 ? names.join("、") : "なし";
+		}
+
+		function closeModal() {
+			modal.classList.remove("is-open");
+			modal.hidden = true;
+			document.body.style.overflow = "";
+		}
+
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1])) return;
+			document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+
+			const id = Number(new URLSearchParams(location.search).get("staffId"));
+			const staff = TeamG.staff(id);
+			if (!staff) {
+				document.querySelector("main").innerHTML =
+					'<section class="message-section compact-message-section"><p class="info-message">スタッフが見つかりませんでした。</p></section>';
+				return;
+			}
+			const acc = TeamG.account(staff.accountId);
+			const roleType = acc ? acc.roleType : null;
+			const isHelper = roleType === 2;
+
+			document.getElementById("backToDetail").href = "./staff_detail.html?staffId=" + staff.staffId;
+
+			const form = document.getElementById("staffUpdateForm");
+			form.staffId.value = staff.staffId;
+			form.accountId.value = staff.accountId;
+			form.staffName.value = staff.staffName || "";
+			form.birthDate.value = TeamG.toDateInput(staff.birthDate);
+			const genderInt = { "男性": "1", "女性": "2", "その他": "3" }[staff.gender] || "1";
+			form.gender.value = genderInt;
+			form.postalCode.value = staff.postalCode || "";
+			form.address.value = staff.address || "";
+			form.phoneNumber.value = staff.phoneNumber || "";
+			form.email.value = staff.email || "";
+			form.roleType.value = roleType;
+			form.loginId.value = acc ? acc.loginId : "";
+			document.getElementById("roleTypeLabel").textContent = roleType === 1 ? "管理者・事務員" : "ヘルパー";
+
+			// 担当割当（ヘルパーのみ）
+			if (isHelper) {
+				document.getElementById("assignmentSection").style.display = "";
+				const assignedArea = document.getElementById("assignedArea");
+				const unassignedArea = document.getElementById("unassignedArea");
+
+				const assigned = TeamG.assignedCareUsers(staff.staffId);
+				const assignedIds = assigned.map(c => Number(c.careUserId));
+				const mainIds = TeamG.assignedHelpers
+					? TeamG.assignments().filter(h => Number(h.helperStaffId) === Number(staff.staffId) && h.isMainHelper).map(h => Number(h.careUserId))
+					: [];
+
+				assigned.forEach(function (c) {
+					const card = document.createElement("div");
+					card.className = "user-card";
+					card.draggable = true;
+					card.dataset.careUserId = c.careUserId;
+					card.setAttribute("ondragstart", "dragUser(event)");
+					const checked = mainIds.includes(Number(c.careUserId)) ? " checked" : "";
+					card.innerHTML =
+						'<div class="user-card-main"><span>' + TeamG.esc(c.careUserName) + '</span>' +
+						'<label class="main-helper-label"><input type="checkbox" class="main-helper-check" value="' + c.careUserId + '"' + checked + '> メイン</label></div>';
+					assignedArea.appendChild(card);
+				});
+
+				TeamG.unassignedCareUsers(staff.staffId).forEach(function (c) {
+					const card = document.createElement("div");
+					card.className = "user-card";
+					card.draggable = true;
+					card.dataset.careUserId = c.careUserId;
+					card.setAttribute("ondragstart", "dragUser(event)");
+					card.innerHTML = '<div class="user-card-main"><span>' + TeamG.esc(c.careUserName) + '</span></div>';
+					unassignedArea.appendChild(card);
+				});
+
+				assignedArea.addEventListener("change", function (e) {
+					if (e.target.classList.contains("main-helper-check")) updateMainHelperCareUserIds();
+				});
+			}
+
+			updateAssignedCareUserIds();
+			updateMainHelperCareUserIds();
+
+			document.getElementById("confirmBtn").addEventListener("click", function () {
+				updateAssignedCareUserIds();
+				updateMainHelperCareUserIds();
+				updateAssignedCareUserNamesForConfirm();
+				updateMainHelperNamesForConfirm();
+
+				document.getElementById("cName").textContent = form.staffName.value;
+				document.getElementById("cBirth").textContent = form.birthDate.value;
+				const gender = form.gender.value;
+				document.getElementById("cGender").textContent =
+					gender === "1" ? "男性" : gender === "2" ? "女性" : gender === "3" ? "その他" : "";
+				document.getElementById("cPostal").textContent = form.postalCode.value;
+				document.getElementById("cAddress").textContent = form.address.value;
+				document.getElementById("cPhone").textContent = form.phoneNumber.value;
+				document.getElementById("cEmail").textContent = form.email.value;
+				document.getElementById("cRoleType").textContent = form.roleType.value === "1" ? "管理者・事務員" : "ヘルパー";
+				document.getElementById("cLogin").textContent = form.loginId.value;
+
+				modal.hidden = false;
+				modal.classList.add("is-open");
+				document.body.style.overflow = "hidden";
+			});
+
+			document.getElementById("submitBtn").addEventListener("click", function () {
+				updateAssignedCareUserIds();
+				updateMainHelperCareUserIds();
+
+				const loginId = form.loginId.value.trim();
+				if (loginId && acc && loginId !== acc.loginId && TeamG.loginIdExists(loginId)) {
+					document.getElementById("loginIdError").textContent = "このログインIDは既に使用されています。";
+					closeModal();
+					return;
+				}
+
+				const staffObj = {
+					staffId: Number(form.staffId.value),
+					accountId: Number(form.accountId.value),
+					staffName: form.staffName.value.trim(),
+					birthDate: form.birthDate.value,
+					gender: Number(form.gender.value),
+					postalCode: form.postalCode.value.trim(),
+					address: form.address.value.trim(),
+					phoneNumber: form.phoneNumber.value.trim(),
+					email: form.email.value.trim(),
+				};
+				const userObj = { accountId: Number(form.accountId.value), loginId: loginId };
+				const assignedCsv = isHelper ? form.assignedCareUserIds.value : null;
+				const mainCsv = isHelper ? form.mainHelperCareUserIds.value : null;
+
+				TeamG.staffUpdate(staffObj, userObj, assignedCsv, mainCsv);
+				location.href = "./complete.html?title=" + encodeURIComponent("更新完了") +
+					"&message=" + encodeURIComponent("スタッフ情報を更新しました。") +
+					"&backUrl=" + encodeURIComponent("./staff_list.html") +
+					"&backText=" + encodeURIComponent("一覧へ戻る") +
+					"&dashboardUrl=" + encodeURIComponent("./admin_dashboard.html") +
+					"&dashboardText=" + encodeURIComponent("ダッシュボードへ戻る");
+			});
+		});
+	</script>
+
+</body>
+
+</html>

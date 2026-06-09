@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>利用者詳細</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="care-user-detail-page care-user-list-page">
+
+	<header id="siteHeader" class="site-header">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">管理者</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="care-user-list-container compact-care-user-list-container compact-care-user-detail-container">
+
+		<section class="compact-page-top">
+
+			<div class="page-heading compact-page-heading">
+				<h2 class="page-title">利用者詳細</h2>
+				<p class="page-description">
+					利用者の基本情報と担当ヘルパーを確認できます。
+				</p>
+			</div>
+
+			<div class="page-action-area compact-page-action-area">
+				<a href="./careuser_list.html" class="secondary-button">
+					利用者一覧へ戻る
+				</a>
+			</div>
+
+		</section>
+
+		<section class="message-section compact-message-section" id="endedMessage" style="display:none;">
+
+			<p class="info-message">
+				この利用者は利用終了済みです。
+			</p>
+
+		</section>
+
+		<section class="search-section compact-search-section care-user-detail-section">
+
+			<div class="compact-table-header">
+
+				<div class="list-title-action">
+					<h3 class="section-title">利用者情報</h3>
+				</div>
+
+				<p class="list-count">
+					登録されている利用者の詳細情報です。
+				</p>
+
+			</div>
+
+			<dl class="care-user-detail-list">
+
+				<div class="care-user-detail-row">
+					<dt class="raised-detail-label">利用者ID</dt>
+					<dd class="inset-detail-value" id="dCareUserId"></dd>
+				</div>
+
+				<div class="care-user-detail-row">
+					<dt class="raised-detail-label">氏名</dt>
+					<dd class="inset-detail-value" id="dCareUserName"></dd>
+				</div>
+
+				<div class="care-user-detail-row">
+					<dt class="raised-detail-label">生年月日</dt>
+					<dd class="inset-detail-value" id="dBirthDate"></dd>
+				</div>
+
+				<div class="care-user-detail-row">
+					<dt class="raised-detail-label">年齢</dt>
+					<dd class="inset-detail-value" id="dAge"></dd>
+				</div>
+
+				<div class="care-user-detail-row">
+					<dt class="raised-detail-label">性別</dt>
+					<dd class="inset-detail-value" id="dGender"></dd>
+				</div>
+
+				<div class="care-user-detail-row">
+					<dt class="raised-detail-label">郵便番号</dt>
+					<dd class="inset-detail-value" id="dPostalCode"></dd>
+				</div>
+
+				<div class="care-user-detail-row full-width">
+					<dt class="raised-detail-label">住所</dt>
+					<dd class="inset-detail-value" id="dAddress"></dd>
+				</div>
+
+				<div class="care-user-detail-row">
+					<dt class="raised-detail-label">電話番号</dt>
+					<dd class="inset-detail-value" id="dPhoneNumber"></dd>
+				</div>
+
+				<div class="care-user-detail-row">
+					<dt class="raised-detail-label">状態</dt>
+					<dd class="inset-detail-value" id="dStatus"></dd>
+				</div>
+
+			</dl>
+
+		</section>
+
+		<section class="search-section compact-search-section care-user-helper-section">
+
+			<div class="compact-table-header">
+
+				<div class="list-title-action">
+					<h3 class="section-title">担当ヘルパー</h3>
+				</div>
+
+				<p class="list-count">
+					この利用者を担当しているヘルパーです。
+				</p>
+
+			</div>
+
+			<div class="table-scroll-area" id="helperTableArea" style="display:none;">
+
+				<table class="care-user-table compact-care-user-table">
+
+					<thead>
+						<tr>
+							<th>スタッフID</th>
+							<th>氏名</th>
+							<th>メイン担当</th>
+						</tr>
+					</thead>
+
+					<tbody id="helperTableBody">
+					</tbody>
+
+				</table>
+
+			</div>
+
+			<p class="info-message" id="noHelperMessage" style="display:none;">
+				現在、担当ヘルパーは登録されていません。
+			</p>
+
+		</section>
+
+		<section class="search-section compact-search-section care-user-detail-action-section">
+
+			<div class="button-area compact-detail-button-area" id="actionArea">
+			</div>
+
+		</section>
+
+	</main>
+
+	<section class="modal-section care-user-end-modal" id="endModal" hidden>
+
+		<div class="modal-overlay" id="modalOverlay">
+
+			<div class="modal-card compact-modal-card" role="dialog" aria-modal="true" aria-labelledby="endModalTitle">
+
+				<h3 id="endModalTitle" class="modal-title">
+					利用終了確認
+				</h3>
+
+				<div class="confirm-panel">
+
+					<dl class="confirm-list compact-confirm-list">
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">利用者ID</dt>
+							<dd class="inset-confirm-value" id="mCareUserId"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">氏名</dt>
+							<dd class="inset-confirm-value" id="mCareUserName"></dd>
+						</div>
+
+					</dl>
+
+				</div>
+
+				<p class="confirm-message">
+					この利用者を利用終了にしますか？
+				</p>
+
+				<form class="inline-form" id="stopForm" onsubmit="return false;">
+
+					<div class="modal-button-area compact-modal-button-area">
+
+						<button type="submit" class="danger-button large-action-button" id="stopSubmit">
+							利用終了にする
+						</button>
+
+						<button type="button" class="secondary-button large-action-button" id="cancelButton">
+							戻る
+						</button>
+
+					</div>
+
+				</form>
+
+			</div>
+
+		</div>
+
+	</section>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1])) return;
+			document.getElementById("userName").textContent = sess.loginUserName || "管理者";
+
+			const id = Number(new URLSearchParams(location.search).get("careUserId"));
+			const careUser = TeamG.careUser(id);
+			if (!careUser) {
+				document.querySelector("main").innerHTML =
+					'<section class="message-section compact-message-section"><p class="info-message">利用者が見つかりませんでした。</p></section>';
+				return;
+			}
+
+			document.getElementById("dCareUserId").textContent = careUser.careUserId;
+			document.getElementById("dCareUserName").textContent = careUser.careUserName;
+			document.getElementById("dBirthDate").textContent = TeamG.fmtDate(careUser.birthDate);
+			document.getElementById("dAge").textContent = (careUser.age != null ? careUser.age : "") + "歳";
+			document.getElementById("dGender").textContent = careUser.gender || "";
+			document.getElementById("dPostalCode").textContent = careUser.postalCode || "";
+			document.getElementById("dAddress").textContent = careUser.address || "";
+			document.getElementById("dPhoneNumber").textContent = careUser.phoneNumber || "";
+
+			const statusEl = document.getElementById("dStatus");
+			if (careUser.isActive) {
+				statusEl.innerHTML = '<span class="status-label status-active">利用中</span>';
+			} else {
+				statusEl.innerHTML = '<span class="status-label status-ended">利用終了</span>';
+				document.getElementById("endedMessage").style.display = "";
+			}
+
+			const helpers = TeamG.assignedHelpers(careUser.careUserId);
+			if (helpers.length) {
+				const body = document.getElementById("helperTableBody");
+				body.innerHTML = helpers.map(function (x) {
+					const main = x.assignment.isMainHelper
+						? '<span class="status-label status-active">メイン</span>'
+						: '<span class="status-label status-ended">-</span>';
+					return "<tr>" +
+						"<td>" + x.staff.staffId + "</td>" +
+						"<td>" + TeamG.esc(x.staff.staffName) + "</td>" +
+						"<td>" + main + "</td>" +
+						"</tr>";
+				}).join("");
+				document.getElementById("helperTableArea").style.display = "";
+			} else {
+				document.getElementById("noHelperMessage").style.display = "";
+			}
+
+			const actionArea = document.getElementById("actionArea");
+			if (careUser.isActive) {
+				const edit = document.createElement("a");
+				edit.href = "./careuser_edit.html?careUserId=" + careUser.careUserId;
+				edit.className = "primary-button large-action-button";
+				edit.textContent = "編集する";
+				actionArea.appendChild(edit);
+
+				const stop = document.createElement("button");
+				stop.type = "button";
+				stop.className = "danger-button large-action-button";
+				stop.textContent = "利用終了";
+				stop.addEventListener("click", openEndModal);
+				actionArea.appendChild(stop);
+			}
+
+			const modal = document.getElementById("endModal");
+			const overlay = document.getElementById("modalOverlay");
+			const cancelButton = document.getElementById("cancelButton");
+			document.getElementById("mCareUserId").textContent = careUser.careUserId;
+			document.getElementById("mCareUserName").textContent = careUser.careUserName;
+
+			function openEndModal() {
+				modal.hidden = false;
+				modal.classList.add("is-open");
+				document.body.style.overflow = "hidden";
+			}
+			function closeEndModal() {
+				modal.classList.remove("is-open");
+				modal.hidden = true;
+				document.body.style.overflow = "";
+			}
+			cancelButton.addEventListener("click", closeEndModal);
+			overlay.addEventListener("click", function (event) {
+				if (event.target === overlay) closeEndModal();
+			});
+			document.addEventListener("keydown", function (event) {
+				if (event.key === "Escape" && !modal.hidden) closeEndModal();
+			});
+
+			document.getElementById("stopSubmit").addEventListener("click", function () {
+				TeamG.careUserStop(careUser.careUserId);
+				location.href = "./complete.html?title=" + encodeURIComponent("利用終了処理完了") +
+					"&message=" + encodeURIComponent("利用者を利用終了にしました。") +
+					"&backUrl=" + encodeURIComponent("./careuser_list.html") +
+					"&backText=" + encodeURIComponent("一覧へ戻る") +
+					"&dashboardUrl=" + encodeURIComponent("./admin_dashboard.html") +
+					"&dashboardText=" + encodeURIComponent("ダッシュボードへ戻る");
+			});
+		});
+	</script>
+
+</body>
+
+</html>

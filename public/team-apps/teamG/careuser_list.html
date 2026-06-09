@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>利用者一覧</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="care-user-list-page hidamari-care-user-list-page">
+
+	<header class="site-header">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ログインユーザー</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="care-user-list-container compact-care-user-list-container hidamari-care-user-list-container">
+
+		<section class="compact-page-top">
+
+			<div class="page-heading compact-page-heading">
+				<h2 class="page-title">利用者一覧</h2>
+				<p class="page-description">
+					登録済みの利用者情報を検索・確認できます。
+				</p>
+			</div>
+
+			<div class="page-action-area compact-page-action-area">
+				<a href="./admin_dashboard.html" class="secondary-button">
+					管理者ダッシュボードへ戻る
+				</a>
+			</div>
+
+		</section>
+
+		<section class="search-section compact-search-section hidamari-care-user-search-section" id="searchArea">
+
+			<h3 class="section-title compact-table-header">検索条件</h3>
+
+			<form class="search-form compact-search-form" id="careUserSearchForm" onsubmit="return false;">
+
+				<div class="compact-search-grid hidamari-care-user-search-grid">
+
+					<div class="compact-form-group hidamari-care-user-form-group">
+						<label for="careUserName" class="compact-form-label hidamari-care-user-form-label">
+							利用者名
+						</label>
+						<input type="text"
+							id="careUserName"
+							name="careUserName"
+							class="compact-form-input hidamari-care-user-form-input"
+							placeholder="利用者名を入力">
+					</div>
+
+					<div class="compact-form-group hidamari-care-user-form-group">
+						<label for="isActive" class="compact-form-label hidamari-care-user-form-label">
+							状態
+						</label>
+						<select id="isActive"
+							name="isActive"
+							class="compact-form-input hidamari-care-user-form-input">
+							<option value="">すべて</option>
+							<option value="true">利用中</option>
+							<option value="false">利用終了</option>
+						</select>
+					</div>
+
+				</div>
+
+				<div class="button-area compact-search-button-area">
+					<button type="submit" class="primary-button" id="searchButton">
+						検索
+					</button>
+
+					<button type="button" class="secondary-button" id="clearSearchButton">
+						クリア
+					</button>
+				</div>
+
+			</form>
+
+		</section>
+
+		<section class="care-user-table-section compact-care-user-table-section hidamari-care-user-table-section">
+
+			<div class="compact-table-header hidamari-care-user-table-header">
+
+				<div class="hidamari-care-user-title-left">
+					<h3 class="section-title">利用者一覧</h3>
+
+					<a href="./careuser_register.html" class="primary-button care-user-register-button">
+						新規利用者登録
+					</a>
+				</div>
+
+				<p class="list-count" id="listCount">
+					表示件数：
+					<span id="listCountNumber">0</span>
+					件
+				</p>
+
+			</div>
+
+			<div class="table-area compact-table-area hidamari-care-user-table-area" id="tableArea">
+			</div>
+
+			<p class="empty-message" id="emptyMessage" style="display:none;">
+				条件に一致する利用者は見つかりませんでした。
+			</p>
+
+			<div class="pagination-area" id="paginationArea">
+			</div>
+
+		</section>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1])) return;
+			document.getElementById("userName").textContent = sess.loginUserName || "ログインユーザー";
+
+			const nameInput = document.getElementById("careUserName");
+			const activeSelect = document.getElementById("isActive");
+			const tableArea = document.getElementById("tableArea");
+			const emptyMessage = document.getElementById("emptyMessage");
+			const listCountNumber = document.getElementById("listCountNumber");
+			const paginationArea = document.getElementById("paginationArea");
+
+			function activeBool() {
+				const v = activeSelect.value;
+				if (v === "true") return true;
+				if (v === "false") return false;
+				return null;
+			}
+
+			function render() {
+				const kw = nameInput.value.trim();
+				const list = TeamG.searchCareUsers(kw || null, activeBool());
+
+				listCountNumber.textContent = list.length;
+
+				if (!list.length) {
+					tableArea.innerHTML = "";
+					emptyMessage.style.display = "";
+					paginationArea.innerHTML = "";
+					return;
+				}
+				emptyMessage.style.display = "none";
+
+				let rows = "";
+				list.forEach(function (c) {
+					const statusClass = c.isActive ? " status-active" : " status-ended";
+					const statusText = c.isActive ? "利用中" : "利用終了";
+					let actions = '<a href="./careuser_detail.html?careUserId=' + c.careUserId + '" class="hidamari-detail-button">詳細</a>';
+					if (c.isActive) {
+						actions += ' <a href="./careuser_edit.html?careUserId=' + c.careUserId + '" class="hidamari-detail-button">編集</a>';
+						actions += ' <button type="button" class="danger-button hidamari-detail-button" data-stop="' + c.careUserId + '">停止</button>';
+					}
+					actions += ' <button type="button" class="danger-button hidamari-detail-button" data-delete="' + c.careUserId + '">削除</button>';
+					rows +=
+						"<tr>" +
+						'<td class="care-user-col-action">' + actions + "</td>" +
+						'<td class="care-user-col-id">' + c.careUserId + "</td>" +
+						'<td class="care-user-col-name">' + TeamG.esc(c.careUserName) + "</td>" +
+						'<td class="care-user-col-status"><span class="status-pill' + statusClass + '">' + statusText + "</span></td>" +
+						"</tr>";
+				});
+
+				tableArea.innerHTML =
+					'<table class="hidamari-care-user-table" id="careUserTable">' +
+					"<colgroup>" +
+					'<col class="care-user-col-action">' +
+					'<col class="care-user-col-id">' +
+					'<col class="care-user-col-name">' +
+					'<col class="care-user-col-status">' +
+					"</colgroup>" +
+					"<thead><tr>" +
+					'<th class="care-user-col-action">操作</th>' +
+					'<th class="care-user-col-id">利用者ID</th>' +
+					'<th class="care-user-col-name">氏名</th>' +
+					'<th class="care-user-col-status">状態</th>' +
+					"</tr></thead><tbody>" + rows + "</tbody></table>";
+
+				tableArea.querySelectorAll("[data-stop]").forEach(function (btn) {
+					btn.addEventListener("click", function () {
+						if (confirm("この利用者を利用停止にしますか？")) {
+							TeamG.careUserStop(Number(btn.getAttribute("data-stop")));
+							render();
+						}
+					});
+				});
+				tableArea.querySelectorAll("[data-delete]").forEach(function (btn) {
+					btn.addEventListener("click", function () {
+						if (confirm("この利用者を削除しますか？")) {
+							TeamG.careUserDelete(Number(btn.getAttribute("data-delete")));
+							render();
+						}
+					});
+				});
+
+				buildPagination();
+			}
+
+			function buildPagination() {
+				const table = document.getElementById("careUserTable");
+				paginationArea.innerHTML = "";
+				if (!table) return;
+
+				const tableRows = Array.from(table.querySelectorAll("tbody tr"));
+				const rowsPerPage = 6;
+				const totalPages = Math.ceil(tableRows.length / rowsPerPage);
+				let currentPage = 1;
+
+				function showPage(pageNumber) {
+					currentPage = pageNumber;
+					const startIndex = (currentPage - 1) * rowsPerPage;
+					const endIndex = startIndex + rowsPerPage;
+					tableRows.forEach(function (row, index) {
+						row.style.display = (index >= startIndex && index < endIndex) ? "" : "none";
+					});
+					createPaginationButtons();
+				}
+
+				function createPaginationButtons() {
+					paginationArea.innerHTML = "";
+					if (totalPages <= 1) return;
+
+					const prevButton = document.createElement("button");
+					prevButton.type = "button";
+					prevButton.className = "pagination-button";
+					prevButton.textContent = "前へ";
+					prevButton.disabled = currentPage === 1;
+					if (currentPage === 1) prevButton.classList.add("disabled");
+					prevButton.addEventListener("click", function () {
+						if (currentPage > 1) showPage(currentPage - 1);
+					});
+					paginationArea.appendChild(prevButton);
+
+					for (let i = 1; i <= totalPages; i++) {
+						const pageButton = document.createElement("button");
+						pageButton.type = "button";
+						pageButton.className = "pagination-button page-number-button pagination-number-button";
+						pageButton.textContent = i;
+						if (i === currentPage) pageButton.classList.add("active");
+						pageButton.addEventListener("click", function () { showPage(i); });
+						paginationArea.appendChild(pageButton);
+					}
+
+					const nextButton = document.createElement("button");
+					nextButton.type = "button";
+					nextButton.className = "pagination-button";
+					nextButton.textContent = "次へ";
+					nextButton.disabled = currentPage === totalPages;
+					if (currentPage === totalPages) nextButton.classList.add("disabled");
+					nextButton.addEventListener("click", function () {
+						if (currentPage < totalPages) showPage(currentPage + 1);
+					});
+					paginationArea.appendChild(nextButton);
+				}
+
+				showPage(1);
+			}
+
+			document.getElementById("searchButton").addEventListener("click", render);
+			document.getElementById("clearSearchButton").addEventListener("click", function () {
+				nameInput.value = "";
+				activeSelect.value = "";
+				render();
+			});
+
+			render();
+		});
+	</script>
+
+</body>
+
+</html>

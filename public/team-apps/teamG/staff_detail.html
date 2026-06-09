@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>スタッフ詳細</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="staff-detail-page care-user-list-page">
+
+	<header id="siteHeader" class="site-header">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ゲスト</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="care-user-list-container compact-care-user-list-container compact-staff-detail-container">
+
+		<section class="compact-page-top">
+
+			<div class="page-heading compact-page-heading">
+				<h2 class="page-title">スタッフ詳細</h2>
+				<p class="page-description">
+					スタッフ情報の詳細を確認できます。
+				</p>
+			</div>
+
+			<div class="page-action-area compact-page-action-area">
+				<a href="./staff_list.html" class="secondary-button">
+					スタッフ一覧へ戻る
+				</a>
+			</div>
+
+		</section>
+
+		<section class="message-section compact-message-section" id="retiredMessage" style="display:none;">
+			<p class="info-message">
+				このスタッフは退職済みです。
+			</p>
+		</section>
+
+		<section class="search-section compact-search-section staff-detail-section">
+
+			<div class="compact-table-header">
+
+				<div class="list-title-action">
+					<h3 class="section-title">スタッフ情報</h3>
+				</div>
+
+			</div>
+
+			<dl class="detail-list compact-detail-list">
+
+				<div class="detail-row compact-detail-row">
+					<dt class="raised-detail-label">スタッフID</dt>
+					<dd class="inset-detail-value" id="dStaffId"></dd>
+				</div>
+
+				<div class="detail-row compact-detail-row">
+					<dt class="raised-detail-label">氏名</dt>
+					<dd class="inset-detail-value" id="dStaffName"></dd>
+				</div>
+
+				<div class="detail-row compact-detail-row">
+					<dt class="raised-detail-label">生年月日</dt>
+					<dd class="inset-detail-value" id="dBirthDate"></dd>
+				</div>
+
+				<div class="detail-row compact-detail-row">
+					<dt class="raised-detail-label">性別</dt>
+					<dd class="inset-detail-value" id="dGender"></dd>
+				</div>
+
+				<div class="detail-row compact-detail-row">
+					<dt class="raised-detail-label">郵便番号</dt>
+					<dd class="inset-detail-value" id="dPostalCode"></dd>
+				</div>
+
+				<div class="detail-row compact-detail-row full-width">
+					<dt class="raised-detail-label">住所</dt>
+					<dd class="inset-detail-value" id="dAddress"></dd>
+				</div>
+
+				<div class="detail-row compact-detail-row">
+					<dt class="raised-detail-label">電話番号</dt>
+					<dd class="inset-detail-value" id="dPhoneNumber"></dd>
+				</div>
+
+				<div class="detail-row compact-detail-row">
+					<dt class="raised-detail-label">メールアドレス</dt>
+					<dd class="inset-detail-value" id="dEmail"></dd>
+				</div>
+
+				<div class="detail-row compact-detail-row">
+					<dt class="raised-detail-label">権限</dt>
+					<dd class="inset-detail-value" id="dRole"></dd>
+				</div>
+
+				<div class="detail-row compact-detail-row">
+					<dt class="raised-detail-label">状態</dt>
+					<dd class="inset-detail-value" id="dStatus"></dd>
+				</div>
+
+			</dl>
+
+			<div class="detail-action-section compact-detail-action-section">
+
+				<div class="button-area compact-button-area" id="actionArea">
+				</div>
+
+			</div>
+
+		</section>
+
+		<section id="retireModal" class="modal-section staff-retire-modal" hidden>
+
+			<div class="modal-overlay">
+
+				<div class="modal-card compact-modal-card">
+
+					<h3 class="modal-title">退職扱いを確認してください</h3>
+
+					<form id="retireForm" onsubmit="return false;">
+
+						<div class="confirm-panel">
+
+							<dl class="confirm-list compact-confirm-list">
+
+								<div class="confirm-row">
+									<dt class="raised-confirm-label">スタッフID</dt>
+									<dd class="inset-confirm-value" id="mStaffId"></dd>
+								</div>
+
+								<div class="confirm-row">
+									<dt class="raised-confirm-label">氏名</dt>
+									<dd class="inset-confirm-value" id="mStaffName"></dd>
+								</div>
+
+								<div class="confirm-row">
+									<dt class="raised-confirm-label">現在の状態</dt>
+									<dd class="inset-confirm-value" id="mStatus"></dd>
+								</div>
+
+							</dl>
+
+						</div>
+
+						<p class="confirm-message">
+							このスタッフを退職扱いにしますか？
+						</p>
+
+						<div class="modal-button-area compact-modal-button-area">
+
+							<button type="submit" class="danger-button" id="retireSubmit">
+								退職扱いにする
+							</button>
+
+							<button type="button" class="secondary-button" onclick="closeRetireModal()">
+								キャンセル
+							</button>
+
+						</div>
+
+					</form>
+
+				</div>
+
+			</div>
+
+		</section>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		function openRetireModal() {
+			document.getElementById("retireModal").hidden = false;
+			document.getElementById("retireModal").classList.add("is-open");
+			document.body.style.overflow = "hidden";
+			const siteHeader = document.getElementById("siteHeader");
+			if (siteHeader) siteHeader.style.display = "none";
+		}
+
+		function closeRetireModal() {
+			document.getElementById("retireModal").classList.remove("is-open");
+			document.getElementById("retireModal").hidden = true;
+			document.body.style.overflow = "";
+			const siteHeader = document.getElementById("siteHeader");
+			if (siteHeader) siteHeader.style.display = "block";
+		}
+
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1])) return;
+			document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+
+			const id = Number(new URLSearchParams(location.search).get("staffId"));
+			const staff = TeamG.staff(id);
+			if (!staff) {
+				document.querySelector("main").innerHTML =
+					'<section class="message-section compact-message-section"><p class="info-message">スタッフが見つかりませんでした。</p></section>';
+				return;
+			}
+			const acc = TeamG.account(staff.accountId);
+			const roleType = acc ? acc.roleType : null;
+			const isAdminStaff = roleType === 1;
+
+			document.getElementById("dStaffId").textContent = staff.staffId;
+			document.getElementById("dStaffName").textContent = staff.staffName;
+			document.getElementById("dBirthDate").textContent = TeamG.fmtDate(staff.birthDate);
+			document.getElementById("dGender").textContent = staff.gender || "";
+			document.getElementById("dPostalCode").textContent = staff.postalCode || "";
+			document.getElementById("dAddress").textContent = staff.address || "";
+			document.getElementById("dPhoneNumber").textContent = staff.phoneNumber || "";
+			document.getElementById("dEmail").textContent = staff.email || "";
+			document.getElementById("dRole").textContent = isAdminStaff ? "管理者・事務員" : "ヘルパー";
+			document.getElementById("dStatus").textContent = staff.isActive ? "在籍中" : "退職";
+
+			if (!staff.isActive) document.getElementById("retiredMessage").style.display = "";
+
+			const actionArea = document.getElementById("actionArea");
+			const edit = document.createElement("a");
+			edit.href = "./staff_edit.html?staffId=" + staff.staffId;
+			edit.className = "primary-button";
+			edit.textContent = "編集する";
+			actionArea.appendChild(edit);
+
+			if (staff.isActive) {
+				const retire = document.createElement("button");
+				retire.type = "button";
+				retire.className = "danger-button";
+				retire.textContent = "退職扱いにする";
+				retire.addEventListener("click", openRetireModal);
+				actionArea.appendChild(retire);
+			}
+
+			document.getElementById("mStaffId").textContent = staff.staffId;
+			document.getElementById("mStaffName").textContent = staff.staffName;
+			document.getElementById("mStatus").textContent = staff.isActive ? "在籍中" : "退職";
+
+			document.getElementById("retireSubmit").addEventListener("click", function () {
+				TeamG.staffDelete(staff.staffId);
+				location.href = "./complete.html?title=" + encodeURIComponent("退職処理完了") +
+					"&message=" + encodeURIComponent("スタッフを退職扱いにしました。") +
+					"&backUrl=" + encodeURIComponent("./staff_list.html") +
+					"&backText=" + encodeURIComponent("一覧へ戻る") +
+					"&dashboardUrl=" + encodeURIComponent("./admin_dashboard.html") +
+					"&dashboardText=" + encodeURIComponent("ダッシュボードへ戻る");
+			});
+		});
+	</script>
+
+</body>
+
+</html>

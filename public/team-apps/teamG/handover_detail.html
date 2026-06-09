@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>申し送り詳細</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="handover-detail-page compact-form-page">
+
+	<header class="site-header">
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ログインユーザー</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+	</header>
+
+	<main class="handover-detail-container compact-form-container">
+
+		<section class="compact-page-top">
+
+			<div class="compact-page-heading">
+				<h2 class="page-title">申し送り詳細</h2>
+				<p class="page-description">
+					利用者の申し送り内容を確認します。
+				</p>
+			</div>
+
+			<div class="compact-page-action-area">
+
+				<a href="./handover_list.html" class="secondary-button">
+					申し送り一覧へ戻る
+				</a>
+
+				<a href="#" class="secondary-button" id="dashboardLink" style="display:none;">
+					ダッシュボードへ戻る
+				</a>
+
+			</div>
+
+		</section>
+
+		<section class="message-section" id="messageSection" style="display:none;">
+			<p class="error-message" id="errorMessage">
+				申し送り情報の取得に失敗しました。
+			</p>
+		</section>
+
+		<section class="compact-form-section" id="basicSection" style="display:none;">
+
+			<h3 class="compact-section-title">基本情報</h3>
+
+			<div class="compact-detail-grid">
+
+				<div class="compact-detail-group">
+					<div class="compact-detail-label">利用者名</div>
+					<div class="compact-detail-value" id="careUserName"></div>
+				</div>
+
+				<div class="compact-detail-group">
+					<div class="compact-detail-label">作成スタッフ</div>
+					<div class="compact-detail-value" id="staffName"></div>
+				</div>
+
+				<div class="compact-detail-group">
+					<div class="compact-detail-label">重要度</div>
+					<div class="compact-detail-value" id="importance"></div>
+				</div>
+
+				<div class="compact-detail-group">
+					<div class="compact-detail-label">確認状態</div>
+					<div class="compact-detail-value" id="confirmStatus"></div>
+				</div>
+
+				<div class="compact-detail-group">
+					<div class="compact-detail-label">作成日時</div>
+					<div class="compact-detail-value" id="createdAt"></div>
+				</div>
+
+			</div>
+
+		</section>
+
+		<section class="compact-form-section" id="contentSection" style="display:none;">
+
+			<h3 class="compact-section-title">申し送り内容</h3>
+
+			<div class="compact-detail-grid">
+
+				<div class="compact-detail-group compact-detail-group-wide">
+					<div class="compact-detail-label">健康状態の変化</div>
+					<div class="compact-detail-value compact-detail-text pre-line" id="healthChange"></div>
+				</div>
+
+				<div class="compact-detail-group compact-detail-group-wide">
+					<div class="compact-detail-label">認知症状の変化</div>
+					<div class="compact-detail-value compact-detail-text pre-line" id="dementiaSymptomChange"></div>
+				</div>
+
+				<div class="compact-detail-group compact-detail-group-wide">
+					<div class="compact-detail-label">転倒・事故リスク</div>
+					<div class="compact-detail-value compact-detail-text pre-line" id="fallOrAccidentRisk"></div>
+				</div>
+
+				<div class="compact-detail-group compact-detail-group-wide">
+					<div class="compact-detail-label">家族状況</div>
+					<div class="compact-detail-value compact-detail-text pre-line" id="familySituation"></div>
+				</div>
+
+				<div class="compact-detail-group compact-detail-group-wide">
+					<div class="compact-detail-label">医療面の変化</div>
+					<div class="compact-detail-value compact-detail-text pre-line" id="medicalChange"></div>
+				</div>
+
+				<div class="compact-detail-group compact-detail-group-wide">
+					<div class="compact-detail-label">服薬の変化</div>
+					<div class="compact-detail-value compact-detail-text pre-line" id="medicationChange"></div>
+				</div>
+
+				<div class="compact-detail-group compact-detail-group-wide">
+					<div class="compact-detail-label">次回担当者への申し送り</div>
+					<div class="compact-detail-value compact-detail-text pre-line" id="nextStaffNote"></div>
+				</div>
+
+			</div>
+
+		</section>
+
+		<section class="compact-form-section" id="emptySection" style="display:none;">
+			<p class="empty-message">
+				申し送り情報がありません。
+			</p>
+		</section>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1, 2])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ログインユーザー";
+
+			// ダッシュボードへ戻る（ロール別）
+			const dashLink = document.getElementById("dashboardLink");
+			const dashLabel = sess.roleType === 1 ? "管理者ダッシュボードへ戻る"
+				: (sess.roleType === 2 ? "ヘルパーダッシュボードへ戻る" : "家族ダッシュボードへ戻る");
+			dashLink.href = TeamG.homeUrl(sess.roleType);
+			dashLink.textContent = dashLabel;
+			dashLink.style.display = "";
+
+			const q = new URLSearchParams(location.search);
+			const handoverNoteId = q.get("handoverNoteId");
+
+			const h = TeamG.handoverDetailByRole(handoverNoteId, sess.roleType, sess.staffId);
+
+			if (!h) {
+				// 元実装: 取得失敗時はエラーメッセージ表示
+				document.getElementById("errorMessage").textContent = "申し送り情報の取得に失敗しました。";
+				document.getElementById("messageSection").style.display = "";
+				return;
+			}
+
+			function importancePill(s) {
+				if (s === "high") return '<span class="status-pill status-high">高</span>';
+				if (s === "normal") return '<span class="status-pill status-normal">通常</span>';
+				if (s === "low") return '<span class="status-pill status-low">低</span>';
+				return '<span class="status-pill">未設定</span>';
+			}
+
+			function confirmPill(s) {
+				if (s === "unconfirmed" || s === "unread" || s === "未確認") {
+					return '<span class="status-pill status-unconfirmed">未確認</span>';
+				}
+				if (s === "confirmed" || s === "read" || s === "確認済" || s === "確認済み") {
+					return '<span class="status-pill status-confirmed">確認済み</span>';
+				}
+				return '<span class="status-pill">未設定</span>';
+			}
+
+			function val(v) {
+				return (v != null && v !== "") ? TeamG.esc(v) : "記録なし";
+			}
+
+			document.getElementById("careUserName").textContent = h.careUserName || "";
+			document.getElementById("staffName").textContent = h.staffName || "";
+			document.getElementById("importance").innerHTML = importancePill(h.importance);
+			document.getElementById("confirmStatus").innerHTML = confirmPill(h.confirmStatus);
+			document.getElementById("createdAt").textContent = h.createdAt ? TeamG.fmtDateTime(h.createdAt) : "";
+
+			document.getElementById("healthChange").innerHTML = val(h.healthChange);
+			document.getElementById("dementiaSymptomChange").innerHTML = val(h.dementiaSymptomChange);
+			document.getElementById("fallOrAccidentRisk").innerHTML = val(h.fallOrAccidentRisk);
+			document.getElementById("familySituation").innerHTML = val(h.familySituation);
+			document.getElementById("medicalChange").innerHTML = val(h.medicalChange);
+			document.getElementById("medicationChange").innerHTML = val(h.medicationChange);
+			document.getElementById("nextStaffNote").innerHTML = val(h.nextStaffNote);
+
+			document.getElementById("basicSection").style.display = "";
+			document.getElementById("contentSection").style.display = "";
+		});
+	</script>
+
+</body>
+
+</html>

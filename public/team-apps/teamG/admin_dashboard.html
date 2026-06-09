@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>管理者ダッシュボード</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="admin-dashboard-page hidamari-admin-dashboard-page">
+
+	<header class="site-header">
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">
+						管理者
+					</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+	</header>
+
+	<main class="dashboard-container compact-admin-dashboard-container hidamari-admin-dashboard-container">
+
+		<section class="compact-page-top">
+
+			<div class="page-heading compact-page-heading">
+				<h2 class="page-title">管理者ダッシュボード</h2>
+				<p class="page-description">
+					未承認報告や家族からの連絡事項を確認し、各管理機能へ移動できます。
+				</p>
+			</div>
+
+		</section>
+
+		<section class="menu-section compact-dashboard-menu-section hidamari-dashboard-menu-section">
+			<h3 class="section-title compact-table-header">メニュー</h3>
+
+			<nav class="dashboard-menu" aria-label="管理者メニュー">
+				<ul class="menu-list compact-menu-list">
+
+					<li class="menu-item">
+						<a href="./careuser_list.html" class="menu-link">
+							利用者管理
+						</a>
+					</li>
+
+					<li class="menu-item">
+						<a href="./staff_list.html" class="menu-link">
+							スタッフ管理
+						</a>
+					</li>
+
+					<li class="menu-item">
+						<a href="./plan_list.html" class="menu-link">
+							プラン管理
+						</a>
+					</li>
+
+					<li class="menu-item">
+						<a href="./visitreport_list.html" class="menu-link">
+							訪問報告一覧
+						</a>
+					</li>
+
+					<li class="menu-item">
+						<a href="./unapproval_report_list.html" class="menu-link">
+							未承認報告一覧
+						</a>
+					</li>
+
+					<li class="menu-item">
+						<a href="./handover_list.html" class="menu-link">
+							申し送り一覧
+						</a>
+					</li>
+
+					<li class="menu-item">
+						<a href="./familyreport_list.html" class="menu-link">
+							家族報告一覧
+						</a>
+					</li>
+
+					<li class="menu-item">
+						<a href="./billing.html" class="menu-link">
+							請求情報一覧
+						</a>
+					</li>
+
+				</ul>
+			</nav>
+		</section>
+
+		<section class="dashboard-notice-section compact-dashboard-notice-section hidamari-dashboard-notice-section">
+
+			<h3 class="section-title compact-table-header">確認事項</h3>
+
+			<div class="dashboard-tab-button-area hidamari-dashboard-tab-button-area">
+
+				<button type="button"
+					class="dashboard-tab-button hidamari-dashboard-tab-button unapproved-tab active"
+					data-tab-target="unapprovedPanel">
+
+					<span class="dashboard-tab-label">
+						未承認報告
+					</span>
+
+					<span class="tab-notice-bubble unapproved-bubble" id="unapprovedBubble" style="display:none;">
+						現在、未承認報告が
+						<span id="unapprovedBubbleCount">0</span>
+						件来ています
+					</span>
+
+				</button>
+
+				<button type="button"
+					class="dashboard-tab-button hidamari-dashboard-tab-button family-contact-tab"
+					data-tab-target="familyContactPanel">
+
+					<span class="dashboard-tab-label">
+						家族連絡事項確認
+					</span>
+
+					<span class="tab-notice-bubble family-contact-bubble" id="familyContactBubble" style="display:none;">
+						現在、未確認の家族連絡事項が
+						<span id="familyContactBubbleCount">0</span>
+						件来ています
+					</span>
+
+				</button>
+
+			</div>
+
+			<div id="unapprovedPanel"
+				class="dashboard-tab-panel active"
+				data-page-size="6">
+
+				<section class="staff-table-section compact-staff-table-section hidamari-dashboard-table-section">
+
+					<div class="compact-table-header hidamari-dashboard-table-header">
+						<div class="hidamari-dashboard-title-left">
+							<h3 class="section-title">未承認報告</h3>
+
+							<a href="./unapproval_report_list.html" class="section-link">
+								すべて見る
+							</a>
+						</div>
+
+						<p class="list-count">
+							表示件数：
+							<span id="unapprovedCount">
+								0
+							</span>
+							件
+						</p>
+					</div>
+
+					<div class="table-area compact-table-area hidamari-dashboard-table-area" id="unapprovedTableArea">
+					</div>
+
+					<p class="empty-message" id="unapprovedEmpty" style="display:none;">
+						現在、未承認の報告はありません。
+					</p>
+
+					<div class="pagination-area dashboard-pagination-area">
+					</div>
+
+				</section>
+
+			</div>
+
+			<div id="familyContactPanel"
+				class="dashboard-tab-panel"
+				data-page-size="6">
+
+				<section class="staff-table-section compact-staff-table-section hidamari-dashboard-table-section">
+
+					<div class="compact-table-header hidamari-dashboard-table-header">
+						<div class="hidamari-dashboard-title-left">
+							<h3 class="section-title">家族からの連絡事項</h3>
+
+							<a href="./familycontact_list.html" class="section-link">
+								すべて見る
+							</a>
+						</div>
+
+						<p class="list-count">
+							表示件数：
+							<span id="contactCount">
+								0
+							</span>
+							件
+						</p>
+					</div>
+
+					<div class="table-area compact-table-area hidamari-dashboard-table-area" id="contactTableArea">
+					</div>
+
+					<p class="empty-message" id="contactEmpty" style="display:none;">
+						現在、未確認の家族連絡はありません。
+					</p>
+
+					<div class="pagination-area dashboard-pagination-area">
+					</div>
+
+				</section>
+
+			</div>
+
+		</section>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "管理者";
+
+			function importancePill(s) {
+				if (s === "high") return '<span class="status-pill status-high">高</span>';
+				if (s === "normal" || s === "middle") return '<span class="status-pill status-normal">中</span>';
+				if (s === "low") return '<span class="status-pill status-low">低</span>';
+				return '<span class="status-pill">未設定</span>';
+			}
+			function confirmPill(b) {
+				if (b === false) return '<span class="status-pill status-waiting">未確認</span>';
+				if (b === true) return '<span class="status-pill status-active">確認済み</span>';
+				return '<span class="status-pill">未設定</span>';
+			}
+
+			// 未承認報告
+			const unapprovedList = TeamG.unapprovedReportListForDashboard();
+			const unapprovedCount = TeamG.countUnapprovedReports();
+			document.getElementById("unapprovedCount").textContent = unapprovedCount;
+			if (unapprovedCount > 0) {
+				document.getElementById("unapprovedBubble").style.display = "";
+				document.getElementById("unapprovedBubbleCount").textContent = unapprovedCount;
+			}
+			if (unapprovedList.length > 0) {
+				let html = '<table class="hidamari-dashboard-table">'
+					+ '<colgroup>'
+					+ '<col class="dashboard-col-action">'
+					+ '<col class="dashboard-col-date">'
+					+ '<col class="dashboard-col-user">'
+					+ '<col class="dashboard-col-helper">'
+					+ '</colgroup>'
+					+ '<thead><tr>'
+					+ '<th class="dashboard-col-action">操作</th>'
+					+ '<th class="dashboard-col-date">訪問日</th>'
+					+ '<th class="dashboard-col-user">利用者</th>'
+					+ '<th class="dashboard-col-helper">ヘルパー</th>'
+					+ '</tr></thead><tbody>';
+				unapprovedList.forEach(function (r) {
+					html += '<tr>'
+						+ '<td class="dashboard-col-action"><a href="./approval.html?familyReportId=' + encodeURIComponent(r.visitRecordId) + '" class="hidamari-detail-button">確認</a></td>'
+						+ '<td class="dashboard-col-date">' + TeamG.esc(r.visitDate) + '</td>'
+						+ '<td class="dashboard-col-user">' + TeamG.esc(r.careUserName) + '</td>'
+						+ '<td class="dashboard-col-helper">' + TeamG.esc(r.staffName) + '</td>'
+						+ '</tr>';
+				});
+				html += '</tbody></table>';
+				document.getElementById("unapprovedTableArea").innerHTML = html;
+			} else {
+				document.getElementById("unapprovedEmpty").style.display = "";
+			}
+
+			// 家族連絡事項
+			const contactList = TeamG.unconfirmedContactListForDashboard(sess.staffId);
+			const contactCount = TeamG.countUnconfirmedContactsForStaff(sess.staffId);
+			document.getElementById("contactCount").textContent = contactCount;
+			if (contactCount > 0) {
+				document.getElementById("familyContactBubble").style.display = "";
+				document.getElementById("familyContactBubbleCount").textContent = contactCount;
+			}
+			if (contactList.length > 0) {
+				let html = '<table class="hidamari-dashboard-table admin-family-contact-dashboard-table">'
+					+ '<colgroup>'
+					+ '<col class="admin-family-contact-col-action">'
+					+ '<col class="admin-family-contact-col-date">'
+					+ '<col class="admin-family-contact-col-user">'
+					+ '<col class="admin-family-contact-col-important">'
+					+ '<col class="admin-family-contact-col-status">'
+					+ '</colgroup>'
+					+ '<thead><tr>'
+					+ '<th>操作</th><th>受信日時</th><th>利用者</th><th>重要度</th><th>確認状態</th>'
+					+ '</tr></thead><tbody>';
+				contactList.forEach(function (c) {
+					html += '<tr>'
+						+ '<td><a href="./familycontact_detail.html?contactId=' + encodeURIComponent(c.contactId) + '" class="hidamari-detail-button admin-family-contact-confirm-button">確認</a></td>'
+						+ '<td><span>' + TeamG.esc(c.sentAt) + '</span></td>'
+						+ '<td><span>' + TeamG.esc(c.careUserName) + '</span></td>'
+						+ '<td>' + importancePill(c.importance) + '</td>'
+						+ '<td>' + confirmPill(c.confirmStatus) + '</td>'
+						+ '</tr>';
+				});
+				html += '</tbody></table>';
+				document.getElementById("contactTableArea").innerHTML = html;
+			} else {
+				document.getElementById("contactEmpty").style.display = "";
+			}
+
+			initDashboardTabs();
+		});
+
+		function initDashboardTabs() {
+
+			const tabButtons = document.querySelectorAll(".dashboard-tab-button");
+			const panels = document.querySelectorAll(".dashboard-tab-panel");
+
+			tabButtons.forEach(function (button) {
+
+				button.addEventListener("click", function () {
+
+					const targetId = button.dataset.tabTarget;
+
+					tabButtons.forEach(function (tab) {
+						tab.classList.remove("active");
+					});
+
+					panels.forEach(function (panel) {
+						panel.classList.remove("active");
+					});
+
+					button.classList.add("active");
+
+					const targetPanel = document.getElementById(targetId);
+
+					if (targetPanel) {
+						targetPanel.classList.add("active");
+						setupDashboardPagination(targetPanel);
+					}
+
+				});
+
+			});
+
+			panels.forEach(function (panel) {
+				panel.dataset.currentPage = "1";
+				setupDashboardPagination(panel);
+			});
+
+			function setupDashboardPagination(panel) {
+
+				const rows = Array.from(panel.querySelectorAll("tbody tr"));
+				const pageSize = Number(panel.dataset.pageSize || 6);
+				const totalPages = Math.ceil(rows.length / pageSize);
+				let currentPage = Number(panel.dataset.currentPage || 1);
+				const paginationArea = panel.querySelector(".dashboard-pagination-area");
+
+				if (!paginationArea) {
+					return;
+				}
+
+				if (rows.length === 0 || totalPages <= 1) {
+					paginationArea.style.display = "none";
+
+					rows.forEach(function (row) {
+						row.style.display = "";
+					});
+
+					return;
+				}
+
+				paginationArea.style.display = "flex";
+
+				if (currentPage < 1) {
+					currentPage = 1;
+				}
+
+				if (currentPage > totalPages) {
+					currentPage = totalPages;
+				}
+
+				panel.dataset.currentPage = String(currentPage);
+
+				rows.forEach(function (row, index) {
+
+					const start = (currentPage - 1) * pageSize;
+					const end = start + pageSize;
+
+					if (index >= start && index < end) {
+						row.style.display = "";
+					} else {
+						row.style.display = "none";
+					}
+
+				});
+
+				createPaginationButtons(panel, paginationArea, totalPages, currentPage);
+			}
+
+			function createPaginationButtons(panel, paginationArea, totalPages, currentPage) {
+
+				paginationArea.innerHTML = "";
+
+				const prevButton = document.createElement("button");
+				prevButton.type = "button";
+				prevButton.className = "pagination-button dashboard-page-button";
+				prevButton.textContent = "前へ";
+				prevButton.disabled = currentPage === 1;
+
+				if (currentPage === 1) {
+					prevButton.classList.add("disabled");
+				}
+
+				prevButton.addEventListener("click", function () {
+					if (currentPage > 1) {
+						panel.dataset.currentPage = String(currentPage - 1);
+						setupDashboardPagination(panel);
+					}
+				});
+
+				paginationArea.appendChild(prevButton);
+
+				for (let i = 1; i <= totalPages; i++) {
+
+					const pageButton = document.createElement("button");
+					pageButton.type = "button";
+					pageButton.className = "pagination-button dashboard-page-button page-number-button pagination-number-button";
+					pageButton.textContent = i;
+
+					if (i === currentPage) {
+						pageButton.classList.add("active");
+					}
+
+					pageButton.addEventListener("click", function () {
+						panel.dataset.currentPage = String(i);
+						setupDashboardPagination(panel);
+					});
+
+					paginationArea.appendChild(pageButton);
+
+				}
+
+				const nextButton = document.createElement("button");
+				nextButton.type = "button";
+				nextButton.className = "pagination-button dashboard-page-button";
+				nextButton.textContent = "次へ";
+				nextButton.disabled = currentPage === totalPages;
+
+				if (currentPage === totalPages) {
+					nextButton.classList.add("disabled");
+				}
+
+				nextButton.addEventListener("click", function () {
+					if (currentPage < totalPages) {
+						panel.dataset.currentPage = String(currentPage + 1);
+						setupDashboardPagination(panel);
+					}
+				});
+
+				paginationArea.appendChild(nextButton);
+			}
+
+		}
+	</script>
+
+</body>
+
+</html>

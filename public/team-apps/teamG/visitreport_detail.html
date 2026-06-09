@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>訪問報告詳細</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="all-report-detail-page compact-form-page visit-report-detail-page">
+
+	<header class="site-header">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ゲスト</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="all-report-detail-container compact-form-container">
+
+		<section class="compact-page-top">
+
+			<div class="compact-page-heading">
+				<h2 class="page-title">訪問報告詳細</h2>
+				<p class="page-description">
+					ヘルパーが登録した訪問記録を確認できます。
+				</p>
+			</div>
+
+			<div class="compact-page-action-area" id="pageActionArea">
+				<a href="./visitreport_list.html" class="secondary-button">
+					訪問報告一覧へ戻る
+				</a>
+			</div>
+
+		</section>
+
+		<section class="message-section" id="messageSection" style="display:none;">
+			<p class="error-message" id="errorMessage"></p>
+		</section>
+
+		<div id="detailContainer"></div>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1, 2])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+
+			const actionArea = document.getElementById("pageActionArea");
+			if (sess.roleType === 1) {
+				actionArea.insertAdjacentHTML("beforeend", '<a href="./admin_dashboard.html" class="secondary-button">管理者ダッシュボードへ戻る</a>');
+			}
+			if (sess.roleType === 2) {
+				actionArea.insertAdjacentHTML("beforeend", '<a href="./helper_dashboard.html" class="secondary-button">ヘルパーダッシュボードへ戻る</a>');
+			}
+
+			const q = new URLSearchParams(location.search);
+			const visitRecordId = q.get("visitRecordId");
+			const report = TeamG.visitReportDetail(visitRecordId, sess.roleType, sess.staffId);
+
+			if (!report) {
+				document.getElementById("errorMessage").textContent = "訪問報告情報の取得に失敗しました。";
+				document.getElementById("messageSection").style.display = "";
+				return;
+			}
+
+			const esc = TeamG.esc;
+			const approvalSpan = report.approvalStatus === 1 ? '<span>未承認</span>'
+				: (report.approvalStatus === 2 ? '<span>承認済み</span>'
+					: (report.approvalStatus === 3 ? '<span>差し戻し</span>' : ''));
+
+			const careChips = [];
+			if (report.bathCare) careChips.push('<span class="care-chip">入浴</span>');
+			if (report.clothesChangeCare) careChips.push('<span class="care-chip">更衣</span>');
+			if (report.medicationCare) careChips.push('<span class="care-chip">服薬</span>');
+			if (report.cookingCare) careChips.push('<span class="care-chip">調理</span>');
+			if (report.cleaningCare) careChips.push('<span class="care-chip">掃除</span>');
+			if (report.laundryCare) careChips.push('<span class="care-chip">洗濯</span>');
+			if (report.shoppingCare) careChips.push('<span class="care-chip">買い物</span>');
+			if (report.otherCare != null && report.otherCare !== "") careChips.push('<span class="care-chip">' + esc(report.otherCare) + '</span>');
+			if (careChips.length === 0) careChips.push('<span class="care-chip care-chip-empty">記録なし</span>');
+
+			document.getElementById("detailContainer").innerHTML =
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">① 基本情報</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">利用者氏名</div><div class="compact-detail-value">' + esc(report.careUserName) + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">ヘルパー氏名</div><div class="compact-detail-value">' + esc(report.staffName) + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">訪問日</div><div class="compact-detail-value">' + esc(TeamG.fmtDate(report.visitDate)) + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">訪問時間</div><div class="compact-detail-value"><span>' + esc(TeamG.fmtTime(report.startTime)) + '</span> ～ <span>' + esc(TeamG.fmtTime(report.endTime)) + '</span></div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">プラン</div><div class="compact-detail-value">' + esc(report.planName) + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">承認状態</div><div class="compact-detail-value">' + approvalSpan + '</div></div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">② バイタル</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">体温</div><div class="compact-detail-value"><span>' + esc(report.bodyTemperature) + '</span>℃</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">血圧</div><div class="compact-detail-value"><span>' + esc(report.bloodPressureHigh) + '</span> / <span>' + esc(report.bloodPressureLow) + '</span> mmHg</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">脈拍</div><div class="compact-detail-value"><span>' + esc(report.pulse) + '</span>回/分</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">SpO2</div><div class="compact-detail-value"><span>' + esc(report.spo2) + '</span>%</div></div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">③ 食事・水分</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">食事摂取量</div><div class="compact-detail-value"><span>' + esc(report.mealAmount) + '</span>割</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">水分摂取量</div><div class="compact-detail-value"><span>' + esc(report.waterAmount) + '</span>ml</div></div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">④ 排泄</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">便回数</div><div class="compact-detail-value"><span>' + esc(report.stoolCount) + '</span>回</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">便性状</div><div class="compact-detail-value">' + esc(report.stoolCondition) + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">尿回数</div><div class="compact-detail-value"><span>' + esc(report.urineCount) + '</span>回</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">尿色</div><div class="compact-detail-value">' + esc(report.urineColor) + '</div></div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">⑤ 睡眠</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">睡眠時間</div><div class="compact-detail-value"><span>' + esc(report.sleepStatus) + '</span>時間</div></div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section care-done-section">' +
+					'<h3 class="compact-section-title">⑥ 実施したケア</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group compact-detail-group-wide care-done-group">' +
+							'<div class="compact-detail-label">ケア項目</div>' +
+							'<div class="compact-detail-value care-done-value">' +
+								'<div class="care-chip-list">' + careChips.join("") + '</div>' +
+							'</div>' +
+						'</div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">⑦ その他の気付き</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">気付き内容</div><div class="compact-detail-value compact-detail-text pre-line">' + esc(report.noticedPoint) + '</div></div>' +
+					'</div>' +
+				'</section>';
+		});
+	</script>
+
+</body>
+
+</html>

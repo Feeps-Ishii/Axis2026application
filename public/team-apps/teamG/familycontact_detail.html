@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>家族連絡事項詳細</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="family-contact-detail-page compact-detail-page">
+
+	<header class="site-header">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ログインユーザー</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="care-user-list-container compact-care-user-list-container compact-staff-list-container compact-detail-container">
+
+		<section class="compact-page-top">
+
+			<div class="compact-page-heading">
+				<h2 class="page-title">家族連絡事項詳細</h2>
+				<p class="page-description">
+					家族・利用者から送信された連絡事項の詳細内容を確認できます。
+				</p>
+			</div>
+
+			<div class="compact-page-action-area">
+
+				<a href="./familycontact_list.html" class="secondary-button compact-secondary-button">
+					家族連絡事項一覧へ戻る
+				</a>
+
+				<a href="#" class="secondary-button compact-secondary-button" id="dashboardLink" style="display:none;">
+					ダッシュボードへ戻る
+				</a>
+
+			</div>
+
+		</section>
+
+		<section class="message-section" id="messageSection" style="display:none;">
+			<p class="error-message" id="errorMessage">
+				家族連絡事項の取得に失敗しました。
+			</p>
+		</section>
+
+		<section class="compact-detail-section" id="basicSection" style="display:none;">
+
+			<div class="compact-table-header">
+				<h3 class="section-title">基本情報</h3>
+			</div>
+
+			<div class="compact-detail-grid">
+
+				<div class="compact-detail-item">
+					<div class="compact-detail-label">受信日時</div>
+					<div class="compact-detail-value" id="sentAt">-</div>
+				</div>
+
+				<div class="compact-detail-item">
+					<div class="compact-detail-label">利用者</div>
+					<div class="compact-detail-value" id="careUserName">-</div>
+				</div>
+
+				<div class="compact-detail-item">
+					<div class="compact-detail-label">送信者</div>
+					<div class="compact-detail-value" id="senderCareUserName">-</div>
+				</div>
+
+				<div class="compact-detail-item">
+					<div class="compact-detail-label">宛先</div>
+					<div class="compact-detail-value" id="receiver">-</div>
+				</div>
+
+				<div class="compact-detail-item">
+					<div class="compact-detail-label">連絡カテゴリ</div>
+					<div class="compact-detail-value" id="contactCategory"></div>
+				</div>
+
+				<div class="compact-detail-item">
+					<div class="compact-detail-label">重要度</div>
+					<div class="compact-detail-value" id="importance"></div>
+				</div>
+
+				<div class="compact-detail-item">
+					<div class="compact-detail-label">確認状況</div>
+					<div class="compact-detail-value" id="confirmStatus"></div>
+				</div>
+
+				<div class="compact-detail-item">
+					<div class="compact-detail-label">確認日時</div>
+					<div class="compact-detail-value" id="confirmedAt">-</div>
+				</div>
+
+			</div>
+
+		</section>
+
+		<section class="compact-detail-section" id="contentSection" style="display:none;">
+
+			<div class="compact-table-header">
+				<h3 class="section-title">連絡内容</h3>
+			</div>
+
+			<div class="compact-detail-item compact-detail-full">
+				<div class="compact-detail-label">内容</div>
+
+				<div class="compact-detail-value compact-detail-text pre-line" id="contactContent">
+				</div>
+			</div>
+
+		</section>
+
+		<section class="message-section" id="emptySection" style="display:none;">
+			<p class="empty-message">
+				表示できる家族連絡事項がありません。
+			</p>
+		</section>
+
+		<section class="compact-bottom-action-section">
+
+
+
+		</section>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1, 2])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ログインユーザー";
+
+			// ダッシュボードへ戻る（roleType 1,2 のみ）
+			const dashLink = document.getElementById("dashboardLink");
+			if (sess.roleType === 1 || sess.roleType === 2) {
+				dashLink.href = TeamG.homeUrl(sess.roleType);
+				dashLink.style.display = "";
+			}
+
+			const q = new URLSearchParams(location.search);
+			const contactId = q.get("contactId");
+
+			const c = TeamG.familyContactDetail(contactId, sess.staffId);
+
+			if (!c) {
+				// 元実装: 取得失敗時は一覧へリダイレクト（エラーメッセージ表示）
+				document.getElementById("errorMessage").textContent = "表示できる家族連絡事項がありません。";
+				document.getElementById("messageSection").style.display = "";
+				document.getElementById("emptySection").style.display = "";
+				return;
+			}
+
+			function categoryLabel(cat) {
+				switch (cat) {
+					case "family": return "家族連絡";
+					case "consultation": return "相談";
+					case "request": return "依頼";
+					case "other": return "その他";
+					default: return (cat != null && cat !== "") ? TeamG.esc(cat) : "-";
+				}
+			}
+
+			function importanceCell(s) {
+				switch (s) {
+					case "high": return '<span class="importance-label high">高</span>';
+					case "normal": return '<span class="importance-label normal">中</span>';
+					case "middle": return '<span class="importance-label normal">中</span>';
+					case "low": return '<span class="importance-label low">低</span>';
+					default: return '<span class="importance-label none">未設定</span>';
+				}
+			}
+
+			function confirmCell(s) {
+				if (s === "confirmed" || s === true) {
+					return '<span class="status-label approved">確認済</span>';
+				}
+				return '<span class="status-label pending">未確認</span>';
+			}
+
+			document.getElementById("sentAt").textContent = c.sentAt ? TeamG.fmtDateTime(c.sentAt) : "-";
+			document.getElementById("careUserName").textContent = (c.careUserName != null && c.careUserName !== "") ? c.careUserName : "-";
+			document.getElementById("senderCareUserName").textContent = (c.senderCareUserName != null && c.senderCareUserName !== "") ? c.senderCareUserName : "-";
+
+			// 宛先: roleType 1 は「事務員」固定、roleType 2 は受信スタッフ名
+			if (sess.roleType === 1) {
+				document.getElementById("receiver").textContent = "事務員";
+			} else {
+				document.getElementById("receiver").textContent = (c.receiverStaffName != null && c.receiverStaffName !== "") ? c.receiverStaffName : "-";
+			}
+
+			document.getElementById("contactCategory").textContent = categoryLabel(c.contactCategory);
+			document.getElementById("importance").innerHTML = importanceCell(c.importance);
+			document.getElementById("confirmStatus").innerHTML = confirmCell(c.confirmStatus);
+			document.getElementById("confirmedAt").textContent = c.confirmedAt ? TeamG.fmtDateTime(c.confirmedAt) : "-";
+
+			const contentEl = document.getElementById("contactContent");
+			if (c.contactContent != null && c.contactContent !== "") {
+				contentEl.textContent = c.contactContent;
+			} else {
+				contentEl.classList.remove("pre-line");
+				contentEl.textContent = "表示できる連絡内容がありません。";
+			}
+
+			document.getElementById("basicSection").style.display = "";
+			document.getElementById("contentSection").style.display = "";
+		});
+	</script>
+
+</body>
+
+</html>

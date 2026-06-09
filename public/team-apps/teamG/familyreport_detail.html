@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>家族報告詳細</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="family-report-detail-page care-user-list-page">
+
+<header class="site-header">
+
+	<div class="header-inner">
+
+		<div class="header-title-area">
+			<p class="system-subtitle">ひだまり支援センター</p>
+			<h1 class="system-title">事務作業管理システム</h1>
+		</div>
+
+		<div class="header-user-area">
+
+			<p class="login-user">
+				ようこそ、
+				<span class="user-name" id="userName">ゲスト</span>
+				さん
+			</p>
+
+			<form class="logout-form" onsubmit="return false;">
+				<button type="submit" class="logout-button" onclick="TeamG.logout()">
+					ログアウト
+				</button>
+			</form>
+
+		</div>
+
+	</div>
+
+</header>
+
+<main class="care-user-list-container compact-care-user-list-container compact-family-report-detail-container">
+
+	<section class="compact-page-top family-report-detail-page-top">
+
+		<div class="compact-page-heading">
+			<h2 class="page-title">家族報告詳細</h2>
+			<p class="page-description">
+				家族へ公開された訪問報告の詳細を確認します。
+			</p>
+		</div>
+
+		<div class="compact-page-action-area family-report-detail-action-area" id="pageActionArea">
+
+			<a href="./familyreport_list.html" class="secondary-button family-detail-back-button">
+				家族報告一覧へ戻る
+			</a>
+
+		</div>
+
+	</section>
+
+	<section class="message-section" id="messageSection" style="display:none;">
+		<p class="error-message" id="errorMessage">
+			家族報告情報の取得に失敗しました。
+		</p>
+	</section>
+
+	<div id="detailContainer"></div>
+
+</main>
+
+<footer class="footer">
+	<small>© 2026 TeamG ひだまり支援センター</small>
+</footer>
+
+<script src="./js/db.js"></script>
+<script>
+	TeamG.init().then(function () {
+		const sess = TeamG.requireLogin();
+		if (!sess) return;
+		if (!TeamG.requireRole(sess, [1, 2, 3])) return;
+
+		document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+
+		const actionArea = document.getElementById("pageActionArea");
+		if (sess.roleType === 1) {
+			actionArea.insertAdjacentHTML("beforeend", '<a href="./admin_dashboard.html" class="secondary-button family-detail-back-button">管理者ダッシュボードへ戻る</a>');
+		} else if (sess.roleType === 2) {
+			actionArea.insertAdjacentHTML("beforeend", '<a href="./helper_dashboard.html" class="secondary-button family-detail-back-button">ヘルパーダッシュボードへ戻る</a>');
+		} else if (sess.roleType === 3) {
+			actionArea.insertAdjacentHTML("beforeend", '<a href="./careuser_dashboard.html" class="secondary-button family-detail-back-button">利用者ダッシュボードへ戻る</a>');
+		}
+
+		const q = new URLSearchParams(location.search);
+		const familyReportId = q.get("familyReportId");
+		const fr = TeamG.familyReportDetailByRole(familyReportId, sess.roleType, sess.staffId, sess.careUserId);
+
+		if (!fr) {
+			document.getElementById("errorMessage").textContent = "家族報告情報の取得に失敗しました。";
+			document.getElementById("messageSection").style.display = "";
+			return;
+		}
+
+		const esc = TeamG.esc;
+		const canEditRejectedReport = sess.roleType === 2 && fr.approvalStatus === 3;
+
+		let html = "";
+
+		if (fr.approvalStatus === 3) {
+			html +=
+				'<section class="family-report-detail-section reject-section">' +
+					'<div class="family-detail-section-header"><div class="family-detail-section-title-area"><h3 class="family-detail-section-title">差し戻し情報</h3></div></div>' +
+					'<div class="family-detail-panel">' +
+						'<div class="family-detail-grid">' +
+							'<div class="form-group compact-form-group full-width">' +
+								'<label class="raised-field-label"><span>差し戻し理由</span></label>' +
+								'<div class="inset-field display-inset-field multiline-inset-field pre-line">' + (fr.rejectReason != null ? esc(fr.rejectReason) : "差し戻し理由が登録されていません。") + '</div>' +
+							'</div>' +
+						'</div>' +
+						(canEditRejectedReport ? '<div class="button-area compact-detail-button-area"><a href="./familyreport_edit.html?familyReportId=' + encodeURIComponent(fr.familyReportId) + '" class="primary-button large-action-button">修正する</a></div>' : '') +
+					'</div>' +
+				'</section>';
+		}
+
+		const careTags = [];
+		if (fr.bathCare === true) careTags.push('<span class="care-tag">入浴</span>');
+		if (fr.clothesChangeCare === true) careTags.push('<span class="care-tag">更衣</span>');
+		if (fr.medicationCare === true) careTags.push('<span class="care-tag">服薬</span>');
+		if (fr.cookingCare === true) careTags.push('<span class="care-tag">調理</span>');
+		if (fr.cleaningCare === true) careTags.push('<span class="care-tag">掃除</span>');
+		if (fr.laundryCare === true) careTags.push('<span class="care-tag">洗濯</span>');
+		if (fr.shoppingCare === true) careTags.push('<span class="care-tag">買い物</span>');
+		if (fr.otherCare != null && fr.otherCare !== "") careTags.push('<span class="care-tag">' + esc(fr.otherCare) + '</span>');
+		if (careTags.length === 0) careTags.push('<span class="care-tag muted-care-tag">記録なし</span>');
+
+		const mealHtml = fr.mealAmount != null ? '<span>' + esc(fr.mealAmount) + '</span> <span>割</span>' : '<span></span>';
+		const stoolCount = fr.stoolCount != null ? '<span>' + esc(fr.stoolCount) + '</span> <span>回</span>' : '<span></span>';
+		const urineCount = fr.urineCount != null ? '<span>' + esc(fr.urineCount) + '</span> <span>回</span>' : '<span></span>';
+
+		html +=
+			'<section class="family-report-detail-section">' +
+				'<div class="family-detail-section-header"><div class="family-detail-section-title-area"><h3 class="family-detail-section-title">基本情報</h3></div></div>' +
+				'<div class="family-detail-panel"><div class="family-detail-grid">' +
+					'<div class="form-group compact-form-group"><label class="raised-field-label"><span>利用者名</span></label><div class="inset-field display-inset-field">' + esc(fr.careUserName) + '</div></div>' +
+					'<div class="form-group compact-form-group"><label class="raised-field-label"><span>担当ヘルパー</span></label><div class="inset-field display-inset-field">' + esc(fr.staffName) + '</div></div>' +
+					'<div class="form-group compact-form-group"><label class="raised-field-label"><span>プラン名</span></label><div class="inset-field display-inset-field">' + esc(fr.planName) + '</div></div>' +
+					'<div class="form-group compact-form-group"><label class="raised-field-label"><span>サービス内容</span></label><div class="inset-field display-inset-field">' + esc(fr.serviceContent) + '</div></div>' +
+					'<div class="form-group compact-form-group"><label class="raised-field-label"><span>訪問日</span></label><div class="inset-field display-inset-field">' + esc(fr.visitDate ? TeamG.fmtDate(fr.visitDate) : "") + '</div></div>' +
+					'<div class="form-group compact-form-group"><label class="raised-field-label"><span>訪問時間</span></label><div class="inset-field display-inset-field"><span>' + esc(fr.startTime ? TeamG.fmtTime(fr.startTime) : "") + '</span> ～ <span>' + esc(fr.endTime ? TeamG.fmtTime(fr.endTime) : "") + '</span></div></div>' +
+				'</div></div>' +
+			'</section>' +
+			'<section class="family-report-detail-section">' +
+				'<div class="family-detail-section-header"><div class="family-detail-section-title-area"><h3 class="family-detail-section-title">実施内容</h3></div></div>' +
+				'<div class="family-detail-panel"><div class="family-detail-grid">' +
+					'<div class="form-group compact-form-group full-width"><label class="raised-field-label"><span>介助内容</span></label><div class="inset-field display-inset-field care-content-field"><div class="care-tag-list">' + careTags.join("") + '</div></div></div>' +
+					'<div class="form-group compact-form-group"><label class="raised-field-label"><span>食事量</span></label><div class="inset-field display-inset-field">' + mealHtml + '</div></div>' +
+					'<div class="form-group compact-form-group full-width"><label class="raised-field-label"><span>排泄状況</span></label><div class="inset-field display-inset-field">便：' + stoolCount + ' ・ <span>' + esc(fr.stoolCondition != null ? fr.stoolCondition : "") + '</span> ／尿：' + urineCount + ' ・ <span>' + esc(fr.urineColor != null ? fr.urineColor : "") + '</span></div></div>' +
+				'</div></div>' +
+			'</section>' +
+			'<section class="family-report-detail-section">' +
+				'<div class="family-detail-section-header"><div class="family-detail-section-title-area"><h3 class="family-detail-section-title">家族報告内容</h3></div></div>' +
+				'<div class="family-detail-panel"><div class="family-detail-grid">' +
+					'<div class="form-group compact-form-group full-width"><label class="raised-field-label"><span>報告内容</span></label><div class="inset-field display-inset-field multiline-inset-field pre-line">' + esc(fr.reportContent) + '</div></div>' +
+					'<div class="form-group compact-form-group full-width"><label class="raised-field-label"><span>家族コメント</span></label><div class="inset-field display-inset-field multiline-inset-field pre-line">' + esc(fr.familyComment) + '</div></div>' +
+					'<div class="form-group compact-form-group full-width"><label class="raised-field-label"><span>特記事項</span></label><div class="inset-field display-inset-field multiline-inset-field pre-line">' + esc(fr.specialNote) + '</div></div>' +
+					'<div class="form-group compact-form-group"><label class="raised-field-label"><span>次回訪問予定</span></label><div class="inset-field display-inset-field">' + esc(fr.nextVisitDate ? TeamG.fmtDateTime(fr.nextVisitDate) : "未定") + '</div></div>' +
+					'<div class="form-group compact-form-group"><label class="raised-field-label"><span>写真</span></label><div class="inset-field display-inset-field"><span>' + (fr.photoPath != null && fr.photoPath !== "" ? "写真あり" : "添付なし") + '</span></div></div>' +
+				'</div></div>' +
+			'</section>';
+
+		if (sess.roleType === 1) {
+			html +=
+				'<section class="family-report-detail-pdf-section">' +
+					'<div class="family-report-detail-pdf-area">' +
+						'<a href="#" class="secondary-button family-report-pdf-button" id="pdfButton">PDF出力</a>' +
+					'</div>' +
+				'</section>';
+		}
+
+		document.getElementById("detailContainer").innerHTML = html;
+
+		const pdfBtn = document.getElementById("pdfButton");
+		if (pdfBtn) {
+			pdfBtn.addEventListener("click", function (e) {
+				e.preventDefault();
+				alert("PDF出力はデモでは無効です");
+			});
+		}
+	});
+</script>
+
+</body>
+
+</html>

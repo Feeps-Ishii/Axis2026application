@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>プラン登録</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="plan-register-page care-user-list-page hidamari-plan-register-page">
+
+	<header class="site-header">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ゲスト</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="care-user-list-container compact-care-user-list-container compact-plan-register-container hidamari-plan-register-container">
+
+		<section class="compact-page-top">
+
+			<div class="page-heading compact-page-heading">
+				<h2 class="page-title">プラン登録</h2>
+				<p class="page-description">
+					訪問記録登録時に選択するサービスプランを登録します。
+				</p>
+			</div>
+
+			<div class="page-action-area compact-page-action-area">
+				<a href="./plan_list.html" class="secondary-button">
+					プラン一覧へ戻る
+				</a>
+			</div>
+
+		</section>
+
+		<section class="message-section" id="errorSection" style="display:none;">
+			<p class="error-message" id="errorMessage">
+				エラーメッセージ
+			</p>
+		</section>
+
+		<section class="search-section compact-search-section plan-register-form-section hidamari-plan-register-form-section">
+
+			<div class="compact-table-header hidamari-plan-register-header">
+
+				<div class="list-title-action">
+					<h3 class="section-title">プラン情報</h3>
+				</div>
+
+				<p class="list-count">
+					必須項目を入力し、登録内容を確認してください。
+				</p>
+
+			</div>
+
+			<form method="post"
+				class="plan-register-form compact-plan-register-form hidamari-plan-register-form"
+				id="planRegisterForm"
+				onsubmit="return false;"
+				novalidate>
+
+				<div class="plan-register-grid hidamari-plan-register-grid">
+
+					<div class="form-group compact-form-group hidamari-plan-register-form-group">
+						<label for="planName" class="raised-field-label hidamari-raised-field-label">
+							<span>プラン名</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<input type="text"
+							id="planName"
+							name="planName"
+							class="inset-field large-field hidamari-inset-field"
+							placeholder="例：身体介護30分"
+							maxlength="100"
+							required>
+
+						<p class="field-error-message js-error-message" id="planNameError"></p>
+					</div>
+
+					<div class="form-group compact-form-group hidamari-plan-register-form-group full-width">
+						<label for="serviceContent" class="raised-field-label hidamari-raised-field-label">
+							<span>サービス内容</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<textarea id="serviceContent"
+							name="serviceContent"
+							class="inset-field large-field hidamari-inset-field hidamari-textarea-field"
+							rows="5"
+							placeholder="例：バイタル・服薬・排泄介助"
+							maxlength="1000"
+							required></textarea>
+
+						<p class="field-error-message js-error-message" id="serviceContentError"></p>
+					</div>
+
+					<div class="form-group compact-form-group hidamari-plan-register-form-group">
+						<label for="feeAmount" class="raised-field-label hidamari-raised-field-label">
+							<span>料金（円）</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<input type="number"
+							id="feeAmount"
+							name="feeAmount"
+							class="inset-field large-field hidamari-inset-field"
+							min="0"
+							max="9999999"
+							step="1"
+							placeholder="例：2780"
+							required>
+
+						<p class="form-note hidamari-form-note">
+							利用者負担額は1割、保険請求額は9割として計算されます。
+						</p>
+
+						<p class="field-error-message js-error-message" id="feeAmountError"></p>
+					</div>
+
+				</div>
+
+				<div class="button-area compact-register-button-area hidamari-plan-register-button-area">
+
+					<button type="button" class="primary-button large-action-button" id="openConfirmModal">
+						登録内容を確認する
+					</button>
+
+					<button type="reset" class="secondary-button large-action-button" id="clearButton">
+						クリア
+					</button>
+
+				</div>
+
+			</form>
+
+		</section>
+
+	</main>
+
+	<section id="confirmModal" class="modal-section plan-confirm-modal hidamari-plan-confirm-modal" hidden>
+
+		<div class="modal-overlay" id="modalOverlay">
+
+			<div class="modal-card compact-modal-card hidamari-plan-modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+
+				<h3 id="confirmModalTitle" class="modal-title">
+					登録内容を確認してください
+				</h3>
+
+				<div class="confirm-panel hidamari-confirm-panel">
+
+					<dl class="confirm-list compact-confirm-list hidamari-confirm-list">
+
+						<div class="confirm-row hidamari-confirm-row">
+							<dt class="raised-confirm-label hidamari-raised-confirm-label">プラン名</dt>
+							<dd id="confirmPlanName" class="inset-confirm-value hidamari-inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row hidamari-confirm-row full-width">
+							<dt class="raised-confirm-label hidamari-raised-confirm-label">サービス内容</dt>
+							<dd id="confirmServiceContent" class="inset-confirm-value hidamari-inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row hidamari-confirm-row">
+							<dt class="raised-confirm-label hidamari-raised-confirm-label">料金</dt>
+							<dd id="confirmFeeAmount" class="inset-confirm-value hidamari-inset-confirm-value"></dd>
+						</div>
+
+					</dl>
+
+				</div>
+
+				<p class="confirm-message">
+					この内容でプラン情報を登録しますか？
+				</p>
+
+				<div class="modal-button-area compact-modal-button-area hidamari-plan-modal-button-area">
+
+					<button type="button" class="primary-button large-action-button" id="submitRegisterButton">
+						登録する
+					</button>
+
+					<button type="button" class="secondary-button large-action-button" id="cancelButton">
+						戻る
+					</button>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</section>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const header = document.querySelector(".site-header");
+
+		function clearErrors() {
+			document.getElementById("planNameError").textContent = "";
+			document.getElementById("feeAmountError").textContent = "";
+			document.getElementById("serviceContentError").textContent = "";
+		}
+
+		function validateRegisterForm() {
+
+			clearErrors();
+
+			let isValid = true;
+
+			const planName = document.getElementById("planName").value.trim();
+			const feeAmount = document.getElementById("feeAmount").value.trim();
+			const serviceContent = document.getElementById("serviceContent").value.trim();
+
+			if (planName === "") {
+				document.getElementById("planNameError").textContent =
+					"プラン名を入力してください。";
+				isValid = false;
+			} else if (planName.length > 100) {
+				document.getElementById("planNameError").textContent =
+					"プラン名は100文字以内で入力してください。";
+				isValid = false;
+			}
+
+			if (feeAmount === "") {
+				document.getElementById("feeAmountError").textContent =
+					"料金を入力してください。";
+				isValid = false;
+			} else if (!/^[0-9]+$/.test(feeAmount)) {
+				document.getElementById("feeAmountError").textContent =
+					"料金は数字で入力してください。";
+				isValid = false;
+			} else if (Number(feeAmount) < 0) {
+				document.getElementById("feeAmountError").textContent =
+					"料金は0円以上で入力してください。";
+				isValid = false;
+			} else if (Number(feeAmount) > 9999999) {
+				document.getElementById("feeAmountError").textContent =
+					"料金は9,999,999円以下で入力してください。";
+				isValid = false;
+			}
+
+			if (serviceContent === "") {
+				document.getElementById("serviceContentError").textContent =
+					"サービス内容を入力してください。";
+				isValid = false;
+			} else if (serviceContent.length > 1000) {
+				document.getElementById("serviceContentError").textContent =
+					"サービス内容は1000文字以内で入力してください。";
+				isValid = false;
+			}
+
+			return isValid;
+		}
+
+		function openConfirmModal() {
+
+			if (!validateRegisterForm()) {
+				return;
+			}
+
+			const planName = document.getElementById("planName").value.trim();
+			const serviceContent = document.getElementById("serviceContent").value.trim();
+			const feeAmount = document.getElementById("feeAmount").value.trim();
+
+			document.getElementById("confirmPlanName").textContent = planName;
+			document.getElementById("confirmServiceContent").textContent = serviceContent;
+			document.getElementById("confirmFeeAmount").textContent =
+				Number(feeAmount).toLocaleString() + "円";
+
+			document.getElementById("confirmModal").hidden = false;
+
+			if (header) {
+				header.style.display = "none";
+			}
+
+			document.body.style.overflow = "hidden";
+		}
+
+		function closeConfirmModal() {
+
+			document.getElementById("confirmModal").hidden = true;
+
+			if (header) {
+				header.style.display = "block";
+			}
+
+			document.body.style.overflow = "";
+		}
+
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+
+			document.getElementById("openConfirmModal").addEventListener("click", openConfirmModal);
+			document.getElementById("cancelButton").addEventListener("click", closeConfirmModal);
+
+			document.getElementById("submitRegisterButton").addEventListener("click", function () {
+				if (!validateRegisterForm()) {
+					closeConfirmModal();
+					return;
+				}
+				const form = {
+					planName: document.getElementById("planName").value.trim(),
+					serviceContent: document.getElementById("serviceContent").value.trim(),
+					feeAmount: Number(document.getElementById("feeAmount").value.trim()),
+				};
+				TeamG.planRegister(form);
+				location.href = "./complete.html?title=" + encodeURIComponent("プラン登録完了")
+					+ "&message=" + encodeURIComponent("プラン内容の登録が完了しました。")
+					+ "&backUrl=" + encodeURIComponent("./plan_list.html")
+					+ "&dashboardUrl=" + encodeURIComponent("./admin_dashboard.html");
+			});
+
+			const clearButton = document.getElementById("clearButton");
+			if (clearButton) {
+				clearButton.addEventListener("click", function () {
+					clearErrors();
+				});
+			}
+		});
+	</script>
+
+</body>
+
+</html>

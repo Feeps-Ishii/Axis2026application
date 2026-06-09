@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>申し送り一覧</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="staff-list-page care-user-list-page handover-list-page hidamari-handover-list-page">
+
+	<header class="site-header">
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ログインユーザー</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+	</header>
+
+	<main class="care-user-list-container compact-care-user-list-container compact-staff-list-container hidamari-handover-list-container">
+
+		<section class="compact-page-top">
+
+			<div class="compact-page-heading">
+				<h2 class="page-title">申し送り一覧</h2>
+				<p class="page-description">
+					利用者ごとの申し送り内容を確認します。
+				</p>
+			</div>
+
+			<div class="compact-page-action-area" id="backActionArea">
+			</div>
+
+		</section>
+
+		<section class="search-section compact-search-section hidamari-handover-search-section" id="searchArea">
+
+			<h3 class="section-title compact-table-header">検索条件</h3>
+
+			<form method="get" onsubmit="return false;"
+				class="search-form"
+				id="visitReportSearchForm">
+
+				<div class="compact-search-grid hidamari-handover-search-grid">
+
+					<div class="compact-form-group hidamari-handover-form-group">
+						<label for="careUserName" class="compact-form-label hidamari-handover-form-label">
+							利用者名
+						</label>
+						<input type="text"
+							id="careUserName"
+							name="careUserName"
+							class="compact-form-input hidamari-handover-form-input"
+							placeholder="例：山田 太郎">
+					</div>
+
+					<div class="compact-form-group hidamari-handover-form-group">
+						<label for="importance" class="compact-form-label hidamari-handover-form-label">
+							重要度
+						</label>
+						<select id="importance"
+							name="importance"
+							class="compact-form-input hidamari-handover-form-input">
+							<option value="">
+								すべて
+							</option>
+							<option value="high">
+								高
+							</option>
+							<option value="normal">
+								通常
+							</option>
+							<option value="low">
+								低
+							</option>
+						</select>
+					</div>
+
+				</div>
+
+				<div class="button-area compact-button-area">
+					<button type="submit" class="primary-button" id="searchButton">
+						検索
+					</button>
+
+					<button type="button" class="secondary-button" id="clearSearchButton">
+						クリア
+					</button>
+				</div>
+
+			</form>
+
+		</section>
+
+		<section class="care-user-table-section compact-care-user-table-section compact-staff-table-section hidamari-handover-table-section">
+
+			<div class="section-heading-row compact-section-heading-row">
+				<h3 class="section-title compact-table-header">申し送り一覧</h3>
+
+				<p class="list-count" id="handoverListCount">
+					0件
+				</p>
+			</div>
+
+			<div class="table-area compact-table-area hidamari-handover-table-area">
+
+				<table class="hidamari-handover-table" id="handoverTable">
+
+					<colgroup>
+						<col class="handover-col-action">
+						<col class="handover-col-user">
+						<col class="handover-col-staff">
+						<col class="handover-col-importance">
+						<col class="handover-col-confirm">
+						<col class="handover-col-created">
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th class="handover-col-action">操作</th>
+							<th class="handover-col-user">利用者名</th>
+							<th class="handover-col-staff">作成スタッフ</th>
+							<th class="handover-col-importance">重要度</th>
+							<th class="handover-col-confirm">確認状態</th>
+							<th class="handover-col-created">作成日時</th>
+						</tr>
+					</thead>
+
+					<tbody id="handoverTableBody">
+					</tbody>
+
+				</table>
+
+			</div>
+
+			<div class="pagination-area" id="handoverPaginationArea">
+				<button type="button" class="pagination-button" id="handoverPrevButton">
+					前へ
+				</button>
+
+				<div class="pagination-number-area" id="handoverPageNumbers"></div>
+
+				<button type="button" class="pagination-button" id="handoverNextButton">
+					次へ
+				</button>
+			</div>
+
+		</section>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1, 2])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ログインユーザー";
+
+			// 戻るボタン（ロール別）
+			const backArea = document.getElementById("backActionArea");
+			const backLabel = sess.roleType === 1 ? "管理者ダッシュボードへ戻る"
+				: (sess.roleType === 2 ? "ヘルパーダッシュボードへ戻る" : "家族ダッシュボードへ戻る");
+			const backLink = document.createElement("a");
+			backLink.href = TeamG.homeUrl(sess.roleType);
+			backLink.className = "secondary-button";
+			backLink.textContent = backLabel;
+			backArea.appendChild(backLink);
+
+			const q = new URLSearchParams(location.search);
+			const careUserName = q.get("careUserName") || "";
+			const importance = q.get("importance") || "";
+
+			// 検索条件をフォームに反映
+			document.getElementById("careUserName").value = careUserName;
+			document.getElementById("importance").value = importance;
+
+			function importancePill(s) {
+				const t = (s == null ? "" : String(s).trim());
+				if (t === "high" || t === "高い" || t === "高") {
+					return '<span class="status-pill status-high">高</span>';
+				}
+				if (t === "normal" || t === "通常") {
+					return '<span class="status-pill status-normal">通常</span>';
+				}
+				if (t === "low" || t === "低い" || t === "低") {
+					return '<span class="status-pill status-low">低</span>';
+				}
+				return '<span class="status-pill">未設定</span>';
+			}
+
+			function confirmPill(s) {
+				const t = (s == null ? "" : String(s).trim());
+				if (t === "unconfirmed" || t === "unread" || t === "未確認") {
+					return '<span class="status-pill status-unconfirmed">未確認</span>';
+				}
+				if (t === "confirmed" || t === "read" || t === "確認済み") {
+					return '<span class="status-pill status-confirmed">確認済み</span>';
+				}
+				return '<span class="status-pill">未設定</span>';
+			}
+
+			const list = TeamG.handoverListByRole(careUserName, importance, sess.roleType, sess.staffId);
+
+			document.getElementById("handoverListCount").textContent = list.length + "件";
+
+			const tbody = document.getElementById("handoverTableBody");
+			if (!list || list.length === 0) {
+				tbody.innerHTML = '<tr><td colspan="6" class="empty-message">表示できる申し送り情報がありません。</td></tr>';
+			} else {
+				tbody.innerHTML = list.map(function (h) {
+					return '<tr class="handover-data-row">' +
+						'<td class="handover-col-action">' +
+						'<a href="./handover_detail.html?handoverNoteId=' + encodeURIComponent(h.handoverNoteId) + '" class="hidamari-detail-button">詳細</a>' +
+						'</td>' +
+						'<td class="handover-col-user">' + TeamG.esc(h.careUserName) + '</td>' +
+						'<td class="handover-col-staff">' + TeamG.esc(h.staffName) + '</td>' +
+						'<td class="handover-col-importance">' + importancePill(h.importance) + '</td>' +
+						'<td class="handover-col-confirm">' + confirmPill(h.confirmStatus) + '</td>' +
+						'<td class="handover-col-created">' + TeamG.esc(TeamG.fmtDateTime(h.createdAt)) + '</td>' +
+						'</tr>';
+				}).join("");
+			}
+
+			// 検索（クエリ反映でリロード）
+			document.getElementById("searchButton").addEventListener("click", function () {
+				const p = new URLSearchParams();
+				const cu = document.getElementById("careUserName").value.trim();
+				const im = document.getElementById("importance").value;
+				if (cu) p.set("careUserName", cu);
+				if (im) p.set("importance", im);
+				location.href = "./handover_list.html" + (p.toString() ? "?" + p.toString() : "") + "#searchArea";
+			});
+
+			setupClear();
+			setupHandoverPagination();
+		});
+
+		function setupClear() {
+			const clearButton = document.getElementById("clearSearchButton");
+			const searchForm = document.getElementById("visitReportSearchForm");
+
+			if (clearButton && searchForm) {
+				clearButton.addEventListener("click", function () {
+					const formItems = searchForm.querySelectorAll(
+						"input[type='text'], input[type='date'], select, textarea"
+					);
+					formItems.forEach(function (item) {
+						item.value = "";
+					});
+				});
+			}
+		}
+
+		function setupHandoverPagination() {
+			const rows = Array.from(document.querySelectorAll(".handover-data-row"));
+			const paginationArea = document.getElementById("handoverPaginationArea");
+			const pageNumbersArea = document.getElementById("handoverPageNumbers");
+			const prevButton = document.getElementById("handoverPrevButton");
+			const nextButton = document.getElementById("handoverNextButton");
+
+			const rowsPerPage = 6;
+			let currentPage = 1;
+			const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+			if (!paginationArea || !pageNumbersArea || !prevButton || !nextButton) {
+				return;
+			}
+
+			if (rows.length <= rowsPerPage) {
+				paginationArea.style.display = "none";
+			}
+
+			function showPage(page) {
+				currentPage = page;
+
+				const startIndex = (currentPage - 1) * rowsPerPage;
+				const endIndex = startIndex + rowsPerPage;
+
+				rows.forEach(function (row, index) {
+					if (index >= startIndex && index < endIndex) {
+						row.style.display = "";
+					} else {
+						row.style.display = "none";
+					}
+				});
+
+				renderPageButtons();
+				updatePrevNextButtons();
+			}
+
+			function renderPageButtons() {
+				pageNumbersArea.innerHTML = "";
+
+				for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
+					const button = document.createElement("button");
+
+					button.type = "button";
+					button.className = "pagination-number-button";
+					button.textContent = pageNumber;
+
+					if (pageNumber === currentPage) {
+						button.classList.add("active");
+					}
+
+					button.addEventListener("click", function () {
+						showPage(pageNumber);
+						scrollToSearchArea();
+					});
+
+					pageNumbersArea.appendChild(button);
+				}
+			}
+
+			function updatePrevNextButtons() {
+				prevButton.disabled = currentPage <= 1;
+				nextButton.disabled = currentPage >= totalPages;
+
+				prevButton.classList.toggle("disabled", currentPage <= 1);
+				nextButton.classList.toggle("disabled", currentPage >= totalPages);
+			}
+
+			function scrollToSearchArea() {
+				const searchArea = document.getElementById("searchArea");
+
+				if (!searchArea) {
+					return;
+				}
+
+				searchArea.scrollIntoView({
+					behavior: "smooth",
+					block: "start"
+				});
+			}
+
+			prevButton.addEventListener("click", function () {
+				if (currentPage > 1) {
+					showPage(currentPage - 1);
+					scrollToSearchArea();
+				}
+			});
+
+			nextButton.addEventListener("click", function () {
+				if (currentPage < totalPages) {
+					showPage(currentPage + 1);
+					scrollToSearchArea();
+				}
+			});
+
+			if (rows.length > 0) {
+				showPage(1);
+			}
+		}
+	</script>
+
+</body>
+
+</html>

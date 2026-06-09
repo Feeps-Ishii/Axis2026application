@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>利用者更新</title>
+
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="staff-register-page care-user-update-page care-user-list-page">
+
+	<header class="site-header">
+
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">管理者</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+
+	</header>
+
+	<main class="care-user-list-container compact-care-user-list-container compact-staff-register-container">
+
+		<section class="compact-page-top">
+
+			<div class="page-heading compact-page-heading">
+				<h2 class="page-title">利用者更新</h2>
+				<p class="page-description">
+					登録済みの利用者情報を更新できます。
+				</p>
+			</div>
+
+			<div class="page-action-area compact-page-action-area">
+				<a href="#" id="backToDetail" class="secondary-button">
+					利用者詳細へ戻る
+				</a>
+			</div>
+
+		</section>
+
+		<section class="search-section compact-search-section staff-register-form-section">
+
+			<div class="compact-table-header">
+
+				<div class="list-title-action">
+					<h3 class="section-title">利用者情報</h3>
+				</div>
+
+				<p class="list-count">
+					変更する項目を入力し、更新内容を確認してください。
+				</p>
+
+			</div>
+
+			<form id="careUserUpdateForm"
+				class="staff-register-form compact-staff-register-form care-user-update-form"
+				onsubmit="return false;"
+				novalidate>
+
+				<input type="hidden" name="careUserId" id="careUserId">
+				<input type="hidden" name="accountId" id="accountId">
+
+				<div class="staff-register-grid">
+
+					<div class="form-group compact-form-group">
+						<label for="careUserName" class="raised-field-label">
+							<span>氏名</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<input type="text"
+							id="careUserName"
+							name="careUserName"
+							class="inset-field large-field"
+							placeholder="例：山田 太郎">
+
+						<p class="field-error-message js-error-message"></p>
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="birthDate" class="raised-field-label">
+							<span>生年月日</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<input type="date"
+							id="birthDate"
+							name="birthDate"
+							class="inset-field large-field">
+
+						<p class="field-error-message js-error-message"></p>
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="gender" class="raised-field-label">
+							<span>性別</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<select id="gender"
+							name="gender"
+							class="inset-field large-field">
+							<option value="">選択してください</option>
+							<option value="1">男性</option>
+							<option value="2">女性</option>
+							<option value="3">その他</option>
+						</select>
+
+						<p class="field-error-message js-error-message"></p>
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="postalCode" class="raised-field-label">
+							<span>郵便番号</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<input type="text"
+							id="postalCode"
+							name="postalCode"
+							class="inset-field large-field"
+							placeholder="例：1234567"
+							maxlength="7">
+
+						<p class="field-error-message js-error-message"></p>
+					</div>
+
+					<div class="form-group compact-form-group full-width">
+						<label for="address" class="raised-field-label">
+							<span>住所</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<input type="text"
+							id="address"
+							name="address"
+							class="inset-field large-field"
+							placeholder="例：東京都新宿区〇〇1-2-3">
+
+						<p class="field-error-message js-error-message"></p>
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="phoneNumber" class="raised-field-label">
+							<span>電話番号</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<input type="text"
+							id="phoneNumber"
+							name="phoneNumber"
+							class="inset-field large-field"
+							placeholder="例：09012345678"
+							maxlength="11">
+
+						<p class="field-error-message js-error-message"></p>
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="publicSetting" class="raised-field-label">
+							<span>公開設定</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<select id="publicSetting"
+							name="publicSetting"
+							class="inset-field large-field">
+							<option value="true">公開</option>
+							<option value="false">非公開</option>
+						</select>
+
+						<p class="field-error-message js-error-message"></p>
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="isActive" class="raised-field-label">
+							<span>利用状況</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<select id="isActive"
+							name="isActive"
+							class="inset-field large-field">
+							<option value="true">利用中</option>
+							<option value="false">利用終了</option>
+						</select>
+
+						<p class="field-error-message js-error-message"></p>
+					</div>
+
+					<div class="form-group compact-form-group">
+						<label for="loginId" class="raised-field-label">
+							<span>ログインID</span>
+							<span class="required-label">必須</span>
+						</label>
+
+						<input type="text"
+							id="loginId"
+							name="loginId"
+							class="inset-field large-field"
+							placeholder="例：user001">
+
+						<p class="field-error-message js-error-message"></p>
+						<p class="error-message" id="loginIdError"></p>
+					</div>
+
+				</div>
+
+				<div class="button-area compact-register-button-area">
+
+					<button type="button" class="primary-button large-action-button" id="confirmBtn">
+						更新内容を確認
+					</button>
+
+					<button type="reset" class="secondary-button large-action-button">
+						クリア
+					</button>
+
+				</div>
+
+			</form>
+
+		</section>
+
+	</main>
+
+	<section class="modal-section staff-confirm-modal care-user-update-confirm-modal" id="modal" hidden>
+
+		<div class="modal-overlay" id="modalOverlay">
+
+			<div class="modal-card compact-modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+
+				<h3 id="confirmModalTitle" class="modal-title">
+					更新内容を確認してください
+				</h3>
+
+				<div class="confirm-panel">
+
+					<dl class="confirm-list compact-confirm-list">
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">氏名</dt>
+							<dd id="cName" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">生年月日</dt>
+							<dd id="cBirth" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">性別</dt>
+							<dd id="cGender" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">郵便番号</dt>
+							<dd id="cPostal" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">住所</dt>
+							<dd id="cAddress" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">電話番号</dt>
+							<dd id="cPhone" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">公開設定</dt>
+							<dd id="cPublic" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">利用状況</dt>
+							<dd id="cActive" class="inset-confirm-value"></dd>
+						</div>
+
+						<div class="confirm-row">
+							<dt class="raised-confirm-label">ログインID</dt>
+							<dd id="cLogin" class="inset-confirm-value"></dd>
+						</div>
+
+					</dl>
+
+				</div>
+
+				<p class="confirm-message">
+					この内容で利用者情報を更新しますか？
+				</p>
+
+				<div class="modal-button-area compact-modal-button-area">
+
+					<button type="button"
+						class="primary-button large-action-button"
+						id="submitBtn">
+						更新する
+					</button>
+
+					<button type="button"
+						class="secondary-button large-action-button"
+						id="cancelButton">
+						戻る
+					</button>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</section>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1])) return;
+			document.getElementById("userName").textContent = sess.loginUserName || "管理者";
+
+			const id = Number(new URLSearchParams(location.search).get("careUserId"));
+			const careUser = TeamG.careUser(id);
+			if (!careUser) {
+				document.querySelector("main").innerHTML =
+					'<section class="message-section compact-message-section"><p class="info-message">利用者が見つかりませんでした。</p></section>';
+				return;
+			}
+			const acc = TeamG.account(careUser.accountId);
+
+			document.getElementById("backToDetail").href = "./careuser_detail.html?careUserId=" + careUser.careUserId;
+
+			const form = document.getElementById("careUserUpdateForm");
+			form.careUserId.value = careUser.careUserId;
+			form.accountId.value = careUser.accountId;
+			form.careUserName.value = careUser.careUserName || "";
+			form.birthDate.value = TeamG.toDateInput(careUser.birthDate);
+			// 性別: 保存済み文字列を int に戻す
+			const genderInt = { "男性": "1", "女性": "2", "その他": "3" }[careUser.gender] || "";
+			form.gender.value = genderInt;
+			form.postalCode.value = careUser.postalCode || "";
+			form.address.value = careUser.address || "";
+			form.phoneNumber.value = careUser.phoneNumber || "";
+			form.publicSetting.value = careUser.publicSetting ? "true" : "false";
+			form.isActive.value = careUser.isActive ? "true" : "false";
+			form.loginId.value = acc ? acc.loginId : "";
+
+			const modal = document.getElementById("modal");
+			const overlay = document.getElementById("modalOverlay");
+			const confirmBtn = document.getElementById("confirmBtn");
+			const cancelButton = document.getElementById("cancelButton");
+
+			function getItem(name) { return form.querySelector("[name='" + name + "']"); }
+			function getValue(name) { const item = getItem(name); return item ? item.value.trim() : ""; }
+			function clearErrors() {
+				document.querySelectorAll(".js-error-message").forEach(function (e) { e.textContent = ""; });
+				document.getElementById("loginIdError").textContent = "";
+			}
+			function showError(name, message) {
+				const item = getItem(name); if (!item) return;
+				const group = item.closest(".form-group"); if (!group) return;
+				const error = group.querySelector(".js-error-message"); if (error) error.textContent = message;
+			}
+
+			function validate() {
+				clearErrors();
+				let ok = true; let first = null;
+				function err(name, msg) { showError(name, msg); ok = false; if (!first) first = getItem(name); }
+
+				if (getValue("careUserName") === "") err("careUserName", "氏名を入力してください。");
+				if (getValue("birthDate") === "") err("birthDate", "生年月日を入力してください。");
+				if (getValue("gender") === "") err("gender", "性別を選択してください。");
+
+				const postal = getValue("postalCode");
+				if (postal === "") err("postalCode", "郵便番号を入力してください。");
+				else if (!/^[0-9]{7}$/.test(postal)) err("postalCode", "郵便番号は7桁で入力してください。");
+
+				if (getValue("address") === "") err("address", "住所を入力してください。");
+
+				const phone = getValue("phoneNumber");
+				if (phone === "") err("phoneNumber", "電話番号を入力してください。");
+				else if (!/^[0-9]{10,11}$/.test(phone)) err("phoneNumber", "電話番号は10〜11桁で入力してください。");
+
+				if (getValue("publicSetting") === "") err("publicSetting", "公開設定を選択してください。");
+				if (getValue("isActive") === "") err("isActive", "利用状況を選択してください。");
+
+				const loginId = getValue("loginId");
+				if (loginId === "") err("loginId", "ログインIDを入力してください。");
+				else if (acc && loginId !== acc.loginId && TeamG.loginIdExists(loginId)) {
+					document.getElementById("loginIdError").textContent = "このログインIDは既に使用されています。";
+					ok = false; if (!first) first = getItem("loginId");
+				}
+
+				if (!ok && first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); first.focus(); }
+				return ok;
+			}
+
+			function openModal() { modal.hidden = false; modal.classList.add("is-open"); document.body.style.overflow = "hidden"; }
+			function closeModal() { modal.classList.remove("is-open"); modal.hidden = true; document.body.style.overflow = ""; }
+
+			confirmBtn.addEventListener("click", function () {
+				if (!validate()) { closeModal(); return; }
+
+				document.getElementById("cName").textContent = getValue("careUserName");
+				document.getElementById("cBirth").textContent = getValue("birthDate");
+				const gender = document.getElementById("gender");
+				document.getElementById("cGender").textContent = gender.options[gender.selectedIndex].text;
+				document.getElementById("cPostal").textContent = getValue("postalCode");
+				document.getElementById("cAddress").textContent = getValue("address");
+				document.getElementById("cPhone").textContent = getValue("phoneNumber");
+				const publicSetting = document.getElementById("publicSetting");
+				document.getElementById("cPublic").textContent = publicSetting.options[publicSetting.selectedIndex].text;
+				const isActive = document.getElementById("isActive");
+				document.getElementById("cActive").textContent = isActive.options[isActive.selectedIndex].text;
+				document.getElementById("cLogin").textContent = getValue("loginId");
+
+				openModal();
+			});
+
+			cancelButton.addEventListener("click", closeModal);
+			overlay.addEventListener("click", function (event) { if (event.target === overlay) closeModal(); });
+			document.addEventListener("keydown", function (event) { if (event.key === "Escape" && !modal.hidden) closeModal(); });
+
+			document.getElementById("submitBtn").addEventListener("click", function () {
+				const careUserObj = {
+					careUserId: Number(form.careUserId.value),
+					accountId: Number(form.accountId.value),
+					careUserName: getValue("careUserName"),
+					birthDate: getValue("birthDate"),
+					age: careUser.age,
+					gender: Number(getValue("gender")),
+					postalCode: getValue("postalCode"),
+					address: getValue("address"),
+					phoneNumber: getValue("phoneNumber"),
+					publicSetting: getValue("publicSetting") === "true",
+					isActive: getValue("isActive") === "true",
+				};
+				const userObj = { accountId: Number(form.accountId.value), loginId: getValue("loginId") };
+				TeamG.careUserUpdate(careUserObj, userObj);
+				location.href = "./complete.html?title=" + encodeURIComponent("更新完了") +
+					"&message=" + encodeURIComponent("利用者情報を更新しました。") +
+					"&backUrl=" + encodeURIComponent("./careuser_list.html") +
+					"&backText=" + encodeURIComponent("一覧へ戻る") +
+					"&dashboardUrl=" + encodeURIComponent("./admin_dashboard.html") +
+					"&dashboardText=" + encodeURIComponent("ダッシュボードへ戻る");
+			});
+		});
+	</script>
+
+</body>
+
+</html>

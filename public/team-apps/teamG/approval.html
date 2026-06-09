@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>家族報告承認</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="family-report-approval-page compact-form-page">
+
+	<header class="site-header">
+		<div class="header-inner">
+
+			<div class="header-title-area">
+				<p class="system-subtitle">ひだまり支援センター</p>
+				<h1 class="system-title">事務作業管理システム</h1>
+			</div>
+
+			<div class="header-user-area">
+				<p class="login-user">
+					ようこそ、
+					<span class="user-name" id="userName">ゲスト</span>
+					さん
+				</p>
+
+				<form class="logout-form" onsubmit="return false;">
+					<button type="submit" class="logout-button" onclick="TeamG.logout()">
+						ログアウト
+					</button>
+				</form>
+			</div>
+
+		</div>
+	</header>
+
+	<main class="family-report-approval-container compact-form-container">
+
+		<section class="compact-page-top">
+
+			<div class="compact-page-heading">
+				<h2 class="page-title">家族報告承認</h2>
+				<p class="page-description">
+					家族へ公開する報告内容を確認し、承認または差戻しを行います。
+				</p>
+			</div>
+
+			<div class="compact-page-action-area">
+
+				<a href="./unapproval_report_list.html" class="secondary-button">
+					未承認一覧へ戻る
+				</a>
+
+				<a href="./admin_dashboard.html" class="secondary-button">
+					管理者ダッシュボードへ戻る
+				</a>
+
+			</div>
+
+		</section>
+
+		<section class="message-section" id="messageSection" style="display:none;">
+			<p class="error-message" id="errorMessage">
+				家族報告の取得に失敗しました。
+			</p>
+		</section>
+
+		<div id="detailContainer"></div>
+
+	</main>
+
+	<footer class="footer">
+		<small>© 2026 TeamG ひだまり支援センター</small>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamG.init().then(function () {
+			const sess = TeamG.requireLogin();
+			if (!sess) return;
+			if (!TeamG.requireRole(sess, [1])) return;
+
+			document.getElementById("userName").textContent = sess.loginUserName || "ゲスト";
+
+			const q = new URLSearchParams(location.search);
+			const familyReportId = q.get("familyReportId");
+			const fr = TeamG.familyReportDetailByRole(familyReportId, 1, null, null);
+
+			function showError(msg) {
+				document.getElementById("errorMessage").textContent = msg;
+				document.getElementById("messageSection").style.display = "";
+			}
+
+			if (!fr) {
+				showError("家族報告の取得に失敗しました。");
+				return;
+			}
+
+			const esc = TeamG.esc;
+
+			let approvalLabelHtml;
+			if (fr.approvalStatus === 1) approvalLabelHtml = '<span>承認待ち</span>';
+			else if (fr.approvalStatus === 2) approvalLabelHtml = '<span>承認済み</span>';
+			else if (fr.approvalStatus === 3) approvalLabelHtml = '<span>差戻し</span>';
+			else approvalLabelHtml = '<span>未設定</span>';
+
+			const careTags = [];
+			if (fr.bathCare) careTags.push('<span class="care-tag">入浴</span>');
+			if (fr.clothesChangeCare) careTags.push('<span class="care-tag">更衣</span>');
+			if (fr.medicationCare) careTags.push('<span class="care-tag">服薬</span>');
+			if (fr.cookingCare) careTags.push('<span class="care-tag">調理</span>');
+			if (fr.cleaningCare) careTags.push('<span class="care-tag">掃除</span>');
+			if (fr.laundryCare) careTags.push('<span class="care-tag">洗濯</span>');
+			if (fr.shoppingCare) careTags.push('<span class="care-tag">買い物</span>');
+			if (fr.otherCare != null && fr.otherCare !== "") careTags.push('<span class="care-tag">' + esc(fr.otherCare) + '</span>');
+			if (careTags.length === 0) careTags.push('<span class="empty-care-text">記録なし</span>');
+
+			const mealHtml = fr.mealAmount != null ? '<span>' + esc(fr.mealAmount) + '</span> <span>割</span>' : '<span></span>';
+			const stoolCount = fr.stoolCount != null ? '<span>' + esc(fr.stoolCount) + '</span> <span>回</span>' : '<span></span>';
+			const urineCount = fr.urineCount != null ? '<span>' + esc(fr.urineCount) + '</span> <span>回</span>' : '<span></span>';
+
+			document.getElementById("detailContainer").innerHTML =
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">基本情報</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">利用者</div><div class="compact-detail-value">' + esc(fr.careUserName) + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">ヘルパー</div><div class="compact-detail-value">' + esc(fr.staffName) + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">承認状態</div><div class="compact-detail-value">' + approvalLabelHtml + '</div></div>' +
+					'</div>' +
+				'</section>' +
+				'<section class="compact-form-section">' +
+					'<h3 class="compact-section-title">家族報告内容</h3>' +
+					'<div class="compact-detail-grid">' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">サービス内容</div><div class="compact-detail-value compact-care-value">' + careTags.join("") + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">訪問日</div><div class="compact-detail-value">' + esc(fr.visitDate ? TeamG.fmtDate(fr.visitDate) : "") + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">訪問開始時間</div><div class="compact-detail-value">' + esc(fr.startTime ? TeamG.fmtTime(fr.startTime) : "") + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">訪問終了時間</div><div class="compact-detail-value">' + esc(fr.endTime ? TeamG.fmtTime(fr.endTime) : "") + '</div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">食事量</div><div class="compact-detail-value">' + mealHtml + '</div></div>' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">排泄状況</div><div class="compact-detail-value">便：' + stoolCount + ' ・ <span>' + esc(fr.stoolCondition != null ? fr.stoolCondition : "") + '</span> ／尿：' + urineCount + ' ・ <span>' + esc(fr.urineColor != null ? fr.urineColor : "") + '</span></div></div>' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">写真</div><div class="compact-detail-value"><span>' + (fr.photoPath != null && fr.photoPath !== "" ? "写真あり" : "添付なし") + '</span></div></div>' +
+						'<div class="compact-detail-group"><div class="compact-detail-label">次回訪問日時</div><div class="compact-detail-value">' + esc(fr.nextVisitDate ? TeamG.fmtDateTime(fr.nextVisitDate) : "未定") + '</div></div>' +
+						'<div class="compact-detail-group compact-detail-group-wide"><div class="compact-detail-label">特記事項</div><div class="compact-detail-value compact-detail-text pre-line">' + esc(fr.specialNote) + '</div></div>' +
+					'</div>' +
+				'</section>' +
+				'<form class="approval-form compact-input-form" id="familyReportApprovalForm" onsubmit="return false;">' +
+					'<section class="compact-form-section">' +
+						'<h3 class="compact-section-title">差戻し理由</h3>' +
+						'<div class="compact-form-grid">' +
+							'<div class="compact-form-group compact-form-group-wide">' +
+								'<label for="rejectReason" class="compact-form-label">差戻し理由</label>' +
+								'<textarea id="rejectReason" name="rejectReason" rows="5" class="compact-form-input compact-form-textarea" placeholder="差戻しする場合は理由を入力してください。例：特記事項の表現を確認してください。"></textarea>' +
+								'<p class="field-error-message" id="fieldError" style="display:none;"></p>' +
+							'</div>' +
+						'</div>' +
+					'</section>' +
+					'<section class="compact-detail-action-section">' +
+						'<div class="button-area compact-button-area">' +
+							'<button type="button" name="action" value="approve" class="primary-button" id="approveButton">承認する</button>' +
+							'<button type="button" name="action" value="reject" class="danger-button" id="rejectButton">差戻しする</button>' +
+						'</div>' +
+					'</section>' +
+				'</form>';
+
+			document.getElementById("approveButton").addEventListener("click", function () {
+				TeamG.approveReport(fr.familyReportId, sess.staffId);
+				location.href = "./unapproval_report_list.html";
+			});
+
+			document.getElementById("rejectButton").addEventListener("click", function () {
+				const reason = document.getElementById("rejectReason").value.trim();
+				if (!reason) {
+					const fe = document.getElementById("fieldError");
+					fe.textContent = "差戻し理由を入力してください。";
+					fe.style.display = "";
+					showError("差戻し理由を入力してください。");
+					return;
+				}
+				TeamG.rejectReport(fr.familyReportId, reason, sess.staffId);
+				location.href = "./unapproval_report_list.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>
