@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会員情報変更 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/customer-detail.css">
+</head>
+
+<body>
+  <div class="customerDetailPage">
+    <div class="fixedBottomBg" aria-hidden="true"></div>
+
+    <div id="appHeader"></div>
+
+    <div class="customerContainer">
+      <section class="customerPageHeading">
+        <span class="customerWelcome">名前・住所・支払方法などを変更</span>
+        <h2 class="customerMainTitle">会員情報変更</h2>
+        <p class="customerMainSubtitle">登録中の会員情報を編集できます。</p>
+      </section>
+
+      <div id="errorMessage" style="color:red;background-color:#ffe6e6;padding:10px;border-radius:5px;margin-bottom:20px;font-weight:bold;display:none;"></div>
+      <div id="successMessage" style="color:green;background-color:#e6ffe6;padding:10px;border-radius:5px;margin-bottom:20px;font-weight:bold;display:none;"></div>
+
+      <section class="customerSection">
+        <div class="customerSectionHeader">
+          <h2 class="customerSectionTitle">基本情報</h2>
+          <span class="customerSectionSubtext">登録中の会員情報を編集できます</span>
+        </div>
+
+        <div class="customerCard">
+          <div class="customerDetailFormGrid">
+            <div class="customerFormGroup">
+              <label for="customerName">名前</label>
+              <input type="text" id="customerName">
+            </div>
+            <div class="customerFormGroup">
+              <label for="tel">電話番号</label>
+              <input type="tel" id="tel" maxlength="11">
+            </div>
+            <div class="customerFormGroup">
+              <label for="postalCode">郵便番号</label>
+              <input type="text" id="postalCode" maxlength="7">
+            </div>
+            <div class="customerFormGroup">
+              <label for="address">住所</label>
+              <input type="text" id="address">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="customerSection">
+        <div class="customerSectionHeader">
+          <h2 class="customerSectionTitle">ログイン情報</h2>
+          <span class="customerSectionSubtext">パスワードを変更できます</span>
+        </div>
+
+        <div class="customerCard">
+          <div class="customerDetailFormGrid">
+            <div class="customerFormGroup">
+              <label for="password">新しいパスワード</label>
+              <input type="password" id="password" placeholder="8文字以上で入力">
+            </div>
+            <div class="customerFormGroup">
+              <label for="passwordConfirm">新しいパスワード確認</label>
+              <input type="password" id="passwordConfirm" placeholder="確認のため再入力">
+            </div>
+          </div>
+          <p class="customerHelpText">※ パスワードを変更しない場合は空欄のままで問題ありません。</p>
+        </div>
+      </section>
+
+      <section class="customerSection">
+        <div class="customerSectionHeader">
+          <h2 class="customerSectionTitle">支払方法</h2>
+          <span class="customerSectionSubtext">通常利用する支払方法を選択してください</span>
+        </div>
+
+        <div class="customerCard">
+          <div class="customerRadioBox customerPaymentBox">
+            <label class="customerRadioLabel">
+              <input type="radio" name="payment" value="cod"> 代引き
+            </label>
+            <label class="customerRadioLabel">
+              <input type="radio" name="payment" value="credit"> クレジットカード
+            </label>
+            <label class="customerRadioLabel">
+              <input type="radio" name="payment" value="paypay"> PayPay
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="customerSection">
+        <div class="customerSectionHeader">
+          <h2 class="customerSectionTitle">現在の登録内容</h2>
+          <span class="customerSectionSubtext">変更前の内容確認</span>
+        </div>
+
+        <div class="customerInfoCard customerDetailInfoCard">
+          <div class="customerInfoRow">
+            <span class="customerInfoLabel">名前</span>
+            <span class="customerInfoValue" id="curName">読込中...</span>
+          </div>
+          <div class="customerInfoRow">
+            <span class="customerInfoLabel">電話番号</span>
+            <span class="customerInfoValue" id="curTel">-</span>
+          </div>
+          <div class="customerInfoRow">
+            <span class="customerInfoLabel">郵便番号</span>
+            <span class="customerInfoValue" id="curPostal">-</span>
+          </div>
+          <div class="customerInfoRow">
+            <span class="customerInfoLabel">住所</span>
+            <span class="customerInfoValue" id="curAddress">-</span>
+          </div>
+          <div class="customerInfoRow">
+            <span class="customerInfoLabel">支払方法</span>
+            <span class="customerInfoValue" id="curPayment">-</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="customerActionBox">
+        <a href="./customer-mypage.html" class="customerBackBtn">マイページへ戻る</a>
+        <button type="button" class="customerSubmitBtn" id="saveBtn">変更内容を保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const PAYMENT_LABEL = { cod: "代引き", credit: "クレジットカード", paypay: "PayPay" };
+    const paymentLabel = (m) => PAYMENT_LABEL[m] || "-";
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["customer"], "customer-detail.html")) return;
+
+      const cid = TeamA.session().userId;
+      const cust = TeamA.customerById(cid) || {};
+
+      TeamAUI.renderHeader("customer", "会員情報変更");
+
+      document.getElementById("customerName").value = cust.customerName || "";
+      document.getElementById("tel").value = cust.phone || "";
+      document.getElementById("postalCode").value = cust.postalCode || "";
+      document.getElementById("address").value = cust.address || "";
+      const pm = cust.defaultPaymentMethod || "cod";
+      const pmInput = document.querySelector(`input[name="payment"][value="${pm}"]`);
+      if (pmInput) pmInput.checked = true;
+
+      document.getElementById("curName").textContent = cust.customerName || "読込中...";
+      document.getElementById("curTel").textContent = cust.phone || "-";
+      document.getElementById("curPostal").textContent = cust.postalCode || "-";
+      document.getElementById("curAddress").textContent = cust.address || "-";
+      document.getElementById("curPayment").textContent = paymentLabel(cust.defaultPaymentMethod);
+
+      ["tel", "postalCode"].forEach((id) => {
+        const el = document.getElementById(id);
+        el.addEventListener("input", () => { el.value = el.value.replace(/[^0-9]/g, ""); });
+      });
+
+      const errEl = document.getElementById("errorMessage");
+      const okEl = document.getElementById("successMessage");
+
+      function showError(msg) {
+        errEl.textContent = msg; errEl.style.display = "block";
+        okEl.style.display = "none";
+        window.scrollTo(0, 0);
+      }
+
+      function validate() {
+        const name = document.getElementById("customerName").value.trim();
+        const tel = document.getElementById("tel").value.trim();
+        const postalCode = document.getElementById("postalCode").value.trim();
+        const address = document.getElementById("address").value.trim();
+        const password = document.getElementById("password").value;
+        const passwordConfirm = document.getElementById("passwordConfirm").value;
+        const telRegex = /^0\d{9,10}$/;
+        const postalCodeRegex = /^\d{7}$/;
+        if (name === "") return "名前を入力してください。";
+        if (name.length > 50) return "名前は50文字以内で入力してください。";
+        if (tel === "") return "電話番号を入力してください。";
+        if (!telRegex.test(tel)) return "電話番号はハイフンなしの半角数字10〜11桁で入力してください。";
+        if (postalCode === "") return "郵便番号を入力してください。";
+        if (!postalCodeRegex.test(postalCode)) return "郵便番号はハイフンなしの半角数字7桁で入力してください。";
+        if (address === "") return "住所を入力してください。";
+        if (address.length > 255) return "住所は255文字以内で入力してください。";
+        if (!password && passwordConfirm) return "パスワード確認を入力する場合は、新しいパスワードも入力してください。";
+        if (password && password.length < 8) return "パスワードは8文字以上で入力してください。";
+        if (password && password.length > 100) return "パスワードは100文字以内で入力してください。";
+        if (password && password !== passwordConfirm) return "パスワードと確認用パスワードが一致しません。";
+        return "";
+      }
+
+      document.getElementById("saveBtn").addEventListener("click", () => {
+        errEl.style.display = "none";
+        okEl.style.display = "none";
+        const msg = validate();
+        if (msg) { showError(msg); return; }
+
+        const name = document.getElementById("customerName").value.trim();
+        const tel = document.getElementById("tel").value.trim();
+        const postalCode = document.getElementById("postalCode").value.trim();
+        const address = document.getElementById("address").value.trim();
+        const password = document.getElementById("password").value;
+        const paymentMethod = (document.querySelector('input[name="payment"]:checked') || {}).value || "cod";
+
+        const confirmMsg =
+          "以下の内容で会員情報を変更してよろしいですか？\n\n" +
+          "【名前】\n" + (name || "未入力") + "\n\n" +
+          "【電話番号】\n" + (tel || "未入力") + "\n\n" +
+          "【郵便番号】\n" + (postalCode || "未入力") + "\n\n" +
+          "【住所】\n" + (address || "未入力") + "\n\n" +
+          "【支払方法】\n" + paymentLabel(paymentMethod) + "\n\n" +
+          "【パスワード変更】\n" + (password ? "あり" : "なし");
+
+        if (!window.confirm(confirmMsg)) return;
+
+        const upd = { customerName: name, phone: tel, postalCode, address, defaultPaymentMethod: paymentMethod };
+        if (password) upd.passwordHash = password;
+        TeamA.updateCustomer(cid, upd);
+
+        location.href = "./customer-mypage.html";
+      });
+    });
+  </script>
+</body>
+
+</html>

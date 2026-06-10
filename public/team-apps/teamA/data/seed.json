@@ -1,0 +1,1046 @@
+{
+  "customers": [
+    {
+      "customerId": 1,
+      "customerCode": "C0001",
+      "customerName": "山田 太郎",
+      "phone": "09011112222",
+      "passwordHash": "password123",
+      "postalCode": "1000001",
+      "address": "東京都千代田区千代田1-1",
+      "birthDate": "1988-04-01",
+      "defaultLeaveAtDoorFlag": false,
+      "defaultFrozenFlag": false,
+      "defaultDeliveryInstruction": "玄関前で手渡し希望",
+      "defaultPaymentMethod": "credit",
+      "creditCardValidFlag": true,
+      "cardLast4": "1234",
+      "activeFlag": true
+    },
+    {
+      "customerId": 2,
+      "customerCode": "C0002",
+      "customerName": "佐藤 花子",
+      "phone": "09022223333",
+      "passwordHash": "password123",
+      "postalCode": "1000002",
+      "address": "東京都千代田区丸の内1-1",
+      "birthDate": "1990-05-10",
+      "defaultLeaveAtDoorFlag": true,
+      "defaultFrozenFlag": false,
+      "defaultDeliveryInstruction": "宅配ボックス不可。玄関前に置き配希望",
+      "defaultPaymentMethod": "paypay",
+      "creditCardValidFlag": false,
+      "cardLast4": null,
+      "activeFlag": true
+    },
+    {
+      "customerId": 3,
+      "customerCode": "C0003",
+      "customerName": "鈴木 一郎",
+      "phone": "09033334444",
+      "passwordHash": "password123",
+      "postalCode": "1010001",
+      "address": "東京都千代田区神田1-1",
+      "birthDate": "1978-11-20",
+      "defaultLeaveAtDoorFlag": false,
+      "defaultFrozenFlag": true,
+      "defaultDeliveryInstruction": "冷凍便希望。到着前に電話",
+      "defaultPaymentMethod": "cod",
+      "creditCardValidFlag": false,
+      "cardLast4": null,
+      "activeFlag": true
+    },
+    {
+      "customerId": 4,
+      "customerCode": "C0004",
+      "customerName": "田中 美咲",
+      "phone": "09044445555",
+      "passwordHash": "password123",
+      "postalCode": "9999999",
+      "address": "配送エリア外テスト住所",
+      "birthDate": "1995-08-15",
+      "defaultLeaveAtDoorFlag": false,
+      "defaultFrozenFlag": false,
+      "defaultDeliveryInstruction": null,
+      "defaultPaymentMethod": "credit",
+      "creditCardValidFlag": true,
+      "cardLast4": "9876",
+      "activeFlag": true
+    },
+    {
+      "customerId": 5,
+      "customerCode": "C0005",
+      "customerName": "無効 顧客",
+      "phone": "09055556666",
+      "passwordHash": "password123",
+      "postalCode": "1000003",
+      "address": "東京都千代田区有効外1-1",
+      "birthDate": "1985-02-02",
+      "defaultLeaveAtDoorFlag": false,
+      "defaultFrozenFlag": false,
+      "defaultDeliveryInstruction": null,
+      "defaultPaymentMethod": "cod",
+      "creditCardValidFlag": false,
+      "cardLast4": null,
+      "activeFlag": false
+    },
+    {
+      "customerId": 6,
+      "customerCode": "C0006",
+      "customerName": "髙橋 﨑子",
+      "phone": "09066667777",
+      "passwordHash": "password123",
+      "postalCode": "1000004",
+      "address": "東京都千代田区麹町一丁目 髙﨑ビル",
+      "birthDate": "1992-12-12",
+      "defaultLeaveAtDoorFlag": false,
+      "defaultFrozenFlag": false,
+      "defaultDeliveryInstruction": "JIS第二水準漢字表示確認用",
+      "defaultPaymentMethod": "credit",
+      "creditCardValidFlag": false,
+      "cardLast4": null,
+      "activeFlag": true
+    }
+  ],
+  "employees": [
+    {
+      "employeeId": 1,
+      "employeeCode": "1001",
+      "employeeName": "管理者 太郎",
+      "phone": "0311112222",
+      "birthDate": "1980-01-01",
+      "passwordHash": "password123",
+      "role": "admin",
+      "activeFlag": true
+    },
+    {
+      "employeeId": 2,
+      "employeeCode": "1002",
+      "employeeName": "事務 花子",
+      "phone": "0322223333",
+      "birthDate": "1985-02-02",
+      "passwordHash": "password123",
+      "role": "staff",
+      "activeFlag": true
+    },
+    {
+      "employeeId": 3,
+      "employeeCode": "1003",
+      "employeeName": "無効 社員",
+      "phone": "0333334444",
+      "birthDate": "1990-03-03",
+      "passwordHash": "password123",
+      "role": "staff",
+      "activeFlag": false
+    }
+  ],
+  "drivers": [
+    {
+      "driverId": 1,
+      "driverCode": "2001",
+      "driverName": "配送 太郎",
+      "phone": "08011112222",
+      "vehicleNo": "品川100あ1234",
+      "vehicleInfo": "軽バン1号車",
+      "refrigeratedFlag": true,
+      "passwordHash": "password123",
+      "activeFlag": true
+    },
+    {
+      "driverId": 2,
+      "driverCode": "2002",
+      "driverName": "配送 花子",
+      "phone": "08022223333",
+      "vehicleNo": "品川100い5678",
+      "vehicleInfo": "軽バン2号車",
+      "refrigeratedFlag": false,
+      "passwordHash": "password123",
+      "activeFlag": true
+    },
+    {
+      "driverId": 3,
+      "driverCode": "2003",
+      "driverName": "無効 配送員",
+      "phone": "08033334444",
+      "vehicleNo": "品川100う9999",
+      "vehicleInfo": "退職者車両",
+      "refrigeratedFlag": true,
+      "passwordHash": "password123",
+      "activeFlag": false
+    }
+  ],
+  "products": [
+    {
+      "productId": 1,
+      "productName": "野菜の詰め合わせ",
+      "category": "野菜",
+      "price": 3500,
+      "imagePath": "/images/vegetable.png",
+      "description": "旬の野菜10〜15品目の詰め合わせ",
+      "activeFlag": true
+    },
+    {
+      "productId": 2,
+      "productName": "卵",
+      "category": "卵",
+      "price": 480,
+      "imagePath": "/images/egg.png",
+      "description": "地元養鶏場の新鮮な卵",
+      "activeFlag": true
+    },
+    {
+      "productId": 3,
+      "productName": "りんご",
+      "category": "果物",
+      "price": 600,
+      "imagePath": "/images/apple.png",
+      "description": "季節のりんご",
+      "activeFlag": true
+    },
+    {
+      "productId": 4,
+      "productName": "牛肉セット",
+      "category": "肉",
+      "price": 2500,
+      "imagePath": "/images/beef.png",
+      "description": "地元畜産農家の牛肉",
+      "activeFlag": true
+    },
+    {
+      "productId": 5,
+      "productName": "販売停止商品",
+      "category": "その他",
+      "price": 1000,
+      "imagePath": "/images/stop.png",
+      "description": "販売停止テスト用",
+      "activeFlag": false
+    }
+  ],
+  "allergens": [
+    {
+      "allergenId": 1,
+      "allergenName": "エビ",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 2,
+      "allergenName": "カシューナッツ",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 3,
+      "allergenName": "かに",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 4,
+      "allergenName": "クルミ",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 5,
+      "allergenName": "小麦",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 6,
+      "allergenName": "そば",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 7,
+      "allergenName": "卵",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 8,
+      "allergenName": "乳",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 9,
+      "allergenName": "落花生",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 10,
+      "allergenName": "アーモンド",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 11,
+      "allergenName": "アワビ",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 12,
+      "allergenName": "いか",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 13,
+      "allergenName": "いくら",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 14,
+      "allergenName": "オレンジ",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 15,
+      "allergenName": "キウイフルーツ",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 16,
+      "allergenName": "牛肉",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 17,
+      "allergenName": "ごま",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 18,
+      "allergenName": "さけ",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 19,
+      "allergenName": "さば",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 20,
+      "allergenName": "大豆",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 21,
+      "allergenName": "鶏肉",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 22,
+      "allergenName": "ばなな",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 23,
+      "allergenName": "ピスタチオ",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 24,
+      "allergenName": "豚肉",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 25,
+      "allergenName": "マカダミアナッツ",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 26,
+      "allergenName": "もも",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 27,
+      "allergenName": "山芋",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 28,
+      "allergenName": "りんご",
+      "activeFlag": true
+    },
+    {
+      "allergenId": 29,
+      "allergenName": "ゼラチン",
+      "activeFlag": true
+    }
+  ],
+  "customerAllergens": [
+    {
+      "customerAllergenId": 1,
+      "customerId": 1,
+      "allergenId": 7
+    },
+    {
+      "customerAllergenId": 2,
+      "customerId": 1,
+      "allergenId": 8
+    },
+    {
+      "customerAllergenId": 3,
+      "customerId": 3,
+      "allergenId": 16
+    },
+    {
+      "customerAllergenId": 4,
+      "customerId": 6,
+      "allergenId": 28
+    }
+  ],
+  "productAllergens": [
+    {
+      "productAllergenId": 1,
+      "productId": 2,
+      "allergenId": 7
+    },
+    {
+      "productAllergenId": 2,
+      "productId": 4,
+      "allergenId": 16
+    },
+    {
+      "productAllergenId": 3,
+      "productId": 3,
+      "allergenId": 28
+    }
+  ],
+  "customerDislikedProducts": [
+    {
+      "customerDislikedProductId": 1,
+      "customerId": 1,
+      "productId": 3
+    },
+    {
+      "customerDislikedProductId": 2,
+      "customerId": 2,
+      "productId": 4
+    },
+    {
+      "customerDislikedProductId": 3,
+      "customerId": 3,
+      "productId": 1
+    }
+  ],
+  "customerDeliveryPreferences": [
+    {
+      "preferenceId": 1,
+      "customerId": 1,
+      "leaveAtDoorFlag": false,
+      "frozenFlag": false,
+      "preferenceNote": "玄関前で手渡し希望"
+    },
+    {
+      "preferenceId": 2,
+      "customerId": 2,
+      "leaveAtDoorFlag": true,
+      "frozenFlag": false,
+      "preferenceNote": "宅配ボックス不可。玄関前に置き配希望"
+    },
+    {
+      "preferenceId": 3,
+      "customerId": 3,
+      "leaveAtDoorFlag": false,
+      "frozenFlag": true,
+      "preferenceNote": "冷凍便希望。到着前に電話"
+    },
+    {
+      "preferenceId": 4,
+      "customerId": 6,
+      "leaveAtDoorFlag": false,
+      "frozenFlag": false,
+      "preferenceNote": "漢字表示確認用の備考"
+    }
+  ],
+  "deliveryAreas": [
+    {
+      "areaId": 1,
+      "areaCode": "A001",
+      "postalCodePattern": "100-00〇〇",
+      "postalPrefix5": "10000",
+      "activeFlag": true
+    },
+    {
+      "areaId": 2,
+      "areaCode": "A002",
+      "postalCodePattern": "101-00〇〇",
+      "postalPrefix5": "10100",
+      "activeFlag": true
+    },
+    {
+      "areaId": 3,
+      "areaCode": "A003",
+      "postalCodePattern": "102-00〇〇",
+      "postalPrefix5": "10200",
+      "activeFlag": true
+    },
+    {
+      "areaId": 4,
+      "areaCode": "A999",
+      "postalCodePattern": "999-99〇〇",
+      "postalPrefix5": "99999",
+      "activeFlag": false
+    }
+  ],
+  "deliveryGroups": [
+    {
+      "deliveryGroupId": 1,
+      "groupCode": "G001",
+      "groupName": "1番エリア",
+      "driverId": 1,
+      "activeFlag": true
+    },
+    {
+      "deliveryGroupId": 2,
+      "groupCode": "G002",
+      "groupName": "2番エリア",
+      "driverId": 2,
+      "activeFlag": true
+    },
+    {
+      "deliveryGroupId": 3,
+      "groupCode": "G999",
+      "groupName": "無効エリア",
+      "driverId": 3,
+      "activeFlag": false
+    }
+  ],
+  "deliveryGroupAreas": [
+    {
+      "deliveryGroupAreaId": 1,
+      "deliveryGroupId": 1,
+      "areaId": 1
+    },
+    {
+      "deliveryGroupAreaId": 2,
+      "deliveryGroupId": 2,
+      "areaId": 2
+    },
+    {
+      "deliveryGroupAreaId": 3,
+      "deliveryGroupId": 2,
+      "areaId": 3
+    },
+    {
+      "deliveryGroupAreaId": 4,
+      "deliveryGroupId": 3,
+      "areaId": 4
+    }
+  ],
+  "carts": [
+    {
+      "cartId": 1,
+      "customerId": 1
+    },
+    {
+      "cartId": 2,
+      "customerId": 2
+    },
+    {
+      "cartId": 3,
+      "customerId": 3
+    }
+  ],
+  "cartItems": [
+    {
+      "cartItemId": 1,
+      "cartId": 1,
+      "productId": 1,
+      "quantity": 1,
+      "unitPrice": 3500
+    },
+    {
+      "cartItemId": 2,
+      "cartId": 1,
+      "productId": 2,
+      "quantity": 2,
+      "unitPrice": 480
+    },
+    {
+      "cartItemId": 3,
+      "cartId": 2,
+      "productId": 3,
+      "quantity": 1,
+      "unitPrice": 600
+    },
+    {
+      "cartItemId": 4,
+      "cartId": 3,
+      "productId": 4,
+      "quantity": 1,
+      "unitPrice": 2500
+    }
+  ],
+  "orders": [
+    {
+      "orderId": 1,
+      "orderNo": "OD-2026-0001",
+      "customerId": 1,
+      "orderRoute": "web",
+      "orderType": "one_time",
+      "approvalStatus": 0,
+      "orderFlag": 0,
+      "cancelFlag": 0,
+      "orderDatetime": "2026-06-04 09:00:00",
+      "deliveryDate": "2026-06-05",
+      "deliveryGroupId": 1,
+      "deliveryInstruction": "玄関前で手渡し希望",
+      "requestNote": "卵アレルギー注意",
+      "totalAmount": 4460,
+      "approvedBy": null,
+      "approvedAt": null,
+      "allergyWarningFlag": true
+    },
+    {
+      "orderId": 2,
+      "orderNo": "OD-2026-0002",
+      "customerId": 2,
+      "orderRoute": "web",
+      "orderType": "one_time",
+      "approvalStatus": 0,
+      "orderFlag": 0,
+      "cancelFlag": 0,
+      "orderDatetime": "2026-06-04 10:00:00",
+      "deliveryDate": "2026-06-05",
+      "deliveryGroupId": 1,
+      "deliveryInstruction": "玄関前に置き配希望",
+      "requestNote": "置き配×代引き不可確認用",
+      "totalAmount": 600,
+      "approvedBy": null,
+      "approvedAt": null,
+      "allergyWarningFlag": false
+    },
+    {
+      "orderId": 3,
+      "orderNo": "OD-2026-0003",
+      "customerId": 3,
+      "orderRoute": "phone",
+      "orderType": "one_time",
+      "approvalStatus": 1,
+      "orderFlag": 0,
+      "cancelFlag": 0,
+      "orderDatetime": "2026-06-04 11:00:00",
+      "deliveryDate": "2026-06-06",
+      "deliveryGroupId": 2,
+      "deliveryInstruction": "冷凍便希望。到着前に電話",
+      "requestNote": "電話注文テスト",
+      "totalAmount": 2500,
+      "approvedBy": 2,
+      "approvedAt": "2026-06-04 11:30:00",
+      "allergyWarningFlag": true
+    },
+    {
+      "orderId": 4,
+      "orderNo": "OD-2026-0004",
+      "customerId": 1,
+      "orderRoute": "line",
+      "orderType": "regular",
+      "approvalStatus": 1,
+      "orderFlag": 1,
+      "cancelFlag": 0,
+      "orderDatetime": "2026-06-03 18:00:00",
+      "deliveryDate": "2026-06-04",
+      "deliveryGroupId": 1,
+      "deliveryInstruction": "通常配送",
+      "requestNote": "配送中テスト",
+      "totalAmount": 3500,
+      "approvedBy": 1,
+      "approvedAt": "2026-06-03 19:00:00",
+      "allergyWarningFlag": false
+    },
+    {
+      "orderId": 5,
+      "orderNo": "OD-2026-0005",
+      "customerId": 6,
+      "orderRoute": "web",
+      "orderType": "one_time",
+      "approvalStatus": 1,
+      "orderFlag": 1,
+      "cancelFlag": 0,
+      "orderDatetime": "2026-06-01 08:00:00",
+      "deliveryDate": "2026-06-02",
+      "deliveryGroupId": 1,
+      "deliveryInstruction": "漢字表示確認用",
+      "requestNote": "完了テスト",
+      "totalAmount": 600,
+      "approvedBy": 1,
+      "approvedAt": "2026-06-01 09:00:00",
+      "allergyWarningFlag": true
+    },
+    {
+      "orderId": 6,
+      "orderNo": "OD-2026-0006",
+      "customerId": 1,
+      "orderRoute": "web",
+      "orderType": "one_time",
+      "approvalStatus": 0,
+      "orderFlag": 0,
+      "cancelFlag": 1,
+      "orderDatetime": "2026-06-02 09:00:00",
+      "deliveryDate": "2026-06-03",
+      "deliveryGroupId": 1,
+      "deliveryInstruction": "キャンセル確認用",
+      "requestNote": "キャンセル済み",
+      "totalAmount": 480,
+      "approvedBy": 2,
+      "approvedAt": "2026-06-02 10:00:00",
+      "allergyWarningFlag": true
+    }
+  ],
+  "orderItems": [
+    {
+      "orderItemId": 1,
+      "orderId": 1,
+      "productId": 1,
+      "quantity": 1,
+      "unitPrice": 3500,
+      "subtotal": 3500
+    },
+    {
+      "orderItemId": 2,
+      "orderId": 1,
+      "productId": 2,
+      "quantity": 2,
+      "unitPrice": 480,
+      "subtotal": 960
+    },
+    {
+      "orderItemId": 3,
+      "orderId": 2,
+      "productId": 3,
+      "quantity": 1,
+      "unitPrice": 600,
+      "subtotal": 600
+    },
+    {
+      "orderItemId": 4,
+      "orderId": 3,
+      "productId": 4,
+      "quantity": 1,
+      "unitPrice": 2500,
+      "subtotal": 2500
+    },
+    {
+      "orderItemId": 5,
+      "orderId": 4,
+      "productId": 1,
+      "quantity": 1,
+      "unitPrice": 3500,
+      "subtotal": 3500
+    },
+    {
+      "orderItemId": 6,
+      "orderId": 5,
+      "productId": 3,
+      "quantity": 1,
+      "unitPrice": 600,
+      "subtotal": 600
+    },
+    {
+      "orderItemId": 7,
+      "orderId": 6,
+      "productId": 2,
+      "quantity": 1,
+      "unitPrice": 480,
+      "subtotal": 480
+    }
+  ],
+  "payments": [
+    {
+      "paymentId": 1,
+      "orderId": 1,
+      "paymentMethod": "credit",
+      "paymentStatus": "unpaid",
+      "amount": 4460,
+      "paidAt": null,
+      "updatedBy": null
+    },
+    {
+      "paymentId": 2,
+      "orderId": 2,
+      "paymentMethod": "cod",
+      "paymentStatus": "cod_target",
+      "amount": 600,
+      "paidAt": null,
+      "updatedBy": null
+    },
+    {
+      "paymentId": 3,
+      "orderId": 3,
+      "paymentMethod": "cod",
+      "paymentStatus": "cod_target",
+      "amount": 2500,
+      "paidAt": null,
+      "updatedBy": null
+    },
+    {
+      "paymentId": 4,
+      "orderId": 4,
+      "paymentMethod": "paypay",
+      "paymentStatus": "paid",
+      "amount": 3500,
+      "paidAt": "2026-06-03 18:05:00",
+      "updatedBy": 2
+    },
+    {
+      "paymentId": 5,
+      "orderId": 5,
+      "paymentMethod": "credit",
+      "paymentStatus": "paid",
+      "amount": 600,
+      "paidAt": "2026-06-01 08:05:00",
+      "updatedBy": 1
+    },
+    {
+      "paymentId": 6,
+      "orderId": 6,
+      "paymentMethod": "credit",
+      "paymentStatus": "unpaid",
+      "amount": 480,
+      "paidAt": null,
+      "updatedBy": 2
+    }
+  ],
+  "deliveries": [
+    {
+      "deliveryId": 1,
+      "orderId": 1,
+      "deliveryGroupId": 1,
+      "driverId": 1,
+      "scheduledDate": "2026-06-05",
+      "deliveryStatus": "undelivered",
+      "completedAt": null,
+      "completionNote": null
+    },
+    {
+      "deliveryId": 2,
+      "orderId": 2,
+      "deliveryGroupId": 1,
+      "driverId": 1,
+      "scheduledDate": "2026-06-05",
+      "deliveryStatus": "undelivered",
+      "completedAt": null,
+      "completionNote": "置き配予定"
+    },
+    {
+      "deliveryId": 3,
+      "orderId": 3,
+      "deliveryGroupId": 2,
+      "driverId": 2,
+      "scheduledDate": "2026-06-06",
+      "deliveryStatus": "undelivered",
+      "completedAt": null,
+      "completionNote": "代引き回収予定"
+    },
+    {
+      "deliveryId": 4,
+      "orderId": 4,
+      "deliveryGroupId": 1,
+      "driverId": 1,
+      "scheduledDate": "2026-06-04",
+      "deliveryStatus": "delivering",
+      "completedAt": null,
+      "completionNote": null
+    },
+    {
+      "deliveryId": 5,
+      "orderId": 5,
+      "deliveryGroupId": 1,
+      "driverId": 1,
+      "scheduledDate": "2026-06-02",
+      "deliveryStatus": "completed",
+      "completedAt": "2026-06-02 10:30:00",
+      "completionNote": "配達完了"
+    },
+    {
+      "deliveryId": 6,
+      "orderId": 6,
+      "deliveryGroupId": 1,
+      "driverId": 1,
+      "scheduledDate": "2026-06-03",
+      "deliveryStatus": "failed",
+      "completedAt": null,
+      "completionNote": "キャンセル済み"
+    }
+  ],
+  "subscriptions": [
+    {
+      "subscriptionId": 1,
+      "customerId": 1,
+      "cycle": "weekly",
+      "deliveryWeekday": "金",
+      "nextDeliveryDate": "2026-06-12",
+      "quantityType": "今回と同じ",
+      "pauseStartDate": null,
+      "pauseEndDate": null,
+      "status": "active"
+    },
+    {
+      "subscriptionId": 2,
+      "customerId": 2,
+      "cycle": "biweekly",
+      "deliveryWeekday": "火",
+      "nextDeliveryDate": "2026-06-10",
+      "quantityType": "少なめ",
+      "pauseStartDate": null,
+      "pauseEndDate": null,
+      "status": "active"
+    },
+    {
+      "subscriptionId": 3,
+      "customerId": 3,
+      "cycle": "monthly",
+      "deliveryWeekday": "土",
+      "nextDeliveryDate": "2026-06-28",
+      "quantityType": "多め",
+      "pauseStartDate": "2026-07-01",
+      "pauseEndDate": "2026-07-31",
+      "status": "paused"
+    },
+    {
+      "subscriptionId": 4,
+      "customerId": 6,
+      "cycle": "weekly",
+      "deliveryWeekday": "水",
+      "nextDeliveryDate": "2026-06-11",
+      "quantityType": "今回と同じ",
+      "pauseStartDate": null,
+      "pauseEndDate": null,
+      "status": "stopped"
+    }
+  ],
+  "subscriptionItems": [
+    {
+      "subscriptionItemId": 1,
+      "subscriptionId": 1,
+      "productId": 1,
+      "quantity": 1,
+      "unitPrice": 3500
+    },
+    {
+      "subscriptionItemId": 2,
+      "subscriptionId": 1,
+      "productId": 2,
+      "quantity": 1,
+      "unitPrice": 480
+    },
+    {
+      "subscriptionItemId": 3,
+      "subscriptionId": 2,
+      "productId": 3,
+      "quantity": 2,
+      "unitPrice": 600
+    },
+    {
+      "subscriptionItemId": 4,
+      "subscriptionId": 3,
+      "productId": 4,
+      "quantity": 1,
+      "unitPrice": 2500
+    },
+    {
+      "subscriptionItemId": 5,
+      "subscriptionId": 4,
+      "productId": 1,
+      "quantity": 1,
+      "unitPrice": 3500
+    }
+  ],
+  "farmers": [
+    {
+      "farmerId": 1,
+      "farmerName": "青空農園",
+      "address": "東京都西多摩郡テスト町1-1",
+      "phone": "0421112222",
+      "activeFlag": true
+    },
+    {
+      "farmerId": 2,
+      "farmerName": " Feeps養鶏場",
+      "address": "東京都八王子市テスト町2-2",
+      "phone": "0422223333",
+      "activeFlag": true
+    },
+    {
+      "farmerId": 3,
+      "farmerName": "山里果樹園",
+      "address": "東京都青梅市テスト町3-3",
+      "phone": "0423334444",
+      "activeFlag": true
+    }
+  ],
+  "farmerProducts": [
+    {
+      "farmerProductId": 1,
+      "farmerId": 1,
+      "productId": 1
+    },
+    {
+      "farmerProductId": 2,
+      "farmerId": 2,
+      "productId": 2
+    },
+    {
+      "farmerProductId": 3,
+      "farmerId": 3,
+      "productId": 3
+    },
+    {
+      "farmerProductId": 4,
+      "farmerId": 1,
+      "productId": 5
+    }
+  ],
+  "messageLogs": [
+    {
+      "logId": 1,
+      "actorType": "customer",
+      "actorId": 1,
+      "action": "ログイン",
+      "targetTable": "customers",
+      "targetId": 1
+    },
+    {
+      "logId": 2,
+      "actorType": "customer",
+      "actorId": 1,
+      "action": "注文登録",
+      "targetTable": "orders",
+      "targetId": 1
+    },
+    {
+      "logId": 3,
+      "actorType": "employee",
+      "actorId": 2,
+      "action": "電話注文登録",
+      "targetTable": "orders",
+      "targetId": 3
+    },
+    {
+      "logId": 4,
+      "actorType": "employee",
+      "actorId": 2,
+      "action": "注文承認",
+      "targetTable": "orders",
+      "targetId": 3
+    },
+    {
+      "logId": 5,
+      "actorType": "driver",
+      "actorId": 1,
+      "action": "配送ステータス更新",
+      "targetTable": "deliveries",
+      "targetId": 4
+    },
+    {
+      "logId": 6,
+      "actorType": "employee",
+      "actorId": 1,
+      "action": "商品マスタ更新",
+      "targetTable": "products",
+      "targetId": 1
+    }
+  ],
+  "meta": {
+    "today": "2026-06-08",
+    "source": "teamA.sql (sky_db)"
+  }
+}

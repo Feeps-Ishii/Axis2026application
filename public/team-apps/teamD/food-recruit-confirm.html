@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>食材募集確認画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">food-recruit-confirm</p>
+		<h2 class="page-title">食材募集確認</h2>
+		<p class="page-lead"> </p>
+
+		<section class="card confirm-card">
+			<dl class="confirm-list">
+				<div class="confirm-row" data-db-table="T_FOOD_RECRUIT" data-db-column="title">
+					<dt>タイトル</dt>
+					<dd><span id="I-001" data-confirm-field="I-001"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_FOOD_RECRUIT" data-db-column="shokudo_id">
+					<dt>食堂</dt>
+					<dd><span id="I-002" data-confirm-field="I-002"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_RECRUIT_FOOD" data-db-column="food_id">
+					<dt>食材名</dt>
+					<dd><span id="I-003" data-confirm-field="I-003"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_RECRUIT_FOOD" data-db-column="required_quantity">
+					<dt>数量</dt>
+					<dd><span id="I-004" data-confirm-field="I-004"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_FOOD_RECRUIT" data-db-column="deadline_date">
+					<dt>期限日</dt>
+					<dd><span id="I-005" data-confirm-field="I-005"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_FOOD_RECRUIT" data-db-column="remarks">
+					<dt>備考</dt>
+					<dd><span id="I-006" data-confirm-field="I-006"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_FOOD_RECRUIT" data-db-column="status">
+					<dt>状態</dt>
+					<dd><span id="I-007" data-confirm-field="I-007"></span></dd>
+				</div>
+			</dl>
+
+			<div class="button-area">
+				<button type="button" class="primary-button" id="confirmBtn" data-button-id="B-001"
+					data-next-screen="SC-013　完了画面">確定する</button>
+				<button type="button" class="secondary-button" id="backBtn" data-button-id="B-003">戻る</button>
+			</div>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		function esc(s) {
+			return String(s == null ? "" : s)
+				.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+		}
+		function statusLabel(st) {
+			const n = Number(st);
+			return n === 1 ? "募集中" : n === 2 ? "終了" : n === 3 ? "完了" : "未設定";
+		}
+		function fmtSlash(s) {
+			return s ? String(s).slice(0, 10).replace(/-/g, "/") : "";
+		}
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireStaff('food-recruit-confirm.html')) return;
+
+			const draft = TeamD.getDraft("foodRecruit");
+			if (!draft) {
+				location.href = "./food-recruit-form.html";
+				return;
+			}
+
+			const food = TeamD.foodById(draft.foodId);
+			document.getElementById("I-001").textContent = draft.title || "";
+			document.getElementById("I-002").textContent = TeamD.shokudoName(draft.shokudoId) || "";
+			document.getElementById("I-003").textContent = food ? food.foodName : "";
+			document.getElementById("I-004").textContent = draft.requiredQuantity || "";
+			document.getElementById("I-005").textContent = fmtSlash(draft.deadlineDate);
+			document.getElementById("I-006").textContent = draft.remarks || "";
+			document.getElementById("I-007").textContent = statusLabel(draft.status);
+
+			document.getElementById("confirmBtn").addEventListener("click", () => {
+				TeamD.createFoodRecruit(draft);
+				TeamD.clearDraft("foodRecruit");
+				location.href = "./complete.html?type=admin";
+			});
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./food-recruit-form.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

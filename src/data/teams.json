@@ -1,21 +1,50 @@
 [
   {
+    "slug": "teamA",
+    "name": "グループA",
+    "appName": "つばさ配送サービス（食材デリバリー 受発注・配送管理）",
+    "description": "お客様（商品注文・カート・マイページ・配送要望）、社員/管理者（注文承認・電話注文・商品/ドライバー/社員/エリア管理）、ドライバー（配送管理）の3ロールを JSON + localStorage で擬似再現したモックです。元はNext.js+Spring構成。",
+    "category": "業務系",
+    "accent": "#2f9e44",
+    "ready": true,
+    "entry": "login.html"
+  },
+  {
+    "slug": "teamB",
+    "name": "グループB",
+    "appName": "（アプリ名未定）",
+    "description": "チームの成果物を public/team-apps/teamB/ に配置してください。",
+    "category": "未分類",
+    "accent": "#4f46e5",
+    "ready": false
+  },
+  {
+    "slug": "teamC",
+    "name": "グループC",
+    "appName": "進学ゼミナール松風（学習塾 管理システム）",
+    "description": "教室長・講師・生徒のログイン、生徒カルテ、授業記録・宿題・成績管理、月/週スケジュールと個別/自習室の予約、お知らせ配信を JSON + localStorage で擬似再現したモックです。",
+    "category": "業務系",
+    "accent": "#ea580c",
+    "ready": true,
+    "entry": "login.html"
+  },
+  {
+    "slug": "teamD",
+    "name": "グループD",
+    "appName": "まちのこ食卓プロジェクト（子ども食堂 支援ポータル）",
+    "description": "管理者・食堂職員・ボランティアのログイン、統合ポータル（食材募集／ボランティア募集／緊急募集／感謝メッセージ／開催マップ）、食堂・ユーザー・ボランティア名簿、食材寄付、参加申込、感謝メッセージ配信、参加スタンプ＆バッジを JSON + localStorage で擬似再現したモックです。",
+    "category": "地域系",
+    "accent": "#0d9488",
+    "ready": true,
+    "entry": "login.html"
+  },
+  {
     "slug": "teamE",
     "name": "グループE",
     "appName": "ニシキギ（建設現場 管理システム）",
     "description": "本社/現場のログイン、現場ポータル、日報・安全点検・トラブル管理、現場チャットを JSON + localStorage で擬似再現したモックです。",
     "category": "業務系",
     "accent": "#2563eb",
-    "ready": true,
-    "entry": "login.html"
-  },
-  {
-    "slug": "teamI",
-    "name": "グループI",
-    "appName": "ことのは書房（書籍・POP管理システム）",
-    "description": "書店向けの在庫管理・取り寄せ予約・POP掲示板・店員マスタを JSON + localStorage で擬似再現したモックです。",
-    "category": "業務系",
-    "accent": "#16a34a",
     "ready": true,
     "entry": "login.html"
   },
@@ -30,12 +59,12 @@
     "entry": "login.html"
   },
   {
-    "slug": "teamC",
-    "name": "グループC",
-    "appName": "進学ゼミナール松風（学習塾 管理システム）",
-    "description": "教室長・講師・生徒のログイン、生徒カルテ、授業記録・宿題・成績管理、月/週スケジュールと個別/自習室の予約、お知らせ配信を JSON + localStorage で擬似再現したモックです。",
+    "slug": "teamG",
+    "name": "グループG",
+    "appName": "ひだまり支援センター（訪問介護 事務作業管理システム）",
+    "description": "管理者・ヘルパー・家族のログイン、利用者/スタッフ/サービスプラン管理、訪問記録と全報告登録、家族報告の承認・差戻し、申し送り、家族連絡、請求情報を JSON + localStorage で擬似再現したモックです。",
     "category": "業務系",
-    "accent": "#ea580c",
+    "accent": "#f59e0b",
     "ready": true,
     "entry": "login.html"
   },
@@ -50,40 +79,13 @@
     "entry": "login.html"
   },
   {
-    "slug": "teamG",
-    "name": "グループG",
-    "appName": "ひだまり支援センター（訪問介護 事務作業管理システム）",
-    "description": "管理者・ヘルパー・家族のログイン、利用者/スタッフ/サービスプラン管理、訪問記録と全報告登録、家族報告の承認・差戻し、申し送り、家族連絡、請求情報を JSON + localStorage で擬似再現したモックです。",
+    "slug": "teamI",
+    "name": "グループI",
+    "appName": "ことのは書房（書籍・POP管理システム）",
+    "description": "書店向けの在庫管理・取り寄せ予約・POP掲示板・店員マスタを JSON + localStorage で擬似再現したモックです。",
     "category": "業務系",
-    "accent": "#f59e0b",
+    "accent": "#16a34a",
     "ready": true,
     "entry": "login.html"
-  },
-  {
-    "slug": "team7",
-    "name": "グループ7",
-    "appName": "（アプリ名未定）",
-    "description": "チームの成果物を public/team-apps/team7/ に配置してください。",
-    "category": "未分類",
-    "accent": "#ca8a04",
-    "ready": false
-  },
-  {
-    "slug": "team8",
-    "name": "グループ8",
-    "appName": "（アプリ名未定）",
-    "description": "チームの成果物を public/team-apps/team8/ に配置してください。",
-    "category": "未分類",
-    "accent": "#dc2626",
-    "ready": false
-  },
-  {
-    "slug": "team9",
-    "name": "グループ9",
-    "appName": "（アプリ名未定）",
-    "description": "チームの成果物を public/team-apps/team9/ に配置してください。",
-    "category": "未分類",
-    "accent": "#4f46e5",
-    "ready": false
   }
 ]

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ボランティア募集一覧画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Volunteer Recruit List</p>
+		<h2 class="page-title">ボランティア募集一覧</h2>
+		<p class="page-lead"></p>
+
+		<div class="table-toolbar">
+
+			<form id="searchForm" class="table-search" onsubmit="return false;"
+				style="display:flex;align-items:end;gap:12px;flex-wrap:wrap;">
+
+				<div>
+					<label for="shokudoId">食堂</label>
+					<select id="shokudoId" name="shokudoId">
+						<option value="">すべて</option>
+					</select>
+				</div>
+
+				<div>
+					<label for="location">開催場所</label>
+					<input id="location" name="location" type="search" placeholder="開催場所を入力">
+				</div>
+
+				<div>
+					<label for="status">状態</label>
+					<select id="status" name="status">
+						<option value="">すべて</option>
+						<option value="0">募集中</option>
+						<option value="1">締切</option>
+						<option value="2">完了</option>
+						<option value="9">満員</option>
+					</select>
+				</div>
+
+				<div>
+					<button type="submit" class="primary-button">検索</button>
+				</div>
+
+				<div>
+					<a href="javascript:void(0);" id="clearBtn" class="secondary-button">クリア</a>
+				</div>
+
+			</form>
+
+		</div>
+
+		<section class="table-card" aria-label="ボランティア募集一覧" style="max-height: 520px; overflow-y: auto;">
+			<table class="data-table" style="white-space: nowrap;">
+				<thead>
+					<tr>
+						<th>募集タイトル</th>
+						<th>食堂</th>
+						<th>開催日時</th>
+						<th>開催場所</th>
+						<th>定員数</th>
+						<th>状態</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+
+				<tbody id="recruitTbody">
+				</tbody>
+			</table>
+		</section>
+
+		<a class="secondary-button" href="./dashboard.html">ダッシュボードへ戻る</a>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		function esc(s) {
+			return String(s == null ? "" : s)
+				.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+		}
+		function fmtDateTime(s) {
+			if (!s) return "-";
+			const t = String(s).replace("T", " ");
+			return t.slice(0, 10).replace(/-/g, "/") + " " + t.slice(11, 16);
+		}
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireStaff("volunteer-recruit-list.html")) return;
+
+			const shokudoSelect = document.getElementById("shokudoId");
+			const locationInput = document.getElementById("location");
+			const statusSelect = document.getElementById("status");
+			const tbody = document.getElementById("recruitTbody");
+
+			TeamD.shokudosActive().forEach((s) => {
+				const opt = document.createElement("option");
+				opt.value = s.shokudoId;
+				opt.textContent = s.shokudoName;
+				shokudoSelect.appendChild(opt);
+			});
+
+			function statusHtml(r) {
+				let html = "";
+				if (r.status === 0) html += `<span style="color:#0a7a2f;font-weight:bold;">募集中</span>`;
+				if (r.status === 1) html += `<span style="color:#f0ad4e;font-weight:bold;">締切</span>`;
+				if (r.status === 2) html += `<span style="color:#6c757d;font-weight:bold;">完了</span>`;
+				if (r.status === 0 && r.currentCount >= r.capacity) {
+					html += `<span style="color:#d9534f;font-weight:bold; margin-left:8px;">満員</span>`;
+				}
+				return html;
+			}
+
+			function render(list) {
+				if (!list.length) {
+					tbody.innerHTML = `<tr><td colspan="7">登録されているボランティア募集はありません。</td></tr>`;
+					return;
+				}
+				tbody.innerHTML = list.map((r) => `
+					<tr>
+						<td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${esc(r.title)}</td>
+						<td>${esc(r.shokudoName || "")}</td>
+						<td>${fmtDateTime(r.eventDate)}</td>
+						<td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${esc(r.location)}</td>
+						<td>${esc(r.capacity)}名</td>
+						<td>${statusHtml(r)}</td>
+						<td class="action-links" style="white-space: nowrap;">
+							<a class="text-link" href="./volunteer-recruit-detail.html?id=${r.recruitId}">詳細</a>
+							<a class="text-link" href="./volunteer-recruit-edit.html?id=${r.recruitId}">編集</a>
+							<a class="text-link" href="javascript:void(0);" data-delete="${r.recruitId}"
+								style="border:none; background:none; cursor:pointer;">削除</a>
+						</td>
+					</tr>`).join("");
+			}
+
+			function doSearch() {
+				render(TeamD.recruitList(shokudoSelect.value, locationInput.value, statusSelect.value));
+			}
+
+			document.getElementById("searchForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				doSearch();
+			});
+
+			document.getElementById("clearBtn").addEventListener("click", () => {
+				shokudoSelect.value = "";
+				locationInput.value = "";
+				statusSelect.value = "";
+				doSearch();
+			});
+
+			tbody.addEventListener("click", (e) => {
+				const link = e.target.closest("[data-delete]");
+				if (!link) return;
+				e.preventDefault();
+				if (!confirm("この募集を削除しますか？")) return;
+				TeamD.deleteRecruit(Number(link.getAttribute("data-delete")));
+				doSearch();
+			});
+
+			doSearch();
+		});
+	</script>
+</body>
+
+</html>

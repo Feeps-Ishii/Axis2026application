@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ドライバー削除確認 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/driver.css">
+</head>
+
+<body>
+  <div class="driverDeletePage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageTitle">
+        <div>つばさ配送サービス 業務管理システム</div>
+        <div class="orderCount">ドライバー削除確認</div>
+      </section>
+
+      <section class="formBox">
+        <div class="alertWarningBox">
+          このドライバーを削除します。削除後は一覧に表示されません。
+        </div>
+
+        <div id="groupWarning"></div>
+
+        <p id="errorMessage" class="errorMessage" style="display:none;"></p>
+
+        <div id="driverFields"></div>
+
+        <div class="submitActionBox">
+          <a href="./manager-drivers.html" class="btnBack">一覧に戻る</a>
+          <button type="button" id="btnDelete" class="btnDanger" disabled>削除する</button>
+        </div>
+      </section>
+    </main>
+
+    <div id="managerFooter"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    function formatVehicle(d) {
+      const no = (d.vehicleNo || "").trim();
+      const info = (d.vehicleInfo || "").trim();
+      if (no && info) return `${no} (${info})`;
+      if (no) return no;
+      if (info) return info;
+      return "未登録";
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"])) return;
+      TeamAUI.renderHeader("staff", "ドライバー削除確認");
+      TeamAUI.renderManagerFooter();
+
+      const esc = TeamAUI.esc;
+      const err = document.getElementById("errorMessage");
+      const btn = document.getElementById("btnDelete");
+      function showErr(t) { err.textContent = t; err.style.display = "block"; }
+
+      const driverId = Number(new URLSearchParams(location.search).get("driverId"));
+      const driver = TeamA.driverById(driverId);
+      if (!driver) { showErr("ドライバー情報の取得に失敗しました。"); return; }
+
+      const linkedGroups = TeamA.driverDeliveryGroups(driverId);
+
+      if (linkedGroups.length > 0) {
+        document.getElementById("groupWarning").innerHTML = `
+          <div class="alertWarningBox">
+            <strong>注意：</strong>このドライバーは配送グループに紐づいています。削除すると、以下の配送グループは未割当になります。
+            <ul>${linkedGroups.map((g) => `<li>${esc(g.groupName)}</li>`).join("")}</ul>
+          </div>`;
+      }
+
+      document.getElementById("driverFields").innerHTML = `
+        <div class="formGroup">
+          <label for="drv-id">ドライバーID</label>
+          <input type="text" id="drv-id" value="${esc(driver.driverCode)}" readonly>
+        </div>
+        <div class="formGroup">
+          <label for="drv-name">ドライバー名</label>
+          <input type="text" id="drv-name" value="${esc(driver.driverName)}" readonly>
+        </div>
+        <div class="formGroup">
+          <label for="drv-phone">連絡先（電話番号）</label>
+          <input type="tel" id="drv-phone" value="${esc(driver.phone)}" readonly>
+        </div>
+        <div class="formGroup">
+          <label for="drv-car">車両情報</label>
+          <input type="text" id="drv-car" value="${esc(formatVehicle(driver))}" readonly>
+        </div>
+        <div class="formGroup">
+          <label for="drv-refrigerated">冷蔵・冷凍対応</label>
+          <input type="text" id="drv-refrigerated" value="${driver.refrigeratedFlag ? "対応可" : "なし"}" readonly>
+        </div>`;
+
+      btn.disabled = false;
+
+      btn.addEventListener("click", () => {
+        err.style.display = "none";
+        const groupWarning = linkedGroups.length > 0
+          ? `\n\n【注意】\nこのドライバーは以下の配送グループに紐づいています。\n` +
+            linkedGroups.map((g) => `・${g.groupName}`).join("\n") +
+            `\n\n削除すると、これらの配送グループは「未割当」になります。`
+          : "";
+
+        const ok = window.confirm(
+          `ドライバーID「${driver.driverCode}」\nドライバー名「${driver.driverName}」を削除します。${groupWarning}\n\nよろしいですか？`
+        );
+        if (!ok) return;
+
+        TeamA.deleteDriver(driverId);
+        location.href = "./manager-driver-complete.html?mode=delete";
+      });
+    });
+  </script>
+</body>
+
+</html>

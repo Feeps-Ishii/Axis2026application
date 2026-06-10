@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ボランティア参加者一覧 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<main class="main-container" style="margin-top: 80px;">
+		<p class="screen-id">Volunteer List</p>
+		<h2 class="page-title">ボランティア参加者一覧</h2>
+		<p class="page-lead"></p>
+
+		<form id="searchForm" class="volunteer-search-toolbar" onsubmit="return false;">
+			<div class="volunteer-search-field">
+				<label for="recruitTitle">募集名</label>
+				<input id="recruitTitle" name="recruitTitle" type="search" placeholder="募集名">
+			</div>
+
+			<div class="volunteer-search-field">
+				<label for="userName">氏名</label>
+				<input id="userName" name="userName" type="search" placeholder="氏名">
+			</div>
+
+			<div class="volunteer-search-field">
+				<label for="nickname">ニックネーム</label>
+				<input id="nickname" name="nickname" type="search" placeholder="ニックネーム">
+			</div>
+
+			<button type="submit" class="primary-button">検索</button>
+			<a href="javascript:void(0);" id="clearBtn" class="secondary-button">クリア</a>
+		</form>
+
+		<p id="noResultMessage" class="error-message" style="display:none;"></p>
+
+		<section class="table-card" aria-label="ボランティア参加者一覧">
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th>氏名</th>
+						<th>ニックネーム</th>
+						<th>電話番号</th>
+						<th>メール</th>
+						<th>バッジ</th>
+						<th>参加状態</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody id="entryTbody"></tbody>
+			</table>
+		</section>
+
+		<div class="button-area" style="justify-content:flex-start; margin-top:20px;">
+			<a href="./dashboard.html" class="secondary-button">ダッシュボードへ戻る</a>
+		</div>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		function esc(s) {
+			return String(s == null ? "" : s)
+				.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+		}
+		function fmtDateTime(s) {
+			if (!s) return "-";
+			const t = String(s).replace("T", " ");
+			return t.slice(0, 10).replace(/-/g, "/") + " " + t.slice(11, 16);
+		}
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireStaff("volunteer-entry-list.html")) return;
+
+			const recruitTitleInput = document.getElementById("recruitTitle");
+			const userNameInput = document.getElementById("userName");
+			const nicknameInput = document.getElementById("nickname");
+			const tbody = document.getElementById("entryTbody");
+			const noResult = document.getElementById("noResultMessage");
+
+			function noResultText() {
+				const conds = [];
+				if (recruitTitleInput.value.trim()) conds.push("募集名");
+				if (userNameInput.value.trim()) conds.push("氏名");
+				if (nicknameInput.value.trim()) conds.push("ニックネーム");
+				if (conds.length) {
+					return `該当する${conds.join("・")}が見つかりませんでした。`;
+				}
+				return "該当する募集名/参加者が見つかりませんでした。";
+			}
+
+			function badgeName(entry) {
+				const prof = entry.volunteerProfile;
+				const b = prof ? TeamD.currentBadge(prof.stamp) : null;
+				return b ? b.badgeName : "未取得";
+			}
+
+			function render(list) {
+				if (!list.length) {
+					tbody.innerHTML = "";
+					noResult.textContent = noResultText();
+					noResult.style.display = "block";
+					return;
+				}
+				noResult.style.display = "none";
+				let html = "";
+				list.forEach((entry, idx) => {
+					const isGroupHead = idx === 0 || entry.volunteerRecruitId !== list[idx - 1].volunteerRecruitId;
+					if (isGroupHead) {
+						const title = entry.recruit ? entry.recruit.title : "募集情報なし";
+						const eventDate = entry.recruit ? fmtDateTime(entry.recruit.eventDate) : "-";
+						html += `
+							<tr class="group-header" style="cursor: pointer;" data-recruit-id="${entry.volunteerRecruitId}">
+								<td colspan="7" class="group-header-content">
+									<strong>${esc(title)}</strong>
+									<span>／ 開催日：<span>${eventDate}</span></span>
+									<span class="participant-toggle-button">▼ 参加者を表示</span>
+								</td>
+							</tr>`;
+					}
+					const attendedCell = entry.attendedFlag
+						? `<span class="badge">参加済み</span>`
+						: `<button type="button" class="secondary-button" data-attend="${entry.entryId}">参加予定</button>`;
+					html += `
+						<tr class="participant-row" style="display:none;" data-recruit-id="${entry.volunteerRecruitId}">
+							<td>${esc(entry.userName || "ユーザー情報なし")}</td>
+							<td>${esc(entry.nickname || "-")}</td>
+							<td>${esc(entry.phoneNumber || "-")}</td>
+							<td>${esc(entry.email || "-")}</td>
+							<td><span class="badge">${esc(badgeName(entry))}</span></td>
+							<td>${attendedCell}</td>
+							<td class="action-links">
+								<a class="text-link" href="./volunteer-entry-edit.html?id=${entry.entryId}">編集</a>
+								<a class="text-link" href="javascript:void(0);" data-delete="${entry.entryId}">削除</a>
+							</td>
+						</tr>`;
+				});
+				tbody.innerHTML = html;
+			}
+
+			function toggleParticipants(headerRow) {
+				const recruitId = headerRow.getAttribute("data-recruit-id");
+				document.querySelectorAll('.participant-row[data-recruit-id="' + recruitId + '"]').forEach((row) => {
+					row.style.display = row.style.display === "none" ? "table-row" : "none";
+				});
+			}
+
+			function doSearch() {
+				render(TeamD.entrySearch(recruitTitleInput.value, userNameInput.value, nicknameInput.value));
+			}
+
+			document.getElementById("searchForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				doSearch();
+			});
+			document.getElementById("clearBtn").addEventListener("click", () => {
+				recruitTitleInput.value = "";
+				userNameInput.value = "";
+				nicknameInput.value = "";
+				doSearch();
+			});
+
+			tbody.addEventListener("click", (e) => {
+				const head = e.target.closest(".group-header");
+				if (head) {
+					toggleParticipants(head);
+					return;
+				}
+				const attendBtn = e.target.closest("[data-attend]");
+				if (attendBtn) {
+					TeamD.updateAttendedFlag(Number(attendBtn.getAttribute("data-attend")), true);
+					doSearch();
+					return;
+				}
+				const delLink = e.target.closest("[data-delete]");
+				if (delLink) {
+					e.preventDefault();
+					if (!confirm("この参加情報を削除しますか？")) return;
+					TeamD.deleteEntry(Number(delLink.getAttribute("data-delete")));
+					doSearch();
+				}
+			});
+
+			doSearch();
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エリア設定 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/area.css">
+</head>
+
+<body>
+  <div class="areaConfigPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="searchFilterBox areaFormBox">
+        <div class="areaFormHeader">
+          <h2 class="areaSectionTitle">郵便番号登録</h2>
+          <p class="areaHelpText">
+            エリアIDは自動採番されます。郵便番号は上5桁〜7桁で入力できます。
+            下2桁を省略した場合は「〇〇」として登録します。
+          </p>
+        </div>
+
+        <div class="orderInputContainer">
+          <div class="formGroup areaZipInput">
+            <label for="postalCode">郵便番号</label>
+            <input type="text" id="postalCode" placeholder="例：10000 または 1000001" maxlength="7">
+          </div>
+
+          <div class="btnAlign">
+            <button type="button" id="btnRegister" class="btnSubmit areaRegisterBtn">登録</button>
+          </div>
+        </div>
+
+        <p id="successMessage" class="successMessage" style="display:none;"></p>
+        <p id="errorMessage" class="errorMessage" style="display:none;"></p>
+      </section>
+
+      <section class="areaActionBox">
+        <a href="./manager-areas-group.html" class="btnSearch">配送グループの作成</a>
+        <span class="cellTextMuted">※ 配送グループ設定画面へ遷移します</span>
+      </section>
+
+      <section class="tableWrapper">
+        <div class="areaListHeader">
+          <h2 class="areaSectionTitle">登録リスト</h2>
+          <span class="cellTextMuted">登録件数：<span id="areaCount">0</span>件</span>
+        </div>
+
+        <table class="orderTable">
+          <thead>
+            <tr>
+              <th>エリアID</th>
+              <th>郵便番号</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="areaTbody"></tbody>
+        </table>
+      </section>
+
+      <div class="submitActionBox">
+        <a href="./manager-orders.html" class="btnBack">戻る</a>
+      </div>
+    </main>
+
+    <div id="managerFooter"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"])) return;
+      TeamAUI.renderHeader("staff", "エリア設定");
+      TeamAUI.renderManagerFooter();
+
+      const esc = TeamAUI.esc;
+      const msg = document.getElementById("successMessage");
+      const err = document.getElementById("errorMessage");
+      const tbody = document.getElementById("areaTbody");
+      function showMsg(t) { msg.textContent = t; msg.style.display = "block"; }
+      function showErr(t) { err.textContent = t; err.style.display = "block"; }
+      function clearAlerts() { msg.style.display = "none"; err.style.display = "none"; }
+
+      function renderList() {
+        const areas = TeamA.deliveryAreasActive();
+        document.getElementById("areaCount").textContent = areas.length;
+        if (areas.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3">登録されている配送エリアはありません。</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = areas.map((a) => `
+          <tr>
+            <td>${esc(a.areaCode)}</td>
+            <td>${esc(a.postalCodePattern)}</td>
+            <td>
+              <button type="button" class="btnTableAction btnTableDelete" data-id="${a.areaId}">削除</button>
+            </td>
+          </tr>`).join("");
+        tbody.querySelectorAll("button[data-id]").forEach((b) =>
+          b.addEventListener("click", () => onDelete(Number(b.dataset.id))));
+      }
+
+      // 郵便番号 -> {pattern, prefix5}。5桁=下2桁省略は〇〇、7桁=完全指定
+      function buildPostal(raw) {
+        const digits = String(raw).replace(/[^0-9]/g, "");
+        const prefix5 = digits.slice(0, 5);
+        let pattern;
+        if (digits.length >= 7) {
+          pattern = digits.slice(0, 3) + "-" + digits.slice(3, 7);
+        } else {
+          pattern = prefix5.slice(0, 3) + "-" + prefix5.slice(3, 5) + "〇〇";
+        }
+        return { pattern, prefix5 };
+      }
+
+      function nextAreaCode() {
+        const n = TeamA.allDeliveryAreas().reduce((m, a) => {
+          const num = parseInt(String(a.areaCode).replace(/[^0-9]/g, ""), 10) || 0;
+          return Math.max(m, num);
+        }, 0) + 1;
+        return "A" + String(n).padStart(3, "0");
+      }
+
+      document.getElementById("btnRegister").addEventListener("click", () => {
+        clearAlerts();
+        const raw = document.getElementById("postalCode").value;
+        if (raw.trim() === "") { showErr("郵便番号を入力してください。"); return; }
+        const { pattern, prefix5 } = buildPostal(raw);
+        TeamA.createArea({ areaCode: nextAreaCode(), postalCodePattern: pattern, postalPrefix5: prefix5 });
+        showMsg("登録しました。");
+        document.getElementById("postalCode").value = "";
+        renderList();
+      });
+
+      function onDelete(areaId) {
+        const area = TeamA.deliveryAreaById(areaId);
+        if (!area) return;
+        const ok = window.confirm(
+          `エリアID「${area.areaCode}」\n郵便番号「${area.postalCodePattern}」を削除します。\nよろしいですか？`
+        );
+        if (!ok) return;
+        clearAlerts();
+        TeamA.deleteArea(areaId);
+        showMsg("削除しました。");
+        renderList();
+      }
+
+      renderList();
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ボランティア参加編集画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Volunteer Edit</p>
+		<h2 class="page-title">ボランティア参加編集</h2>
+		<p class="page-lead"></p>
+
+		<form class="card form-card" id="entryForm" data-validate="true" novalidate>
+			<div class="form-grid">
+
+				<div class="form-field form-field-full">
+					<label for="I-009">健康状態 <span class="required-mark">必須</span></label>
+					<textarea id="I-009" name="I-009" data-item-id="I-009"
+						data-db-table="T_VOLUNTEER_ENTRY" data-db-column="health_condition" data-label="健康状態"
+						data-required="true" rows="3"></textarea>
+					<p id="I-009-error" class="error-message"></p>
+				</div>
+
+				<div class="form-field form-field-full">
+					<label for="I-007">備考</label>
+					<textarea id="I-007" name="I-007" data-item-id="I-007"
+						data-db-table="T_VOLUNTEER_ENTRY" data-db-column="remarks" rows="4"></textarea>
+					<p id="I-007-error" class="error-message"></p>
+				</div>
+
+				<!-- 管理者だけ実参加フラグを編集できる -->
+				<div class="form-field" id="attendedField" style="display:none;">
+					<label for="I-008">実参加フラグ</label>
+					<select id="I-008" name="I-008">
+						<option value="false">未参加</option>
+						<option value="true">参加済み</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="button-area">
+				<button type="submit" class="primary-button">更新する</button>
+				<button type="button" class="secondary-button" id="backBtn">戻る</button>
+			</div>
+		</form>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const entryId = Number(new URLSearchParams(location.search).get("id"));
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireLogin("volunteer-entry-edit.html")) return;
+
+			const form = document.getElementById("entryForm");
+			const isStaff = TeamD.isStaff();
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				window.location.href = "./volunteer-entry-list.html";
+			});
+
+			const view = TeamD.entryView(TeamD.entryById(entryId));
+			if (!view) {
+				window.location.href = "./volunteer-entry-list.html";
+				return;
+			}
+
+			document.getElementById("I-009").value = view.healthCondition || "";
+			document.getElementById("I-007").value = view.remarks || "";
+			if (isStaff) {
+				document.getElementById("attendedField").style.display = "";
+				document.getElementById("I-008").value = view.attendedFlag ? "true" : "false";
+			}
+
+			form.addEventListener("submit", (e) => {
+				e.preventDefault();
+				if (form.querySelector('[aria-invalid="true"]')) return;
+
+				TeamD.updateEntry(entryId, {
+					remarks: document.getElementById("I-007").value.trim(),
+					healthCondition: document.getElementById("I-009").value.trim(),
+					attendedFlag: isStaff ? document.getElementById("I-008").value === "true" : view.attendedFlag,
+				}, isStaff);
+				window.location.href = "./complete.html?back=volunteer-entry-list.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

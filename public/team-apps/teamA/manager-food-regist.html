@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新規商品登録 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/food.css">
+</head>
+
+<body>
+  <div class="foodRegistPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageTitle">
+        <div>つばさ配送サービス 業務管理システム</div>
+        <div class="orderCount">新規商品登録</div>
+      </section>
+
+      <section class="formBox">
+        <div class="formGroup">
+          <label for="product-name">商品名</label>
+          <input type="text" id="product-name" placeholder="例: 有機野菜こだわり詰合せセット">
+        </div>
+
+        <div class="formGroup">
+          <label for="product-category">商品分類</label>
+          <select id="product-category">
+            <option value="">選択してください</option>
+            <option value="野菜">野菜</option>
+            <option value="卵">卵</option>
+            <option value="果物">果物</option>
+            <option value="肉">肉</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+
+        <div class="formGroup">
+          <label for="product-price">販売単価（円）</label>
+          <input type="number" id="product-price" placeholder="例: 2500" min="0">
+        </div>
+
+        <div class="formGroup">
+          <label for="product-image">商品画像</label>
+          <input type="file" id="product-image" accept="image/*">
+          <div class="imagePreviewBox" id="previewBox" style="display:none;">
+            <img id="previewImg" alt="商品画像プレビュー" class="imagePreview">
+          </div>
+        </div>
+
+        <div class="formGroup">
+          <label for="description">商品説明</label>
+          <textarea id="description" placeholder="例: 提携農家から届いた旬の野菜を詰め合わせたセットです。" maxlength="500"></textarea>
+        </div>
+
+        <div class="formGroup">
+          <label>アレルギー情報</label>
+          <div class="allergenCheckBox" id="allergenBox"></div>
+        </div>
+
+        <div class="formGroup">
+          <label for="active-flag">販売状態</label>
+          <select id="active-flag">
+            <option value="true">販売中</option>
+            <option value="false">販売停止</option>
+          </select>
+        </div>
+
+        <p class="successMessage" id="successMessage" style="display:none;"></p>
+        <p class="errorMessage" id="errorMessage" style="display:none;"></p>
+
+        <div class="submitActionBox">
+          <a href="./manager-foods.html" class="btnBack">キャンセル</a>
+          <button type="button" class="btnSubmit" id="btnSubmit">登録する</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="managerFooter"></div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = TeamAUI.esc;
+    let selectedAllergenIds = [];
+    let imageName = "";
+
+    function showError(msg) {
+      const el = document.getElementById("errorMessage");
+      el.textContent = msg; el.style.display = msg ? "block" : "none";
+    }
+    function getSelectedAllergenNames() {
+      return TeamA.allergens()
+        .filter((a) => selectedAllergenIds.includes(a.allergenId))
+        .map((a) => a.allergenName);
+    }
+    function renderAllergens() {
+      const box = document.getElementById("allergenBox");
+      const list = TeamA.allergens();
+      if (list.length === 0) {
+        box.innerHTML = `<p class="errorMessage">アレルギー一覧が取得できていません。</p>`;
+        return;
+      }
+      box.innerHTML = list.map((a) =>
+        `<label class="allergenCheckLabel"><input type="checkbox" value="${a.allergenId}" data-allergen="${a.allergenId}">${esc(a.allergenName)}</label>`
+      ).join("");
+      box.querySelectorAll("input[data-allergen]").forEach((cb) => {
+        cb.addEventListener("change", () => {
+          const id = Number(cb.dataset.allergen);
+          if (cb.checked) { if (!selectedAllergenIds.includes(id)) selectedAllergenIds.push(id); }
+          else { selectedAllergenIds = selectedAllergenIds.filter((x) => x !== id); }
+        });
+      });
+    }
+    function handleImageChange(e) {
+      const file = e.target.files && e.target.files[0];
+      const box = document.getElementById("previewBox");
+      const img = document.getElementById("previewImg");
+      if (!file) { imageName = ""; box.style.display = "none"; return; }
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        imageName = ""; box.style.display = "none";
+        showError("商品画像は5MB以下のファイルを選択してください。");
+        return;
+      }
+      showError("");
+      imageName = file.name;
+      img.src = URL.createObjectURL(file);
+      box.style.display = "flex";
+    }
+    function handleRegister() {
+      showError("");
+      document.getElementById("successMessage").style.display = "none";
+      const productName = document.getElementById("product-name").value.trim();
+      const category = document.getElementById("product-category").value;
+      const priceRaw = document.getElementById("product-price").value;
+      const description = document.getElementById("description").value.trim();
+      const activeFlag = document.getElementById("active-flag").value === "true";
+
+      if (productName === "") { showError("商品名を入力してください。"); return; }
+      if (category === "") { showError("商品分類を選択してください。"); return; }
+      if (String(priceRaw).trim() === "") { showError("販売単価を入力してください。"); return; }
+      const priceNumber = Number(priceRaw);
+      if (Number.isNaN(priceNumber) || priceNumber < 0) { showError("販売単価は0円以上の数値で入力してください。"); return; }
+
+      const names = getSelectedAllergenNames();
+      const ok = window.confirm(
+        "以下の内容で登録してよろしいですか？\n\n" +
+        "商品名：" + productName + "\n" +
+        "商品分類：" + category + "\n" +
+        "販売単価：" + priceNumber.toLocaleString() + "円\n" +
+        "販売状態：" + (activeFlag ? "販売中" : "販売停止") + "\n" +
+        "商品画像：" + (imageName ? imageName : "未選択") + "\n" +
+        "アレルギー：" + (names.length > 0 ? names.join("、") : "未選択")
+      );
+      if (!ok) return;
+
+      const rec = TeamA.createProduct({ productName, category, price: priceNumber, description });
+      if (!activeFlag) TeamA.stopProduct(rec.productId);
+      // アレルゲンを product_allergens に登録
+      if (selectedAllergenIds.length > 0) {
+        const pa = TeamA.table("productAllergens");
+        selectedAllergenIds.forEach((aid) => {
+          pa.push({ productAllergenId: TeamA.nextId("productAllergens", "productAllergenId"), productId: rec.productId, allergenId: aid });
+        });
+        TeamA.saveTable("productAllergens", pa);
+      }
+      location.href = "./manager-food-complete.html?mode=register";
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"], "manager-food-regist.html")) return;
+      TeamAUI.renderHeader("staff", "新規商品登録");
+      TeamAUI.renderManagerFooter();
+      renderAllergens();
+      document.getElementById("product-image").addEventListener("change", handleImageChange);
+      document.getElementById("btnSubmit").addEventListener("click", handleRegister);
+    });
+  </script>
+</body>
+
+</html>

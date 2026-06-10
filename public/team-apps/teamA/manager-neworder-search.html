@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新規注文受付：顧客検索 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/newOrder.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+</head>
+
+<body>
+  <div class="newOrderSearchPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageLead">
+        <h1 class="pageTitle">新規注文受付：顧客検索</h1>
+      </section>
+
+      <section class="searchFilterBox">
+        <div class="searchActionContainer">
+          <div class="searchField">
+            <input type="text" id="customerName" placeholder="顧客名を入力">
+            <input type="text" id="phone" placeholder="電話番号を入力">
+            <button type="button" class="btnSearch" id="btnSearch">顧客検索</button>
+            <button type="button" class="btnReset" id="btnReset">リセット</button>
+          </div>
+          <div>
+            <a href="./manager-register.html" class="btnRegisterCustomer">＋ 新規顧客登録</a>
+          </div>
+        </div>
+      </section>
+
+      <div id="errorArea"></div>
+      <div id="resultArea"></div>
+    </main>
+
+    <div id="managerFooter"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = (s) => TeamAUI.esc(s);
+    const removeHyphen = (v) => v.replace(/-/g, "").trim();
+    let hasSearched = false;
+
+    function setError(msg) {
+      document.getElementById("errorArea").innerHTML = msg
+        ? `<div style="padding:12px 40px;color:#dc2626;font-weight:bold">${esc(msg)}</div>` : "";
+    }
+
+    function handleSearch() {
+      setError("");
+      hasSearched = true;
+      const name = document.getElementById("customerName").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      if (!name && !phone) { setError("顧客名または電話番号を入力してください。"); renderResults([]); return; }
+
+      let list = TeamA.customersActive();
+      if (name) list = list.filter((c) => TeamA.contains(c.customerName, name));
+      if (phone) list = list.filter((c) => TeamA.contains(c.phone, removeHyphen(phone)));
+      if (list.length === 0) setError("該当する顧客が見つかりません。");
+      renderResults(list);
+    }
+
+    function renderResults(customers) {
+      const host = document.getElementById("resultArea");
+      if (!hasSearched || customers.length === 0) { host.innerHTML = ""; return; }
+      host.innerHTML = `
+        <section class="tableWrapper">
+          <table class="orderTable">
+            <thead>
+              <tr>
+                <th>顧客ID</th><th>顧客名</th><th>電話番号</th><th>配送先住所</th>
+                <th>アレルギー/苦手食材情報</th><th>配送指示・要望</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${customers.map((c) => {
+                const allergy = TeamA.customerAllergenNames(c.customerId).join("、");
+                const disliked = TeamA.customerDislikedNames(c.customerId).join("、");
+                const allergyInfo = [allergy, disliked].filter(Boolean).join(" / ") || "なし";
+                const request = c.defaultDeliveryInstruction || "特になし";
+                return `<tr>
+                  <td>${esc(c.customerCode || c.customerId)}</td>
+                  <td>${esc(c.customerName)}</td>
+                  <td>${esc(c.phone)}</td>
+                  <td>${esc(c.address)}</td>
+                  <td>${esc(allergyInfo)}</td>
+                  <td>${esc(request)}</td>
+                  <td><button type="button" class="btnSelectCustomer" data-id="${c.customerId}" data-name="${esc(c.customerName)}" data-phone="${esc(c.phone)}">選択して注文へ</button></td>
+                </tr>`;
+              }).join("")}
+            </tbody>
+          </table>
+        </section>`;
+      host.querySelectorAll("[data-id]").forEach((b) => b.addEventListener("click", () => {
+        TeamA.setDraft("selectedCustomer", { id: b.dataset.id, name: b.dataset.name, phone: b.dataset.phone });
+        location.href = `./manager-neworder-regist.html?customerId=${b.dataset.id}`;
+      }));
+    }
+
+    function handleReset() {
+      document.getElementById("customerName").value = "";
+      document.getElementById("phone").value = "";
+      hasSearched = false;
+      setError("");
+      renderResults([]);
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"], "manager-neworder-search.html")) return;
+      TeamAUI.renderHeader("staff", "新規注文受付：顧客検索");
+      TeamAUI.renderManagerFooter();
+      document.getElementById("btnSearch").addEventListener("click", handleSearch);
+      document.getElementById("btnReset").addEventListener("click", handleReset);
+      ["customerName", "phone"].forEach((idn) => document.getElementById(idn).addEventListener("keydown", (e) => { if (e.key === "Enter") handleSearch(); }));
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,244 @@
+.employeeListPage,
+.employeeRegistPage,
+.employeeDetailPage,
+.employeeDeletePage {
+  min-height: 100vh;
+  background-color: var(--employee-bg-light);
+  color: var(--employee-text-dark);
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 30px;
+  min-height: 80vh;
+}
+
+.pageTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid var(--employee-main-blue);
+  padding-bottom: 10px;
+  margin-bottom: 30px;
+}
+
+.pageTitle div:first-child {
+  font-size: 0.9rem;
+  color: var(--employee-text-muted);
+  font-weight: bold;
+}
+
+.orderCount {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--employee-main-blue);
+}
+
+.searchFilterBox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8fafc;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid var(--employee-border-color);
+  margin-bottom: 24px;
+}
+
+.formBox {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px 0;
+}
+
+.formGroup {
+  margin-bottom: 24px;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: var(--employee-main-blue);
+}
+
+.formGroup input,
+.formGroup select {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 1px solid var(--employee-border-color);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s;
+  background-color: #ffffff;
+  color: var(--employee-text-dark);
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  border-color: var(--employee-main-blue);
+}
+
+.formGroup input:read-only {
+  background-color: #f1f5f9;
+  color: var(--employee-text-muted);
+  cursor: not-allowed;
+  border-color: var(--employee-border-color);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.orderTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.orderTable th,
+.orderTable td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--employee-border-color);
+}
+
+.orderTable th {
+  background-color: #f1f5f9;
+  color: var(--employee-main-blue);
+  font-weight: bold;
+}
+
+.orderTable tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.alertWarningBox {
+  background-color: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 24px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.submitActionBox {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.btnRegisterCustomer,
+.btnSubmit,
+.btnBack,
+.btnDanger,
+.btnTableAction {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s, opacity 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnRegisterCustomer:hover,
+.btnSubmit:hover,
+.btnBack:hover,
+.btnDanger:hover,
+.btnTableAction:hover {
+  opacity: 0.9;
+}
+
+.btnRegisterCustomer {
+  background-color: var(--employee-sub-green);
+  color: #ffffff;
+}
+
+.btnSubmit {
+  background-color: var(--employee-sub-green);
+  color: #ffffff;
+  min-width: 160px;
+}
+
+.btnBack {
+  background-color: #94a3b8;
+  color: #ffffff;
+  min-width: 160px;
+}
+
+.btnDanger {
+  background-color: var(--employee-danger-red);
+  color: #ffffff;
+  min-width: 160px;
+}
+
+.btnDanger:hover {
+  background-color: var(--employee-danger-hover);
+}
+
+.btnTableAction {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
+
+.btnTableEdit {
+  background-color: var(--employee-main-blue);
+  color: #ffffff;
+  margin-right: 4px;
+}
+
+.btnTableDelete {
+  background-color: var(--employee-danger-red);
+  color: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .employeeListPage,
+  .employeeRegistPage,
+  .employeeDetailPage,
+  .employeeDeletePage {
+    padding: 12px;
+  }
+
+  .container {
+    padding: 20px;
+  }
+
+  .pageTitle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .searchFilterBox {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .submitActionBox {
+    flex-direction: column;
+  }
+
+  .btnSubmit,
+  .btnBack,
+  .btnDanger {
+    width: 100%;
+  }
+}

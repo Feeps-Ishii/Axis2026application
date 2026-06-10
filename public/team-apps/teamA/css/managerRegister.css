@@ -1,0 +1,537 @@
+/* =========================
+   事務側 顧客登録画面
+   managerRegister.module.css
+   orders.module.css ベース
+========================= */
+
+/* =========================
+   Base Layout
+========================= */
+
+.customerRegistPage {
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: var(--text-dark);
+}
+
+.fixedBottomBg {
+  display: none;
+}
+
+.customerContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-bottom: 120px;
+}
+
+/* 顧客側の背景画像を無効化 */
+.customerContainer::before {
+  display: none;
+}
+
+/* =========================
+   Page Header
+========================= */
+
+.customerPageHeading {
+  padding: 24px 40px 18px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.customerMainTitle {
+  margin: 0;
+  color: var(--dark-navy);
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.customerMainTitle::after {
+  display: none;
+}
+
+.customerMainSubtitle {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+/* =========================
+   Section
+========================= */
+
+.customerSection {
+  margin: 0;
+  padding: 24px 40px;
+  background-color: var(--bg-light);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.customerSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.customerSectionTitle {
+  margin: 0;
+  color: var(--dark-navy);
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  padding-left: 8px;
+  border-left: 4px solid var(--main-blue);
+  line-height: 1.3;
+}
+
+.customerSectionSubtext {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* =========================
+   Card
+========================= */
+
+.customerCard {
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 22px;
+}
+
+.customerInfoCard {
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+/* =========================
+   Form Layout
+========================= */
+
+.customerDetailFormGrid,
+.customerFormGrid,
+.creditCardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.customerFormGroup {
+  margin-top: 0;
+}
+
+.customerFormGroupSingle {
+  max-width: 420px;
+}
+
+.paymentFormArea {
+  grid-column: span 2;
+}
+
+.customerFormGroup label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--dark-navy);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.customerFormGroup input,
+.customerFormGroup select,
+.customerTextarea {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--text-dark);
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.customerFormGroup input:focus,
+.customerFormGroup select:focus,
+.customerTextarea:focus {
+  border-color: var(--main-blue);
+  box-shadow: 0 0 0 2px rgba(26, 98, 158, 0.1);
+}
+
+.customerTextarea {
+  min-height: 90px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* =========================
+   Radio / Checkbox
+========================= */
+
+.customerRadioBox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 16px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.customerPaymentBox {
+  margin-bottom: 0;
+}
+
+.customerCheckboxGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.customerCheckboxGridSmall {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.customerCheckLabel,
+.customerRadioLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.customerCheckLabel {
+  padding: 10px 12px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  transition: 0.2s ease;
+}
+
+.customerCheckLabel:hover {
+  background-color: var(--bg-light);
+  border-color: var(--main-blue);
+}
+
+.customerCheckLabel input,
+.customerRadioLabel input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--main-blue);
+}
+
+/* =========================
+   Payment Detail Boxes
+========================= */
+
+.creditCardBox,
+.paypayBox,
+.codBox {
+  margin-top: 18px;
+  padding: 18px;
+  background-color: var(--bg-light);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.creditCardTitle,
+.paypayTitle,
+.codTitle {
+  margin: 0 0 14px;
+  color: var(--dark-navy);
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  padding-left: 8px;
+  border-left: 4px solid var(--main-blue);
+}
+
+.customerHelpText {
+  margin: 14px 0 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.customerCautionText {
+  margin: 12px 0 0;
+  color: var(--danger-red);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+/* =========================
+   Master Select Boxes
+========================= */
+
+.productSelectBox {
+  margin-top: 16px;
+  padding: 18px;
+  background-color: var(--bg-light);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.productCheckboxList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.btnToggleList {
+  width: 100%;
+  padding: 12px 16px;
+  color: var(--dark-navy);
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btnToggleList:hover {
+  color: var(--main-blue);
+  border-color: var(--main-blue);
+  background-color: #f0f7ff;
+}
+
+/* =========================
+   Action Buttons
+========================= */
+
+.customerActionBox {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  padding: 30px 40px;
+  background-color: #ffffff;
+}
+
+.customerBackBtn,
+.customerSubmitBtn {
+  width: auto;
+  min-width: 160px;
+  padding: 12px 28px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s ease;
+  box-sizing: border-box;
+}
+
+.customerBackBtn {
+  color: var(--text-dark);
+  background-color: var(--bg-table-head);
+  border: 1px solid var(--border-color);
+}
+
+.customerBackBtn:hover {
+  background-color: #e2e8f0;
+}
+
+.customerSubmitBtn {
+  color: #ffffff;
+  background-color: var(--sub-green);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+}
+
+.customerSubmitBtn::before {
+  content: "";
+  margin: 0;
+}
+
+.customerSubmitBtn:hover {
+  background-color: #1b5e20;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.3);
+}
+
+.customerSubmitBtn:disabled {
+  background-color: #94a3b8;
+  box-shadow: none;
+  cursor: default;
+  transform: none;
+}
+
+/* =========================
+   Message Popup
+========================= */
+
+.messageOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.messagePopup {
+  width: min(420px, 100%);
+  padding: 28px 24px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+  text-align: center;
+  animation: popupFadeIn 0.18s ease-out;
+}
+
+.messageIconError,
+.messageIconSuccess {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 14px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.messageIconError {
+  background: var(--danger-red);
+}
+
+.messageIconSuccess {
+  background: var(--sub-green);
+}
+
+.messageTitle {
+  margin: 0 0 10px;
+  color: var(--dark-navy);
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.messageText {
+  margin: 0 0 20px;
+  color: var(--text-dark);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.messageCloseBtn {
+  min-width: 120px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background: var(--main-blue);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.messageCloseBtn:hover {
+  background: #124d7c;
+}
+
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================
+   Legacy / Unused Customer Styles Reset
+========================= */
+
+.customerWelcome,
+.mockupControls,
+.mockupControlsLabel,
+.btnRole,
+.activeRole,
+.customerPaymentDetailBox,
+.customerPaymentDetailTitle,
+.customerPaymentDetailLabel,
+.customerRegisteredCardBox,
+.customerRegisteredCardNumber,
+.customerNewCardBtn,
+.customerNewCardForm,
+.customerCardFormGrid,
+.displayNone {
+  display: none;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 900px) {
+  .customerPageHeading,
+  .customerSection,
+  .customerActionBox {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .customerDetailFormGrid,
+  .customerFormGrid,
+  .creditCardGrid,
+  .productCheckboxList,
+  .customerCheckboxGrid,
+  .customerCheckboxGridSmall {
+    grid-template-columns: 1fr;
+  }
+
+  .paymentFormArea {
+    grid-column: span 1;
+  }
+
+  .customerSectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 760px) {
+  .customerActionBox {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .customerBackBtn,
+  .customerSubmitBtn {
+    width: 100%;
+  }
+
+  .customerRadioBox {
+    flex-direction: column;
+  }
+}

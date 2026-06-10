@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>SNS一覧画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+
+		<p class="screen-id">
+			Sns List
+		</p>
+
+		<h2 class="page-title">
+			SNS一覧
+		</h2>
+		<p class="page-lead"><!-- タイトルの下に文を表示 --></p>
+
+		<section class="card-grid" id="snsArea"></section>
+
+		<div class="button-area" style="justify-content:flex-start; margin-top:20px;">
+			<button type="button" class="secondary-button" onclick="history.back();">
+				戻る
+			</button>
+		</div>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		function esc(s) {
+			return String(s == null ? "" : s)
+				.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+		}
+
+		TeamD.init().then(() => {
+			const snsList = TeamD.shokudosActive();
+			const area = document.getElementById("snsArea");
+			area.innerHTML = snsList.map((sns) => `
+				<article class="list-card">
+					<h3>${esc(sns.shokudoName)}</h3>
+					<p>${esc(sns.description)}</p>
+					${sns.hpUrl ? `<p><a class="text-link" href="${esc(sns.hpUrl)}" target="_blank">HPリンク</a></p>` : ""}
+					${sns.snsUrl ? `<p><a class="text-link" href="${esc(sns.snsUrl)}" target="_blank">SNSリンク</a></p>` : ""}
+				</article>`).join("");
+		});
+	</script>
+</body>
+
+</html>

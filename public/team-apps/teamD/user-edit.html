@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>管理者編集画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Admin Edit</p>
+		<h2 class="page-title">管理者編集</h2>
+		<p class="page-lead"><!-- タイトルの下に文を表示 --></p>
+
+		<p id="errorMessage" style="color:red; font-weight:bold; display:none;"></p>
+
+		<form class="card form-card" id="userForm" data-validate="true" novalidate>
+
+			<input type="hidden" name="userId" id="userId">
+
+			<div class="form-grid">
+				<div class="form-field">
+					<label for="I-001">氏名 <span class="required-mark">必須</span></label>
+					<input type="text" id="I-001" name="name" required maxlength="255"
+						placeholder="氏名を入力してください">
+				</div>
+
+				<div class="form-field">
+					<label for="I-003">電話番号 <span class="required-mark">必須</span></label>
+					<input type="tel" id="I-003" name="phone" required maxlength="20"
+						placeholder="電話番号を入力してください">
+				</div>
+
+				<div class="form-field">
+					<label for="I-004">メールアドレス <span class="required-mark">必須</span></label>
+					<input type="email" id="I-004" name="email" required maxlength="100"
+						placeholder="メールアドレスを入力してください">
+				</div>
+
+				<div class="form-field form-field-full">
+					<label for="I-005">パスワード <span class="required-mark">必須</span></label>
+					<input type="password" id="I-005" name="pass" required maxlength="100"
+						placeholder="パスワードを入力してください">
+				</div>
+
+				<div class="form-field">
+					<label for="I-006">権限 <span class="required-mark">必須</span></label>
+					<select id="I-006" name="authority" required>
+						<option value="1">管理者</option>
+						<option value="2">食堂職員</option>
+						<option value="3">ボランティア</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="button-area">
+				<button type="submit" class="primary-button" data-button-id="B-001">
+					更新する
+				</button>
+				<a class="secondary-button" href="./user-list.html">戻る</a>
+			</div>
+		</form>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamD.init().then(() => {
+			if (!TeamD.requireStaff("user-edit.html")) return;
+
+			const id = Number(new URLSearchParams(location.search).get("id"));
+			const user = TeamD.userById(id);
+			const err = document.getElementById("errorMessage");
+
+			if (!user) {
+				err.textContent = "ユーザーが存在しません";
+				err.style.display = "block";
+				return;
+			}
+
+			document.getElementById("userId").value = user.userId;
+			document.getElementById("I-001").value = user.name || "";
+			document.getElementById("I-003").value = user.phone || "";
+			document.getElementById("I-004").value = user.email || "";
+			document.getElementById("I-005").value = user.pass || "";
+			document.getElementById("I-006").value = String(user.authority);
+
+			document.getElementById("userForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				try {
+					TeamD.updateUser({
+						userId: Number(document.getElementById("userId").value),
+						name: document.getElementById("I-001").value.trim(),
+						phone: document.getElementById("I-003").value.trim(),
+						email: document.getElementById("I-004").value.trim(),
+						pass: document.getElementById("I-005").value,
+						authority: document.getElementById("I-006").value,
+					});
+					location.href = "./complete.html?back=user-list.html";
+				} catch (ex) {
+					err.textContent = ex.message;
+					err.style.display = "block";
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

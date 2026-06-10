@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注文内容確認 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/newOrder.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+</head>
+
+<body>
+  <div class="newOrderConfirmPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageLead">
+        <h1 class="pageTitle">注文内容確認</h1>
+        <p class="orderCount">登録前に注文内容を確認してください</p>
+      </section>
+
+      <div id="customerBox"></div>
+
+      <section class="tableWrapper">
+        <table class="orderTable">
+          <thead>
+            <tr><th>商品ID</th><th>商品名</th><th>単価</th><th>個数</th><th>小計</th></tr>
+          </thead>
+          <tbody id="itemsBody"></tbody>
+        </table>
+      </section>
+
+      <div class="totalAmountBox" id="totalBox">合計金額: 0円</div>
+
+      <section class="summarySection">
+        <div class="summaryCard">
+          <div class="summaryCardTitle">支払い方法</div>
+          <div class="summaryCardContent" id="paymentCard"></div>
+        </div>
+        <div class="summaryCard">
+          <div class="summaryCardTitle">個別要望 / 配送指示</div>
+          <div class="summaryCardContent" id="deliveryCard"></div>
+        </div>
+      </section>
+
+      <div id="errorArea"></div>
+
+      <div class="submitActionBox">
+        <a href="./manager-neworder-regist.html" class="btnBack">修正する</a>
+        <button type="button" class="btnSubmit" id="confirmBtn">この内容で注文を確定する</button>
+      </div>
+    </main>
+
+    <div id="managerFooter"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = (s) => TeamAUI.esc(s);
+
+    let orderItems = [];
+    let customer = null;
+    let paymentMethod = "credit";
+    let leaveAtDoor = false;
+    let frozen = false;
+    let deliveryNote = "";
+    let isEditingPayment = false;
+    let isEditingDelivery = false;
+    let isSubmitting = false;
+
+    function totalAmount() { return orderItems.reduce((s, it) => s + it.price * it.quantity, 0); }
+
+    function renderCustomer() {
+      const host = document.getElementById("customerBox");
+      host.innerHTML = customer
+        ? `<div style="padding:12px 40px;background:#f0fdf4;border:1px solid #86efac;border-radius:4px;font-weight:bold;color:#166534;margin:20px 40px 0">注文顧客：${esc(customer.name)}（${esc(customer.phone)}）</div>`
+        : "";
+    }
+
+    function renderItems() {
+      document.getElementById("itemsBody").innerHTML = orderItems.length === 0
+        ? `<tr><td colspan="5" style="text-align:center;padding:40px;color:#64748b">読み込み中...</td></tr>`
+        : orderItems.map((it) => `<tr>
+            <td>${esc(it.id)}</td><td>${esc(it.name)}</td>
+            <td>${it.price.toLocaleString()}円</td><td>${it.quantity}</td>
+            <td>${(it.price * it.quantity).toLocaleString()}円</td></tr>`).join("");
+      document.getElementById("totalBox").textContent = `合計金額: ${totalAmount().toLocaleString()}円`;
+    }
+
+    function paymentLabel() {
+      return paymentMethod === "credit" ? "クレジットカード" : paymentMethod === "paypay" ? "PayPay" : "代引き";
+    }
+
+    function renderPaymentCard() {
+      const host = document.getElementById("paymentCard");
+      if (!isEditingPayment) {
+        host.innerHTML = `
+          <div>現在：<span class="statusHighlight">${esc(paymentLabel())}</span></div>
+          <button type="button" class="btnBack" id="editPaymentBtn" style="margin-top:12px;padding:6px 16px">変更する</button>`;
+        document.getElementById("editPaymentBtn").addEventListener("click", () => { isEditingPayment = true; renderPaymentCard(); });
+      } else {
+        host.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <label><input type="radio" name="pm" value="credit" ${paymentMethod === "credit" ? "checked" : ""}> クレジットカード</label>
+            <label><input type="radio" name="pm" value="paypay" ${paymentMethod === "paypay" ? "checked" : ""}> PayPay</label>
+            <label><input type="radio" name="pm" value="cod" ${paymentMethod === "cod" ? "checked" : ""}> 代引き</label>
+            <button type="button" class="btnSelectCustomer" id="donePaymentBtn" style="width:fit-content;margin-top:8px">完了</button>
+          </div>`;
+        host.querySelectorAll('input[name="pm"]').forEach((r) => r.addEventListener("change", (e) => paymentMethod = e.target.value));
+        document.getElementById("donePaymentBtn").addEventListener("click", () => { isEditingPayment = false; renderPaymentCard(); });
+      }
+    }
+
+    function renderDeliveryCard() {
+      const host = document.getElementById("deliveryCard");
+      if (!isEditingDelivery) {
+        host.innerHTML = `
+          <div>置き配：<span class="${leaveAtDoor ? "statusHighlight" : ""}">${leaveAtDoor ? "希望する" : "希望しない"}</span></div>
+          <div>冷凍便：<span class="${frozen ? "statusHighlight" : ""}">${frozen ? "希望する" : "希望しない"}</span></div>
+          <div style="margin-top:8px;white-space:pre-wrap">備考：<span class="${!deliveryNote ? "cellTextMuted" : ""}">${esc(deliveryNote || "なし")}</span></div>
+          <button type="button" class="btnBack" id="editDeliveryBtn" style="margin-top:12px;padding:6px 16px">変更する</button>`;
+        document.getElementById("editDeliveryBtn").addEventListener("click", () => { isEditingDelivery = true; renderDeliveryCard(); });
+      } else {
+        host.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <label><input type="checkbox" id="chkLeave" ${leaveAtDoor ? "checked" : ""}> 置き配希望</label>
+            <label><input type="checkbox" id="chkFrozen" ${frozen ? "checked" : ""}> 冷凍便希望</label>
+            <textarea id="noteArea" rows="4" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:4px;outline:none" placeholder="例：玄関横の宅配ボックスへお願いします。">${esc(deliveryNote)}</textarea>
+            <button type="button" class="btnSelectCustomer" id="doneDeliveryBtn" style="width:fit-content;margin-top:8px">完了</button>
+          </div>`;
+        document.getElementById("chkLeave").addEventListener("change", (e) => leaveAtDoor = e.target.checked);
+        document.getElementById("chkFrozen").addEventListener("change", (e) => frozen = e.target.checked);
+        document.getElementById("noteArea").addEventListener("input", (e) => deliveryNote = e.target.value);
+        document.getElementById("doneDeliveryBtn").addEventListener("click", () => { isEditingDelivery = false; renderDeliveryCard(); });
+      }
+    }
+
+    function setError(msg) {
+      document.getElementById("errorArea").innerHTML = msg
+        ? `<div style="padding:12px 40px;color:var(--danger-red);font-weight:bold;font-size:0.95rem;text-align:right">${esc(msg)}</div>` : "";
+    }
+
+    function handleConfirm() {
+      if (isSubmitting) return;
+      isSubmitting = true;
+      setError("");
+      if (!customer || !customer.id) { setError("顧客が選択されていません。前の画面で顧客を選択してください。"); isSubmitting = false; return; }
+      if (leaveAtDoor && paymentMethod === "cod") { setError("置き配と代引きは同時に指定できません。支払い方法または個別要望を変更してください。"); isSubmitting = false; return; }
+
+      let instruction = "";
+      if (leaveAtDoor) instruction += "置き配希望 ";
+      if (frozen) instruction += "冷凍便希望 ";
+
+      TeamA.createOrder({
+        customerId: Number(customer.id),
+        items: orderItems.map((it) => ({ productId: Number(it.id), quantity: it.quantity })),
+        orderRoute: "phone",
+        orderType: "one_time",
+        deliveryDate: "2026-06-10",
+        paymentMethod: paymentMethod,
+        deliveryInstruction: instruction.trim(),
+        requestNote: deliveryNote,
+      });
+
+      TeamA.clearDraft("neworderCart");
+      TeamA.clearDraft("selectedCustomer");
+      location.href = "./manager-orders.html";
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"], "manager-neworder-confirm.html")) return;
+      TeamAUI.renderHeader("staff", "注文内容確認");
+      TeamAUI.renderManagerFooter();
+
+      const cart = TeamA.getDraft("neworderCart") || [];
+      orderItems = cart.map((it) => ({ id: String(it.id), name: it.name, price: it.price, quantity: it.quantity }));
+      customer = TeamA.getDraft("selectedCustomer");
+
+      renderCustomer();
+      renderItems();
+      renderPaymentCard();
+      renderDeliveryCard();
+      document.getElementById("confirmBtn").addEventListener("click", handleConfirm);
+    });
+  </script>
+</body>
+
+</html>

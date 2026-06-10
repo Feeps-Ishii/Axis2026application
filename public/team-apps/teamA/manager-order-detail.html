@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注文詳細情報 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/order.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+</head>
+
+<body>
+  <div class="orderDetailPage">
+    <div id="appHeader"></div>
+    <main class="container">
+      <div id="detailRoot"></div>
+      <div id="toastArea"></div>
+    </main>
+    <div id="managerFooter"></div>
+  </div>
+  <div id="modalRoot"></div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = (s) => TeamAUI.esc(s);
+    const params = new URLSearchParams(location.search);
+    const id = Number(params.get("id"));
+    const mode = params.get("mode");
+    const isEditMode = !mode; // mode 無し(承認リンクや一覧から)＝編集モード判定
+
+    const ALLERGEN_OPTIONS = ["エビ", "カシューナッツ", "かに", "クルミ", "小麦", "そば", "卵", "乳", "落花生",
+      "アーモンド", "アワビ", "いか", "いくら", "オレンジ", "キウイフルーツ", "牛肉", "ごま", "さけ", "さば", "大豆",
+      "鶏肉", "ばなな", "ピスタチオ", "豚肉", "マカダミアナッツ", "もも", "山芋", "りんご", "ゼラチン"];
+    const DELIVERY_OPTIONS = ["置き配", "冷凍便"];
+
+    // 編集中の選択状態
+    let selectedInstructions = [];
+    let selectedAllergies = [];
+    let selectedDislikes = [];
+    let editDeliveryDate = "";
+    let editDriverName = "";
+    let editRequestNote = "";
+    let editOrderStatus = "未";
+    let isInstructionOpen = false, isAllergyOpen = false, isDislikeOpen = false;
+    let isApprovedLocked = false;
+
+    let D = null;       // orderDetail (view)
+    let orig = null;    // 元の値スナップショット
+    let prevId = null, nextId = null;
+
+    function buildDetail() {
+      const o = TeamA.orderById(id);
+      if (!o) return null;
+      const v = TeamA.orderView(o);
+      const routeLabel = o.orderRoute === "phone" ? "電話注文" : o.orderRoute === "line" ? "LINE注文" : o.orderRoute === "web" ? "Web注文" : o.orderRoute;
+      const typeLabel = o.orderType === "regular" ? "定期注文" : "通常注文";
+      const instr = String(o.deliveryInstruction || "").trim();
+      const instructions = instr ? instr.split(/[、,\s]+/).filter(Boolean) : [];
+      return {
+        orderId: o.orderId,
+        orderNo: v.orderNo,
+        orderStatus: v.orderStatus,
+        orderDatetime: o.orderDatetime,
+        orderType: typeLabel,
+        customerName: v.customerName,
+        customerId: o.customerId,
+        deliveryDate: v.deliveryDate,
+        postalCode: v.postalCode,
+        deliveryArea: v.deliveryArea,
+        address: v.address,
+        phone: v.phone,
+        orderRoute: routeLabel,
+        driverName: v.driverName,
+        paymentStatus: v.paymentStatus,
+        deliveryInstructions: instructions,
+        requestNote: o.requestNote || "",
+        items: (v.items || []).map((it) => ({
+          productCode: it.productCode, productName: it.productName,
+          price: it.unitPrice, quantity: it.quantity, subtotal: it.subtotal,
+        })),
+        allergies: v.allergies || [],
+        dislikedFoods: v.dislikedFoods || [],
+        canceled: !!v.canceled,
+        orderPlaced: v.orderPlaced,
+        realDeliveryStatus: v.realDeliveryStatus,
+      };
+    }
+
+    function computeNav() {
+      const all = TeamA.table("orders").slice().sort((a, b) => a.orderId - b.orderId).map((o) => o.orderId);
+      const idx = all.indexOf(id);
+      prevId = idx > 0 ? all[idx - 1] : null;
+      nextId = idx >= 0 && idx < all.length - 1 ? all[idx + 1] : null;
+    }
+
+    function deliveryStatusLabel(raw) {
+      if (raw === "delivering") return "配送中";
+      if (raw === "completed") return "配送済";
+      if (raw === "failed") return "配送失敗";
+      return "未配送";
+    }
+
+    function isEditable() {
+      return isEditMode && D.orderStatus === "unapproved" && !D.canceled;
+    }
+
+    function render() {
+      D = buildDetail();
+      const root = document.getElementById("detailRoot");
+      if (!D) { root.innerHTML = `<div class="detailContainer" style="text-align:center;padding:40px">データを読み込んでいます...</div>`; return; }
+      computeNav();
+      // 初回のみ編集ステートを初期化
+      if (orig === null) {
+        orig = D;
+        editDeliveryDate = (D.deliveryDate || "").replace(/年|月/g, "-").replace(/日/g, "").trim();
+        editDriverName = D.driverName || "";
+        editRequestNote = D.requestNote || "";
+        editOrderStatus = (D.orderPlaced === "済") ? "済" : "未";
+        selectedInstructions = (D.deliveryInstructions || []).slice();
+        selectedAllergies = (D.allergies || []).slice();
+        selectedDislikes = (D.dislikedFoods || []).slice();
+      }
+      const editable = isEditable();
+      TeamAUI.renderHeader("staff", editable ? "注文情報の編集" : "注文詳細情報");
+
+      const curDelivery = deliveryStatusLabel(D.realDeliveryStatus);
+      const dsClass = curDelivery === "未配送" ? "statusUndelivered" : curDelivery === "配送中" ? "statusShipping" : "statusDelivered";
+      const driverOptions = TeamA.driversActive();
+
+      const totalAmount = (D.items || []).reduce((s, it) => s + it.subtotal, 0);
+
+      root.innerHTML = `
+        <div class="detailContainer">
+          ${D.canceled ? `<div class="canceledBigTagItem">キャンセル済</div>` : ""}
+          <table class="detailInfoTable adminDetailTable">
+            <tbody>
+              <tr>
+                <th>注文ID</th>
+                <td>${esc(D.orderNo)}</td>
+                <th>発注状況</th>
+                <td>
+                  <select class="detailEditableInput" id="editOrderStatus" ${editable ? "" : "disabled"}>
+                    <option value="済">発注済み</option>
+                    <option value="未">未発注</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <th>注文日時</th><td>${esc(D.orderDatetime)}</td>
+                <th>注文情報</th><td>${esc(D.orderType)}</td>
+              </tr>
+              <tr>
+                <th>注文者</th><td>${esc(D.customerName)} 様</td>
+                <th>配送日</th>
+                <td>${editable
+                  ? `<input type="date" class="detailEditableInput" id="editDeliveryDate" value="${esc(editDeliveryDate)}">`
+                  : `<span>${esc(D.deliveryDate)}</span>`}</td>
+              </tr>
+              <tr>
+                <th>郵便番号</th><td>${esc(D.postalCode)}</td>
+                <th>配送エリア</th>
+                <td class="${D.deliveryArea === "未設定" ? "paymentDanger" : ""}">${esc(D.deliveryArea)}</td>
+              </tr>
+              <tr><th>住所</th><td colspan="3">${esc(D.address)}</td></tr>
+              <tr>
+                <th>電話番号</th><td>${esc(D.phone)}</td>
+                <th>注文経路</th><td><span>${esc(D.orderRoute)}</span></td>
+              </tr>
+              <tr>
+                <th>ドライバー</th>
+                <td>${editable
+                  ? `<select class="detailEditableInput" id="editDriverName">
+                       ${driverOptions.map((d) => `<option value="${esc(d.driverName)}" ${d.driverName === editDriverName ? "selected" : ""}>${esc(d.driverName)}</option>`).join("")}
+                       <option value="未割当" ${editDriverName === "未割当" ? "selected" : ""}>未割当</option>
+                     </select>`
+                  : `<span class="${D.driverName === "未割当" ? "paymentDanger" : ""}">${esc(D.driverName)}</span>`}</td>
+                <th>配送状況</th>
+                <td><span class="adminStatusBadge ${dsClass}">${esc(curDelivery)}</span></td>
+              </tr>
+              <tr>
+                <th>支払状態</th>
+                <td class="${D.paymentStatus && D.paymentStatus.includes("代引き") ? "paymentDanger" : ""}">${esc(D.paymentStatus)}</td>
+                <th>${editable
+                  ? `<span class="accordionLinkHeader ${isInstructionOpen ? "isOpen" : ""}" id="toggleInstruction">配送指示 ${isInstructionOpen ? "▲" : "▼"}</span>`
+                  : "配送指示"}</th>
+                <td>
+                  <div class="allergyTagsContainer">
+                    ${selectedInstructions.length > 0
+                      ? selectedInstructions.map((i) => `<span class="allergyTagItem tagGray">${esc(i)}</span>`).join("")
+                      : `<span class="noDataText">なし</span>`}
+                  </div>
+                  ${editable && isInstructionOpen ? `
+                  <div class="accordionBody">
+                    <div class="checkboxGrid" style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+                      ${DELIVERY_OPTIONS.map((inst) => {
+                        const lock = D.paymentStatus && D.paymentStatus.includes("代引き") && inst === "置き配";
+                        return `<label style="display:flex;align-items:center;gap:6px;color:${lock ? "#aaa" : "inherit"};cursor:${lock ? "not-allowed" : "pointer"}">
+                          <input type="checkbox" data-instr="${esc(inst)}" ${selectedInstructions.includes(inst) ? "checked" : ""} ${lock ? "disabled" : ""}>
+                          ${esc(inst)}${lock ? `<span style="font-size:12px;color:#ff4d4f;margin-left:4px">（代引き時は選択不可）</span>` : ""}
+                        </label>`;
+                      }).join("")}
+                    </div>
+                    <button type="button" class="btnAccordionClose" id="closeInstruction" style="margin-top:12px">選択を確定して閉じる</button>
+                  </div>` : ""}
+                </td>
+              </tr>
+              <tr>
+                <th>${editable
+                  ? `<span class="accordionLinkHeader ${isAllergyOpen ? "isOpen" : ""}" id="toggleAllergy">登録アレルギー ${isAllergyOpen ? "▲" : "▼"}</span>`
+                  : "登録アレルギー"}</th>
+                <td>
+                  <div class="allergyTagsContainer">
+                    ${selectedAllergies.length > 0
+                      ? selectedAllergies.map((a) => `<span class="allergyTagItem tagGreen">${esc(a)}</span>`).join("")
+                      : `<span class="noDataText">なし</span>`}
+                  </div>
+                  ${editable && isAllergyOpen ? `
+                  <div class="accordionBody">
+                    <div class="checkboxGrid">
+                      ${ALLERGEN_OPTIONS.map((a) => `<label><input type="checkbox" data-allergy="${esc(a)}" ${selectedAllergies.includes(a) ? "checked" : ""}>${esc(a)}</label>`).join("")}
+                    </div>
+                    <button type="button" class="btnAccordionClose" id="closeAllergy">選択を確定して閉じる</button>
+                  </div>` : ""}
+                </td>
+                <th>${editable
+                  ? `<span class="accordionLinkHeader ${isDislikeOpen ? "isOpen" : ""}" id="toggleDislike">嫌いな食品 ${isDislikeOpen ? "▲" : "▼"}</span>`
+                  : "嫌いな食品"}</th>
+                <td>
+                  <div class="allergyTagsContainer">
+                    ${selectedDislikes.length > 0
+                      ? selectedDislikes.map((f) => `<span class="allergyTagItem tagBlue">${esc(f)}</span>`).join("")
+                      : `<span class="noDataText">なし</span>`}
+                  </div>
+                  ${editable && isDislikeOpen ? `
+                  <div class="accordionBody">
+                    <div class="checkboxGrid">
+                      ${TeamA.productsActive().map((p) => `<label><input type="checkbox" data-dislike="${esc(p.productName)}" ${selectedDislikes.includes(p.productName) ? "checked" : ""}>${esc(p.productName)}</label>`).join("")}
+                    </div>
+                    <button type="button" class="btnAccordionClose" id="closeDislike">選択を確定して閉じる</button>
+                  </div>` : ""}
+                </td>
+              </tr>
+              <tr>
+                <th>個別要望</th>
+                <td colspan="3">
+                  ${editable
+                    ? `<textarea class="detailEditableInput detailTextarea" id="editRequestNote">${esc(editRequestNote)}</textarea>`
+                    : `<div style="white-space:pre-wrap;line-height:1.5">${esc(D.requestNote || "（特になし）")}</div>`}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="innerSectionTitle"><label>注文商品内訳</label></div>
+          <div class="tableWrapperInDetail">
+            <table class="orderTable">
+              <thead><tr><th>商品ID</th><th>注文商品</th><th>単価</th><th>注文個数</th><th>小計</th></tr></thead>
+              <tbody>
+                ${(D.items && D.items.length > 0)
+                  ? D.items.map((it) => `<tr>
+                      <td>${esc(it.productCode)}</td><td>${esc(it.productName)}</td>
+                      <td>${it.price.toLocaleString()}円</td><td>${it.quantity}</td>
+                      <td>${it.subtotal.toLocaleString()}円</td></tr>`).join("")
+                  : `<tr><td colspan="5" style="text-align:center;color:#999">商品内訳データがありません</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="totalAmountBox">合計金額: ${totalAmount.toLocaleString()}円</div>
+
+          ${!isEditMode ? `
+          <div class="submitActionBox">
+            <a href="./manager-order-cancel.html?id=${D.orderId}" class="btnDanger">注文をキャンセルする</a>
+            <a href="./manager-orders.html" class="btnBack">一覧に戻る</a>
+            <button id="approveActionBtn" type="button" class="btnSubmit" ${isApprovedLocked ? "disabled" : ""}>${isApprovedLocked ? "承認済み" : "承認する"}</button>
+          </div>
+          <div class="orderDetailNavBox">
+            <button id="navPrevBtn" type="button" class="btnNavPrev" ${prevId == null ? "disabled" : ""}>◀ 前の注文</button>
+            <button id="navNextBtn" type="button" class="btnNavNext" ${nextId == null ? "disabled" : ""}>次の注文 ▶</button>
+          </div>` : ""}
+
+          ${isEditMode ? `
+          <div class="submitActionBox">
+            <a href="./manager-orders.html" class="btnBack">一覧に戻る</a>
+            ${editable ? `<button type="button" class="btnSubmitSave" id="saveBtn">この内容で保存する</button>` : ""}
+          </div>` : ""}
+        </div>`;
+
+      bindEvents();
+    }
+
+    function bindEvents() {
+      const os = document.getElementById("editOrderStatus");
+      if (os) { os.value = editOrderStatus; os.addEventListener("change", (e) => editOrderStatus = e.target.value); }
+      const dd = document.getElementById("editDeliveryDate"); if (dd) dd.addEventListener("change", (e) => editDeliveryDate = e.target.value);
+      const dn = document.getElementById("editDriverName"); if (dn) dn.addEventListener("change", (e) => editDriverName = e.target.value);
+      const rn = document.getElementById("editRequestNote"); if (rn) rn.addEventListener("input", (e) => editRequestNote = e.target.value);
+
+      const ti = document.getElementById("toggleInstruction"); if (ti) ti.addEventListener("click", () => { isInstructionOpen = !isInstructionOpen; render(); });
+      const ci = document.getElementById("closeInstruction"); if (ci) ci.addEventListener("click", () => { isInstructionOpen = false; render(); });
+      document.querySelectorAll("[data-instr]").forEach((cb) => cb.addEventListener("change", (e) => {
+        const v = cb.dataset.instr;
+        if (e.target.checked) { if (!selectedInstructions.includes(v)) selectedInstructions.push(v); }
+        else selectedInstructions = selectedInstructions.filter((x) => x !== v);
+      }));
+
+      const ta = document.getElementById("toggleAllergy"); if (ta) ta.addEventListener("click", () => { isAllergyOpen = !isAllergyOpen; render(); });
+      const ca = document.getElementById("closeAllergy"); if (ca) ca.addEventListener("click", () => { isAllergyOpen = false; render(); });
+      document.querySelectorAll("[data-allergy]").forEach((cb) => cb.addEventListener("change", (e) => {
+        const v = cb.dataset.allergy;
+        if (e.target.checked) { if (!selectedAllergies.includes(v)) selectedAllergies.push(v); }
+        else selectedAllergies = selectedAllergies.filter((x) => x !== v);
+      }));
+
+      const td = document.getElementById("toggleDislike"); if (td) td.addEventListener("click", () => { isDislikeOpen = !isDislikeOpen; render(); });
+      const cd = document.getElementById("closeDislike"); if (cd) cd.addEventListener("click", () => { isDislikeOpen = false; render(); });
+      document.querySelectorAll("[data-dislike]").forEach((cb) => cb.addEventListener("change", (e) => {
+        const v = cb.dataset.dislike;
+        if (e.target.checked) { if (!selectedDislikes.includes(v)) selectedDislikes.push(v); }
+        else selectedDislikes = selectedDislikes.filter((x) => x !== v);
+      }));
+
+      const approve = document.getElementById("approveActionBtn");
+      if (approve) approve.addEventListener("click", () => {
+        isApprovedLocked = true;
+        TeamA.approveOrder(D.orderId);
+        showToast("承認しました。");
+        render();
+        setTimeout(() => { isApprovedLocked = false; render(); }, 3000);
+      });
+      const navPrev = document.getElementById("navPrevBtn");
+      if (navPrev) navPrev.addEventListener("click", () => { if (prevId != null) location.href = `./manager-order-detail.html?id=${prevId}&mode=view`; });
+      const navNext = document.getElementById("navNextBtn");
+      if (navNext) navNext.addEventListener("click", () => { if (nextId != null) location.href = `./manager-order-detail.html?id=${nextId}&mode=view`; });
+
+      const save = document.getElementById("saveBtn");
+      if (save) save.addEventListener("click", onSave);
+    }
+
+    function onSave() {
+      const diffs = [];
+      const origPlaced = orig.orderPlaced === "済" ? "済" : "未";
+      if (origPlaced !== editOrderStatus) diffs.push(["【発注状況】", origPlaced === "済" ? "発注済み" : "未発注", editOrderStatus === "済" ? "発注済み" : "未発注"]);
+      const origDate = (orig.deliveryDate || "").replace(/年|月/g, "-").replace(/日/g, "").trim();
+      if (origDate !== editDeliveryDate) diffs.push(["【配送日】", orig.deliveryDate || "未設定", editDeliveryDate || "未設定"]);
+      if (orig.driverName !== editDriverName) diffs.push(["【ドライバー】", orig.driverName || "未割当", editDriverName || "未割当"]);
+      const oi = (orig.deliveryInstructions || []).slice().sort().join(", ");
+      const ni = selectedInstructions.slice().sort().join(", ");
+      if (oi !== ni) diffs.push(["【配送指示】", oi || "なし", ni || "なし"]);
+      const oa = (orig.allergies || []).slice().sort().join(", ");
+      const na = selectedAllergies.slice().sort().join(", ");
+      if (oa !== na) diffs.push(["【登録アレルギー】", oa || "なし", na || "なし"]);
+      const od = (orig.dislikedFoods || []).slice().sort().join(", ");
+      const nd = selectedDislikes.slice().sort().join(", ");
+      if (od !== nd) diffs.push(["【嫌いな食品】", od || "なし", nd || "なし"]);
+      if ((orig.requestNote || "") !== editRequestNote) diffs.push(["【個別要望】", orig.requestNote || "（なし）", editRequestNote || "（なし）"]);
+
+      if (diffs.length === 0) { alert("変更箇所がありません。配送日やアレルギーなどを変更してから押してください。"); return; }
+      openModal(diffs);
+    }
+
+    function openModal(diffs) {
+      const root = document.getElementById("modalRoot");
+      root.innerHTML = `
+        <div class="modalOverlay">
+          <div class="modalBox" role="dialog" aria-modal="true">
+            <h2 class="modalTitle">変更内容の確認</h2>
+            <p class="modalText">以下の項目が変更されました。この内容で確定してよろしいですか？</p>
+            <div class="modalDiffContainer">
+              ${diffs.map((d) => `<div class="modalDiffLine">${esc(d[0])} <span>${esc(d[1])}</span> ➔ <strong>${esc(d[2])}</strong></div>`).join("")}
+            </div>
+            <div class="modalActions">
+              <button type="button" class="btnCancel" id="modalBack">戻る</button>
+              <button type="button" class="btnSave" id="modalConfirm">この内容で確定する</button>
+            </div>
+          </div>
+        </div>`;
+      document.getElementById("modalBack").addEventListener("click", () => root.innerHTML = "");
+      document.getElementById("modalConfirm").addEventListener("click", () => {
+        const drv = TeamA.driversActive().find((d) => d.driverName === editDriverName);
+        TeamA.updateOrder(D.orderId, {
+          deliveryDate: editDeliveryDate,
+          requestNote: editRequestNote,
+          orderFlag: editOrderStatus === "済" ? 1 : 0,
+          driverId: drv ? drv.driverId : undefined,
+        });
+        const allergenIds = TeamA.allergens().filter((a) => selectedAllergies.includes(a.allergenName)).map((a) => a.allergenId);
+        TeamA.setCustomerAllergens(D.customerId, allergenIds);
+        const dislikedIds = TeamA.allProducts().filter((p) => selectedDislikes.includes(p.productName)).map((p) => p.productId);
+        TeamA.setCustomerDisliked(D.customerId, dislikedIds);
+        root.innerHTML = "";
+        alert("注文変更を確定しました。");
+        location.href = "./manager-orders.html";
+      });
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const area = document.getElementById("toastArea");
+      area.innerHTML = `<div class="toastNotification">${esc(msg)}</div>`;
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { area.innerHTML = ""; }, 3000);
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"], "manager-order-detail.html")) return;
+      TeamAUI.renderManagerFooter();
+      render();
+    });
+  </script>
+</body>
+
+</html>

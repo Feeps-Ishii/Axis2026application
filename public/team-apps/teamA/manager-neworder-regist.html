@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注文登録 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/neworder-regist.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+</head>
+
+<body>
+  <div class="orderDetailPage">
+    <div id="appHeader"></div>
+
+    <div class="container">
+      <div class="pageLead">
+        <h2 class="pageTitle">注文登録</h2>
+      </div>
+
+      <div style="margin-bottom:20px" id="customerBox"></div>
+
+      <div class="tableWrapper">
+        <h3>商品選択</h3>
+        <table class="orderTable">
+          <thead><tr><th>商品名</th><th>値段</th><th>操作</th></tr></thead>
+          <tbody id="productBody"></tbody>
+        </table>
+      </div>
+
+      <div class="tableWrapper">
+        <h3>注文商品</h3>
+        <table class="orderTable">
+          <thead><tr><th>商品名</th><th>個数</th><th>小計</th><th>操作</th></tr></thead>
+          <tbody id="cartBody"></tbody>
+        </table>
+      </div>
+
+      <div class="totalAmountBox" id="totalBox">合計金額: 0円</div>
+
+      <div class="submitActionBox">
+        <button type="button" class="btnBack" id="backBtn">戻る</button>
+        <button type="button" class="btnSubmitSave" id="confirmBtn" disabled>注文を確定する</button>
+      </div>
+    </div>
+
+    <div id="managerFooter"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = (s) => TeamAUI.esc(s);
+    const customerId = Number(new URLSearchParams(location.search).get("customerId"));
+    let products = [];
+    let cart = []; // [{id,name,price,quantity,allergenIds}]
+    let customer = null;
+
+    function renderCustomer() {
+      const host = document.getElementById("customerBox");
+      if (customer) {
+        const allergy = TeamA.customerAllergenNames(customer.customerId).join("、") || "未登録";
+        const disliked = TeamA.customerDislikedNames(customer.customerId).join("、") || "未登録";
+        host.innerHTML = `
+          <div style="padding:16px;background:#f0fdf4;border:1px solid #86efac;border-radius:4px;color:#064e3b">
+            <div style="font-weight:bold;font-size:1.1rem;margin-bottom:8px">注文顧客：${esc(customer.customerName)}（${esc(customer.phone)}）</div>
+            <div style="padding:8px;background:#fee2e2;color:#991b1b;border-radius:4px;font-weight:bold">⚠️ ${esc(allergy)} / ${esc(disliked)}</div>
+          </div>`;
+      } else {
+        host.innerHTML = `<div style="padding:12px;background:#fff1f2;color:#be123c;font-weight:bold">※顧客情報の読み込み中</div>`;
+      }
+    }
+
+    function renderProducts() {
+      document.getElementById("productBody").innerHTML = products.map((p) => `
+        <tr>
+          <td>${esc(p.name)}</td>
+          <td>${p.price.toLocaleString()}円</td>
+          <td><button type="button" class="btnSearch" data-add="${p.id}">＋ 追加</button></td>
+        </tr>`).join("");
+      document.querySelectorAll("[data-add]").forEach((b) => b.addEventListener("click", () => addItem(b.dataset.add)));
+    }
+
+    function addItem(pid) {
+      const product = products.find((p) => p.id === pid);
+      if (!product) return;
+      if (customer) {
+        const custAllergenIds = TeamA.table("customerAllergens").filter((ca) => ca.customerId === customer.customerId).map((ca) => ca.allergenId);
+        const isAllergic = (product.allergenIds || []).some((aid) => custAllergenIds.includes(aid));
+        if (isAllergic) {
+          if (!window.confirm(`【警告】「${product.name}」には顧客のアレルギー成分が含まれています。本当に追加しますか？`)) return;
+        }
+      }
+      const ex = cart.find((c) => c.id === product.id);
+      if (ex) ex.quantity += 1;
+      else cart.push({ ...product, quantity: 1 });
+      renderCart();
+    }
+
+    function renderCart() {
+      const body = document.getElementById("cartBody");
+      if (cart.length === 0) {
+        body.innerHTML = `<tr><td colspan="4">商品が追加されていません</td></tr>`;
+      } else {
+        body.innerHTML = cart.map((it) => `
+          <tr>
+            <td>${esc(it.name)}</td>
+            <td><input type="number" class="qtyInput" value="${it.quantity}" data-qty="${it.id}"></td>
+            <td>${(it.price * it.quantity).toLocaleString()}円</td>
+            <td><button type="button" class="btnCanceled" data-remove="${it.id}">削除</button></td>
+          </tr>`).join("");
+        body.querySelectorAll("[data-qty]").forEach((inp) => inp.addEventListener("change", (e) => {
+          const q = parseInt(e.target.value) || 1;
+          if (q < 1) { e.target.value = 1; return; }
+          const it = cart.find((c) => c.id === inp.dataset.qty);
+          if (it) it.quantity = q;
+          renderCart();
+        }));
+        body.querySelectorAll("[data-remove]").forEach((b) => b.addEventListener("click", () => {
+          cart = cart.filter((c) => c.id !== b.dataset.remove);
+          renderCart();
+        }));
+      }
+      const total = cart.reduce((s, it) => s + it.price * it.quantity, 0);
+      document.getElementById("totalBox").textContent = `合計金額: ${total.toLocaleString()}円`;
+      document.getElementById("confirmBtn").disabled = !customer || cart.length === 0;
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"], "manager-neworder-regist.html")) return;
+      TeamAUI.renderHeader("staff", "注文登録");
+      TeamAUI.renderManagerFooter();
+
+      products = TeamA.productsActive().map((p) => ({
+        id: String(p.productId), name: p.productName, price: p.price,
+        allergenIds: TeamA.table("productAllergens").filter((pa) => pa.productId === p.productId).map((pa) => pa.allergenId),
+      }));
+      if (customerId) customer = TeamA.customerById(customerId);
+
+      renderCustomer();
+      renderProducts();
+      renderCart();
+
+      document.getElementById("backBtn").addEventListener("click", () => history.back());
+      document.getElementById("confirmBtn").addEventListener("click", () => {
+        if (!customer || cart.length === 0) return;
+        TeamA.setDraft("neworderCart", cart);
+        TeamA.setDraft("selectedCustomer", { id: String(customer.customerId), name: customer.customerName, phone: customer.phone });
+        location.href = "./manager-neworder-confirm.html";
+      });
+    });
+  </script>
+</body>
+
+</html>

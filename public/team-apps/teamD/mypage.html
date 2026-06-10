@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>マイページ画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Mypage</p>
+		<h2 class="page-title">マイページ</h2>
+		<p class="page-lead"><!-- タイトルの下に文を表示 --></p>
+
+		<!-- スタンプ・バッジ（ボランティアのみ） -->
+		<section class="profile-card card" id="badgeSection" style="display:none;">
+			<div>
+				<p class="eyebrow">Stamp &amp; Badge</p>
+				<h2>スタンプ・バッジ</h2>
+				<p><!-- 文章を追加できます --></p>
+
+				<p>スタンプ数：<strong id="stampCount">0 stamp</strong></p>
+
+				<div id="badgeBox"></div>
+			</div>
+
+			<div class="stamp-board" id="stampBoard"
+				style="display:grid; grid-template-columns: repeat(10, auto); gap:8px; justify-content:start;"></div>
+		</section>
+
+		<!-- 届いた感謝メッセージ（ボランティアのみ） -->
+		<section class="profile-card card" id="thanksSection" style="display:none;">
+			<div>
+				<p class="eyebrow">Thanks Message</p>
+				<h2>届いた感謝メッセージ</h2>
+				<p>食堂から届いた感謝メッセージを確認できます。</p>
+
+				<div class="received-thanks-list" id="thanksList"></div>
+			</div>
+		</section>
+
+		<!-- 活動履歴（ボランティアのみ） -->
+		<section class="profile-card card" id="activitySection" style="display:none;">
+			<div>
+				<p class="eyebrow">Activity</p>
+				<h2>活動履歴</h2>
+				<p><!-- 文章を追加できます --></p>
+
+				<ul class="history-list" id="entryList"></ul>
+				<p id="entryEmpty" style="display:none;">参加履歴はありません。</p>
+			</div>
+		</section>
+
+		<!-- 自分自身の情報を表示するエリア -->
+		<section class="profile-card card">
+			<div>
+				<p class="eyebrow">Personal Data</p>
+				<h2>自分の情報</h2>
+				<p><!-- 文章を追加できます --></p>
+
+				<!-- 共通：T_USERの情報 -->
+				<p>氏名：<span id="pName"></span></p>
+				<p>電話番号：<span id="pPhone"></span></p>
+				<p>メール：<span id="pEmail"></span></p>
+
+				<!-- ボランティアの場合のみ -->
+				<div id="volunteerInfo" style="display:none;">
+					<p>ニックネーム：<span id="pNickname"></span></p>
+					<p>郵便番号：<span id="pPostal"></span></p>
+					<p>住所：<span id="pAddress"></span></p>
+					<p>年齢：<span id="pAge"></span></p>
+					<p>職業：<span id="pOccupation"></span></p>
+					<p>資格・経験：<span id="pQualification"></span></p>
+
+					<p>参加可能日時：</p>
+					<ul class="history-list" id="shiftList"></ul>
+					<p id="shiftEmpty" style="display:none;">参加可能日時は未登録です。</p>
+
+					<p>参加可能地域：</p>
+					<ul class="history-list" id="regionList"></ul>
+					<p id="regionEmpty" style="display:none;">参加可能地域は未登録です。</p>
+				</div>
+
+				<!-- 管理者権限のみ：評価コメント -->
+				<div id="evaluationBox" style="display:none;">
+					<p><strong>評価コメント</strong></p>
+					<p id="evaluationComment"></p>
+				</div>
+
+				<div class="button-area" style="display:flex; justify-content:space-between; align-items:center;">
+					<a id="editBtn" href="./mypage-edit.html" class="primary-button">自分の情報を編集</a>
+
+					<button type="button" id="deleteBtn" class="secondary-button"
+						style="background:#dc3545; color:white; margin-left:auto;">
+						退会する
+					</button>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		function esc(s) {
+			return String(s == null ? "" : s)
+				.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+		}
+		function fmtDate(s) {
+			return s ? String(s).slice(0, 10).replace(/-/g, "/") : "";
+		}
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireLogin('mypage.html')) return;
+			const user = TeamD.currentUser();
+
+			// 共通情報
+			document.getElementById("pName").textContent = user.name;
+			document.getElementById("pPhone").textContent = user.phone;
+			document.getElementById("pEmail").textContent = user.email;
+
+			const isVol = user.authority === 3;
+			const isAdmin = user.authority === 1;
+
+			if (isVol) {
+				const profile = TeamD.volunteerProfileByUserId(user.userId) || {};
+
+				// スタンプ・バッジ
+				document.getElementById("badgeSection").style.display = "";
+				const stamp = profile.stamp || 0;
+				document.getElementById("stampCount").textContent = stamp + " stamp";
+
+				const badge = TeamD.currentBadge(profile.stamp);
+				const badgeBox = document.getElementById("badgeBox");
+				if (badge) {
+					badgeBox.innerHTML = `
+						<img src="${esc(badge.imagePath)}" alt="${esc(badge.badgeName)}" width="150">
+						<p>バッジ：<span>${esc(badge.badgeName)}</span></p>
+						<p>${esc(badge.requiredCount)} スタンプ達成</p>`;
+				} else {
+					badgeBox.innerHTML = `<p>獲得したバッジはありません。</p>`;
+				}
+
+				const board = document.getElementById("stampBoard");
+				if (stamp > 0) {
+					board.innerHTML = Array.from({ length: stamp }, () => `<span>🌱</span>`).join("");
+				} else {
+					board.innerHTML = `<span>スタンプはまだありません</span>`;
+				}
+
+				// 届いた感謝メッセージ
+				document.getElementById("thanksSection").style.display = "";
+				const thanks = TeamD.thanksForUser(user.userId);
+				document.getElementById("thanksList").innerHTML = thanks.map((t) => `
+					<div class="received-thanks-card">
+						<div class="received-thanks-header">
+							<span class="received-thanks-icon">💌</span>
+							<span class="received-thanks-date">${fmtDate(t.createdAt)}</span>
+						</div>
+						<div class="received-thanks-body">
+							<p>${esc(t.message)}</p>
+						</div>
+						<div class="received-thanks-footer">
+							${t.shokudo ? `<span>${esc(t.shokudoName)}</span>` : ""}
+						</div>
+					</div>`).join("");
+
+				// 活動履歴
+				document.getElementById("activitySection").style.display = "";
+				const entries = TeamD.myEntries(user.userId);
+				if (entries.length) {
+					document.getElementById("entryList").innerHTML = entries.map((e) => `
+						<li>
+							<a href="./volunteer-recruit-detail.html?id=${e.volunteerRecruitId}" class="text-link">${esc(e.recruitTitle)}</a>
+							<span>${fmtDate(e.updatedAt)}</span>
+							<span>参加済み</span>
+						</li>`).join("");
+				} else {
+					document.getElementById("entryEmpty").style.display = "";
+				}
+
+				// ボランティア基本情報
+				document.getElementById("volunteerInfo").style.display = "";
+				document.getElementById("pNickname").textContent = profile.nickname || "";
+				document.getElementById("pPostal").textContent = profile.postalCode || "";
+				document.getElementById("pAddress").textContent = profile.address || "";
+				document.getElementById("pAge").textContent = profile.age != null ? profile.age : "";
+				document.getElementById("pOccupation").textContent = profile.occupation || "";
+
+				const quals = [];
+				if (profile.cookingExperience) quals.push("調理経験あり");
+				if (profile.nutritionist) quals.push("栄養士資格あり");
+				if (profile.childcare) quals.push("保育士資格あり");
+				if (profile.driverLicense) quals.push("運転免許あり");
+				document.getElementById("pQualification").textContent = quals.length ? quals.join(" ") : "なし";
+
+				// 参加可能日時
+				const shifts = TeamD.myShifts(user.userId);
+				if (shifts.length) {
+					document.getElementById("shiftList").innerHTML = shifts.map((s) => `
+						<li><span>${esc(s.dayName)}</span> <span>${esc(s.timeLabel)}</span></li>`).join("");
+				} else {
+					document.getElementById("shiftEmpty").style.display = "";
+				}
+
+				// 参加可能地域
+				const regs = TeamD.myRegions(user.userId);
+				if (regs.length) {
+					document.getElementById("regionList").innerHTML = regs.map((r) => `
+						<li><span>${esc(r.regionName)}</span></li>`).join("");
+				} else {
+					document.getElementById("regionEmpty").style.display = "";
+				}
+			}
+
+			// 編集ボタンの遷移先（本人編集）
+			document.getElementById("editBtn").setAttribute("href", "./mypage-edit.html");
+
+			// 退会
+			document.getElementById("deleteBtn").addEventListener("click", () => {
+				if (confirm("本当に退会しますか？")) {
+					TeamD.deleteMyAccount(user.userId);
+					location.href = "./login.html";
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

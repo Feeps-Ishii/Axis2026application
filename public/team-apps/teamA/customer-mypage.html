@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マイページ | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/mypage.css">
+</head>
+
+<body>
+  <div class="mypagePage">
+    <div class="fixedBottomBg" aria-hidden="true"></div>
+
+    <div id="appHeader"></div>
+
+    <main class="pageShell">
+      <section class="heroArea" aria-hidden="true"></section>
+
+      <section class="summaryGrid">
+        <div class="infoCard basicCard">
+          <div class="cardIconCircle"><span>👤</span></div>
+
+          <div class="cardContent basicInfoContent">
+            <p class="basicWelcomeText">ようこそ</p>
+            <h2 class="cardTitle">基本情報</h2>
+
+            <div class="basicInfoList">
+              <div class="infoLine">
+                <span class="infoLabel">お名前：</span>
+                <span class="infoValue" id="mpName"></span>
+              </div>
+              <div class="infoLine">
+                <span class="infoLabel">支払方法：</span>
+                <span class="infoValue" id="mpPayment"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="cardAction">
+            <a href="./customer-detail.html" class="btnOutlineGreen">👤 会員情報変更</a>
+          </div>
+        </div>
+
+        <div class="infoCard requestCard">
+          <div class="cardIconCircle"><span>💙</span></div>
+
+          <div class="cardContent requestContent">
+            <h2 class="cardTitle">登録済み要望</h2>
+
+            <div class="tagRow">
+              <span class="infoLabel">登録アレルギー：</span>
+              <div class="tagList" id="mpAllergens"></div>
+            </div>
+
+            <div class="tagRow">
+              <span class="infoLabel">嫌いな食べ物：</span>
+              <div class="tagList" id="mpDisliked"></div>
+            </div>
+
+            <div class="tagRow">
+              <span class="infoLabel">配送指示：</span>
+              <div class="tagList" id="mpDelivery"></div>
+            </div>
+          </div>
+
+          <div class="cardAction">
+            <a href="./customer-request.html" class="btnOutlineGreen">✎ 要望変更</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="purchaseActionSection">
+        <a href="./customer-item-list.html" class="btnPurchase">商品購入はこちら</a>
+      </section>
+
+      <section class="dataSection">
+        <h2 class="sectionTitle">
+          <span class="sectionIcon">🌿</span>
+          定期配送状況
+        </h2>
+
+        <div class="tableCard">
+          <table class="ecTable subscriptionTable">
+            <thead>
+              <tr>
+                <th>商品名</th>
+                <th>次回お届け予定日</th>
+                <th>配送サイクル</th>
+                <th>値段</th>
+              </tr>
+            </thead>
+            <tbody id="mpSubscriptions"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="dataSection historySection">
+        <h2 class="sectionTitle">
+          <span class="sectionIcon">📦</span>
+          注文履歴
+        </h2>
+
+        <div class="tableCard">
+          <table class="ecTable historyTable">
+            <thead>
+              <tr>
+                <th>配送予定日</th>
+                <th>注文番号</th>
+                <th>商品名</th>
+                <th>金額</th>
+                <th>配送状況</th>
+              </tr>
+            </thead>
+            <tbody id="mpHistory"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = TeamAUI.esc;
+    const PAYMENT_LABEL = { credit: "クレジットカード", cod: "代引き", paypay: "PayPay" };
+    const CYCLE_LABEL = { weekly: "毎週", biweekly: "隔週", monthly: "月1回" };
+    const DELIVERY_LABEL = { undelivered: "未配送", delivering: "配送中", completed: "配送済", failed: "配送失敗" };
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["customer"], "customer-mypage.html")) return;
+
+      const cid = TeamA.session().userId;
+      const cust = TeamA.customerById(cid) || {};
+      const pref = TeamA.customerPreference(cid) || {};
+
+      TeamAUI.renderHeader("customer", "マイページ");
+
+      document.getElementById("mpName").textContent = cust.customerName || "";
+      document.getElementById("mpPayment").textContent = PAYMENT_LABEL[cust.defaultPaymentMethod] || "-";
+
+      // アレルギー
+      const allergens = TeamA.customerAllergenNames(cid);
+      document.getElementById("mpAllergens").innerHTML =
+        allergens.map((a) => `<span class="foodTag">${esc(a)}</span>`).join("");
+
+      // 嫌いな食べ物
+      const disliked = TeamA.customerDislikedNames(cid);
+      document.getElementById("mpDisliked").innerHTML =
+        disliked.map((d) => `<span class="foodTag">${esc(d)}</span>`).join("");
+
+      // 配送指示（preferenceがあればそれ、なければ顧客デフォルト）
+      const leaveAtDoor = pref.leaveAtDoorFlag != null ? !!pref.leaveAtDoorFlag : !!cust.defaultLeaveAtDoorFlag;
+      const frozen = pref.frozenFlag != null ? !!pref.frozenFlag : !!cust.defaultFrozenFlag;
+      let deliveryTags = "";
+      if (!leaveAtDoor && !frozen) {
+        deliveryTags = `<span class="foodTag">通常配送</span>`;
+      } else {
+        if (leaveAtDoor) deliveryTags += `<span class="foodTag">置き配</span>`;
+        if (frozen) deliveryTags += `<span class="foodTag">冷凍便</span>`;
+      }
+      document.getElementById("mpDelivery").innerHTML = deliveryTags;
+
+      // 定期配送
+      const subs = TeamA.subscriptionsByCustomer(cid);
+      const subRows = subs.map((s) => {
+        const items = TeamA.subscriptionItems(s.subscriptionId);
+        const name = items.map((i) => (i.product ? i.product.productName : "")).filter(Boolean).join("、") || "商品なし";
+        const firstImg = items.length && items[0].product ? TeamA.img(items[0].product.imagePath) : "./images/no_image.png";
+        const price = items.reduce((sum, i) => sum + (Number(i.unitPrice) || 0) * (Number(i.quantity) || 1), 0);
+        const cycle = CYCLE_LABEL[s.cycle] || s.cycle || "";
+        return `<tr>
+          <td class="productCell">
+            <div class="productInfo">
+              <img src="${esc(firstImg)}" alt="${esc(name)}" class="productPhoto" onerror="this.src='./images/no_image.png'">
+              <span>${esc(name)}</span>
+            </div>
+          </td>
+          <td>${esc(s.nextDeliveryDate || "")}</td>
+          <td>${esc(cycle)}</td>
+          <td class="priceText">¥${price.toLocaleString()}</td>
+        </tr>`;
+      }).join("");
+      document.getElementById("mpSubscriptions").innerHTML = subRows;
+
+      // 注文履歴
+      const orders = TeamA.ordersByCustomer(cid);
+      const histRows = orders.map((o) => {
+        const names = (o.items || []).map((it) => it.productName).filter(Boolean);
+        const productNames = names.length > 0 ? names.join("、") : "商品なし";
+        const statusLabel = o.canceled ? "キャンセル済" : (DELIVERY_LABEL[o.realDeliveryStatus] || "未配送");
+        return `<tr>
+          <td>${esc(o.deliveryDate || "")}</td>
+          <td><a href="./customer-order-detail.html?orderNo=${encodeURIComponent(o.orderNo)}" class="orderNoLink">${esc(o.orderNo)}</a></td>
+          <td class="historyProductNames">${esc(productNames)}</td>
+          <td class="priceText">¥${(Number(o.totalAmount) || 0).toLocaleString()}</td>
+          <td class="deliveryStatusCell"><span class="deliveryStatusLabel">${esc(statusLabel)}</span></td>
+        </tr>`;
+      }).join("");
+      document.getElementById("mpHistory").innerHTML = histRows;
+    });
+  </script>
+</body>
+
+</html>

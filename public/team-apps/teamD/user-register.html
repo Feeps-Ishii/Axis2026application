@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>管理者登録画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Admin Regist</p>
+		<h2 class="page-title">管理者登録</h2>
+		<p class="page-lead"><!-- タイトルの下に文を表示 --></p>
+
+		<section class="card form-card">
+			<form id="userForm" data-validate="true">
+
+				<div class="form-grid">
+
+					<div class="form-field" data-db-table="T_USER" data-db-column="name">
+						<label for="I-001">
+							氏名
+							<span class="required-mark">必須</span>
+						</label>
+						<input type="text" id="I-001" name="name" data-item-id="I-001" data-label="氏名"
+							data-required="true" maxlength="50" data-max-length="50" required
+							pattern="^[ぁ-んァ-ヶ一-龯a-zA-Z・-]+$"
+							title="氏名は文字、ハイフン(-)、中点(・)のみ入力できます" placeholder="例：田中太郎">
+						<small class="field-help">50文字以内で入力して下さい</small>
+						<p id="I-001-error" class="error-message" aria-live="polite"></p>
+					</div>
+
+					<div class="form-field" data-db-table="T_USER" data-db-column="phone">
+						<label for="I-003">電話番号 <span class="required-mark">必須</span></label>
+						<input type="tel" id="I-003" name="phone" data-item-id="I-003" data-label="電話番号"
+							data-required="true" data-pattern="phone" maxlength="20" data-max-length="20" required
+							pattern="^[0-9]{2,4}-[0-9]{2,4}-[0-9]{3,4}$" title="090-1234-5678 の形式で入力してください"
+							placeholder="例：090-1234-5678">
+						<small class="field-help">半角数字/ハイフンのみ使用できます</small>
+						<p id="I-003-error" class="error-message" aria-live="polite"></p>
+					</div>
+
+					<div class="form-field" data-db-table="T_USER" data-db-column="email">
+						<label for="I-004">メールアドレス <span class="required-mark">必須</span></label>
+						<input type="email" id="I-004" name="email" data-item-id="I-004" data-label="メールアドレス"
+							data-required="true" maxlength="100" data-max-length="100" required
+							pattern="^[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\.[A-Za-z]{2,}$" title="メールアドレスの形式で入力してください"
+							placeholder="例：sample@example.com">
+						<small class="field-help">メール形式で入力して下さい</small>
+						<p id="I-004-error" class="error-message" aria-live="polite"></p>
+					</div>
+
+					<div class="form-field" data-db-table="T_USER" data-db-column="pass">
+						<label for="I-005">パスワード <span class="required-mark">必須</span></label>
+						<input type="password" id="I-005" name="pass" data-item-id="I-005" data-label="パスワード"
+							data-required="true" maxlength="255" data-max-length="255" minlength="8" required
+							pattern="^.{8,}$" title="パスワードは8文字以上で入力してください" placeholder="12345678">
+						<small class="field-help">8文字以上で入力して下さい</small>
+						<p id="I-005-error" class="error-message" aria-live="polite"></p>
+					</div>
+
+					<div class="form-field" data-db-table="T_USER" data-db-column="authority">
+						<label for="I-006">
+							権限
+							<span class="required-mark">必須</span>
+						</label>
+						<select id="I-006" name="authority" data-item-id="I-006" data-label="権限" data-required="true"
+							required onchange="toggleShokudoArea()">
+							<option value="">選択してください</option>
+							<option value="1">管理者</option>
+							<option value="2">食堂職員</option>
+						</select>
+						<small class="field-help">1:管理者 2:食堂職員</small>
+						<p id="I-006-error" class="error-message" aria-live="polite"></p>
+					</div>
+
+					<div class="form-field" id="shokudoArea" style="display:none;">
+						<label for="shokudoId">
+							所属食堂
+							<span class="required-mark">必須</span>
+						</label>
+						<select id="shokudoId" name="shokudoId" data-item-id="shokudoId" data-label="所属食堂">
+							<option value="">選択してください</option>
+						</select>
+						<small class="field-help">権限が食堂職員の場合のみ選択してください</small>
+						<p id="shokudoId-error" class="error-message" aria-live="polite"></p>
+					</div>
+
+				</div>
+
+				<div class="button-area">
+					<button type="submit" class="primary-button" data-button-id="B-001"
+						data-next-screen="SC-027 管理者確認画面">
+						確認へ
+					</button>
+					<a href="./dashboard.html" class="secondary-button" data-button-id="B-002">
+						戻る
+					</a>
+				</div>
+			</form>
+		</section>
+	</main>
+
+	<script>
+		function toggleShokudoArea() {
+			const authority = document.getElementById("I-006").value;
+			const shokudoArea = document.getElementById("shokudoArea");
+			const shokudoId = document.getElementById("shokudoId");
+
+			if (authority === "2") {
+				shokudoArea.style.display = "block";
+				shokudoId.setAttribute("data-required", "true");
+				shokudoId.required = true;
+			} else {
+				shokudoArea.style.display = "none";
+				shokudoId.removeAttribute("data-required");
+				shokudoId.required = false;
+				shokudoId.value = "";
+				const error = document.getElementById("shokudoId-error");
+				if (error) error.textContent = "";
+			}
+		}
+	</script>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamD.init().then(() => {
+			if (!TeamD.requireStaff("user-register.html")) return;
+
+			const shokudoSel = document.getElementById("shokudoId");
+			TeamD.shokudosActive().forEach((s) => {
+				const opt = document.createElement("option");
+				opt.value = s.shokudoId;
+				opt.textContent = s.shokudoName;
+				shokudoSel.appendChild(opt);
+			});
+
+			const draft = TeamD.getDraft("user");
+			if (draft) {
+				document.getElementById("I-001").value = draft.name || "";
+				document.getElementById("I-003").value = draft.phone || "";
+				document.getElementById("I-004").value = draft.email || "";
+				document.getElementById("I-005").value = draft.pass || "";
+				document.getElementById("I-006").value = draft.authority != null ? String(draft.authority) : "";
+				toggleShokudoArea();
+				if (draft.shokudoId) shokudoSel.value = String(draft.shokudoId);
+			}
+
+			document.getElementById("userForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				const authority = document.getElementById("I-006").value;
+				TeamD.setDraft("user", {
+					name: document.getElementById("I-001").value.trim(),
+					phone: document.getElementById("I-003").value.trim(),
+					email: document.getElementById("I-004").value.trim(),
+					pass: document.getElementById("I-005").value,
+					authority: authority,
+					shokudoId: authority === "2" ? shokudoSel.value : "",
+				});
+				location.href = "./user-confirm.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ボランティア参加入力画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<main class="main-container" style="margin-top: 80px;">
+		<p class="screen-id">Volunteer Entry</p>
+		<h2 class="page-title">ボランティア参加入力</h2>
+
+		<p id="errorMessage" class="error-message" style="display:none;"></p>
+
+		<form class="card form-card" id="entryForm" data-validate="true" novalidate>
+			<div class="form-grid">
+
+				<div class="form-field">
+					<label for="I-001">氏名 <span class="required-mark">必須</span></label>
+					<input type="text" id="I-001" name="I-001" data-item-id="I-001"
+						data-db-table="T_VOLUNTEER_ENTRY" data-db-column="volunteer_name" data-label="氏名"
+						data-required="true" maxlength="100" data-max-length="100" placeholder="氏名を入力してください">
+					<p id="I-001-error" class="error-message"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-002">ニックネーム</label>
+					<input type="text" id="I-002" name="I-002" data-item-id="I-002"
+						data-db-table="T_VOLUNTEER_ENTRY" data-db-column="nickname" maxlength="100"
+						placeholder="ニックネームを入力してください">
+					<p id="I-002-error" class="error-message"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-003">郵便番号</label>
+					<input type="text" id="I-003" name="I-003" data-item-id="I-003"
+						data-db-table="T_VOLUNTEER_ENTRY" data-db-column="postal_code" maxlength="10"
+						placeholder="郵便番号を入力してください">
+					<p id="I-003-error" class="error-message"></p>
+				</div>
+
+				<div class="form-field form-field-full">
+					<label for="I-004">住所 <span class="required-mark">必須</span></label>
+					<input type="text" id="I-004" name="I-004" data-item-id="I-004"
+						data-db-table="T_VOLUNTEER_ENTRY" data-db-column="address" data-label="住所"
+						data-required="true" maxlength="255" placeholder="住所を入力してください">
+					<p id="I-004-error" class="error-message"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-005">電話番号 <span class="required-mark">必須</span></label>
+					<input type="tel" id="I-005" name="I-005" data-item-id="I-005"
+						data-db-table="T_VOLUNTEER_ENTRY" data-db-column="phone_number" data-label="電話番号"
+						data-required="true" maxlength="20" placeholder="電話番号を入力してください">
+					<p id="I-005-error" class="error-message"></p>
+				</div>
+
+				<div class="form-field form-field-full">
+					<label for="I-006">メールアドレス <span class="required-mark">必須</span></label>
+					<input type="email" id="I-006" name="I-006" data-item-id="I-006"
+						data-db-table="T_VOLUNTEER_ENTRY" data-db-column="email" data-label="メールアドレス"
+						data-required="true" maxlength="255" placeholder="メールアドレスを入力してください">
+					<p id="I-006-error" class="error-message"></p>
+				</div>
+
+				<div class="form-field form-field-full">
+					<label for="I-009">健康状態 <span class="required-mark">必須</span></label>
+					<textarea id="I-009" name="I-009" data-item-id="I-009"
+						data-db-table="T_VOLUNTEER_ENTRY" data-db-column="health_condition" data-label="健康状態"
+						data-required="true" rows="3" placeholder="現在の健康状態を入力してください"></textarea>
+					<small class="field-help">
+						例：良好です。発熱や咳などの症状はありません。<br>
+						例：花粉症があります。<br>
+						例：軽い腰痛がありますが活動に支障はありません。
+					</small>
+					<p id="I-009-error" class="error-message"></p>
+				</div>
+
+				<div class="form-field form-field-full">
+					<label for="I-007">備考</label>
+					<textarea id="I-007" name="I-007" data-item-id="I-007"
+						data-db-table="T_VOLUNTEER_ENTRY" data-db-column="remarks" rows="4"></textarea>
+					<p id="I-007-error" class="error-message"></p>
+				</div>
+			</div>
+
+			<div class="button-area">
+				<button type="submit" class="primary-button">確認へ</button>
+				<button type="button" class="secondary-button" id="backBtn">戻る</button>
+			</div>
+		</form>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const recruitId = Number(new URLSearchParams(location.search).get("recruitId"));
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireLogin("volunteer-entry-form.html")) return;
+
+			const form = document.getElementById("entryForm");
+			const errBox = document.getElementById("errorMessage");
+			const currentUser = TeamD.currentUser();
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				window.location.href = `./volunteer-recruit-detail.html?id=${recruitId}`;
+			});
+
+			// プレフィル：draft 優先、なければログインユーザー
+			const draft = TeamD.getDraft("entry");
+			const base = draft || TeamD.entryFormFromUser(currentUser);
+			document.getElementById("I-001").value = base.name || "";
+			document.getElementById("I-002").value = base.nickname || "";
+			document.getElementById("I-003").value = base.postalCode || "";
+			document.getElementById("I-004").value = base.address || "";
+			document.getElementById("I-005").value = base.phoneNumber || "";
+			document.getElementById("I-006").value = base.email || "";
+			document.getElementById("I-009").value = base.healthCondition || "";
+			document.getElementById("I-007").value = base.remarks || "";
+
+			form.addEventListener("submit", (e) => {
+				e.preventDefault();
+				if (form.querySelector('[aria-invalid="true"]')) return;
+
+				const name = document.getElementById("I-001").value.trim();
+				const address = document.getElementById("I-004").value.trim();
+				const phoneNumber = document.getElementById("I-005").value.trim();
+				const email = document.getElementById("I-006").value.trim();
+				const healthCondition = document.getElementById("I-009").value.trim();
+
+				errBox.style.display = "none";
+				errBox.textContent = "";
+				const errors = [];
+				if (!name) errors.push("氏名を入力してください");
+				if (!address) errors.push("住所を入力してください");
+				if (!phoneNumber) errors.push("電話番号を入力してください");
+				if (!email) errors.push("メールアドレスを入力してください");
+				if (!healthCondition) errors.push("健康状態を入力してください");
+				if (errors.length) {
+					errBox.textContent = errors[0];
+					errBox.style.display = "block";
+					return;
+				}
+
+				TeamD.setDraft("entry", {
+					name,
+					nickname: document.getElementById("I-002").value.trim(),
+					postalCode: document.getElementById("I-003").value.trim(),
+					address,
+					phoneNumber,
+					email,
+					healthCondition,
+					remarks: document.getElementById("I-007").value.trim(),
+					attendedFlag: false,
+					recruitId,
+				});
+				window.location.href = "./volunteer-entry-confirm.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

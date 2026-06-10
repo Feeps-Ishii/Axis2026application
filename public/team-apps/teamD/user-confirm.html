@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>管理者確認画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Admin Confirm</p>
+		<h2 class="page-title">管理者確認</h2>
+		<p class="page-lead"><!-- タイトルの下に文を表示 --></p>
+
+		<p id="errorMessage" style="color:red; font-weight:bold; display:none;"></p>
+
+		<section class="card confirm-card">
+			<dl class="confirm-list">
+				<div class="confirm-row" data-db-table="T_USER" data-db-column="name">
+					<dt>氏名</dt>
+					<dd><span id="c-name"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_USER" data-db-column="phone">
+					<dt>電話番号</dt>
+					<dd><span id="c-phone"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_USER" data-db-column="email">
+					<dt>メールアドレス</dt>
+					<dd><span id="c-email"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_USER" data-db-column="pass">
+					<dt>パスワード</dt>
+					<dd><span id="c-pass"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_USER" data-db-column="authority">
+					<dt>権限</dt>
+					<dd><span id="c-authority"></span></dd>
+				</div>
+
+				<div class="confirm-row" id="shokudoRow" style="display:none;">
+					<dt>所属食堂</dt>
+					<dd><span id="c-shokudo"></span></dd>
+				</div>
+			</dl>
+
+			<div class="button-area">
+				<button type="button" class="primary-button" id="confirmBtn" data-button-id="B-001">
+					確定する
+				</button>
+				<button type="button" class="secondary-button" id="backBtn" data-button-id="B-002">
+					戻る
+				</button>
+			</div>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		function esc(s) {
+			return String(s == null ? "" : s)
+				.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+		}
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireStaff("user-confirm.html")) return;
+
+			const draft = TeamD.getDraft("user");
+			if (!draft) {
+				location.href = "./user-register.html";
+				return;
+			}
+
+			const authority = Number(draft.authority);
+			document.getElementById("c-name").innerHTML = esc(draft.name);
+			document.getElementById("c-phone").innerHTML = esc(draft.phone);
+			document.getElementById("c-email").innerHTML = esc(draft.email);
+			document.getElementById("c-pass").innerHTML = esc(draft.pass);
+			document.getElementById("c-authority").innerHTML =
+				authority === 1 ? "管理者" : authority === 2 ? "食堂職員" : authority === 3 ? "ボランティア" : "";
+
+			if (authority === 2) {
+				document.getElementById("shokudoRow").style.display = "";
+				document.getElementById("c-shokudo").innerHTML = esc(TeamD.shokudoName(draft.shokudoId));
+			}
+
+			document.getElementById("confirmBtn").addEventListener("click", () => {
+				const err = document.getElementById("errorMessage");
+				try {
+					TeamD.createUser({
+						name: draft.name,
+						phone: draft.phone,
+						email: draft.email,
+						pass: draft.pass,
+						authority: authority,
+					}, draft.shokudoId);
+					TeamD.clearDraft("user");
+					location.href = "./complete.html?type=admin";
+				} catch (ex) {
+					err.textContent = ex.message;
+					err.style.display = "block";
+				}
+			});
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./user-register.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

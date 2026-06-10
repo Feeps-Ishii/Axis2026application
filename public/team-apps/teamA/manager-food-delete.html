@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商品情報削除 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/food.css">
+</head>
+
+<body>
+  <div class="foodDeletePage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageTitle">
+        <div>つばさ配送サービス 業務管理システム</div>
+        <div class="orderCount">商品情報削除</div>
+      </section>
+
+      <section class="formBox">
+        <div class="alertWarningBox">
+          【注意】この商品を販売停止にします。削除後は一覧に表示されません。
+        </div>
+
+        <p class="errorMessage" id="errorMessage" style="display:none;"></p>
+
+        <div id="productBody" style="display:none;">
+          <div class="formGroup">
+            <label for="food-id">商品コード</label>
+            <input type="text" id="food-id" readonly>
+          </div>
+
+          <div class="formGroup">
+            <label for="food-name">商品名</label>
+            <input type="text" id="food-name" readonly>
+          </div>
+
+          <div class="formGroup">
+            <label for="food-category">商品分類</label>
+            <input type="text" id="food-category" readonly>
+          </div>
+
+          <div class="formGroup">
+            <label for="food-price">販売単価</label>
+            <input type="text" id="food-price" readonly>
+          </div>
+
+          <div class="formGroup">
+            <label for="food-active">販売状態</label>
+            <input type="text" id="food-active" readonly>
+          </div>
+
+          <div class="formGroup">
+            <label>商品画像</label>
+            <div class="imagePreviewBox">
+              <img id="previewImg" alt="" class="imagePreview" onerror="this.src='./images/no_image.png'">
+            </div>
+          </div>
+
+          <div class="formGroup">
+            <label for="description">商品説明</label>
+            <textarea id="description" readonly></textarea>
+          </div>
+        </div>
+
+        <div class="submitActionBox">
+          <a href="./manager-foods.html" class="btnBack">キャンセル</a>
+          <button type="button" class="btnDanger" id="btnDelete" disabled>削除する</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="managerFooter"></div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const productId = Number(new URLSearchParams(location.search).get("productId"));
+    let product = null;
+
+    function showError(msg) {
+      const el = document.getElementById("errorMessage");
+      el.textContent = msg; el.style.display = msg ? "block" : "none";
+    }
+    function codeOf(id) { return "PRD-" + String(id).padStart(4, "0"); }
+
+    function handleDelete() {
+      if (!product) return;
+      const ok = window.confirm(
+        "以下の商品を販売停止にしてよろしいですか？\n\n" +
+        "商品コード：" + codeOf(product.productId) + "\n" +
+        "商品名：" + product.productName + "\n" +
+        "商品分類：" + product.category + "\n" +
+        "販売単価：" + product.price.toLocaleString() + "円"
+      );
+      if (!ok) return;
+      TeamA.stopProduct(product.productId);
+      location.href = "./manager-food-complete.html?mode=delete";
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"], "manager-food-delete.html")) return;
+      TeamAUI.renderHeader("staff", "商品情報削除");
+      TeamAUI.renderManagerFooter();
+
+      product = TeamA.productById(productId);
+      if (!product) { showError("商品情報の取得に失敗しました。"); return; }
+
+      document.getElementById("productBody").style.display = "";
+      document.getElementById("food-id").value = codeOf(product.productId);
+      document.getElementById("food-name").value = product.productName;
+      document.getElementById("food-category").value = product.category;
+      document.getElementById("food-price").value = product.price.toLocaleString() + "円";
+      document.getElementById("food-active").value = product.activeFlag ? "販売中" : "販売停止";
+      const img = document.getElementById("previewImg");
+      img.src = TeamA.img(product.imagePath);
+      img.alt = product.productName;
+      document.getElementById("description").value = product.description || "";
+
+      const btn = document.getElementById("btnDelete");
+      btn.disabled = false;
+      btn.addEventListener("click", handleDelete);
+    });
+  </script>
+</body>
+
+</html>

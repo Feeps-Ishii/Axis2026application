@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>カート | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/item.css">
+</head>
+
+<body>
+  <div class="cartPage">
+    <div class="fixedBottomBg" aria-hidden="true"></div>
+    <div id="appHeader"></div>
+
+    <div class="itemContainer">
+      <section class="itemPageHeading">
+        <span class="itemWelcome">数量を変更できます</span>
+        <h2 class="itemMainTitle">カート</h2>
+        <p class="itemMainSubtitle">カートに入っている商品を確認してください</p>
+      </section>
+
+      <section class="cartSection">
+        <div class="cartSectionHeader">
+          <h2 class="cartSectionTitle">カート内商品一覧</h2>
+          <span class="cartSectionSubtext">数量を変更できます</span>
+        </div>
+        <div class="cartTableWrap">
+          <table class="cartTable">
+            <thead>
+              <tr><th>商品ID</th><th>商品写真</th><th>商品名</th><th>個数</th><th>小計</th><th>操作</th></tr>
+            </thead>
+            <tbody id="cartBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="cartTotalBox">
+        <span class="cartTotalLabel">合計金額</span>
+        <span class="cartTotalPrice" id="totalPrice">¥0</span>
+      </section>
+
+      <div class="cartActionBox">
+        <a href="./customer-item-list.html" class="cartBackBtn">商品一覧へ戻る</a>
+        <a href="./customer-item-buy.html" class="cartBuyBtn">購入へ進む</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = (s) => TeamAUI.esc(s);
+    let cid = null;
+
+    function render() {
+      const items = TeamA.cartItems(cid);
+      const body = document.getElementById("cartBody");
+      if (!items.length) {
+        body.innerHTML = `<tr><td colspan="6">カートに商品がありません。</td></tr>`;
+      } else {
+        body.innerHTML = items.map((it) => {
+          const p = it.product || {};
+          return `<tr>
+            <td>${it.productId}</td>
+            <td><img src="${TeamA.img(p.imagePath)}" alt="${esc(p.productName)}" class="cartItemImage" onerror="this.src='./images/no_image.png'"></td>
+            <td>${esc(p.productName)}</td>
+            <td><div class="cartCountArea">
+              <button type="button" class="cartCountBtn" data-down="${it.cartItemId}">－</button>
+              <span class="cartCount">${it.quantity}</span>
+              <button type="button" class="cartCountBtn" data-up="${it.cartItemId}">＋</button>
+            </div></td>
+            <td class="cartPriceText">¥${(it.unitPrice * it.quantity).toLocaleString()}</td>
+            <td><button type="button" class="cartDeleteBtn" data-del="${it.cartItemId}">削除</button></td>
+          </tr>`;
+        }).join("");
+      }
+      const total = items.reduce((s, it) => s + it.unitPrice * it.quantity, 0);
+      document.getElementById("totalPrice").textContent = "¥" + total.toLocaleString();
+      body.querySelectorAll("[data-down]").forEach((b) => b.onclick = () => {
+        const ci = Number(b.dataset.down); const it = TeamA.cartItems(cid).find((x) => x.cartItemId === ci);
+        if (it) TeamA.updateCartQty(ci, Math.max(1, it.quantity - 1)); render();
+      });
+      body.querySelectorAll("[data-up]").forEach((b) => b.onclick = () => {
+        const ci = Number(b.dataset.up); const it = TeamA.cartItems(cid).find((x) => x.cartItemId === ci);
+        if (it) TeamA.updateCartQty(ci, it.quantity + 1); render();
+      });
+      body.querySelectorAll("[data-del]").forEach((b) => b.onclick = () => { TeamA.removeCartItem(Number(b.dataset.del)); render(); });
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["customer"], "customer-item-cart.html")) return;
+      TeamAUI.renderHeader("customer", "カート");
+      cid = TeamA.session().userId;
+      render();
+    });
+  </script>
+</body>
+
+</html>

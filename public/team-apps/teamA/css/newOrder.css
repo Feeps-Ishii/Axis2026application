@@ -1,0 +1,349 @@
+.newOrderSearchPage,
+.newOrderRegistPage,
+.newOrderConfirmPage {
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: var(--text-dark);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-bottom: 120px;
+}
+
+.pageLead {
+  padding: 24px 40px 18px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pageTitle {
+  margin: 0;
+  color: var(--dark-navy);
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.orderCount {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.searchFilterBox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 40px;
+  background-color: var(--bg-light);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.searchActionContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.searchField {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  min-width: 300px;
+}
+
+.searchField input {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  outline: none;
+  background-color: #ffffff;
+}
+
+.searchField input:focus {
+  border-color: var(--main-blue);
+}
+
+.btnSearch,
+.btnReset,
+.btnSelectCustomer,
+.btnRegisterCustomer,
+.btnBack,
+.btnSubmit,
+.btnSubmitLarge {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s ease;
+}
+
+.btnSearch {
+  background-color: var(--main-blue);
+  color: #ffffff;
+  padding: 10px 24px;
+  font-size: 0.85rem;
+}
+
+.btnReset {
+  background-color: var(--text-muted);
+  color: #ffffff;
+  padding: 10px 24px;
+  font-size: 0.85rem;
+}
+
+.btnReset:hover {
+  background-color: #475569;
+}
+
+.btnSelectCustomer {
+  background-color: var(--main-blue);
+  color: #ffffff;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
+.btnSelectCustomer:hover,
+.btnRegisterCustomer:hover,
+.btnSearch:hover {
+  background-color: #124d7c;
+}
+
+.btnRegisterCustomer {
+  background-color: var(--sub-green);
+  color: #ffffff;
+  padding: 10px 20px;
+  font-size: 0.85rem;
+}
+
+.tableWrapper {
+  padding: 20px 40px;
+  overflow-x: auto;
+}
+
+.orderTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orderTable th,
+.orderTable td {
+  padding: 16px 14px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.orderTable th {
+  background-color: var(--bg-table-head);
+  color: var(--dark-navy);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.orderTable tbody tr:hover {
+  background-color: var(--bg-light);
+}
+
+.orderTable td:first-child {
+  color: var(--main-blue);
+  font-weight: bold;
+}
+
+.unassigned {
+  color: var(--danger-red);
+  font-weight: bold;
+}
+
+/* 注文登録 */
+
+.orderInputContainer {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  color: var(--dark-navy);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.formGroup input {
+  width: min(520px, 100%);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  outline: none;
+  background-color: #ffffff;
+}
+
+.formGroup input:focus {
+  border-color: var(--main-blue);
+}
+
+.btnAlign {
+  display: flex;
+  align-items: flex-end;
+}
+
+.totalAmountBox {
+  padding: 24px 40px;
+  text-align: right;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--main-blue);
+  background-color: var(--bg-light);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.submitActionBox {
+  padding: 30px 40px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.btnSubmit,
+.btnSubmitLarge {
+  background-color: var(--sub-green);
+  color: #ffffff;
+  padding: 12px 32px;
+  font-size: 0.95rem;
+}
+
+.btnSubmitLarge {
+  padding: 16px 48px;
+  font-size: 1.1rem;
+}
+
+.btnSubmit:hover,
+.btnSubmitLarge:hover {
+  background-color: #1b5e20;
+  transform: translateY(-1px);
+}
+
+.btnBack {
+  background-color: var(--bg-table-head);
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+  padding: 12px 28px;
+  font-size: 0.9rem;
+}
+
+.btnBack:hover {
+  background-color: #e2e8f0;
+}
+
+/* 注文確認 */
+
+.summarySection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 20px 40px;
+}
+
+.summaryCard {
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.summaryCardTitle {
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+  border-left: 4px solid var(--main-blue);
+  padding-left: 10px;
+  color: var(--dark-navy);
+}
+
+.summaryCardContent {
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+.statusHighlight {
+  color: var(--main-blue);
+  font-weight: bold;
+}
+
+.cellTextMuted {
+  color: var(--danger-red);
+  font-weight: bold;
+}
+
+@media (max-width: 900px) {
+  .pageLead,
+  .searchFilterBox,
+  .tableWrapper,
+  .summarySection,
+  .submitActionBox,
+  .totalAmountBox {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .searchActionContainer,
+  .searchField,
+  .orderInputContainer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchField {
+    min-width: 0;
+  }
+
+  .formGroup input {
+    width: 100%;
+  }
+
+  .summarySection {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .btnSearch,
+  .btnReset,
+  .btnSelectCustomer,
+  .btnRegisterCustomer,
+  .btnBack,
+  .btnSubmit,
+  .btnSubmitLarge {
+    width: 100%;
+  }
+
+  .submitActionBox {
+    flex-direction: column;
+  }
+}

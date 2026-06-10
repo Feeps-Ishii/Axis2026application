@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商品情報変更 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/food.css">
+</head>
+
+<body>
+  <div class="foodUpdatePage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageTitle">
+        <div>つばさ配送サービス 業務管理システム</div>
+        <div class="orderCount">商品情報変更</div>
+      </section>
+
+      <section class="formBox">
+        <div class="formGroup">
+          <label for="food-id">商品コード</label>
+          <input type="text" id="food-id" readonly>
+        </div>
+
+        <div class="formGroup">
+          <label for="food-name">商品名</label>
+          <input type="text" id="food-name" placeholder="例: 有機野菜こだわり詰合せセット">
+        </div>
+
+        <div class="formGroup">
+          <label for="food-category">商品分類</label>
+          <select id="food-category">
+            <option value="">選択してください</option>
+            <option value="野菜">野菜</option>
+            <option value="卵">卵</option>
+            <option value="果物">果物</option>
+            <option value="肉">肉</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+
+        <div class="formGroup">
+          <label for="food-price">販売単価（円）</label>
+          <input type="number" id="food-price" placeholder="例: 2500" min="0">
+        </div>
+
+        <div class="formGroup">
+          <label for="food-image">商品画像</label>
+          <input type="file" id="food-image" accept="image/*">
+          <p class="formHelpText">画像を選択しない場合、現在の画像をそのまま使用します。</p>
+          <div class="imagePreviewBox">
+            <img id="previewImg" alt="商品画像プレビュー" class="imagePreview"
+              onerror="this.src='./images/no_image.png'">
+          </div>
+        </div>
+
+        <div class="formGroup">
+          <label for="description">商品説明</label>
+          <textarea id="description" placeholder="例: 提携農家から届いた旬の野菜を詰め合わせたセットです。" maxlength="500"></textarea>
+        </div>
+
+        <div class="formGroup">
+          <label>アレルギー情報</label>
+          <div class="allergenCheckBox" id="allergenBox"></div>
+        </div>
+
+        <div class="formGroup">
+          <label for="active-flag">販売状態</label>
+          <select id="active-flag">
+            <option value="true">販売中</option>
+            <option value="false">販売停止</option>
+          </select>
+        </div>
+
+        <p class="successMessage" id="successMessage" style="display:none;"></p>
+        <p class="errorMessage" id="errorMessage" style="display:none;"></p>
+
+        <div class="submitActionBox">
+          <a href="./manager-foods.html" class="btnBack">キャンセル</a>
+          <button type="button" class="btnSubmit" id="btnSubmit">変更を保存する</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="managerFooter"></div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = TeamAUI.esc;
+    const productId = Number(new URLSearchParams(location.search).get("productId"));
+    let selectedAllergenIds = [];
+    let imageChanged = false;
+
+    function showError(msg) {
+      const el = document.getElementById("errorMessage");
+      el.textContent = msg; el.style.display = msg ? "block" : "none";
+    }
+    function codeOf(id) { return "PRD-" + String(id).padStart(4, "0"); }
+    function getSelectedAllergenNames() {
+      return TeamA.allergens()
+        .filter((a) => selectedAllergenIds.includes(a.allergenId))
+        .map((a) => a.allergenName);
+    }
+    function currentAllergenIds(pid) {
+      return TeamA.table("productAllergens")
+        .filter((pa) => pa.productId === Number(pid))
+        .map((pa) => pa.allergenId);
+    }
+    function renderAllergens() {
+      const box = document.getElementById("allergenBox");
+      const list = TeamA.allergens();
+      if (list.length === 0) {
+        box.innerHTML = `<p class="errorMessage">アレルギー一覧が取得できていません。</p>`;
+        return;
+      }
+      box.innerHTML = list.map((a) => {
+        const checked = selectedAllergenIds.includes(a.allergenId) ? "checked" : "";
+        return `<label class="allergenCheckLabel"><input type="checkbox" value="${a.allergenId}" data-allergen="${a.allergenId}" ${checked}>${esc(a.allergenName)}</label>`;
+      }).join("");
+      box.querySelectorAll("input[data-allergen]").forEach((cb) => {
+        cb.addEventListener("change", () => {
+          const id = Number(cb.dataset.allergen);
+          if (cb.checked) { if (!selectedAllergenIds.includes(id)) selectedAllergenIds.push(id); }
+          else { selectedAllergenIds = selectedAllergenIds.filter((x) => x !== id); }
+        });
+      });
+    }
+    function handleImageChange(e) {
+      const file = e.target.files && e.target.files[0];
+      const img = document.getElementById("previewImg");
+      if (!file) { imageChanged = false; return; }
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        imageChanged = false;
+        showError("商品画像は5MB以下のファイルを選択してください。");
+        return;
+      }
+      showError("");
+      imageChanged = true;
+      img.src = URL.createObjectURL(file);
+    }
+    function handleUpdate() {
+      showError("");
+      document.getElementById("successMessage").style.display = "none";
+      const productCode = document.getElementById("food-id").value;
+      const productName = document.getElementById("food-name").value.trim();
+      const category = document.getElementById("food-category").value;
+      const priceRaw = document.getElementById("food-price").value;
+      const description = document.getElementById("description").value.trim();
+      const activeFlag = document.getElementById("active-flag").value === "true";
+
+      if (productName === "") { showError("商品名を入力してください。"); return; }
+      if (category === "") { showError("商品分類を選択してください。"); return; }
+      if (String(priceRaw).trim() === "") { showError("販売単価を入力してください。"); return; }
+      const priceNumber = Number(priceRaw);
+      if (Number.isNaN(priceNumber) || priceNumber < 0) { showError("販売単価は0円以上の数値で入力してください。"); return; }
+
+      const names = getSelectedAllergenNames();
+      const ok = window.confirm(
+        "以下の内容で変更してよろしいですか？\n\n" +
+        "商品コード：" + productCode + "\n" +
+        "商品名：" + productName + "\n" +
+        "商品分類：" + category + "\n" +
+        "販売単価：" + priceNumber.toLocaleString() + "円\n" +
+        "販売状態：" + (activeFlag ? "販売中" : "販売停止") + "\n" +
+        "画像変更：" + (imageChanged ? "あり" : "なし") + "\n" +
+        "アレルギー：" + (names.length > 0 ? names.join("、") : "未選択")
+      );
+      if (!ok) return;
+
+      TeamA.updateProduct(productId, { productName, category, price: priceNumber, description, activeFlag });
+      // アレルゲンを置き換え
+      let pa = TeamA.table("productAllergens").filter((x) => x.productId !== productId);
+      selectedAllergenIds.forEach((aid) => {
+        pa.push({ productAllergenId: pa.reduce((m, r) => Math.max(m, r.productAllergenId), 0) + 1, productId: productId, allergenId: aid });
+      });
+      TeamA.saveTable("productAllergens", pa);
+      location.href = "./manager-food-complete.html?mode=update";
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"], "manager-food-update.html")) return;
+      TeamAUI.renderHeader("staff", "商品情報変更");
+      TeamAUI.renderManagerFooter();
+
+      const p = TeamA.productById(productId);
+      if (!p) { showError("商品情報の取得に失敗しました。"); renderAllergens(); return; }
+
+      document.getElementById("food-id").value = codeOf(p.productId);
+      document.getElementById("food-name").value = p.productName;
+      document.getElementById("food-category").value = p.category;
+      document.getElementById("food-price").value = p.price;
+      document.getElementById("description").value = p.description || "";
+      document.getElementById("active-flag").value = p.activeFlag ? "true" : "false";
+      document.getElementById("previewImg").src = TeamA.img(p.imagePath);
+      selectedAllergenIds = currentAllergenIds(productId);
+      renderAllergens();
+
+      document.getElementById("food-image").addEventListener("change", handleImageChange);
+      document.getElementById("btnSubmit").addEventListener("click", handleUpdate);
+    });
+  </script>
+</body>
+
+</html>

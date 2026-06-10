@@ -1,0 +1,436 @@
+/*ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+/* 掲示板カード内の長い文字列が横にはみ出さないようにする */
+.list-card,
+.urgent-card {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* 説明文が長すぎる場合は3行で省略する */
+.list-card p,
+.urgent-card p {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+/* ======================================
+   通常掲示板カードの見やすさ改善
+====================================== */
+
+/* ======================================
+   通常掲示板カードの見やすさ改善
+====================================== */
+
+.list-card {
+    position: relative;
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(to bottom, #ffffff 0%, #ffffff 70%, #fff8ef 100%);
+
+    box-shadow:
+        0 8px 22px rgba(87, 58, 33, 0.08);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/* 左側にカテゴリ感を出すライン */
+.list-card::after {
+    content: "";
+    position: absolute;
+    top: 24px;
+    left: 0;
+
+    width: 5px;
+    height: calc(100% - 48px);
+    border-radius: 0 999px 999px 0;
+}
+
+/* カードに少し浮き感 */
+.list-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+        0 14px 30px rgba(87, 58, 33, 0.14);
+}
+
+/* タイトルを少し目立たせる */
+.list-card h3 {
+    color: var(--color-text);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-top: 18px;
+    margin-bottom: 16px;
+}
+
+/* 食堂名をラベルっぽくする */
+.list-card .card-shokudo-name {
+    display: inline-block;
+
+    padding: 6px 12px;
+    border-radius: 999px;
+
+    font-weight: bold;
+}
+.list-card h3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+
+    overflow: hidden;
+}
+
+/* 詳細リンクをボタンっぽく */
+.list-card .text-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: fit-content;
+    margin-top: auto;
+    padding: 8px 14px;
+
+    border-radius: 999px;
+
+    background: #fff0df;
+    color: var(--color-main-dark);
+
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.list-card .text-link:hover {
+    background: var(--color-main);
+    color: #ffffff;
+}
+
+/*ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+
+/*ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー*/
+
+/* ======================================
+   緊急募集掲示板（コルクボード風）
+====================================== */
+
+.urgent-section {
+
+    position: relative;
+
+    margin: 50px 0;
+    padding: 40px 30px 30px;
+
+	/* コルク部分 */
+	background:
+	    repeating-linear-gradient(
+	        45deg,
+	        #f1d6b5,
+	        #f1d6b5 6px,
+	        #ebcaa1 6px,
+	        #ebcaa1 12px
+	    );
+
+	border: 10px solid #d7a372;
+    border-radius: 12px;
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,0.25),
+        inset 0 0 20px rgba(255,255,255,0.15);
+}
+
+/* 掲示板タイトル */
+
+/* 緊急募集掲示板全体はスクロールさせない */
+.urgent-section {
+    position: relative;
+    overflow: visible;
+    max-height: none;
+    padding: 70px 30px 30px;
+}
+
+/* 上のラベルは固定表示 */
+.urgent-section::before {
+    content: "📌 ご協力をお願いします";
+
+    position: absolute;
+    top: 40px;
+    left: 30px;
+    z-index: 100;
+
+    background: var(--color-main);
+    color: #ffffff;
+
+    font-weight: bold;
+    padding: 8px 18px;
+    border-radius: 8px;
+
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* タイトル部分を区切る */
+.urgent-section h2 {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+
+    width: calc(100% + 60px);
+    margin: -70px -30px 24px;
+    padding: 40px 20px 20px;
+
+    background:
+        rgb(243, 134, 75);
+
+    color: rgb(255, 255, 255);
+    text-align: center;
+
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 3px;
+
+    border-bottom: 4px solid rgb(220, 128, 71);
+
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.16);
+}
+/* h2はstickyにしない。重なり防止 */
+.urgent-section h2 {
+    position: relative;
+    top: auto;
+    z-index: 1;
+}
+
+/* カード部分だけスクロール */
+.urgent-card-scroll {
+    max-height: 550px;
+    overflow-y: auto;
+    padding: 14px 12px 4px 4px;
+}
+
+/* ======================================
+   張り紙
+====================================== */
+
+.urgent-card {
+
+    position: relative;
+
+    background: #fffef7;
+
+    padding: 20px;
+
+    margin-bottom: 25px;
+
+    border-radius: 6px;
+
+    transform: rotate(-1deg);
+
+    box-shadow:
+        0 6px 12px rgba(0,0,0,0.15);
+}
+.urgent-card .badge-urgent {
+    background: #d32f2f !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+/* 画鋲 */
+
+.urgent-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -10px;
+    left: 50%;
+
+    width: 18px;
+    height: 18px;
+
+    background: #d32f2f;
+
+    border-radius: 50%;
+
+    transform: translateX(-50%);
+
+    box-shadow:
+        0 2px 4px rgba(0,0,0,0.4);
+}
+
+/* タイトル */
+
+.urgent-card h3 {
+    border-bottom: 2px dashed #f0b7a5;
+}
+
+.urgent-card .card-shokudo-name {
+    background: #fff3df;
+}
+
+/* 緊急バッジ */
+
+.badge-urgent {
+
+    background: #d32f2f !important;
+
+    color: rgb(255, 255, 255);
+
+    font-weight: bold;
+
+    padding: 6px 14px;
+
+    border-radius: 999px;
+}
+
+/* ボタン */
+
+.urgent-card .primary-button {
+
+    margin-top: 12px;
+}
+
+.participant-title{
+    text-align:center;
+    font-size:1.4rem;
+    font-weight:bold;
+    margin-bottom:20px;
+    padding-bottom:10px;
+    border-bottom:2px solid #ddd;
+}
+
+/* 緊急カード内の見やすさ改善 */
+.urgent-card {
+    display: grid;
+    gap: 12px;
+    padding: 24px 26px;
+    line-height: 1.7;
+}
+
+/* バッジを左上にきれいに配置 */
+.urgent-card .badge-urgent {
+    width: fit-content;
+    font-size: 0.85rem;
+}
+
+/* 募集タイトル */
+.urgent-card h3 {
+    margin: 4px 0 2px;
+    font-size: 1.45rem;
+    line-height: 1.4;
+    border-bottom: 2px dashed #f0b7a5;
+    padding-bottom: 8px;
+}
+
+/* 食堂名 */
+.urgent-card .card-shokudo-name {
+    font-weight: bold;
+    color: #5f4635;
+    background: #fff3df;
+    padding: 8px 12px;
+    border-radius: 10px;
+    margin: 0;
+}
+
+/* 説明文 */
+.urgent-card p {
+    margin: 0;
+    color: #3f332c;
+}
+
+/* 応募人数表示 */
+.urgent-card p:has(span) {
+    background: #fff8ec;
+    border-left: 5px solid var(--color-main);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* ボタンを右寄せ */
+.urgent-card .primary-button {
+    justify-self: end;
+    margin-top: 8px;
+    padding: 10px 22px;
+}
+
+.urgent-card h3{
+    text-align:center;
+}
+.card-shokudo-name{
+    text-align:center;
+}
+.urgent-card p{
+    text-align:center;
+}
+/* ======================================
+   データが多い時のスクロール表示
+   ※HTML構造は変更せず、表示領域だけ制御する
+====================================== */
+
+/* 緊急募集掲示板：カードが多い場合だけ縦スクロール */
+.urgent-section {
+    max-height: 620px;
+    overflow-y: auto;
+    padding-right: 18px;
+}
+
+/* タブ内のカード一覧：食材・ボランティア・感謝メッセージ用 */
+.card-grid {
+    max-height: 720px;
+    overflow-y: auto;
+    padding-right: 14px;
+}
+
+/* スクロールバーをやさしい見た目にする */
+.urgent-section::-webkit-scrollbar,
+.card-grid::-webkit-scrollbar {
+    width: 10px;
+}
+
+.urgent-section::-webkit-scrollbar-track,
+.card-grid::-webkit-scrollbar-track {
+    background: #fff0df;
+    border-radius: 999px;
+}
+
+.urgent-section::-webkit-scrollbar-thumb,
+.card-grid::-webkit-scrollbar-thumb {
+    background: #ef8455;
+    border-radius: 999px;
+}
+
+.urgent-section::-webkit-scrollbar-thumb:hover,
+.card-grid::-webkit-scrollbar-thumb:hover {
+    background: #c96742;
+}
+/* 緊急カード内の説明文 */
+.urgent-card p {
+    color: var(--color-main-dark);
+    font-weight: 600;
+}
+
+/* ==========================================
+   緊急募集：日付表示
+   ========================================== */
+
+.urgent-date-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 12px;
+}
+
+.urgent-date-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background-color: #fff0df;
+    color: #c96742;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+}

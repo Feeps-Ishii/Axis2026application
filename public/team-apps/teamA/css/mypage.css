@@ -1,0 +1,579 @@
+.mypagePage {
+  min-height: 100vh;
+  color: var(--text);
+  background-color: #f4faff;
+  line-height: 1.7;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.fixedBottomBg {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 210px;
+  background-image: url("../images/mypage_bg_bottom_fixed.png");
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: cover;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pageShell {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 10px 28px 220px;
+  position: relative;
+  isolation: isolate;
+  z-index: 1;
+}
+
+.pageShell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  height: 330px;
+  transform: translateX(-50%);
+  background-image: url("../images/mypage_bg_top.png");
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.heroArea {
+  position: relative;
+  min-height: 42px;
+  overflow: hidden;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: 0.92fr 1fr;
+  gap: 18px;
+  margin-top: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.infoCard {
+  min-height: 174px;
+  background-color: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  display: grid;
+  grid-template-columns: 102px 1fr auto;
+  align-items: center;
+  gap: 20px;
+  padding: 28px 20px 28px 26px;
+}
+
+.basicCard {
+  min-height: 220px;
+}
+
+.requestCard {
+  min-height: 220px;
+}
+
+.cardIconCircle {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background-color: #e4f1ff;
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.35rem;
+}
+
+.cardContent {
+  min-width: 0;
+  border-left: 3px solid #cfdfed;
+  padding-left: 24px;
+}
+
+.basicInfoContent {
+  padding-top: 2px;
+}
+
+.requestContent {
+  min-width: 0;
+}
+
+.basicWelcomeText {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background-color: var(--blue-soft);
+  color: var(--gunjo);
+  font-size: 1.22rem;
+  line-height: 1.25;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.basicWelcomeText::before {
+  content: "🌿";
+  color: var(--green);
+  font-size: 1.15rem;
+}
+
+.cardTitle {
+  color: var(--gunjo-dark);
+  font-size: 1.32rem;
+  font-weight: 900;
+  margin: 0 0 12px;
+  letter-spacing: 0.05em;
+}
+
+.basicInfoList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infoLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 1rem;
+}
+
+.basicInfoList .infoLine {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  align-items: start;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.tagRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 1rem;
+}
+
+.tagRow+.tagRow {
+  margin-top: 14px;
+}
+
+.infoLabel {
+  font-weight: 900;
+  color: var(--gunjo-dark);
+  white-space: nowrap;
+}
+
+.infoValue {
+  font-weight: 700;
+  color: #172333;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.addressLine .infoValue {
+  line-height: 1.55;
+}
+
+.tagList {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.foodTag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 54px;
+  padding: 4px 14px;
+  border-radius: 9px;
+  background-color: #dcecff;
+  color: var(--gunjo);
+  font-weight: 900;
+  font-size: 0.92rem;
+}
+
+.cardAction {
+  align-self: end;
+  padding-bottom: 12px;
+}
+
+.btnOutlineGreen {
+  min-width: 162px;
+  padding: 11px 18px;
+  color: var(--green-dark);
+  background-color: var(--white);
+  border: 2px solid var(--green);
+  border-radius: 8px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  transition: 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnOutlineGreen:hover {
+  color: var(--white);
+  background-color: var(--green);
+  transform: translateY(-1px);
+}
+
+.dataSection {
+  margin-top: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.historySection {
+  margin-top: 24px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px 2px;
+  color: var(--gunjo-dark);
+  font-size: 1.55rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.sectionIcon {
+  color: var(--green);
+  font-size: 1.35rem;
+}
+
+.tableCard {
+  overflow-x: auto;
+  background-color: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  box-shadow: var(--shadow);
+}
+
+.ecTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.ecTable th {
+  background-color: var(--gunjo);
+  color: var(--white);
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.ecTable th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.ecTable th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.ecTable td {
+  padding: 16px 18px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 1.05rem;
+  font-weight: 650;
+  border-bottom: 1px dashed #d8e4ef;
+  border-right: 1px solid #e2ebf4;
+  background-color: var(--white);
+}
+
+.ecTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ecTable td:last-child,
+.ecTable th:last-child {
+  border-right: none;
+}
+
+.ecTable tbody tr:hover td {
+  background-color: var(--blue-pale);
+}
+
+.subscriptionTable th:nth-child(1),
+.subscriptionTable td:nth-child(1) {
+  width: 48%;
+}
+
+.subscriptionTable th:nth-child(2),
+.subscriptionTable td:nth-child(2) {
+  width: 19%;
+}
+
+.subscriptionTable th:nth-child(3),
+.subscriptionTable td:nth-child(3) {
+  width: 17%;
+}
+
+.subscriptionTable th:nth-child(4),
+.subscriptionTable td:nth-child(4) {
+  width: 16%;
+}
+
+.historyTable th:nth-child(1),
+.historyTable td:nth-child(1) {
+  width: 15%;
+}
+
+.historyTable th:nth-child(2),
+.historyTable td:nth-child(2) {
+  width: 18%;
+}
+
+.historyTable th:nth-child(3),
+.historyTable td:nth-child(3) {
+  width: 40%;
+}
+
+.historyTable th:nth-child(4),
+.historyTable td:nth-child(4) {
+  width: 13%;
+}
+
+.historyTable th:nth-child(5),
+.historyTable td:nth-child(5) {
+  width: 14%;
+}
+
+.productCell {
+  display: table-cell;
+  text-align: left !important;
+  font-weight: 800 !important;
+  padding: 12px 18px !important;
+}
+
+.productInfo {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
+}
+
+.productPhoto {
+  width: 112px;
+  height: 68px;
+  flex: 0 0 112px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 8px;
+  border: 1px solid #d9e7f3;
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(4, 49, 92, 0.1);
+}
+
+.productInfo span {
+  line-height: 1.45;
+}
+
+.priceText {
+  font-weight: 900 !important;
+  color: #172333;
+}
+
+.orderDetailLink {
+  color: var(--gunjo);
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.orderDetailLink:hover {
+  color: var(--blue);
+}
+
+.statusBadge {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 92px;
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.statusComplete {
+  color: var(--green-dark);
+  background-color: var(--green-soft);
+  border: 1px solid var(--green);
+}
+
+.statusProgress {
+  color: #1263b5;
+  background-color: #edf6ff;
+  border: 1px solid #5fa0e6;
+}
+
+/* ==========================================
+   商品購入ボタン
+   ========================================== */
+
+.purchaseActionSection {
+  display: flex;
+  justify-content: center;
+  margin: 32px 0;
+}
+
+.btnPurchase {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 260px;
+  padding: 16px 32px;
+  border-radius: 999px;
+  background-color: var(--sub-green);
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 8px 18px rgba(47, 158, 68, 0.25);
+  transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+}
+
+.btnPurchase:hover {
+  opacity: 0.92;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(47, 158, 68, 0.3);
+}
+
+/* 注文番号リンク */
+.orderNoLink {
+  color: #2563eb;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.orderNoLink:hover {
+  opacity: 0.75;
+}
+
+/* 注文履歴の商品名 */
+.historyProductNames {
+  max-width: 260px;
+  white-space: normal;
+  line-height: 1.5;
+}
+
+/* 配送状況セル */
+.deliveryStatusCell {
+  min-width: 110px;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* 配送状況ラベル */
+.deliveryStatusLabel {
+  display: inline-block;
+  min-width: 72px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background-color: #e8f5ee;
+  color: #147a45;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .fixedBottomBg {
+    height: 150px;
+    background-size: auto 150px;
+  }
+
+  .pageShell {
+    padding-bottom: 160px;
+  }
+
+  .pageShell::before {
+    height: 260px;
+    background-size: auto 260px;
+  }
+}
+
+@media (max-width: 760px) {
+  .pageShell {
+    padding: 8px 14px 160px;
+  }
+
+  .heroArea {
+    min-height: 30px;
+  }
+
+  .infoCard {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 22px;
+  }
+
+  .cardContent {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .cardAction {
+    align-self: auto;
+    padding-bottom: 0;
+  }
+
+  .btnOutlineGreen {
+    width: 100%;
+  }
+
+  .basicWelcomeText {
+    font-size: 1.1rem;
+    padding: 6px 16px;
+  }
+
+  .basicInfoList .infoLine {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .ecTable {
+    min-width: 780px;
+  }
+
+  .productPhoto {
+    width: 96px;
+    height: 60px;
+    flex-basis: 96px;
+  }
+}

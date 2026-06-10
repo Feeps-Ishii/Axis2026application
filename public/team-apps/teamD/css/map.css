@@ -1,0 +1,114 @@
+.map-section {
+	margin-top: 50px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.map-search {
+	margin-bottom: 15px;
+}
+
+.map-search input {
+	width: 300px;
+	padding: 8px;
+}
+
+.map-search button {
+	padding: 8px 16px;
+}
+
+#map {
+	height: 600px;
+	/* 縦を大きく */
+	width: 80%;
+	/* 横を小さく */
+	margin: 0 auto;
+
+	border-radius: 16px;
+	border: 1px solid #e5e5e5;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	overflow: hidden;
+}
+
+#map:hover {
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+	transition: 0.2s ease;
+}
+
+
+.map-search {
+	margin-bottom: 20px;
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.map-search input {
+	width: 320px;
+	padding: 10px 14px;
+
+	border: 1px solid #dcdcdc;
+	border-radius: 8px;
+
+	font-size: 14px;
+	outline: none;
+	transition: 0.2s;
+}
+
+.map-search input:focus {
+	border-color: rgb(255, 128, 64);
+	box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+}
+
+.map-search button {
+	padding: 10px 20px;
+
+	background-color: rgb(255, 128, 0);
+	color: white;
+
+	border: none;
+	border-radius: 8px;
+
+	font-size: 14px;
+	font-weight: bold;
+
+	cursor: pointer;
+	transition: 0.2s;
+}
+
+.map-search button:hover {
+	background-color: rgb(128, 64, 0);
+	transform: translateY(-1px);
+}
+
+.map-search button:active {
+	transform: translateY(0);
+}
+
+.map-detail-btn {
+	width: 100%;
+	padding: 10px 16px;
+	margin-top: 10px;
+
+	background-color: rgb(255, 128, 64);
+	color: white;
+
+	border: none;
+	border-radius: 8px;
+
+	font-size: 14px;
+	font-weight: bold;
+
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.map-detail-btn:hover {
+	background-color: rgb(128, 64, 0);
+	transform: translateY(-1px);
+}
+
+.map-detail-btn:active {
+	transform: translateY(0);
+}
