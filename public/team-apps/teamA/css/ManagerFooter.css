@@ -1,0 +1,90 @@
+.fabBtn {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  width: 56px;
+  height: 56px;
+  background-color: var(--main-blue);
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  transition:
+    transform 0.2s,
+    bottom 0.3s ease,
+    background-color 0.2s;
+}
+
+.fabBtn:hover {
+  background-color: #124d7c;
+}
+
+.fabOpen {
+  background-color: var(--dark-navy);
+  bottom: 105px;
+}
+
+.footerMenu {
+  position: fixed;
+  bottom: -90px;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background-color: var(--dark-navy);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 0 40px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+  transition: bottom 0.3s ease;
+  pointer-events: none;
+}
+
+.footerShow {
+  bottom: 0;
+  pointer-events: auto;
+}
+
+.btnFooter {
+  background-color: #1e293b;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px 24px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btnFooter:hover {
+  background-color: #ffffff;
+  color: var(--dark-navy);
+}
+
+@media (max-width: 900px) {
+  .footerMenu {
+    overflow-x: auto;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 0 20px;
+  }
+
+  .btnFooter {
+    padding: 12px 20px;
+    flex: 0 0 auto;
+  }
+}

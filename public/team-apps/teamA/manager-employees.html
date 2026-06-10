@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>社員管理 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/employee.css">
+</head>
+
+<body>
+  <div class="employeeListPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageTitle">
+        <div>つばさ配送サービス 業務管理システム</div>
+        <div class="orderCount">社員一覧</div>
+      </section>
+
+      <section class="searchFilterBox">
+        <div>
+          <p id="errorMessage" class="errorMessage" style="display:none; color:#e53e3e;"></p>
+        </div>
+        <div>
+          <a href="./manager-employee-regist.html" class="btnRegisterCustomer">＋ 新規社員登録</a>
+        </div>
+      </section>
+
+      <section class="tableWrapper">
+        <table class="orderTable">
+          <thead>
+            <tr>
+              <th>社員ID</th>
+              <th>社員名</th>
+              <th>役職</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="empTbody"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <div id="managerFooter"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"])) return;
+      TeamAUI.renderHeader("staff", "社員管理");
+      TeamAUI.renderManagerFooter();
+
+      const esc = TeamAUI.esc;
+      const employees = TeamA.employeesActive();
+      const tbody = document.getElementById("empTbody");
+
+      if (employees.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#718096;">登録されている社員はありません。</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = employees.map((e) => `
+        <tr>
+          <td>${esc(e.employeeCode)}</td>
+          <td>${esc(e.employeeName)}</td>
+          <td>${esc(e.role)}</td>
+          <td>
+            <a href="./manager-employee-detail.html?id=${e.employeeId}" class="btnTableAction btnTableEdit">編集</a>
+            <a href="./manager-employee-delete.html?id=${e.employeeId}" class="btnTableAction btnTableDelete">削除</a>
+          </td>
+        </tr>`).join("");
+    });
+  </script>
+</body>
+
+</html>

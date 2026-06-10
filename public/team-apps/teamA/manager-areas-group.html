@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>配送グループ設定 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/area.css">
+</head>
+
+<body>
+  <div class="deliveryGroupPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="searchFilterBox deliveryGroupFormBox">
+        <div class="deliveryGroupFormHeader">
+          <h2 class="deliveryGroupSectionTitle">配送グループ登録</h2>
+          <p class="deliveryGroupHelpText">
+            1つの配送グループに対して、複数の郵便番号を登録できます。
+            郵便番号は先にエリア設定画面で登録してください。
+          </p>
+        </div>
+
+        <div class="orderInputContainer">
+          <div class="formGroup groupNameInput">
+            <label for="groupName">グループ名</label>
+            <input type="text" id="groupName" placeholder="例：1番エリア">
+          </div>
+
+          <div class="formGroup groupZipInput">
+            <label for="postalCode">郵便番号</label>
+            <input type="text" id="postalCode" placeholder="例：10000 または 100-00〇〇">
+          </div>
+
+          <div class="formGroup groupDriverInput">
+            <label for="driver">ドライバー選択</label>
+            <select id="driver" class="formControlSelect"></select>
+          </div>
+
+          <div class="btnAlign">
+            <button type="button" id="btnAddGroup" class="btnSubmit deliveryGroupAddBtn">グループ追加</button>
+          </div>
+        </div>
+
+        <p id="successMessage" class="successMessage" style="display:none;"></p>
+        <p id="errorMessage" class="errorMessage" style="display:none;"></p>
+      </section>
+
+      <section class="tableWrapper">
+        <div class="deliveryGroupListHeader">
+          <h2 class="deliveryGroupSectionTitle">グループリスト</h2>
+          <span class="cellTextMuted">登録件数：<span id="groupCount">0</span>件</span>
+        </div>
+
+        <table class="orderTable">
+          <thead>
+            <tr>
+              <th>グループID</th>
+              <th>グループ名</th>
+              <th>登録郵便番号</th>
+              <th>担当ドライバー</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="groupTbody"></tbody>
+        </table>
+      </section>
+
+      <div class="submitActionBox">
+        <a href="./manager-areas.html" class="btnBack">戻る</a>
+      </div>
+    </main>
+
+    <div id="managerFooter"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"])) return;
+      TeamAUI.renderHeader("staff", "配送グループ設定");
+      TeamAUI.renderManagerFooter();
+
+      const esc = TeamAUI.esc;
+      const msg = document.getElementById("successMessage");
+      const err = document.getElementById("errorMessage");
+      const tbody = document.getElementById("groupTbody");
+      function showMsg(t) { msg.textContent = t; msg.style.display = "block"; }
+      function showErr(t) { err.textContent = t; err.style.display = "block"; }
+      function clearAlerts() { msg.style.display = "none"; err.style.display = "none"; }
+
+      const drivers = TeamA.driversActive();
+
+      function driverOptions(selectedId) {
+        return drivers.map((d) =>
+          `<option value="${d.driverId}"${Number(d.driverId) === Number(selectedId) ? " selected" : ""}>${esc(d.driverName)}</option>`
+        ).join("");
+      }
+
+      // 比較用正規化
+      function normalize(value) {
+        return String(value).trim().replaceAll("-", "").replaceAll("〇", "0").replaceAll("○", "0");
+      }
+
+      // 郵便番号 -> {pattern, prefix5}
+      function buildPostal(raw) {
+        const digits = String(raw).replace(/[^0-9]/g, "");
+        const prefix5 = digits.slice(0, 5);
+        let pattern;
+        if (digits.length >= 7) {
+          pattern = digits.slice(0, 3) + "-" + digits.slice(3, 7);
+        } else {
+          pattern = prefix5.slice(0, 3) + "-" + prefix5.slice(3, 5) + "〇〇";
+        }
+        return { pattern, prefix5 };
+      }
+
+      function nextAreaCode() {
+        const n = TeamA.allDeliveryAreas().reduce((m, a) => {
+          const num = parseInt(String(a.areaCode).replace(/[^0-9]/g, ""), 10) || 0;
+          return Math.max(m, num);
+        }, 0) + 1;
+        return "A" + String(n).padStart(3, "0");
+      }
+
+      function nextGroupCode() {
+        const n = TeamA.allDeliveryGroups().reduce((m, g) => {
+          const num = parseInt(String(g.groupCode).replace(/[^0-9]/g, ""), 10) || 0;
+          return Math.max(m, num);
+        }, 0) + 1;
+        return "G" + String(n).padStart(3, "0");
+      }
+
+      // 既存エリアを郵便番号から取得、無ければ作成して areaId を返す
+      function ensureArea(raw) {
+        const { pattern, prefix5 } = buildPostal(raw);
+        let area = TeamA.allDeliveryAreas().find((a) => a.postalPrefix5 === prefix5);
+        if (!area) area = TeamA.createArea({ areaCode: nextAreaCode(), postalCodePattern: pattern, postalPrefix5: prefix5 });
+        return area;
+      }
+
+      // グループのビューモデル一覧（postalCodes, areaIds 付き）
+      function groupViews() {
+        return TeamA.deliveryGroupsActive().map((g) => {
+          const areas = TeamA.groupAreas(g.deliveryGroupId);
+          const driver = g.driverId != null ? TeamA.driverById(g.driverId) : null;
+          return {
+            deliveryGroupId: g.deliveryGroupId,
+            groupCode: g.groupCode,
+            groupName: g.groupName,
+            driverId: g.driverId,
+            driverName: driver ? driver.driverName : "",
+            areaIds: areas.map((a) => a.areaId),
+            postalCodes: areas.map((a) => a.postalCodePattern),
+          };
+        });
+      }
+
+      // 別ドライバーのグループに同一郵便番号が登録済みか
+      function findConflictGroup(inputPostal, selectedDriverId) {
+        const ni = normalize(inputPostal);
+        return groupViews().find((g) => {
+          if (g.driverId == null || Number(g.driverId) === Number(selectedDriverId)) return false;
+          return g.postalCodes.some((p) => normalize(p) === ni);
+        });
+      }
+
+      function render() {
+        const groups = groupViews();
+        document.getElementById("groupCount").textContent = groups.length;
+        if (groups.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5">登録されている配送グループはありません。</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = groups.map((g) => `
+          <tr data-gid="${g.deliveryGroupId}">
+            <td>${esc(g.groupCode)}</td>
+            <td>${esc(g.groupName)}</td>
+            <td>
+              <div class="postalTagList">
+                ${g.postalCodes.map((p, i) => `
+                  <span class="postalTag">${esc(p)}<button type="button" class="postalTagDelete" data-del-postal data-area="${g.areaIds[i]}" data-postal="${esc(p)}">×</button></span>
+                `).join("")}
+              </div>
+            </td>
+            <td>
+              <select class="formControlSelect" data-change-driver>${driverOptions(g.driverId)}</select>
+            </td>
+            <td>
+              <button type="button" class="btnTableAction btnTableEdit" data-add-postal>郵便番号追加</button>
+              <button type="button" class="btnTableAction btnTableDelete" data-del-group>グループ削除</button>
+            </td>
+          </tr>`).join("");
+
+        tbody.querySelectorAll("tr[data-gid]").forEach((tr) => {
+          const gid = Number(tr.dataset.gid);
+          tr.querySelector("[data-change-driver]").addEventListener("change", (ev) =>
+            changeDriver(gid, Number(ev.target.value)));
+          tr.querySelector("[data-add-postal]").addEventListener("click", () => addPostalCode(gid));
+          tr.querySelector("[data-del-group]").addEventListener("click", () => deleteGroup(gid));
+          tr.querySelectorAll("[data-del-postal]").forEach((b) =>
+            b.addEventListener("click", () => deletePostalCode(gid, Number(b.dataset.area), b.dataset.postal)));
+        });
+      }
+
+      function addGroup() {
+        clearAlerts();
+        const groupName = document.getElementById("groupName").value.trim();
+        const postalCode = document.getElementById("postalCode").value.trim();
+        const driverIdVal = document.getElementById("driver").value;
+
+        if (groupName === "") { showErr("グループ名を入力してください。"); return; }
+        if (postalCode === "") { showErr("郵便番号を入力してください。"); return; }
+        if (driverIdVal === "") { showErr("ドライバーを選択してください。"); return; }
+
+        const driverId = Number(driverIdVal);
+        const conflict = findConflictGroup(postalCode, driverId);
+        if (conflict) {
+          showErr(`郵便番号「${postalCode}」は、すでに別のドライバー「${conflict.driverName}」の配送グループ「${conflict.groupName}」に登録されています。`);
+          return;
+        }
+
+        const area = ensureArea(postalCode);
+        const groups = TeamA.table("deliveryGroups");
+        const newGid = TeamA.nextId("deliveryGroups", "deliveryGroupId");
+        groups.push({ deliveryGroupId: newGid, groupCode: nextGroupCode(), groupName, driverId, activeFlag: true });
+        TeamA.saveTable("deliveryGroups", groups);
+
+        const ga = TeamA.table("deliveryGroupAreas");
+        ga.push({ deliveryGroupAreaId: TeamA.nextId("deliveryGroupAreas", "deliveryGroupAreaId"), deliveryGroupId: newGid, areaId: area.areaId });
+        TeamA.saveTable("deliveryGroupAreas", ga);
+
+        showMsg("配送グループを登録しました。");
+        document.getElementById("groupName").value = "";
+        document.getElementById("postalCode").value = "";
+        render();
+      }
+
+      function changeDriver(gid, newDriverId) {
+        clearAlerts();
+        const groups = TeamA.table("deliveryGroups");
+        const i = groups.findIndex((g) => g.deliveryGroupId === gid);
+        if (i < 0) return;
+        groups[i].driverId = newDriverId;
+        TeamA.saveTable("deliveryGroups", groups);
+        showMsg("担当ドライバーを変更しました。");
+        render();
+      }
+
+      function addPostalCode(gid) {
+        const input = window.prompt("追加する郵便番号を入力してください。\n例：10000 または 100-00〇〇");
+        if (input === null) return;
+        if (input.trim() === "") { showErr("郵便番号を入力してください。"); return; }
+
+        const target = groupViews().find((g) => g.deliveryGroupId === gid);
+        if (!target || target.driverId == null) { showErr("対象の配送グループ情報が取得できません。"); return; }
+
+        const ni = normalize(input);
+        if (target.postalCodes.some((p) => normalize(p) === ni)) {
+          showErr(`郵便番号「${input}」は、すでにこの配送グループに登録されています。`);
+          return;
+        }
+        const conflict = findConflictGroup(input, target.driverId);
+        if (conflict) {
+          showErr(`郵便番号「${input}」は、すでに別のドライバー「${conflict.driverName}」の配送グループ「${conflict.groupName}」に登録されています。`);
+          return;
+        }
+
+        clearAlerts();
+        const area = ensureArea(input);
+        const ga = TeamA.table("deliveryGroupAreas");
+        ga.push({ deliveryGroupAreaId: TeamA.nextId("deliveryGroupAreas", "deliveryGroupAreaId"), deliveryGroupId: gid, areaId: area.areaId });
+        TeamA.saveTable("deliveryGroupAreas", ga);
+        showMsg("郵便番号を追加しました。");
+        render();
+      }
+
+      function deletePostalCode(gid, areaId, postalText) {
+        const ok = window.confirm(`郵便番号「${postalText}」をこのグループから削除します。\nよろしいですか？`);
+        if (!ok) return;
+        clearAlerts();
+        const ga = TeamA.table("deliveryGroupAreas").filter((x) => !(x.deliveryGroupId === gid && x.areaId === areaId));
+        TeamA.saveTable("deliveryGroupAreas", ga);
+        showMsg("郵便番号を削除しました。");
+        render();
+      }
+
+      function deleteGroup(gid) {
+        const g = TeamA.deliveryGroupById(gid);
+        if (!g) return;
+        const ok = window.confirm(`配送グループ「${g.groupCode}：${g.groupName}」を削除します。\nよろしいですか？`);
+        if (!ok) return;
+        clearAlerts();
+        const groups = TeamA.table("deliveryGroups");
+        const i = groups.findIndex((x) => x.deliveryGroupId === gid);
+        if (i >= 0) { groups[i].activeFlag = false; TeamA.saveTable("deliveryGroups", groups); }
+        const ga = TeamA.table("deliveryGroupAreas").filter((x) => x.deliveryGroupId !== gid);
+        TeamA.saveTable("deliveryGroupAreas", ga);
+        showMsg("配送グループを削除しました。");
+        render();
+      }
+
+      // 初期描画
+      const sel = document.getElementById("driver");
+      sel.innerHTML = driverOptions(drivers.length > 0 ? drivers[0].driverId : "");
+      document.getElementById("btnAddGroup").addEventListener("click", addGroup);
+      render();
+    });
+  </script>
+</body>
+
+</html>

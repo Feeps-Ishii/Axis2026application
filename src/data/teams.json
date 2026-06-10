@@ -70,13 +70,14 @@
     "entry": "login.html"
   },
   {
-    "slug": "team8",
-    "name": "グループ8",
-    "appName": "（アプリ名未定）",
-    "description": "チームの成果物を public/team-apps/team8/ に配置してください。",
-    "category": "未分類",
-    "accent": "#dc2626",
-    "ready": false
+    "slug": "teamA",
+    "name": "グループA",
+    "appName": "つばさ配送サービス（食材デリバリー 受発注・配送管理）",
+    "description": "お客様（商品注文・カート・マイページ・配送要望）、社員/管理者（注文承認・電話注文・商品/ドライバー/社員/エリア管理）、ドライバー（配送管理）の3ロールを JSON + localStorage で擬似再現したモックです。元はNext.js+Spring構成。",
+    "category": "業務系",
+    "accent": "#2f9e44",
+    "ready": true,
+    "entry": "login.html"
   },
   {
     "slug": "team9",

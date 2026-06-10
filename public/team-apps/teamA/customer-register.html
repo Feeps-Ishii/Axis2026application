@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新規顧客登録 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/customer-register.css">
+</head>
+
+<body>
+  <div class="customerRegistPage">
+    <div class="fixedBottomBg" aria-hidden="true"></div>
+
+    <div id="appHeader"></div>
+
+    <!-- メッセージポップアップ -->
+    <div id="messageOverlay" class="messageOverlay" style="display:none;">
+      <div class="messagePopup">
+        <div id="messageIcon" class="messageIconError">!</div>
+        <h3 id="messageTitle" class="messageTitle">入力内容を確認してください</h3>
+        <p id="messageText" class="messageText"></p>
+        <button type="button" class="messageCloseBtn" id="messageCloseBtn">閉じる</button>
+      </div>
+    </div>
+
+    <div class="customerContainer">
+      <section class="customerPageHeading">
+        <h2 class="customerMainTitle">新規顧客登録</h2>
+        <p class="customerMainSubtitle">お名前・連絡先・配送要望など、顧客情報を登録します。</p>
+      </section>
+
+      <form onsubmit="return false;">
+        <!-- 基本情報 -->
+        <section class="customerSection">
+          <div class="customerSectionHeader">
+            <h2 class="customerSectionTitle">基本情報</h2>
+            <span class="customerSectionSubtext">お名前・電話番号・住所を入力してください</span>
+          </div>
+          <div class="customerCard">
+            <div class="customerDetailFormGrid">
+              <div class="customerFormGroup">
+                <label for="customer-name">お名前</label>
+                <input type="text" id="customer-name" placeholder="例: 山田 太郎">
+              </div>
+              <div class="customerFormGroup">
+                <label for="customer-phone">電話番号</label>
+                <input type="tel" id="customer-phone" placeholder="例: 09012345678（ハイフンなし）">
+              </div>
+              <div class="customerFormGroup">
+                <label for="customer-zip">郵便番号</label>
+                <input type="text" id="customer-zip" placeholder="例: 1234567（ハイフンなし）" maxlength="7">
+                <button type="button" class="deliveryAreaToggleBtn" id="areaToggleBtn">配送エリアはこちら</button>
+                <div id="areaBox" class="deliveryAreaBox" style="display:none;">
+                  <p class="deliveryAreaTitle">現在登録されている配送エリア</p>
+                  <ul id="areaList" class="deliveryAreaList"></ul>
+                </div>
+              </div>
+              <div class="customerFormGroup">
+                <label for="customer-address">住所</label>
+                <input type="text" id="customer-address" placeholder="例: 東京都港区新橋1-2-3">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ログイン・支払情報 -->
+        <section class="customerSection">
+          <div class="customerSectionHeader">
+            <h2 class="customerSectionTitle">ログイン・支払情報</h2>
+            <span class="customerSectionSubtext">パスワードと支払方法を設定します</span>
+          </div>
+          <div class="customerCard">
+            <div class="customerDetailFormGrid">
+              <div class="customerFormGroup">
+                <label for="customer-password">パスワード設定（8文字以上）</label>
+                <input type="password" id="customer-password" placeholder="半角英数字で入力">
+              </div>
+              <div class="customerFormGroup paymentFormArea">
+                <label>支払方法</label>
+                <div class="customerRadioBox customerPaymentBox">
+                  <label class="customerRadioLabel"><input type="radio" name="payment-method" value="cod" checked> 代引き</label>
+                  <label class="customerRadioLabel"><input type="radio" name="payment-method" value="credit"> クレジットカード</label>
+                  <label class="customerRadioLabel"><input type="radio" name="payment-method" value="paypay"> PayPay</label>
+                </div>
+                <div id="creditBox" class="creditCardBox" style="display:none;">
+                  <h3 class="creditCardTitle">カード情報登録</h3>
+                  <div class="creditCardGrid">
+                    <div class="customerFormGroup"><label for="card-number">カード番号</label><input type="text" id="card-number" placeholder="例：1234 5678 9012 3456"></div>
+                    <div class="customerFormGroup"><label for="card-name">カード名義</label><input type="text" id="card-name" placeholder="例：TARO YAMADA"></div>
+                    <div class="customerFormGroup"><label for="card-expiry">有効期限</label><input type="text" id="card-expiry" placeholder="例：12/30"></div>
+                    <div class="customerFormGroup"><label for="card-security">セキュリティコード</label><input type="password" id="card-security" placeholder="例：123"></div>
+                  </div>
+                  <p class="customerHelpText">※ カード情報はDBにフル保存せず、下4桁のみ保存します。</p>
+                </div>
+                <div id="paypayBox" class="paypayBox" style="display:none;">
+                  <h3 class="paypayTitle">PayPayで支払う</h3>
+                  <p class="customerHelpText">PayPayを選択した場合、購入確定時にPayPay決済画面へ進みます。</p>
+                </div>
+                <div id="codBox" class="codBox">
+                  <h3 class="codTitle">代引きで支払う</h3>
+                  <p class="customerHelpText">商品のお届け時に配達員へ代金をお支払いください。</p>
+                  <p class="customerCautionText">※ 置き配を希望している場合、代引きは選択できません。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- アレルギー -->
+        <section class="customerSection">
+          <div class="customerSectionHeader">
+            <h2 class="customerSectionTitle">アレルギー情報</h2>
+            <span class="customerSectionSubtext">アレルギーマスタから対象を選択してください</span>
+          </div>
+          <div class="customerCard">
+            <button type="button" class="btnToggleList" id="allergyToggle">▼ アレルギーを選択する</button>
+            <div id="allergyBox" class="productSelectBox" style="display:none;">
+              <div id="allergyList" class="productCheckboxList"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 配送指示 -->
+        <section class="customerSection">
+          <div class="customerSectionHeader">
+            <h2 class="customerSectionTitle">配送指示</h2>
+            <span class="customerSectionSubtext">配送方法や個別の指示を登録します</span>
+          </div>
+          <div class="customerCard">
+            <div class="customerCheckboxGrid customerCheckboxGridSmall">
+              <label class="customerCheckLabel"><input type="checkbox" id="okihai"> 置き配</label>
+              <label class="customerCheckLabel"><input type="checkbox" id="reito"> 冷凍便</label>
+              <label class="customerCheckLabel"><input type="checkbox" id="other"> その他</label>
+            </div>
+            <textarea id="otherText" class="customerTextarea" style="display:none;" placeholder="その他の配送指示・要望を入力してください（例：チャイム不可、18時以降など）"></textarea>
+          </div>
+        </section>
+
+        <!-- 嫌いな食べ物 -->
+        <section class="customerSection">
+          <div class="customerSectionHeader">
+            <h2 class="customerSectionTitle">嫌いな食べ物・食材</h2>
+            <span class="customerSectionSubtext">商品一覧から対象を選択してください</span>
+          </div>
+          <div class="customerCard">
+            <button type="button" class="btnToggleList" id="dislikeToggle">▼ 商品一覧から選択する</button>
+            <div id="dislikeBox" class="productSelectBox" style="display:none;">
+              <div id="dislikeList" class="productCheckboxList"></div>
+            </div>
+          </div>
+        </section>
+
+        <div class="customerActionBox">
+          <a href="./login.html" class="customerBackBtn">戻る</a>
+          <button type="button" class="customerSubmitBtn" id="submitBtn">登録する</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = (s) => TeamAUI.esc(s);
+    let redirectAfter = false;
+
+    function showMessage(type, title, text) {
+      document.getElementById("messageIcon").className = type === "error" ? "messageIconError" : "messageIconSuccess";
+      document.getElementById("messageIcon").textContent = type === "error" ? "!" : "✓";
+      document.getElementById("messageTitle").textContent = title;
+      document.getElementById("messageText").textContent = text;
+      document.getElementById("messageCloseBtn").textContent = type === "error" ? "閉じる" : "ログインページへ";
+      document.getElementById("messageOverlay").style.display = "";
+    }
+    function normalizePostal(v) { return String(v).replace("-", "").trim(); }
+
+    TeamA.init().then(() => {
+      TeamAUI.renderHeader("customer", "新規顧客登録", { showCustomerNav: false });
+
+      const areas = TeamA.deliveryAreasActive();
+      document.getElementById("areaList").innerHTML = areas.length
+        ? areas.map((a) => `<li class="deliveryAreaItem"><span class="deliveryAreaPostal">${esc(a.postalCodePattern)}</span></li>`).join("")
+        : `<p class="customerCautionText">配送エリア情報を取得できませんでした。</p>`;
+
+      // アレルギー一覧（なし＝活性のみ）
+      const allergens = TeamA.allergens();
+      document.getElementById("allergyList").innerHTML = allergens.map((a) =>
+        `<label class="customerCheckLabel"><input type="checkbox" name="allergy" value="${a.allergenId}"> ${esc(a.allergenName)}</label>`).join("");
+      // 嫌いな食べ物（商品）
+      const products = TeamA.productsActive();
+      document.getElementById("dislikeList").innerHTML = products.map((p) =>
+        `<label class="customerCheckLabel"><input type="checkbox" name="dislike" value="${p.productId}"> ${esc(p.productName)}</label>`).join("");
+
+      // トグル
+      document.getElementById("areaToggleBtn").onclick = () => {
+        const b = document.getElementById("areaBox"); b.style.display = b.style.display === "none" ? "" : "none";
+      };
+      document.getElementById("allergyToggle").onclick = () => {
+        const b = document.getElementById("allergyBox"); b.style.display = b.style.display === "none" ? "" : "none";
+      };
+      document.getElementById("dislikeToggle").onclick = () => {
+        const b = document.getElementById("dislikeBox"); b.style.display = b.style.display === "none" ? "" : "none";
+      };
+      document.getElementById("other").onchange = (e) => {
+        document.getElementById("otherText").style.display = e.target.checked ? "" : "none";
+      };
+      // 支払方法ボックス切替
+      document.querySelectorAll('input[name="payment-method"]').forEach((r) => r.addEventListener("change", () => {
+        const v = document.querySelector('input[name="payment-method"]:checked').value;
+        document.getElementById("creditBox").style.display = v === "credit" ? "" : "none";
+        document.getElementById("paypayBox").style.display = v === "paypay" ? "" : "none";
+        document.getElementById("codBox").style.display = v === "cod" ? "" : "none";
+      }));
+
+      document.getElementById("messageCloseBtn").onclick = () => {
+        document.getElementById("messageOverlay").style.display = "none";
+        if (redirectAfter) location.href = "./login.html";
+      };
+
+      document.getElementById("submitBtn").onclick = () => {
+        const name = document.getElementById("customer-name").value.trim();
+        const phone = document.getElementById("customer-phone").value.trim();
+        const zip = normalizePostal(document.getElementById("customer-zip").value);
+        const address = document.getElementById("customer-address").value.trim();
+        const password = document.getElementById("customer-password").value;
+        const method = document.querySelector('input[name="payment-method"]:checked').value;
+        const okihai = document.getElementById("okihai").checked;
+        const reito = document.getElementById("reito").checked;
+        const other = document.getElementById("other").checked;
+        const otherText = document.getElementById("otherText").value.trim();
+        const allergenIds = [...document.querySelectorAll('input[name="allergy"]:checked')].map((c) => Number(c.value));
+        const dislikeIds = [...document.querySelectorAll('input[name="dislike"]:checked')].map((c) => Number(c.value));
+
+        // バリデーション
+        if (!name) return showMessage("error", "入力内容を確認してください", "お名前を入力してください。");
+        if (!phone) return showMessage("error", "入力内容を確認してください", "電話番号を入力してください。");
+        if (!zip) return showMessage("error", "入力内容を確認してください", "郵便番号を入力してください。");
+        if (!/^\d{7}$/.test(zip)) return showMessage("error", "入力内容を確認してください", "郵便番号はハイフンなしの7桁で入力してください。");
+        if (!TeamA.areaForPostal(zip)) return showMessage("error", "入力内容を確認してください", "この郵便番号は配送エリア外です。");
+        if (!address) return showMessage("error", "入力内容を確認してください", "住所を入力してください。");
+        if (!password) return showMessage("error", "入力内容を確認してください", "パスワードを入力してください。");
+        if (password.length < 8) return showMessage("error", "入力内容を確認してください", "パスワードは8文字以上で入力してください。");
+        if (okihai && method === "cod") return showMessage("error", "入力内容を確認してください", "置き配を希望する場合、代引きは選択できません。");
+
+        const paymentLabel = method === "cod" ? "代引き" : method === "credit" ? "クレジットカード" : "PayPay";
+        const allergenNames = allergens.filter((a) => allergenIds.includes(a.allergenId)).map((a) => a.allergenName);
+        const dislikeNames = products.filter((p) => dislikeIds.includes(p.productId)).map((p) => p.productName);
+        const confirmMsg =
+          `以下の内容で顧客登録してよろしいですか？\n\n【お名前】\n${name}\n\n【電話番号】\n${phone}\n\n【郵便番号】\n${zip}\n\n【住所】\n${address}\n\n【支払方法】\n${paymentLabel}\n\n【配送指示】\n${okihai ? "置き配あり" : "置き配なし"}\n${reito ? "冷凍便あり" : "冷凍便なし"}\nその他：${other && otherText ? otherText : "なし"}\n\n【アレルギー】\n${allergenNames.length ? allergenNames.join("、") : "なし"}\n\n【嫌いな食べ物・食材】\n${dislikeNames.length ? dislikeNames.join("、") : "なし"}`;
+        if (!window.confirm(confirmMsg)) return;
+
+        const card = document.getElementById("card-number").value.trim();
+        const rec = TeamA.createCustomer({
+          customerName: name, phone, passwordHash: password, postalCode: zip, address,
+          defaultPaymentMethod: method,
+          defaultLeaveAtDoorFlag: okihai, defaultFrozenFlag: reito,
+          defaultDeliveryInstruction: other ? otherText : null,
+          creditCardValidFlag: method === "credit" && card !== "",
+          cardLast4: method === "credit" && card ? card.replace(/\s/g, "").slice(-4) : null,
+        });
+        TeamA.setCustomerAllergens(rec.customerId, allergenIds);
+        TeamA.setCustomerDisliked(rec.customerId, dislikeIds);
+        TeamA.saveCustomerPreference(rec.customerId, { leaveAtDoorFlag: okihai, frozenFlag: reito, preferenceNote: other ? otherText : "設定なし" });
+
+        redirectAfter = true;
+        showMessage("success", "登録完了", `顧客登録が完了しました。\n顧客コード：${rec.customerCode}\n\nログインページへ移動します。`);
+      };
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新規ドライバー登録 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/driver.css">
+</head>
+
+<body>
+  <div class="driverRegistPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageTitle">
+        <div>つばさ配送サービス 業務管理システム</div>
+        <div class="orderCount">新規ドライバー登録</div>
+      </section>
+
+      <section class="formBox">
+        <div class="formGroup">
+          <label for="drv-name">ドライバー名</label>
+          <input type="text" id="drv-name" placeholder="例: 鈴木 一郎">
+        </div>
+
+        <div class="formGroup">
+          <label for="drv-phone">連絡先（電話番号）</label>
+          <input type="tel" id="drv-phone" placeholder="例: 090-1111-2222">
+        </div>
+
+        <div class="formGroup">
+          <label for="drv-vehicle-no">車両番号（任意）</label>
+          <input type="text" id="drv-vehicle-no" placeholder="例: 品川 100 あ 1234">
+        </div>
+
+        <div class="formGroup">
+          <label for="drv-vehicle-info">車両情報（任意）</label>
+          <input type="text" id="drv-vehicle-info" placeholder="例: 軽バン / 2tトラック">
+        </div>
+
+        <div class="formGroup">
+          <label class="checkboxLabel">
+            <span>冷蔵・冷凍対応あり</span>
+            <input type="checkbox" id="drv-refrigerated">
+          </label>
+        </div>
+
+        <div class="formGroup">
+          <label for="drv-password">パスワード</label>
+          <input type="password" id="drv-password" placeholder="8文字以上で入力">
+        </div>
+
+        <p id="successMessage" class="successMessage" style="display:none;"></p>
+        <p id="errorMessage" class="errorMessage" style="display:none;"></p>
+
+        <div class="submitActionBox">
+          <a href="./manager-drivers.html" class="btnBack">一覧に戻る</a>
+          <button type="button" id="btnSubmit" class="btnSubmit">登録する</button>
+        </div>
+      </section>
+    </main>
+
+    <div id="managerFooter"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"])) return;
+      TeamAUI.renderHeader("staff", "新規ドライバー登録");
+      TeamAUI.renderManagerFooter();
+
+      const err = document.getElementById("errorMessage");
+      const msg = document.getElementById("successMessage");
+      const btn = document.getElementById("btnSubmit");
+
+      function showErr(t) { err.textContent = t; err.style.display = "block"; }
+      function val(id) { return document.getElementById(id).value; }
+
+      btn.addEventListener("click", () => {
+        msg.style.display = "none";
+        err.style.display = "none";
+
+        const driverName = val("drv-name").trim();
+        const phone = val("drv-phone").trim();
+        const vehicleNo = val("drv-vehicle-no").trim();
+        const vehicleInfo = val("drv-vehicle-info").trim();
+        const refrigeratedFlag = document.getElementById("drv-refrigerated").checked;
+        const password = val("drv-password").trim();
+
+        if (driverName === "") { showErr("ドライバー名を入力してください。"); return; }
+        if (phone === "") { showErr("電話番号を入力してください。"); return; }
+        if (password === "") { showErr("パスワードを入力してください。"); return; }
+        if (password.length < 8) { showErr("パスワードは8文字以上で入力してください。"); return; }
+
+        const ok = window.confirm(
+          `以下の内容で登録してよろしいですか？\n\n` +
+          `ドライバー名：${driverName}\n` +
+          `電話番号：${phone}\n` +
+          `車両番号：${vehicleNo || "未入力"}\n` +
+          `車両情報：${vehicleInfo || "未入力"}\n` +
+          `冷蔵・冷凍対応：${refrigeratedFlag ? "あり" : "なし"}`
+        );
+        if (!ok) return;
+
+        TeamA.createDriver({ driverName, phone, vehicleNo, vehicleInfo, refrigeratedFlag, password });
+        location.href = "./manager-driver-complete.html?mode=register";
+      });
+    });
+  </script>
+</body>
+
+</html>

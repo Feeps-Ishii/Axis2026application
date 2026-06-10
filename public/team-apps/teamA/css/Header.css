@@ -1,0 +1,370 @@
+/* ==========================================
+   Header.module.css
+   顧客 / 社内 / ドライバー 共通ヘッダー
+   ========================================== */
+
+/* ==========================================
+   顧客ページ用ヘッダー
+   商品一覧 / カート / 購入 / 注文詳細で使用
+   ========================================== */
+
+.customerSiteHeader {
+  height: 124px;
+  background-color: var(--gunjo);
+  color: var(--white);
+  display: grid;
+  grid-template-columns: 430px 1fr auto;
+  align-items: center;
+  box-shadow: 0 5px 16px rgba(3, 39, 74, 0.28);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.customerHeaderLogoArea {
+  width: 430px;
+  height: 124px;
+  background-color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 22px 0;
+  box-shadow: 8px 8px 24px rgba(0, 64, 128, 0.2);
+  overflow: hidden;
+}
+
+.customerSiteLogo {
+  width: 174%;
+  max-height: 172px;
+  object-fit: contain;
+  object-position: center;
+}
+
+.customerHeaderTitleArea {
+  padding-left: 48px;
+  min-width: 0;
+}
+
+.customerHeaderTitle {
+  margin: 0;
+  font-size: 1.82rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.customerHeaderPageName {
+  display: inline-block;
+  margin-top: 4px;
+  color: #d9ecff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.customerHeaderNav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 34px;
+  white-space: nowrap;
+}
+
+.customerHeaderUserName {
+  color: #e5f3ff;
+  font-weight: 800;
+  margin-right: 4px;
+}
+
+.customerHeaderLink,
+.customerHeaderLogoutBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  transition: 0.2s ease;
+  box-shadow: 0 5px 12px rgba(3, 39, 74, 0.16);
+  text-decoration: none;
+  border: 2px solid transparent;
+}
+
+.customerHeaderCartLink {
+  color: #ffffff;
+  background-color: var(--green);
+  border-color: var(--green);
+}
+
+.customerHeaderCartLink::before {
+  content: "🛒";
+  margin-right: 7px;
+}
+
+.customerHeaderCartLink:hover {
+  background-color: var(--green-dark);
+  border-color: var(--green-dark);
+  transform: translateY(-1px);
+}
+
+.customerHeaderMypageLink {
+  color: var(--gunjo);
+  background-color: #ffffff;
+  border-color: #ffffff;
+}
+
+.customerHeaderMypageLink::before {
+  content: "👤";
+  margin-right: 7px;
+}
+
+.customerHeaderMypageLink:hover {
+  color: #ffffff;
+  background-color: var(--blue);
+  border-color: var(--blue);
+  transform: translateY(-1px);
+}
+
+.customerHeaderLogoutBtn {
+  color: #ffffff;
+  background-color: var(--danger);
+  border-color: var(--danger);
+  box-shadow: 0 5px 12px rgba(224, 49, 49, 0.26);
+}
+
+.customerHeaderLogoutBtn::before {
+  content: "↪";
+  margin-right: 7px;
+}
+
+.customerHeaderLogoutBtn:hover {
+  background-color: var(--danger-dark);
+  border-color: var(--danger-dark);
+  transform: translateY(-1px);
+}
+
+/* ==========================================
+   社内・ドライバー用ヘッダー
+   header.html / header.css ベース
+   ========================================== */
+
+.staffSiteHeader {
+  width: 100%;
+  background-color: var(--header-dark-navy);
+  color: var(--header-text-white);
+  padding: 18px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid var(--header-border-color);
+}
+
+.staffHeaderLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.staffHeaderTitle {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.staffHeaderPageName {
+  font-size: 0.85rem;
+  color: var(--header-text-muted);
+}
+
+.staffHeader .staffHeaderPageName {
+  color: #bfdbfe;
+}
+
+.driverHeader .staffHeaderPageName {
+  color: #fde68a;
+}
+
+.staffHeaderNav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.staffHeaderUserName {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--header-text-white);
+  margin-right: 4px;
+}
+
+.staffHeaderLogoutBtn {
+  background-color: transparent;
+  color: var(--header-text-white);
+  border: 1px solid var(--header-border-color);
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.staffHeaderLogoutBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #ffffff;
+}
+
+/* ==========================================
+   レスポンシブ
+   ========================================== */
+
+@media (max-width: 1180px) {
+  .customerSiteHeader {
+    grid-template-columns: 340px 1fr;
+    height: auto;
+  }
+
+  .customerHeaderLogoArea {
+    width: 340px;
+    height: 112px;
+  }
+
+  .customerSiteLogo {
+    width: 93%;
+    max-height: 102px;
+  }
+
+  .customerHeaderTitleArea {
+    padding-left: 32px;
+  }
+
+  .customerHeaderNav {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    padding: 0 24px 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .staffSiteHeader {
+    padding: 18px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .staffHeaderNav {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .staffHeaderUserName {
+    width: 100%;
+  }
+
+  .staffHeaderLogoutBtn {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .customerSiteHeader {
+    grid-template-columns: 1fr;
+    padding-bottom: 16px;
+    position: static;
+  }
+
+  .customerHeaderLogoArea {
+    width: min(360px, 92vw);
+    height: 118px;
+    margin: 0 auto;
+    border-radius: 0 0 18px 18px;
+  }
+
+  .customerSiteLogo {
+    width: 94%;
+    max-height: 108px;
+  }
+
+  .customerHeaderTitleArea {
+    padding: 0 18px;
+    text-align: center;
+  }
+
+  .customerHeaderTitle {
+    font-size: 1.38rem;
+    white-space: normal;
+  }
+
+  .customerHeaderNav {
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0 16px;
+    gap: 10px;
+  }
+
+  .customerHeaderUserName {
+    width: 100%;
+    text-align: center;
+    margin-right: 0;
+  }
+
+  .customerHeaderLink,
+  .customerHeaderLogoutBtn {
+    min-height: 42px;
+    padding: 9px 15px;
+    font-size: 0.88rem;
+  }
+}
+
+/* ==========================================
+   ドライバー画面専用のヘッダー配色スタイル
+   （ミントグリーン背景 ＋ 濃い墨緑文字）
+   ========================================== */
+.staffSiteHeader.driverHeader {
+  background-color: #c2e7c8;
+  /* 💡 ドライバー画面のタイトル背景色と同じミントグリーン */
+  color: #204d4a;
+  /* 💡 最も美しく引き締まる濃い墨緑文字 */
+  border-bottom: 1px solid rgba(32, 77, 74, 0.15);
+  /* 下線も文字色に合わせて微調整 */
+}
+
+/* ドライバーヘッダー内のタイトルとテキストの色を墨緑色に統一 */
+.driverHeader .staffHeaderTitle,
+.driverHeader .staffHeaderUserName {
+  color: #204d4a;
+}
+
+/* ドライバーヘッダー用のログアウトボタン（線と文字色を自動反転） */
+.driverHeader .staffHeaderLogoutBtn {
+  color: #204d4a;
+  border-color: rgba(32, 77, 74, 0.35);
+}
+
+/* ドライバーヘッダー用のログアウトボタンのホバー効果 */
+.driverHeader .staffHeaderLogoutBtn:hover {
+  background-color: rgba(32, 77, 74, 0.08);
+  border-color: #204d4a;
+}
+
+/* ⭕ ドライバーヘッダー内の「配送一覧」の文字色をハッキリ見える濃い墨緑に変更 */
+.driverHeader .staffHeaderPageName {
+  color: #204d4a !important;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.customerHeaderLogoutBtn,
+.staffHeaderLogoutBtn {
+  font-family: inherit;
+  appearance: none;
+}

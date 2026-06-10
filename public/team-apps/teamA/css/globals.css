@@ -1,0 +1,148 @@
+/* ==========================================
+   globals.css
+   全画面共通設定
+   ========================================== */
+
+:root {
+  /* 顧客画面・商品系画面で使用 */
+  --gunjo: #06457f;
+  --gunjo-dark: #04315c;
+  --blue: #0d63a8;
+  --blue-soft: #eaf5ff;
+  --blue-pale: #f4faff;
+  --green: #2f9e44;
+  --green-dark: #237a35;
+  --green-soft: #e9f8ee;
+  --line: #d7e5f3;
+  --text: #11243d;
+  --muted: #62748a;
+  --white: #ffffff;
+  --danger: #e03131;
+  --danger-dark: #c92a2a;
+  --shadow: 0 12px 26px rgba(4, 49, 92, 0.13);
+  --shadow-soft: 0 6px 16px rgba(4, 49, 92, 0.1);
+
+  /* 社内管理画面共通 */
+  --main-blue: #1a629e;
+  --dark-navy: #112233;
+  --sub-green: #2e7d32;
+  --bg-white: #ffffff;
+  --bg-light: #f8fafc;
+  --bg-table-head: #f1f5f9;
+  --border-color: #e2e8f0;
+  --text-dark: #1e293b;
+  --text-muted: #64748b;
+  --danger-red: #ef4444;
+  --danger-red-dark: #b91c1c;
+
+  /* 商品管理 */
+  --food-main-blue: #1e3a8a;
+  --food-sub-green: #2e7d32;
+  --food-danger-red: #ef4444;
+  --food-danger-hover: #b91c1c;
+  --food-bg-light: #faf8f5;
+  --food-border-color: #cbd5e1;
+  --food-text-dark: #334155;
+  --food-text-muted: #64748b;
+
+  /* ドライバー管理 */
+  --driver-main-blue: #1e3a8a;
+  --driver-sub-green: #2e7d32;
+  --driver-danger-red: #ef4444;
+  --driver-danger-hover: #b91c1c;
+  --driver-bg-light: #faf8f5;
+  --driver-border-color: #cbd5e1;
+  --driver-text-dark: #334155;
+  --driver-text-muted: #64748b;
+
+  /* 社員管理 */
+  --employee-main-blue: #1e3a8a;
+  --employee-sub-green: #2e7d32;
+  --employee-danger-red: #ef4444;
+  --employee-danger-hover: #b91c1c;
+  --employee-bg-light: #faf8f5;
+  --employee-border-color: #cbd5e1;
+  --employee-text-dark: #334155;
+  --employee-text-muted: #64748b;
+
+  /* 社内・ドライバー用ヘッダー */
+  --header-main-blue: #1a629e;
+  --header-dark-navy: #112233;
+  --header-bg-dark: #1e293b;
+  --header-border-color: rgba(255, 255, 255, 0.18);
+  --header-text-white: #ffffff;
+  --header-text-muted: #94a3b8;
+  --header-sub-green: #2e7d32;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family:
+    "Helvetica Neue",
+    Arial,
+    "Hiragino Kaku Gothic ProN",
+    "Hiragino Sans",
+    Meiryo,
+    sans-serif;
+  color: var(--text);
+  background-color: #f4faff;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* 社内系ページで使い回す汎用コンテナ */
+.page-container {
+  width: min(1200px, calc(100% - 40px));
+  margin: 32px auto;
+}
+
+.page-title {
+  margin: 0 0 24px;
+  color: var(--gunjo-dark);
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+}

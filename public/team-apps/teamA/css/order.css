@@ -1,0 +1,1395 @@
+/* =========================
+   Base Layout
+========================= */
+
+.orderListPage,
+.orderDetailPage {
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: var(--text-dark);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-bottom: 120px;
+}
+
+/* =========================
+   Page Header
+========================= */
+
+.pageLead {
+  padding: 24px 40px 18px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pageTitle {
+  margin: 0;
+  color: var(--dark-navy);
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.orderCount {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+/* =========================
+   Search / Filter
+========================= */
+
+.searchFilterBox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 40px;
+  background-color: var(--bg-light);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.searchField {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  min-width: 300px;
+}
+
+.searchField input {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: #ffffff;
+  outline: none;
+}
+
+.searchField input:focus {
+  border-color: var(--main-blue);
+}
+
+.filterSelects {
+  display: flex;
+  gap: 12px;
+}
+
+/* =========================
+   Buttons
+========================= */
+
+.btnSearch,
+.btnReset,
+.btnApprove {
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s ease;
+  border: none;
+}
+
+.btnSearch {
+  background-color: var(--main-blue);
+  color: #fff;
+  padding: 10px 24px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+}
+
+.btnReset {
+  background-color: var(--text-muted);
+  color: #fff;
+  padding: 10px 24px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+}
+
+.btnReset:hover {
+  background-color: #475569;
+}
+
+/* 承認ボタン */
+.btnApprove,
+.btnApproveLink {
+  color: #fff;
+  padding: 8px 20px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border: none;
+  transition: 0.2s ease;
+}
+
+/* 💡 承認前（リンク）限定：しっかりボタン感を出す */
+.btnApproveLink {
+  background-color: var(--sub-green);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+/* 💡 承認前のみ：ホバーで浮き上がる演出 */
+.btnApproveLink:hover {
+  background-color: #1b5e20;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+/* 💡 承認前のみ：クリックした瞬間に凹む演出 */
+.btnApproveLink:active {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transform: translateY(1px);
+}
+
+.btnApprove:disabled {
+  background-color: #94a3b8;
+  cursor: default;
+}
+
+/* キャンセルボタン */
+.btnCanceled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 6px;
+  background: #fecaca;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  white-space: nowrap;
+}
+
+/* =========================
+   Tabs
+========================= */
+
+.statusTabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 40px;
+  background-color: #fff;
+  border-bottom: 2px solid var(--border-color);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.statusTabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tabItem {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 16px 20px;
+  font-weight: 700;
+  white-space: nowrap;
+  position: relative;
+  transition: 0.2s;
+}
+
+.tabItem:hover {
+  color: var(--text-dark);
+}
+
+.activeTab {
+  color: var(--main-blue);
+}
+
+.activeTab::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--main-blue);
+}
+
+.badge {
+  background-color: var(--danger-red);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
+}
+
+/* =========================
+   Table
+========================= */
+
+.tableWrapper {
+  padding: 20px 40px;
+  position: relative;
+  overflow-x: auto;
+  z-index: 1;
+}
+
+.tableWrapper:has(.tooltipTrigger:hover) {
+  overflow: visible !important;
+  z-index: 999 !important;
+}
+
+.orderTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orderTable th,
+.orderTable td {
+  padding: 16px 14px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.orderTable th {
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-table-head);
+  font-weight: 700;
+  z-index: 2;
+}
+
+.orderTable tbody tr:hover {
+  background-color: var(--bg-light);
+}
+
+/* 💡 カーソルを合わせた（ホバー）時のスタイル */
+.orderTable th:hover {
+  background-color: #e9ecef;
+  color: #0056b3;
+}
+
+/* 💡 クリックした（アクティブ）瞬間のスタイル */
+.orderTable th:active {
+  background-color: #dee2e6;
+}
+
+/* =========================
+   Order states
+========================= */
+
+.orderIdLink {
+  color: var(--main-blue);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.orderIdLink:hover {
+  text-decoration: underline;
+}
+
+.paymentDanger {
+  color: #dc2626 !important;
+  font-weight: 700 !important;
+}
+
+/* キャンセル行 */
+.isCanceled {
+  background-color: #fee2e2;
+  opacity: 1;
+}
+
+.isCanceled td,
+.isCanceled th {
+  border-left: none !important;
+}
+
+/* =========================
+   Flags / Tooltip
+========================= */
+
+.flagOn {
+  color: var(--main-blue);
+  background: #e0f2fe;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+
+.flagOnAllergy.tooltipTrigger {
+  color: #d64545;
+  background: #f8c9f4;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border-bottom: none;
+  box-shadow: 0 1px 2px rgba(249, 115, 22, 0.2);
+}
+
+.flagOff {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding-left: 10px;
+}
+
+/* 💡 基準位置の調整 */
+.tooltipTrigger {
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+}
+
+/* 💡 吹き出しを140%に上げて最前面（z-index: 10000）に固定 */
+.tooltipTrigger::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 140%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--dark-navy);
+  color: #fff;
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  min-width: 160px;
+  font-size: 0.75rem;
+  padding: 8px 12px;
+  z-index: 10000 !important;
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tooltipTrigger:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* =========================
+   Status badges
+========================= */
+
+.adminStatusBadge {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.statusUndelivered {
+  background-color: #6b7280;
+  color: #fff;
+}
+
+.statusShipping {
+  background-color: #1d4ed8;
+  color: #fff;
+}
+
+.statusDelivered {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  font-weight: 400;
+}
+
+.statusCanceled {
+  background-color: #fecaca;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* =========================
+   Select
+========================= */
+
+.inlineOrderSelect {
+  font-weight: 700;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+/* 「未」のときの文字色（赤） */
+.inlineOrderSelect.isDanger {
+  color: var(--danger-red);
+}
+
+/* 「済」のときの文字色（黒） */
+.inlineOrderSelect.isSuccess {
+  color: #333333;
+  /* または var(--text-main) */
+}
+
+/* プルダウンを開いたときの選択肢（option）はすべて黒字にする */
+.inlineOrderSelect option {
+  color: #333333;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 900px) {
+
+  .searchFilterBox,
+  .tableWrapper,
+  .pageLead {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .statusTabs {
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 16px;
+    gap: 4px;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@media (max-width: 760px) {
+  .filterSelects {
+    width: 100%;
+  }
+
+  .btnSearch,
+  .btnReset {
+    flex: 1;
+  }
+}
+
+.unassignedDanger {
+  color: #dc2626 !important;
+  font-weight: 700;
+}
+
+.statusCanceled {
+  background-color: #fee2e2;
+  /* 薄い赤 */
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* =========================
+   Unassigned（未割当）
+========================= */
+.unassignedDanger {
+  color: #dc2626 !important;
+  font-weight: 700 !important;
+}
+
+/* =========================
+   Cancel status（統一版）
+========================= */
+.statusCanceled {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* 既存と重複してるので上書き統一 */
+.btnCanceled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 6px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  white-space: nowrap;
+}
+
+/* =========================
+   FIX: avoid duplicate override issues
+========================= */
+
+/* adminStatusBadgeの最低高さ保証 */
+.adminStatusBadge {
+  min-height: 28px;
+}
+
+/* paymentDangerは統一 */
+.paymentDanger {
+  color: #dc2626 !important;
+  font-weight: 700 !important;
+}
+
+/* ==========================================
+   注文詳細専用：レイアウト & テーブル
+   ========================================== */
+.detailContainer {
+  padding: 20px 40px 0 40px;
+}
+
+.innerSectionTitle {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--dark-navy);
+  margin: 28px 0 12px 0;
+  padding-left: 8px;
+  border-left: 4px solid var(--main-blue);
+  line-height: 1.2;
+}
+
+.detailInfoTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.detailInfoTable th {
+  width: 15%;
+  background-color: var(--bg-table-head);
+  color: var(--dark-navy);
+  text-align: left;
+  padding: 11px 16px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+}
+
+.detailInfoTable td {
+  width: 35%;
+  padding: 11px 16px;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+}
+
+.detailInfoTable tr:last-child th,
+.detailInfoTable tr:last-child td {
+  border-bottom: none;
+}
+
+.detailInfoTable td[colspan="3"] {
+  width: 85%;
+}
+
+.detailInfoTable td[colspan="3"] .detailEditableInput {
+  width: 100%;
+  display: block;
+}
+
+/* ==========================================
+   入力フォーム & モード切り替え
+   ========================================== */
+.detailEditableInput {
+  width: 80%;
+  max-width: 300px;
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.detailTextarea {
+  width: 100%;
+  /* 💡 追加：横幅を右端いっぱいに広げる */
+  max-width: 100%;
+  /* 💡 追加：300pxの制限を解除する */
+  min-height: 64px;
+  height: auto;
+  resize: vertical;
+  line-height: 1.5;
+  padding: 8px 12px;
+}
+
+.detailEditableInput:disabled {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  color: var(--text-dark) !important;
+  padding: 0 !important;
+  cursor: default;
+  appearance: none;
+  -webkit-appearance: none;
+  resize: none;
+}
+
+.detailEditableInput:not(:disabled):focus {
+  border-color: var(--main-blue);
+  box-shadow: 0 0 0 2px rgba(26, 98, 158, 0.1);
+}
+
+select.detailEditableInput:disabled {
+  opacity: 1;
+}
+
+/* ==========================================
+   バッジ・タグ・特殊状態
+   ========================================== */
+.statusRouteBadge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-align: center;
+  color: #ffffff;
+}
+
+.statusRouteUndelivered {
+  background-color: var(--danger-red);
+}
+
+.paymentDanger {
+  color: var(--danger-red) !important;
+  font-weight: bold !important;
+}
+
+.allergyTagsContainer {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.allergyTagItem {
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 3px 10px;
+  border-radius: 4px;
+  display: inline-block;
+  line-height: 1.4;
+}
+
+.tagGreen {
+  color: #1e293b;
+  background-color: #bbf7d0;
+}
+
+.tagBlue {
+  color: #0369a1;
+  background-color: #e0f2fe;
+}
+
+/* ==========================================
+   商品内訳テーブル・合計金額
+   ========================================= */
+.tableWrapperInDetail {
+  padding: 20px 40px;
+  overflow-x: auto;
+}
+
+.totalAmountBox {
+  text-align: right;
+  padding: 24px 40px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--main-blue);
+  background-color: var(--bg-light);
+  border-bottom: 1px solid var(--border-color);
+  margin: 0 40px;
+}
+
+/* ==========================================
+   下部アクションボタン・ナビゲーション
+   ========================================== */
+.orderDetailPage .submitActionBox {
+  padding: 30px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-white);
+  gap: 16px;
+}
+
+.orderDetailPage .btnDanger,
+.orderDetailPage .btnBack,
+.orderDetailPage .btnSubmit,
+.orderDetailPage .btnSubmitSave {
+  width: auto;
+  max-width: none;
+  padding: 0;
+  margin: 0;
+}
+
+.orderDetailPage .btnDanger {
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  order: 1;
+}
+
+.orderDetailPage .btnDanger:hover {
+  background-color: #fef2f2;
+  color: var(--danger-red);
+  border-color: #fca5a5;
+}
+
+.orderDetailPage .btnBack {
+  background-color: var(--bg-table-head);
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+  padding: 12px 28px;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  order: 2;
+  margin-left: auto;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.orderDetailPage .btnBack:hover {
+  background-color: #e2e8f0;
+}
+
+.orderDetailPage .btnSubmit,
+.orderDetailPage .btnSubmitSave {
+  color: #ffffff;
+  border: none;
+  padding: 16px 48px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 6px;
+  order: 3;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.orderDetailPage .btnSubmit {
+  background-color: var(--sub-green);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+}
+
+.orderDetailPage .btnSubmit:hover {
+  background-color: #1b5e20;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.3);
+}
+
+.orderDetailPage .btnSubmitSave {
+  background-color: var(--main-blue);
+  box-shadow: 0 4px 12px rgba(26, 98, 158, 0.2);
+}
+
+.orderDetailPage .btnSubmitSave:hover {
+  background-color: #124d7c;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(26, 98, 158, 0.3);
+}
+
+.orderDetailNavBox {
+  margin: 0 40px;
+  padding: 14px 0 30px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btnNavPrev,
+.btnNavNext {
+  padding: 12px 24px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btnNavPrev {
+  background-color: var(--text-muted);
+  color: #ffffff;
+}
+
+.btnNavPrev:hover {
+  background-color: #475569;
+}
+
+.btnNavNext {
+  background-color: var(--sub-green);
+  color: #ffffff;
+}
+
+.btnNavNext:hover {
+  background-color: #1b5e20;
+}
+
+/* ==========================================
+   トースター通知（自動で消えるメッセージ）
+   ========================================== */
+.toastNotification {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  background-color: rgba(36, 153, 115, 0.92);
+  /* 少し透けたエメラルドグリーン */
+  backdrop-filter: blur(4px);
+  /* 背景のボカシ効果 */
+  -webkit-backdrop-filter: blur(4px);
+  /* Safari対応 */
+  color: #ffffff;
+  padding: 14px 28px;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(24, 107, 80, 0.2);
+  z-index: 9999;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+
+  /* 💡 追記：上からふわっと出現するアニメーションを1行足します */
+  animation: toastFadeInTop 0.3s ease-out;
+}
+
+/* 💡 追記：上から下に少し動きながら現れるアニメーションの定義 */
+@keyframes toastFadeInTop {
+  from {
+    transform: translateY(-15px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ==========================================
+   注文一覧テーブルのレイアウト崩れ・情報追加対策
+   ========================================== */
+
+/* 注文IDの列：幅を固定して絶対に改行させない */
+.orderIdTd {
+  min-width: 140px;
+  white-space: nowrap;
+  vertical-align: top;
+  /* 複数行になっても上揃えで見やすくする */
+}
+
+/* IDの下に表示するサブ情報の文字スタイル */
+.orderSubInfo {
+  font-size: 0.8rem;
+  color: #666666;
+  margin-top: 4px;
+}
+
+/* 商品名の列：長文になってもIDを押し潰さず、枠内で自動折り返し */
+.productNameTd {
+  max-width: 280px;
+  word-break: break-all;
+  white-space: normal;
+}
+
+/* ==========================================
+   複数商品の個別縦並びレイアウト調整
+   ========================================== */
+
+/* 注文IDの列：幅を固定して改行を防止 */
+.orderIdTd {
+  min-width: 130px;
+  white-space: nowrap;
+  vertical-align: top;
+  /* 複数商品になってもIDは一番上に固定 */
+}
+
+/* 商品名と注文数の共通リストアイテム：高さを揃えて文字のズレを防ぐ */
+.productListItem,
+.quantityListItem {
+  line-height: 1.5;
+  padding: 2px 0;
+}
+
+/* 注文数のテキストは右寄せ（または中央）にすると見やすいです */
+.quantityListTd {
+  text-align: center;
+  vertical-align: top;
+}
+
+.productNameListTd {
+  vertical-align: top;
+}
+
+/* ==========================================
+   タブの右横に表示件数を並べるスタイル
+   ========================================== */
+
+/* 既存の .statusTabs クラスに flex の横並びと、右端への配置ルールを適用します */
+.statusTabs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  /* 画面が狭いときは自動で折り返すようにして崩れを防止 */
+  width: 100%;
+}
+
+/* 右端に寄せるためのインラインコンテナ */
+.tableControlsInline {
+  margin-left: auto;
+  /* 💡 これで自動的に一番右側へ押し出されます */
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.9rem;
+  padding-bottom: 8px;
+  /* タブのアンダーライン等と高さを合わせる微調整 */
+}
+
+.pageSizeSelector select {
+  padding: 4px 24px 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color, #ccc);
+  background-color: #ffffff;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.pageSummary {
+  color: #666666;
+  white-space: nowrap;
+}
+
+.pageSummary strong {
+  color: var(--main-blue, #0070f3);
+}
+
+/* ==========================================
+   テーブル下部のページ遷移（ページネーション）
+   ========================================== */
+
+/* ボタン全体を中央寄セにして余白を確保 */
+.paginationButtons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+/* 「前へ」「次へ」および数字ボタンの共通基本スタイル */
+.pageNavBtn,
+.pageNumberBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-dark, #333333);
+  background-color: #ffffff;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+/* マウスを乗せたときのふわっとしたホバー効果（現在ページと非活性ボタン以外） */
+.pageNavBtn:hover:not(:disabled),
+.pageNumberBtn:hover:not(.activePage) {
+  color: var(--main-blue, #0070f3);
+  border-color: var(--main-blue, #0070f3);
+  background-color: #f0f7ff;
+}
+
+/* 「前へ」「次へ」がこれ以上押せないときのロック状態 */
+.pageNavBtn:disabled {
+  color: #cccccc;
+  background-color: #f5f5f5;
+  border-color: #e0e0e0;
+  cursor: default;
+}
+
+/* 現在表示しているページ番号（アクティブ状態）のデザイン */
+.activePage {
+  color: #ffffff !important;
+  background-color: var(--main-blue, #0070f3) !important;
+  border-color: var(--main-blue, #0070f3) !important;
+  font-weight: 700;
+  cursor: default;
+}
+
+/* ==========================================
+   キャンセル確認画面：確定ボタンの強調スタイル
+   ========================================== */
+
+/* 既存の赤ボタンデザインをベースに、サイズと太さだけをアップ */
+.btnDangerFocus {
+  composes: btnDanger;
+  /* 💡 チーム共通の赤ボタンデザインを100%継承 */
+  padding: 10px 28px !important;
+  /* 縦と横の余白を広げて一回り大きく */
+  font-size: 1.05rem !important;
+  /* 文字を少しだけ大きく */
+  font-weight: 700 !important;
+  /* 文字を太字にして目立たせる */
+  cursor: pointer;
+}
+
+
+/* ⭕ ツールチップを表示するバッジ（親要素）の重ね合わせ順位を引き上げます */
+.tooltipTrigger {
+  position: relative;
+  /* 💡 z-indexを有効にするために必須の指定です */
+  z-index: 10;
+  /* ホバー時に他の行よりも上に乗るようにします */
+}
+
+/* ⭕ ツールチップ本体がタブやヘッダーを飛び越えて最前面に出るようにします */
+.flagOn[data-tooltip]::after,
+.tooltipTrigger[data-tooltip]::after,
+[data-tooltip]::after {
+  /* 💡 z-indexを最大級の数値（9999）に設定し、タブの下に潜り込むのを100%防ぎます */
+  z-index: 9999 !important;
+}
+
+/* 💡 （参考）もしタブエリア自体に高い z-index が付いている場合は低く抑えます */
+.statusTabs {
+  position: relative;
+  z-index: 1;
+  /* ツールチップ（9999）よりも大幅に低い数値に設定 */
+}
+
+/* 💡 注文商品内訳テーブルの文字折り返し ＆ ゆとりある上下余白の制御 */
+
+/* 1. 【改善】th と td の上下余白を 16px に広げて、前と同じゆとりを復活 */
+.orderTable th,
+.orderTable td {
+  padding: 16px 14px !important;
+  /* 👈 上下 16px、左右 14px の広めの余白 */
+  vertical-align: middle;
+  text-align: center;
+  white-space: nowrap;
+  /* 商品名以外は1行で綺麗に収める */
+}
+
+/* 2. 「商品名」が表示される列だけは自動改行させ、左寄せで美しく見せる */
+.orderTable td:nth-child(2) {
+  white-space: normal !important;
+  text-align: left;
+  min-width: 200px;
+}
+
+/* 3. 商品ID、単価、個数、小計の列は、1行に固定して数字の縦ラインをピシッと揃える */
+.orderTable td:nth-child(1),
+.orderTable td:nth-child(3),
+.orderTable td:nth-child(4),
+.orderTable td:nth-child(5) {
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* 🔴 アレルギーバッジの大きい版：角丸で、さりげない赤背景に濃い赤文字のスタイル */
+.canceledBigTagItem {
+  display: inline-block;
+  /* 文字の長さに合わせて自動で縮む */
+  background-color: #fecaca !important;
+  /* アレルギーの赤版（淡いパステルレッド） */
+  color: #991b1b !important;
+  /* 読みやすい濃い赤文字 */
+  font-weight: 900 !important;
+  /* 極太文字 */
+  font-size: 1.05rem !important;
+  /* アレルギーのタグより一回り大きいサイズ */
+  padding: 8px 18px !important;
+  /* 上下にゆとり、左右に広めの綺麗なタグ余白 */
+  border-radius: 6px;
+  /* アレルギーのタグ（tagGreen等）と同じ優しい角丸 */
+  border: 1px solid #fca5a5;
+  /* さりげない細い赤枠線で輪郭をシャープに */
+  margin-bottom: 18px;
+  /* 下のテーブルとの間に適切なゆとりを作る */
+  letter-spacing: 0.05em;
+}
+
+/* =========================================================================
+   注文詳細画面：アレルギー・嫌いな食品のアコーディオン選択UI用
+   ========================================================================= */
+
+/* 見出しをわかりやすくリンク風（青文字＋下線）にする装飾 */
+.accordionLinkHeader {
+  color: #0070f3;
+  text-decoration: underline;
+  cursor: pointer;
+  user-select: none;
+  display: inline-block;
+  transition: color 0.2s ease;
+}
+
+.accordionLinkHeader:hover {
+  color: #00449e;
+}
+
+/* アコーディオンが開いている時の見出し強調 */
+.accordionLinkHeader.isOpen {
+  font-weight: bold;
+}
+
+/* アコーディオンの中身（タグエリアの下に展開する枠） */
+.accordionBody {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px dashed #eee;
+  width: 100%;
+}
+
+/* チェックボックスを綺麗な3列に並べるスクロール付きグリッド */
+.checkboxGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: #fafafa;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* スクロールバーをスマートに見せるカスタマイズ */
+.checkboxGrid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.checkboxGrid::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.checkboxGrid::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.checkboxGrid::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* 各チェックボックスを囲うラベル（ホバー時に背景変化） */
+.checkboxGrid label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.1s ease;
+}
+
+.checkboxGrid label:hover {
+  background-color: #eef5fe;
+}
+
+/* チェックボックス自体のサイズと操作感 */
+.checkboxGrid input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* 確定して閉じるボタンの装飾 */
+.btnAccordionClose {
+  margin-top: 8px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  background-color: #0070f3;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btnAccordionClose:hover {
+  background-color: #0056b3;
+}
+
+/* データが1件もない時の「なし」という文字の装飾 */
+.noDataText {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* =========================================================================
+   💡 新規追加：注文詳細画面：変更確認リッチモーダル用（レイヤーバグ完全解決版）
+   ========================================================================= */
+
+/* 画面全体を覆う暗い背景レイヤー（表示されている時だけアクティブになります） */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* 中央に白く浮かび上がる確認モーダルの本体ボックス */
+.modalBox {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 500px;
+  max-width: 90%;
+  text-align: center;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* モーダルのタイトル・説明文 */
+.modalTitle {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.modalText {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+/* 差分を格納する内枠コンテナ */
+.modalDiffContainer {
+  margin: 16px 0;
+  padding: 14px;
+  background-color: #f9f9f9;
+  border: 1px solid #eaeaea;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+/* 各項目の変更差分行 */
+.modalDiffLine {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.modalDiffLine:last-child {
+  margin-bottom: 0;
+}
+
+/* 変更前の古いデータ（打ち消し線） */
+.modalDiffLine span {
+  color: #888;
+  text-decoration: line-through;
+  margin-right: 4px;
+}
+
+/* 変更後の新しい本命データ（太字の青ハイライト） */
+.modalDiffLine strong {
+  color: #0070f3;
+  font-weight: bold;
+  background-color: #e6f0fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
+
+/* ボタンを横並びに配置するエリア */
+.modalActions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+/* モーダルのボタン共通の基本スタイル */
+.modalActions button {
+  padding: 10px 24px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+/* 1. 「戻る」ボタンの装飾（グレーの落ち着いたデザイン） */
+.btnCancel {
+  background-color: #e0e0e0;
+  color: #333333;
+}
+
+.btnCancel:hover {
+  background-color: #d5d5d5;
+}
+
+/* 2. 「この内容で確定する」ボタンの装飾（鮮やかな青色の本命デザイン） */
+.btnSave {
+  background-color: #0070f3;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 112, 243, 0.2);
+}
+
+.btnSave:hover {
+  background-color: #0056b3;
+  box-shadow: 0 4px 8px rgba(0, 112, 243, 0.3);
+}
+
+/* 💡 アレルギーより目立たない、薄いグレー背景にダークグレー文字のスタイル */
+.tagGray {
+  background-color: #f0f0f0 !important;
+  color: #666666 !important;
+  border: 1px solid #d9d9d9 !important;
+}

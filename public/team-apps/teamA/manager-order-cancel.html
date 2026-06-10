@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注文キャンセルの最終確認 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/order.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+</head>
+
+<body>
+  <div class="orderDetailPage">
+    <div id="appHeader"></div>
+    <main class="container">
+      <div id="cancelRoot"></div>
+    </main>
+    <div id="managerFooter"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = (s) => TeamAUI.esc(s);
+    const params = new URLSearchParams(location.search);
+    const id = Number(params.get("id"));
+
+    function render() {
+      const root = document.getElementById("cancelRoot");
+      const o = TeamA.orderById(id);
+      const v = o ? TeamA.orderView(o) : null;
+      const orderNo = v ? v.orderNo : (params.get("id") || "");
+      const orderType = o ? (o.orderType === "regular" ? "定期注文" : "通常注文") : "通常注文";
+      const routeLabel = o ? (o.orderRoute === "phone" ? "電話注文" : o.orderRoute === "line" ? "LINE注文" : o.orderRoute === "web" ? "Web注文" : o.orderRoute) : "";
+      const items = v ? v.items : [];
+
+      root.innerHTML = `
+        <div class="detailContainer">
+          <div style="padding:16px;background-color:#fff5f5;border-radius:4px;border:1px solid #ffcccc;margin-bottom:20px;text-align:center">
+            <h2 style="color:#dc3545;font-size:1.2rem;margin:0 0 4px 0;font-weight:700">本当にこの注文をキャンセルしますか？</h2>
+            <p style="margin:0;font-size:0.9rem;color:#666">※一度確定すると、この注文の変更や承認は一切できなくなります。</p>
+          </div>
+
+          <table class="detailInfoTable adminDetailTable">
+            <tbody>
+              <tr>
+                <th>注文ID</th>
+                <td class="paymentDanger">${esc(orderNo)}</td>
+                <th>注文情報</th>
+                <td>${esc(orderType)}</td>
+              </tr>
+              <tr>
+                <th>注文日時</th>
+                <td>${esc(o ? o.orderDatetime : "")}</td>
+                <th>注文経路</th>
+                <td>${esc(routeLabel)}</td>
+              </tr>
+              <tr>
+                <th>注文者</th>
+                <td>${esc(v ? v.customerName : "")} 様</td>
+                <th>配送日</th>
+                <td>${esc(v ? v.deliveryDate : "")}</td>
+              </tr>
+              <tr>
+                <th>注文商品</th>
+                <td colspan="3">
+                  <div style="line-height:1.6">
+                    ${items.length > 0
+                      ? items.map((it) => `<div>・${esc(it.productName)} (${it.quantity}個)</div>`).join("")
+                      : `<div>商品内訳データがありません</div>`}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="submitActionBox">
+            <button type="button" class="btnBack" id="backBtn">詳細に戻る</button>
+            <div style="flex-grow:1"></div>
+            <button type="button" class="btnDangerFocus" id="cancelBtn">キャンセルを確定する</button>
+          </div>
+        </div>`;
+
+      document.getElementById("backBtn").addEventListener("click", () => history.back());
+      document.getElementById("cancelBtn").addEventListener("click", () => {
+        TeamA.cancelOrder(id);
+        alert("注文をキャンセルしました。");
+        location.href = "./manager-orders.html";
+      });
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"], "manager-order-cancel.html")) return;
+      TeamAUI.renderHeader("staff", "注文キャンセルの最終確認");
+      TeamAUI.renderManagerFooter();
+      render();
+    });
+  </script>
+</body>
+
+</html>

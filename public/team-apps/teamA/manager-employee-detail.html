@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>社員情報変更 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/employee.css">
+  <style>
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: white; padding: 24px; border-radius: 8px; width: 320px; text-align: center; }
+    .modal-box h3 { margin-bottom: 12px; font-size: 18px; }
+    .modal-box p { margin-bottom: 20px; color: #4a5568; }
+    .modal-actions { display: flex; justify-content: space-around; }
+    .btn-cancel { background: #e2e8f0; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+    .btn-ok { background: #3182ce; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+  </style>
+</head>
+
+<body>
+  <div class="employeeDetailPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageTitle">
+        <div>つばさ配送サービス 業務管理システム</div>
+        <div class="orderCount">社員情報変更</div>
+      </section>
+
+      <section class="formBox">
+        <div class="formGroup">
+          <label for="emp-id">社員ID</label>
+          <input type="text" id="emp-id" readonly style="background-color:#edf2f7;">
+        </div>
+
+        <div class="formGroup">
+          <label for="emp-name">社員名</label>
+          <input type="text" id="emp-name">
+        </div>
+
+        <div class="formGroup">
+          <label for="emp-current-password">現在のパスワード</label>
+          <input type="password" id="emp-current-password" placeholder="変更する場合のみ入力">
+        </div>
+
+        <div class="formGroup">
+          <label for="emp-password">新しいパスワード</label>
+          <input type="password" id="emp-password" placeholder="変更する場合のみ8文字以上で入力">
+        </div>
+
+        <div class="formGroup">
+          <label for="emp-role">役職</label>
+          <select id="emp-role">
+            <option value="">選択してください</option>
+            <option value="システム管理者">システム管理者</option>
+            <option value="事務スタッフ">事務スタッフ</option>
+            <option value="配送ドライバー">配送ドライバー</option>
+          </select>
+        </div>
+
+        <div class="formGroup">
+          <label for="emp-phone">電話番号</label>
+          <input type="tel" id="emp-phone">
+        </div>
+
+        <div class="formGroup">
+          <label for="emp-birth">誕生日</label>
+          <input type="date" id="emp-birth">
+        </div>
+
+        <div class="submitActionBox">
+          <a href="./manager-employees.html" class="btnBack">一覧に戻る</a>
+          <button type="button" id="btnConfirm" class="btnSubmit">変更を保存する</button>
+        </div>
+      </section>
+    </main>
+
+    <div id="modal" class="modal-overlay" style="display:none;">
+      <div class="modal-box">
+        <h3>変更確認</h3>
+        <p>この内容で変更してもよろしいですか？</p>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="btnCancel">キャンセル</button>
+          <button class="btn-ok" id="btnOk">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="managerFooter"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"])) return;
+      TeamAUI.renderHeader("staff", "社員情報変更");
+      TeamAUI.renderManagerFooter();
+
+      const modal = document.getElementById("modal");
+      function val(id) { return document.getElementById(id).value; }
+
+      const id = Number(new URLSearchParams(location.search).get("id"));
+      const e = TeamA.employeeById(id);
+      if (e) {
+        document.getElementById("emp-id").value = e.employeeCode || "";
+        document.getElementById("emp-name").value = e.employeeName || "";
+        document.getElementById("emp-role").value = e.role || "";
+        document.getElementById("emp-phone").value = e.phone || "";
+        document.getElementById("emp-birth").value = e.birthDate || "";
+      }
+
+      document.getElementById("btnConfirm").addEventListener("click", () => {
+        modal.style.display = "flex";
+      });
+      document.getElementById("btnCancel").addEventListener("click", () => {
+        modal.style.display = "none";
+      });
+      document.getElementById("btnOk").addEventListener("click", () => {
+        const upd = {
+          employeeName: val("emp-name"),
+          role: val("emp-role"),
+          phone: val("emp-phone"),
+          birthDate: val("emp-birth"),
+        };
+        const newPass = val("emp-password").trim();
+        if (newPass !== "") upd.passwordHash = newPass;
+        TeamA.updateEmployee(id, upd);
+        modal.style.display = "none";
+        location.href = "./manager-employee-complete.html?mode=update";
+      });
+    });
+  </script>
+</body>
+
+</html>

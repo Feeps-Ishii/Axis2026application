@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>購入手続き | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/item.css">
+</head>
+
+<body>
+  <div class="buyPage">
+    <div class="fixedBottomBg" aria-hidden="true"></div>
+    <div id="appHeader"></div>
+
+    <div class="itemContainer">
+      <section class="itemPageHeading">
+        <span class="itemWelcome">購入内容と配送要望を確認</span>
+        <h2 class="itemMainTitle">購入手続き</h2>
+        <p class="itemMainSubtitle">購入内容・定期配送設定・決済方法を確認してください</p>
+      </section>
+
+      <section class="buySection" id="errorSection" style="display:none;">
+        <p class="buyCautionText" id="errorText"></p>
+      </section>
+
+      <div id="buyContent"></div>
+    </div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = (s) => TeamAUI.esc(s);
+    let cid = null, items = [], checkout = null;
+    let paymentMethod = "cod", deliveryType = "one_time", showNewCard = false;
+
+    function minDeliveryDate() {
+      const [y, m, d] = TeamA.today().split("-").map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d + 5));
+      return dt.toISOString().slice(0, 10);
+    }
+    function setError(msg) {
+      const sec = document.getElementById("errorSection");
+      if (msg) { document.getElementById("errorText").textContent = msg; sec.style.display = ""; }
+      else sec.style.display = "none";
+    }
+    function render() {
+      const total = items.reduce((s, it) => s + it.unitPrice * it.quantity, 0);
+      const allergenNames = TeamA.customerAllergenNames(cid);
+      const dislikedNames = TeamA.customerDislikedNames(cid);
+      const reqText = [checkout.defaultLeaveAtDoorFlag ? "置き配希望" : "", checkout.defaultFrozenFlag ? "冷凍便希望" : ""].filter(Boolean).join("、") || "通常配送";
+      const codDisabled = checkout.defaultLeaveAtDoorFlag ? "disabled" : "";
+      document.getElementById("buyContent").innerHTML = `
+        <section class="buySection">
+          <div class="buySectionHeader"><h2 class="buySectionTitle">購入する商品の一覧</h2><span class="buySectionSubtext">カート内の商品を確認してください</span></div>
+          <div class="buyTableWrap"><table class="buyTable">
+            <thead><tr><th>商品ID</th><th>商品写真</th><th>商品名</th><th>個数</th><th>小計</th></tr></thead>
+            <tbody>${items.map((it) => {
+              const p = it.product || {};
+              return `<tr><td>${it.productId}</td><td><img src="${TeamA.img(p.imagePath)}" alt="${esc(p.productName)}" class="buyItemImage" onerror="this.src='./images/no_image.png'"></td><td>${esc(p.productName)}</td><td>${it.quantity}</td><td class="buyPriceText">¥${(it.unitPrice * it.quantity).toLocaleString()}</td></tr>`;
+            }).join("")}</tbody>
+          </table></div>
+        </section>
+        <section class="buyTotalBox"><span class="buyTotalLabel">合計金額</span><span class="buyTotalPrice">¥${total.toLocaleString()}</span></section>
+
+        <section class="buySection">
+          <div class="buySectionHeader"><h2 class="buySectionTitle">定期配送設定</h2><span class="buySectionSubtext">配送方法と配送サイクルを選択してください</span></div>
+          <div class="buyRegularCard">
+            <div class="buyRegularType">
+              <label class="buyRadioLabel"><input type="radio" name="deliveryType" value="one_time" checked> 今回のみ購入</label>
+              <label class="buyRadioLabel"><input type="radio" name="deliveryType" value="regular"> 定期配送にする</label>
+            </div>
+            <div class="buyRegularGrid">
+              <div class="buyRegularFormGroup"><label for="deliveryCycle">配送サイクル</label><select id="deliveryCycle" class="buySelect" disabled><option value="weekly">毎週</option><option value="biweekly">隔週</option><option value="monthly">月1回</option></select></div>
+              <div class="buyRegularFormGroup"><label for="firstDeliveryDate">初回配送日</label><input type="date" id="firstDeliveryDate" min="${minDeliveryDate()}" value="${minDeliveryDate()}"></div>
+              <div class="buyRegularFormGroup"><label for="deliveryDay">希望配送曜日</label><select id="deliveryDay" class="buySelect" disabled><option value="火">火曜日</option><option value="水">水曜日</option><option value="金">金曜日</option><option value="土">土曜日</option></select></div>
+              <div class="buyRegularFormGroup"><label for="regularAmount">配送数量</label><select id="regularAmount" class="buySelect" disabled><option value="same">今回と同じ数量</option><option value="small">少なめ</option><option value="large">多め</option></select></div>
+            </div>
+            <div class="buyRegularStopBox">
+              <label class="buyCheckLabel"><input type="checkbox" id="pauseFlag" disabled> 休止期間を設定する</label>
+              <div class="buyRegularStopDates"><input type="date" id="pauseStart" disabled><span>〜</span><input type="date" id="pauseEnd" disabled></div>
+            </div>
+            <p class="buyCautionText">※ 定期配送の変更・休止は、次回配送日の3日前まで変更できます。</p>
+          </div>
+        </section>
+
+        <section class="buySection">
+          <div class="buySectionHeader"><h2 class="buySectionTitle">個別の要望</h2><span class="buySectionSubtext">マイページのデフォルト設定を反映しています</span></div>
+          <div class="buyRequestCard">
+            <div class="buyRequestRow"><span class="buyRequestLabel">アレルギー情報</span><span class="buyRequestValue">${allergenNames.length ? esc(allergenNames.join("、")) : "なし"}</span></div>
+            <div class="buyRequestRow"><span class="buyRequestLabel">苦手な食材</span><span class="buyRequestValue">${dislikedNames.length ? esc(dislikedNames.join("、")) : "なし"}</span></div>
+            <div class="buyRequestRow"><span class="buyRequestLabel">配送指示</span><span class="buyRequestValue">${esc(reqText)}</span></div>
+            <div class="buyRequestEdit"><label for="requestText">今回の注文に関する要望</label><textarea id="requestText" class="buyTextarea" placeholder="今回の注文に関する要望を入力してください">${esc(checkout.defaultDeliveryInstruction && checkout.defaultDeliveryInstruction !== "設定なし" ? checkout.defaultDeliveryInstruction : "")}</textarea></div>
+          </div>
+        </section>
+
+        <section class="buySection">
+          <div class="buySectionHeader"><h2 class="buySectionTitle">決済選択</h2><span class="buySectionSubtext">支払方法を選択してください</span></div>
+          <div class="buyPaymentBox">
+            <label class="buyRadioLabel"><input type="radio" name="payment" value="cod" ${codDisabled}> 代引き</label>
+            <label class="buyRadioLabel"><input type="radio" name="payment" value="credit"> クレジットカード</label>
+            <label class="buyRadioLabel"><input type="radio" name="payment" value="paypay"> PayPay</label>
+          </div>
+          <div id="payDetail"></div>
+        </section>
+
+        <div class="buyActionBox">
+          <a href="./customer-item-list.html" class="buyBackBtn">商品一覧へ戻る</a>
+          <a href="./customer-item-cart.html" class="buyBackBtn">カートへ戻る</a>
+          <button type="button" class="buyConfirmBtn" id="confirmBtn">購入確認</button>
+        </div>`;
+
+      // 既定支払
+      paymentMethod = checkout.defaultPaymentMethod || "cod";
+      if (paymentMethod === "cod" && checkout.defaultLeaveAtDoorFlag) paymentMethod = "credit";
+      document.querySelector(`input[name="payment"][value="${paymentMethod}"]`).checked = true;
+      renderPayDetail();
+      wire();
+    }
+    function renderPayDetail() {
+      const box = document.getElementById("payDetail");
+      if (paymentMethod === "credit") {
+        const card = checkout.creditCardValidFlag && checkout.cardLast4
+          ? `<p class="registeredCardNumber">カード番号：**** **** **** ${esc(checkout.cardLast4)}</p>`
+          : `<p class="registeredCardNumber">登録済みカードはありません</p>`;
+        box.innerHTML = `<div class="paymentDetailBox">
+          <div class="registeredCardBox"><div><span class="paymentDetailLabel">登録済みカード</span>${card}</div>
+          <button type="button" class="btnNewCard" id="newCardBtn">新しいカードを登録する</button></div>
+          <div id="newCardForm" class="newCardForm" style="display:${showNewCard ? "" : "none"};">
+            <h3 class="paymentDetailTitle">カード情報登録</h3>
+            <div class="cardFormGrid">
+              <div class="buyRegularFormGroup"><label for="cardNumber">カード番号</label><input type="text" id="cardNumber" placeholder="例：1234 5678 9012 3456"></div>
+              <div class="buyRegularFormGroup"><label for="cardName">カード名義</label><input type="text" id="cardName" placeholder="例：TARO YAMADA"></div>
+              <div class="buyRegularFormGroup"><label for="cardLimit">有効期限</label><input type="text" id="cardLimit" placeholder="例：12/30"></div>
+              <div class="buyRegularFormGroup"><label for="securityCode">セキュリティコード</label><input type="password" id="securityCode" placeholder="例：123"></div>
+            </div></div>
+          <p class="buyHelpText">※ 登録済みカードを使う場合は、そのまま購入確認へ進んでください。</p></div>`;
+        const nb = document.getElementById("newCardBtn"); if (nb) nb.onclick = () => { showNewCard = true; document.getElementById("newCardForm").style.display = ""; };
+      } else if (paymentMethod === "paypay") {
+        box.innerHTML = `<div class="paymentDetailBox"><h3 class="paymentDetailTitle">PayPayで支払う</h3><p class="buyHelpText">購入確認後、PayPay決済画面へ進みます。</p></div>`;
+      } else {
+        box.innerHTML = `<div class="paymentDetailBox"><h3 class="paymentDetailTitle">代引きで支払う</h3><p class="buyHelpText">商品のお届け時に配達員へ代金をお支払いください。</p><p class="buyCautionText">※ 置き配を希望している場合、代引きは選択できません。</p></div>`;
+      }
+    }
+    function wire() {
+      document.querySelectorAll('input[name="deliveryType"]').forEach((r) => r.addEventListener("change", () => {
+        deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
+        const reg = deliveryType === "regular";
+        ["deliveryCycle", "deliveryDay", "regularAmount", "pauseFlag"].forEach((id) => document.getElementById(id).disabled = !reg);
+        document.getElementById("pauseStart").disabled = !reg || !document.getElementById("pauseFlag").checked;
+        document.getElementById("pauseEnd").disabled = !reg || !document.getElementById("pauseFlag").checked;
+      }));
+      document.getElementById("pauseFlag").addEventListener("change", (e) => {
+        document.getElementById("pauseStart").disabled = !e.target.checked;
+        document.getElementById("pauseEnd").disabled = !e.target.checked;
+      });
+      document.querySelectorAll('input[name="payment"]').forEach((r) => r.addEventListener("change", () => {
+        paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+        if (paymentMethod !== "credit") showNewCard = false;
+        renderPayDetail();
+      }));
+      document.getElementById("confirmBtn").onclick = confirmPayment;
+    }
+    function confirmPayment() {
+      setError("");
+      if (!items.length) return setError("購入する商品がありません。");
+      const firstDate = document.getElementById("firstDeliveryDate").value;
+      if (!firstDate) return setError("初回配送日を選択してください。");
+      if (firstDate < minDeliveryDate()) return setError("初回配送日は本日から5日後以降を選択してください。");
+      if (checkout.defaultLeaveAtDoorFlag && paymentMethod === "cod") return setError("置き配を希望している場合、代引きは選択できません。");
+      if (paymentMethod === "credit") {
+        const hasReg = checkout.creditCardValidFlag && checkout.cardLast4;
+        const newCard = (document.getElementById("cardNumber") || {}).value || "";
+        if (!hasReg && !newCard.trim()) return setError("クレジットカード情報を登録してください。");
+      }
+      const total = items.reduce((s, it) => s + it.unitPrice * it.quantity, 0);
+      const label = paymentMethod === "cod" ? "代引き" : paymentMethod === "credit" ? "クレジットカード" : "PayPay";
+      const typeLabel = deliveryType === "regular" ? "定期配送" : "今回のみ購入";
+      if (!window.confirm(`以下の内容で購入します。\n\n合計金額：¥${total.toLocaleString()}\n支払方法：${label}\n配送種別：${typeLabel}\n初回配送日：${firstDate}\n\n購入を確定してよろしいですか？`)) return;
+
+      const reqNote = document.getElementById("requestText").value;
+      const order = TeamA.createOrder({
+        customerId: cid, items: items.map((it) => ({ productId: it.productId, quantity: it.quantity })),
+        orderRoute: "web", orderType: deliveryType, deliveryDate: firstDate, requestNote: reqNote, paymentMethod,
+      });
+      // 定期配送なら subscription を作成
+      if (deliveryType === "regular") {
+        const subs = TeamA.table("subscriptions");
+        const subId = TeamA.nextId("subscriptions", "subscriptionId");
+        subs.push({ subscriptionId: subId, customerId: cid, cycle: document.getElementById("deliveryCycle").value, deliveryWeekday: document.getElementById("deliveryDay").value, nextDeliveryDate: firstDate, quantityType: document.getElementById("regularAmount").value, pauseStartDate: document.getElementById("pauseFlag").checked ? document.getElementById("pauseStart").value : null, pauseEndDate: document.getElementById("pauseFlag").checked ? document.getElementById("pauseEnd").value : null, status: "active" });
+        TeamA.saveTable("subscriptions", subs);
+        const sItems = TeamA.table("subscriptionItems");
+        items.forEach((it) => sItems.push({ subscriptionItemId: TeamA.nextId("subscriptionItems", "subscriptionItemId"), subscriptionId: subId, productId: it.productId, quantity: it.quantity, unitPrice: it.unitPrice }));
+        TeamA.saveTable("subscriptionItems", sItems);
+      }
+      TeamA.clearCart(cid);
+      alert(`購入が完了しました。\n注文番号：${order.orderNo}`);
+      location.href = "./customer-mypage.html";
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["customer"], "customer-item-buy.html")) return;
+      TeamAUI.renderHeader("customer", "購入手続き");
+      cid = TeamA.session().userId;
+      items = TeamA.cartItems(cid);
+      const c = TeamA.customerById(cid) || {};
+      checkout = {
+        defaultPaymentMethod: c.defaultPaymentMethod, creditCardValidFlag: c.creditCardValidFlag, cardLast4: c.cardLast4,
+        defaultLeaveAtDoorFlag: c.defaultLeaveAtDoorFlag, defaultFrozenFlag: c.defaultFrozenFlag,
+        defaultDeliveryInstruction: c.defaultDeliveryInstruction,
+      };
+      if (!items.length) {
+        document.getElementById("buyContent").innerHTML = `<section class="itemPageHeading"><p class="itemMainSubtitle">カートに商品がありません。</p></section><div class="buyActionBox"><a href="./customer-item-cart.html" class="buyBackBtn">カートへ戻る</a></div>`;
+        return;
+      }
+      render();
+    });
+  </script>
+</body>
+
+</html>

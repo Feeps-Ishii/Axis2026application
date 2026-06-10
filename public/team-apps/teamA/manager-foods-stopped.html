@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>販売停止商品一覧 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/food.css">
+</head>
+
+<body>
+  <div class="foodListPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageTitle">
+        <div>つばさ配送サービス 業務管理システム</div>
+        <div class="orderCount">販売停止商品一覧</div>
+      </section>
+
+      <section class="searchFilterBox">
+        <div>
+          <p class="errorMessage" id="errorMessage" style="display:none;"></p>
+        </div>
+
+        <div class="filterSelects">
+          <button type="button" class="btnSearch" id="btnReload">再読み込み</button>
+          <a href="./manager-foods.html" class="btnBack">商品一覧へ戻る</a>
+        </div>
+      </section>
+
+      <section class="tableWrapper">
+        <table class="orderTable">
+          <thead>
+            <tr>
+              <th>商品コード</th>
+              <th>商品分類</th>
+              <th>商品名</th>
+              <th>販売単価</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="foodTableBody"></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <div id="managerFooter"></div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = TeamAUI.esc;
+    const codeOf = (id) => "PRD-" + String(id).padStart(4, "0");
+
+    function renderFoods() {
+      const tbody = document.getElementById("foodTableBody");
+      const foods = TeamA.productsStopped();
+      if (foods.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5">販売停止中の商品はありません。</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = foods.map((p) => `
+        <tr>
+          <td>${esc(codeOf(p.productId))}</td>
+          <td>${esc(p.category)}</td>
+          <td>${esc(p.productName)}</td>
+          <td>${p.price.toLocaleString()}円</td>
+          <td>
+            <button type="button" class="btnTableAction btnTableEdit" data-id="${p.productId}">販売再開</button>
+          </td>
+        </tr>`).join("");
+      tbody.querySelectorAll("button[data-id]").forEach((btn) => {
+        btn.addEventListener("click", () => handleRestore(Number(btn.dataset.id)));
+      });
+    }
+
+    function handleRestore(id) {
+      const p = TeamA.productById(id);
+      if (!p) return;
+      const ok = window.confirm(
+        "以下の商品を販売中に戻してよろしいですか？\n\n" +
+        "商品コード：" + codeOf(p.productId) + "\n" +
+        "商品名：" + p.productName + "\n" +
+        "商品分類：" + p.category + "\n" +
+        "販売単価：" + p.price.toLocaleString() + "円"
+      );
+      if (!ok) return;
+      TeamA.restoreProduct(id);
+      renderFoods();
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"], "manager-foods-stopped.html")) return;
+      TeamAUI.renderHeader("staff", "販売停止商品一覧");
+      TeamAUI.renderManagerFooter();
+      document.getElementById("btnReload").addEventListener("click", renderFoods);
+      renderFoods();
+    });
+  </script>
+</body>
+
+</html>

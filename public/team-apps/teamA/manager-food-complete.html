@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>処理完了 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/food.css">
+</head>
+
+<body>
+  <div class="foodRegistPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageTitle">
+        <div>つばさ配送サービス 業務管理システム</div>
+        <div class="orderCount" id="orderCount">処理完了</div>
+      </section>
+
+      <section class="completeBox">
+        <div class="completeIcon">✓</div>
+        <h2 class="completeTitle" id="completeTitle">処理が完了しました。</h2>
+        <p class="completeText" id="completeText">続けて操作する場合は、商品一覧へ戻ってください。</p>
+
+        <div class="submitActionBox">
+          <a href="./manager-foods.html" class="btnSubmit">商品一覧へ戻る</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="managerFooter"></div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"], "manager-food-complete.html")) return;
+
+      const mode = new URLSearchParams(location.search).get("mode");
+      let pageTitle = "処理完了";
+      let message = "処理が完了しました。";
+      let detailMessage = "続けて操作する場合は、商品一覧へ戻ってください。";
+
+      if (mode === "register") { pageTitle = "商品登録完了"; message = "商品の登録が完了しました。"; }
+      if (mode === "update") { pageTitle = "商品変更完了"; message = "商品情報の変更が完了しました。"; }
+      if (mode === "delete") { pageTitle = "商品削除完了"; message = "商品の削除が完了しました。"; detailMessage = "削除した商品は一覧に表示されません。"; }
+
+      document.title = pageTitle + " | つばさ配送サービス";
+      document.getElementById("orderCount").textContent = pageTitle;
+      document.getElementById("completeTitle").textContent = message;
+      document.getElementById("completeText").textContent = detailMessage;
+
+      TeamAUI.renderHeader("staff", pageTitle);
+      TeamAUI.renderManagerFooter();
+    });
+  </script>
+</body>
+
+</html>

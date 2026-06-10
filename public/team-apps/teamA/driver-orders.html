@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>配送一覧 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/driverOrder.css">
+</head>
+
+<body>
+  <div class="driverOrderListPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="searchFilterBox">
+        <div class="searchField">
+          <input type="text" id="searchInput" placeholder="注文者名・住所・エリアなどで検索">
+        </div>
+        <div class="filterSelects">
+          <button type="button" class="btnSearch" id="btnSearch">検索</button>
+          <button type="button" class="btnReset" id="btnReset">リセット</button>
+        </div>
+      </section>
+
+      <section class="driverControlsRow">
+        <div class="statusTabs" id="statusTabs">
+          <button type="button" class="tabItem activeTab" data-tab="すべて">すべて</button>
+          <button type="button" class="tabItem" data-tab="未配送">未配送<span class="badge" id="badgeUndelivered" style="display:none;"></span></button>
+          <button type="button" class="tabItem" data-tab="配送中">配送中<span class="badge" id="badgeShipping" style="display:none;"></span></button>
+          <button type="button" class="tabItem" data-tab="配送済">配送済</button>
+        </div>
+
+        <div class="driverPageSizeBlock">
+          <div class="pageSizeSelector">
+            <span>表示件数: </span>
+            <select id="pageSizeSelect">
+              <option value="20">20件</option>
+              <option value="50">50件</option>
+              <option value="100">100件</option>
+            </select>
+          </div>
+          <div class="pageSummary" id="pageSummary"></div>
+        </div>
+
+        <button type="button" class="btnBatchSubmit" id="btnBatch">すべての未配送を「配送中」にする</button>
+      </section>
+
+      <section class="tableWrapper">
+        <table class="orderTable">
+          <thead>
+            <tr>
+              <th data-sort="id" style="cursor:pointer;">注文ID <span class="sortMark" data-mark="id"></span></th>
+              <th data-sort="customerName" style="cursor:pointer;">注文者 <span class="sortMark" data-mark="customerName"></span></th>
+              <th data-sort="postalCode" style="cursor:pointer;">郵便番号 <span class="sortMark" data-mark="postalCode"></span></th>
+              <th data-sort="address" style="cursor:pointer;">住所 <span class="sortMark" data-mark="address"></span></th>
+              <th data-sort="area" style="cursor:pointer;">配送エリア <span class="sortMark" data-mark="area"></span></th>
+              <th data-sort="paymentStatus" style="cursor:pointer;">支払い状態 <span class="sortMark" data-mark="paymentStatus"></span></th>
+              <th data-sort="deliveryDate" style="cursor:pointer;">配送日 <span class="sortMark" data-mark="deliveryDate"></span></th>
+              <th data-sort="hasRequest" style="cursor:pointer;">配送指示 <span class="sortMark" data-mark="hasRequest"></span></th>
+              <th data-sort="status" style="cursor:pointer;">ステータス <span class="sortMark" data-mark="status"></span></th>
+              <th data-sort="status" style="cursor:pointer;">アクション</th>
+            </tr>
+          </thead>
+          <tbody id="orderRows"></tbody>
+        </table>
+      </section>
+
+      <div class="paginationButtons" id="pagination" style="display:none;"></div>
+    </main>
+
+    <div id="modalHost"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = TeamAUI.esc;
+    const STATUS_LABEL = { undelivered: "未配送", delivering: "配送中", completed: "配送済", failed: "配送失敗" };
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["driver"])) return;
+
+      const driverId = TeamA.session().userId;
+      TeamAUI.renderHeader("driver", "配送一覧");
+
+      let searchWord = "";
+      let activeTab = "すべて";
+      let currentPage = 1;
+      let pageSize = 20;
+      let sortKey = null;
+      let sortOrder = "asc";
+      let modalOrder = null;
+      let completeChecked = false;
+
+      // 配送一覧をビュー化
+      function loadOrders() {
+        return TeamA.deliveriesForDriver(driverId).map((d) => {
+          const area = TeamA.areaForPostal(d.postalCode);
+          const pay = TeamA.paymentByOrder(d.orderId);
+          const paymentStatus = (pay && pay.paymentMethod === "cod" && pay.paymentStatus !== "paid") ? "代引き" : "支払い済み";
+          const order = TeamA.orderById(d.orderId) || {};
+          const instruction = (d.deliveryInstruction || "").trim();
+          const requestText = (order.requestNote || "").trim();
+          const hasRequest = !!(instruction || requestText);
+          return {
+            id: d.orderNo,
+            deliveryId: d.deliveryId,
+            customerName: d.customerName,
+            postalCode: d.postalCode,
+            address: d.address,
+            area: area ? area.areaCode : "未設定",
+            paymentStatus: paymentStatus,
+            deliveryDate: d.scheduledDate,
+            instruction: (instruction === "なし") ? "" : instruction,
+            requestText: requestText,
+            hasRequest: hasRequest,
+            status: STATUS_LABEL[d.deliveryStatus] || d.deliveryStatus,
+          };
+        });
+      }
+
+      let orders = loadOrders();
+
+      function buildTooltip(o) {
+        const lines = [];
+        const ins = (o.instruction === "null" || o.instruction === "undefined") ? "" : o.instruction;
+        const note = (o.requestText === "null" || o.requestText === "undefined") ? "" : o.requestText;
+        if (ins) lines.push("【配送指示】\n" + ins);
+        if (note) lines.push("【個別要望】\n" + note);
+        return lines.join("\n\n");
+      }
+
+      function statusCounts() {
+        return {
+          undelivered: orders.filter((o) => o.status === "未配送").length,
+          shipping: orders.filter((o) => o.status === "配送中").length,
+        };
+      }
+
+      function matchesFilter(o) {
+        const kw = searchWord.trim().toLowerCase();
+        const searchMatch = kw === "" ||
+          (o.customerName || "").toLowerCase().includes(kw) ||
+          (o.address || "").toLowerCase().includes(kw) ||
+          (o.area || "").toLowerCase().includes(kw);
+        const tabMatch = activeTab === "すべて" ? true : o.status === activeTab;
+        return searchMatch && tabMatch;
+      }
+
+      function sortedOrders() {
+        if (!sortKey) return orders.slice();
+        return orders.slice().sort((a, b) => {
+          let av = a[sortKey], bv = b[sortKey];
+          if (sortKey === "status") {
+            const sc = (s) => s === "未配送" ? 3 : s === "配送中" ? 2 : 1;
+            av = sc(a.status); bv = sc(b.status);
+          }
+          if (sortKey === "paymentStatus") {
+            av = a.paymentStatus === "代引き" ? 2 : 1;
+            bv = b.paymentStatus === "代引き" ? 2 : 1;
+          }
+          if (sortKey === "hasRequest") {
+            av = a.hasRequest ? 2 : 1;
+            bv = b.hasRequest ? 2 : 1;
+          }
+          if (typeof av === "number" || typeof av === "boolean") {
+            return sortOrder === "asc" ? (av > bv ? 1 : -1) : (bv > av ? 1 : -1);
+          }
+          const as = String(av || ""), bs = String(bv || "");
+          return sortOrder === "asc" ? as.localeCompare(bs) : bs.localeCompare(as);
+        });
+      }
+
+      function render() {
+        const filtered = sortedOrders().filter(matchesFilter);
+        const totalCount = orders.filter(matchesFilter).length;
+        const totalPages = Math.ceil(totalCount / pageSize);
+        const start = (currentPage - 1) * pageSize;
+        const paged = filtered.slice(start, start + pageSize);
+
+        // バッジ
+        const sc = statusCounts();
+        const bU = document.getElementById("badgeUndelivered");
+        const bS = document.getElementById("badgeShipping");
+        if (sc.undelivered > 0) { bU.textContent = sc.undelivered; bU.style.display = ""; } else bU.style.display = "none";
+        if (sc.shipping > 0) { bS.textContent = sc.shipping; bS.style.display = ""; } else bS.style.display = "none";
+
+        // ページ概要（全件数は orders.length）
+        document.getElementById("pageSummary").innerHTML =
+          `全 <strong>${orders.length}</strong> 件中 ${orders.length > 0 ? (currentPage - 1) * pageSize + 1 : 0}〜${Math.min(currentPage * pageSize, orders.length)} 件表示`;
+
+        // 行
+        const tbody = document.getElementById("orderRows");
+        if (paged.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="10">対象の配送はありません。</td></tr>`;
+        } else {
+          tbody.innerHTML = paged.map((o) => {
+            const tooltip = buildTooltip(o);
+            const payClass = o.paymentStatus === "代引き" ? "paymentDanger" : "paymentSettled";
+            const statusClass = o.status === "未配送" ? "statusUnDelivered" : o.status === "配送中" ? "statusShipping" : "statusDelivered";
+            const reqCell = tooltip
+              ? `<span class="flagOn tooltipTrigger" data-tooltip="${esc(tooltip)}">あり</span>`
+              : `<span class="flagOff">なし</span>`;
+            const completeDisabled = o.status !== "配送中" ? "disabled" : "";
+            return `<tr>
+              <td>${esc(o.id)}</td>
+              <td>${esc(o.customerName)}</td>
+              <td>${esc(o.postalCode)}</td>
+              <td>${esc(o.address)}</td>
+              <td>${esc(o.area)}</td>
+              <td class="paymentCell ${payClass}">${esc(o.paymentStatus)}</td>
+              <td>${esc(o.deliveryDate)}</td>
+              <td>${reqCell}</td>
+              <td><span class="statusLinkBtn ${statusClass}">${esc(o.status)}</span></td>
+              <td><button type="button" class="btnRowComplete" data-complete="${o.deliveryId}" ${completeDisabled}>完了</button></td>
+            </tr>`;
+          }).join("");
+        }
+
+        // ソートマーク
+        document.querySelectorAll(".sortMark").forEach((m) => { m.textContent = ""; });
+        if (sortKey) {
+          document.querySelectorAll(`.sortMark[data-mark="${sortKey}"]`).forEach((m) => {
+            m.textContent = sortOrder === "asc" ? "▲" : "▼";
+          });
+        }
+
+        // ページネーション
+        const pg = document.getElementById("pagination");
+        if (totalPages > 1) {
+          let html = `<button type="button" class="pageNavBtn" data-page="prev" ${currentPage === 1 ? "disabled" : ""}>前へ</button>`;
+          for (let i = 1; i <= totalPages; i++) {
+            html += `<button type="button" class="pageNumberBtn ${currentPage === i ? "activePage" : ""}" data-page="${i}">${i}</button>`;
+          }
+          html += `<button type="button" class="pageNavBtn" data-page="next" ${currentPage === totalPages ? "disabled" : ""}>次へ</button>`;
+          pg.innerHTML = html;
+          pg.style.display = "";
+        } else {
+          pg.innerHTML = "";
+          pg.style.display = "none";
+        }
+      }
+
+      // 検索
+      document.getElementById("btnSearch").addEventListener("click", () => {
+        searchWord = document.getElementById("searchInput").value;
+        currentPage = 1;
+        render();
+      });
+      document.getElementById("btnReset").addEventListener("click", () => {
+        document.getElementById("searchInput").value = "";
+        searchWord = "";
+        activeTab = "すべて";
+        currentPage = 1;
+        setActiveTabUI();
+        render();
+      });
+
+      // タブ
+      function setActiveTabUI() {
+        document.querySelectorAll("#statusTabs .tabItem").forEach((b) => {
+          b.classList.toggle("activeTab", b.dataset.tab === activeTab);
+        });
+      }
+      document.getElementById("statusTabs").addEventListener("click", (e) => {
+        const btn = e.target.closest(".tabItem");
+        if (!btn) return;
+        activeTab = btn.dataset.tab;
+        currentPage = 1;
+        setActiveTabUI();
+        render();
+      });
+
+      // 表示件数
+      document.getElementById("pageSizeSelect").addEventListener("change", (e) => {
+        pageSize = Number(e.target.value);
+        currentPage = 1;
+        render();
+      });
+
+      // ソート
+      document.querySelector(".orderTable thead").addEventListener("click", (e) => {
+        const th = e.target.closest("th[data-sort]");
+        if (!th) return;
+        const key = th.dataset.sort;
+        if (sortKey === key) {
+          if (sortOrder === "asc") sortOrder = "desc";
+          else { sortKey = null; sortOrder = "asc"; }
+        } else { sortKey = key; sortOrder = "asc"; }
+        render();
+      });
+
+      // ページネーション
+      document.getElementById("pagination").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-page]");
+        if (!btn || btn.disabled) return;
+        const p = btn.dataset.page;
+        const totalPages = Math.ceil(orders.filter(matchesFilter).length / pageSize);
+        if (p === "prev") currentPage = Math.max(1, currentPage - 1);
+        else if (p === "next") currentPage = Math.min(totalPages, currentPage + 1);
+        else currentPage = Number(p);
+        render();
+      });
+
+      // 一括配送開始
+      document.getElementById("btnBatch").addEventListener("click", () => {
+        if (!window.confirm("すべての未配送の注文を一括で「配送中」に変更してもよろしいですか？")) return;
+        TeamA.batchStart(driverId);
+        orders = loadOrders();
+        alert("すべての未配送注文を「配送中」に更新しました。");
+        render();
+      });
+
+      // 完了モーダル
+      document.getElementById("orderRows").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-complete]");
+        if (!btn || btn.disabled) return;
+        const deliveryId = Number(btn.dataset.complete);
+        modalOrder = orders.find((o) => o.deliveryId === deliveryId);
+        completeChecked = false;
+        renderModal();
+      });
+
+      function renderModal() {
+        const host = document.getElementById("modalHost");
+        if (!modalOrder) { host.innerHTML = ""; return; }
+        const isCod = modalOrder.paymentStatus === "代引き";
+        const cautionLine = isCod
+          ? `<p class="modalCaution">代引き精算と配達完了を確認してください。</p>`
+          : `<p class="modalText">配達完了として更新します。よろしいですか？</p>`;
+        const checkLabel = isCod ? "代引き精算・配送完了しました" : "配送完了しました";
+        host.innerHTML = `
+          <div class="modalOverlay">
+            <div class="modalBox" role="dialog" aria-modal="true">
+              <h2 class="modalTitle">配送完了確認</h2>
+              <p class="modalText">注文ID：<strong>${esc(modalOrder.id)}</strong></p>
+              ${cautionLine}
+              <label class="modalCheckLabel">
+                <input type="checkbox" id="completeCheck" ${completeChecked ? "checked" : ""}>
+                ${checkLabel}
+              </label>
+              <div class="modalActions">
+                <button type="button" class="btnCancel" id="modalCancel">戻る</button>
+                <button type="button" class="btnSave" id="modalConfirm" ${completeChecked ? "" : "disabled"}>この内容で確定する</button>
+              </div>
+            </div>
+          </div>`;
+
+        document.getElementById("completeCheck").addEventListener("change", (e) => {
+          completeChecked = e.target.checked;
+          document.getElementById("modalConfirm").disabled = !completeChecked;
+        });
+        document.getElementById("modalCancel").addEventListener("click", () => {
+          modalOrder = null; completeChecked = false; renderModal();
+        });
+        document.getElementById("modalConfirm").addEventListener("click", () => {
+          if (!completeChecked) return;
+          const isCodNow = modalOrder.paymentStatus === "代引き";
+          TeamA.completeDelivery(modalOrder.deliveryId, isCodNow ? "代引き精算・配達完了" : "配達完了");
+          if (isCodNow) {
+            // 代引きを支払済みに
+            const pay = TeamA.paymentByOrder(TeamA.orderByNo(modalOrder.id).orderId);
+            if (pay) {
+              const list = TeamA.table("payments");
+              const i = list.findIndex((p) => p.paymentId === pay.paymentId);
+              if (i >= 0) { list[i].paymentStatus = "paid"; list[i].paidAt = TeamA.now(); TeamA.saveTable("payments", list); }
+            }
+          }
+          orders = loadOrders();
+          alert(isCodNow ? "代引き精算と配達完了を更新しました。" : "配達完了として更新しました。");
+          modalOrder = null; completeChecked = false;
+          renderModal();
+          render();
+        });
+      }
+
+      render();
+    });
+  </script>
+</body>
+
+</html>

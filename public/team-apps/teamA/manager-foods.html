@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商品管理 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/food.css">
+</head>
+
+<body>
+  <div class="foodListPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageTitle">
+        <div>つばさ配送サービス 業務管理システム</div>
+        <div class="orderCount">取扱食品一覧</div>
+      </section>
+
+      <section class="searchFilterBox">
+        <div class="searchField">
+          <input type="text" id="searchCode" placeholder="商品コードを入力">
+          <input type="text" id="searchName" placeholder="食品名を入力">
+        </div>
+
+        <div class="filterSelects">
+          <select class="categorySelect" id="searchCategory">
+            <option value="">すべての商品分類</option>
+            <option value="野菜">野菜</option>
+            <option value="卵">卵</option>
+            <option value="果物">果物</option>
+            <option value="肉">肉</option>
+            <option value="その他">その他</option>
+          </select>
+
+          <button type="button" class="btnSearch" id="btnSearch">検索</button>
+
+          <a href="./manager-food-regist.html" class="btnRegisterCustomer">＋ 新規商品登録</a>
+
+          <a href="./manager-foods-stopped.html" class="btnStoppedList">販売停止一覧</a>
+        </div>
+      </section>
+
+      <p class="errorMessage" id="errorMessage" style="display:none;"></p>
+
+      <section class="tableWrapper">
+        <table class="orderTable">
+          <thead>
+            <tr>
+              <th>商品コード</th>
+              <th>商品分類</th>
+              <th>商品名</th>
+              <th>販売単価</th>
+              <th>アレルギー</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="foodTableBody"></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <div id="managerFooter"></div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = TeamAUI.esc;
+    const codeOf = (id) => "PRD-" + String(id).padStart(4, "0");
+
+    function formatAllergens(names) {
+      if (!names || names.length === 0) return "なし";
+      return names.join("、");
+    }
+
+    function renderFoods() {
+      const tbody = document.getElementById("foodTableBody");
+      const code = document.getElementById("searchCode").value.trim().toLowerCase();
+      const name = document.getElementById("searchName").value.trim();
+      const category = document.getElementById("searchCategory").value;
+
+      let foods = TeamA.productsActive();
+      if (name !== "") foods = foods.filter((p) => TeamA.contains(p.productName, name));
+      if (category !== "") foods = foods.filter((p) => p.category === category);
+      if (code !== "") foods = foods.filter((p) => codeOf(p.productId).toLowerCase().includes(code));
+
+      if (foods.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6">登録されている商品はありません。</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = foods.map((p) => {
+        const names = TeamA.productAllergenNames(p.productId);
+        const cls = names && names.length > 0 ? "allergenText" : "allergenNoneText";
+        return `
+          <tr>
+            <td>${esc(codeOf(p.productId))}</td>
+            <td>${esc(p.category)}</td>
+            <td>${esc(p.productName)}</td>
+            <td>${p.price.toLocaleString()}円</td>
+            <td><span class="${cls}">${esc(formatAllergens(names))}</span></td>
+            <td>
+              <a href="./manager-food-update.html?productId=${p.productId}" class="btnTableAction btnTableEdit">編集</a>
+              <a href="./manager-food-delete.html?productId=${p.productId}" class="btnTableAction btnTableDelete">削除</a>
+            </td>
+          </tr>`;
+      }).join("");
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"], "manager-foods.html")) return;
+      TeamAUI.renderHeader("staff", "商品管理");
+      TeamAUI.renderManagerFooter();
+      document.getElementById("btnSearch").addEventListener("click", renderFoods);
+      renderFoods();
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商品一覧 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/item.css">
+</head>
+
+<body>
+  <div class="itemListPage">
+    <div class="fixedBottomBg" aria-hidden="true"></div>
+    <div id="cartToast" class="cartToast" style="display:none;">
+      <div class="cartToastIcon">✓</div>
+      <div class="cartToastText" id="cartToastText"></div>
+    </div>
+
+    <div id="appHeader"></div>
+
+    <div class="itemContainer">
+      <section class="itemPageHeading">
+        <span class="itemWelcome" id="welcome">ようこそ、お客様 様</span>
+        <h2 class="itemMainTitle">商品一覧</h2>
+        <p class="itemMainSubtitle">新鮮な商品を選んでカートへ追加してください</p>
+      </section>
+
+      <div id="errorMessage" class="itemErrorMessage" style="display:none;"></div>
+
+      <!-- スライドショー -->
+      <section class="itemSlideshowSection" id="slideshowSection" style="display:none;">
+        <div class="slideshowCard">
+          <div class="slideshowText">
+            <p class="slideshowLabel">新鮮な商品をお届け</p>
+            <h2 class="slideshowTitle">おすすめ商品</h2>
+            <p class="slideshowDesc">旬の野菜・卵・果物など、毎日の食卓にうれしい商品をお届けします。</p>
+          </div>
+          <div class="slideshowMain">
+            <button type="button" class="slideArrow slidePrev" id="slidePrev">‹</button>
+            <div class="slideView" id="slideView"></div>
+            <button type="button" class="slideArrow slideNext" id="slideNext">›</button>
+            <div class="slideDots" id="slideDots"></div>
+          </div>
+        </div>
+      </section>
+
+      <main class="itemListArea" id="itemListArea"></main>
+
+      <div class="itemActionBox">
+        <button type="button" class="itemBackBtn" onclick="window.history.back()">戻る</button>
+        <a href="./customer-item-cart.html" class="itemCartCheckBtn">カートを確認</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = (s) => TeamAUI.esc(s);
+    let products = [], counts = {}, currentSlide = 0, custAllergenNames = [], slideTimer = null;
+
+    function imgUrl(p) { return TeamA.img(p); }
+    function toast(msg) {
+      const t = document.getElementById("cartToast");
+      document.getElementById("cartToastText").textContent = msg;
+      t.style.display = "";
+      setTimeout(() => { t.style.display = "none"; }, 3000);
+    }
+    function matchedAllergens(p) {
+      const names = TeamA.productAllergenNames(p.productId);
+      return names.filter((n) => custAllergenNames.includes(n));
+    }
+    function renderSlides() {
+      const view = document.getElementById("slideView");
+      const dots = document.getElementById("slideDots");
+      view.innerHTML = products.map((p, i) => `
+        <div class="slideItem ${i === currentSlide ? "slideItemActive" : ""}">
+          <img src="${imgUrl(p.imagePath)}" alt="${esc(p.productName)}" onerror="this.src='./images/no_image.png'">
+          <div class="slideCaption">
+            <span class="slideProductName">${esc(p.productName)}</span>
+            <span class="slideProductPrice">¥${p.price.toLocaleString()}</span>
+          </div>
+        </div>`).join("");
+      dots.innerHTML = products.map((p, i) => `<button type="button" class="slideDot ${i === currentSlide ? "slideDotActive" : ""}" data-i="${i}"></button>`).join("");
+      dots.querySelectorAll("[data-i]").forEach((b) => b.onclick = () => { currentSlide = Number(b.dataset.i); renderSlides(); });
+    }
+    function renderCards() {
+      const area = document.getElementById("itemListArea");
+      if (!products.length) { area.innerHTML = `<p class="itemMainSubtitle">現在販売中の商品はありません。</p>`; return; }
+      area.innerHTML = products.map((p) => {
+        const allergenNames = TeamA.productAllergenNames(p.productId);
+        const warning = matchedAllergens(p).length > 0;
+        const allergyText = allergenNames.length ? allergenNames.join("、") : "なし";
+        return `
+        <div class="itemCard ${warning ? "itemCardWarning" : ""}">
+          <div class="itemId">商品ID：${p.productId}</div>
+          ${warning ? `<div class="itemAllergyWarningBadge">登録アレルギー該当</div>` : ""}
+          <div class="itemImageWrap"><img src="${imgUrl(p.imagePath)}" alt="${esc(p.productName)}" class="itemImage" onerror="this.src='./images/no_image.png'"></div>
+          <div class="itemInfo">
+            <h2 class="itemName">${esc(p.productName)}</h2>
+            <p class="itemPrice">¥${p.price.toLocaleString()}</p>
+            <p class="${allergenNames.length ? "itemAllergenText" : "itemAllergenNoneText"}">アレルギー：${esc(allergyText)}</p>
+            ${p.description ? `<p class="itemMainSubtitle">${esc(p.description)}</p>` : ""}
+          </div>
+          <div class="itemCountArea">
+            <button type="button" class="itemCountBtn" data-down="${p.productId}">－</button>
+            <span class="itemCount" id="count-${p.productId}">${counts[p.productId] || 1}</span>
+            <button type="button" class="itemCountBtn" data-up="${p.productId}">＋</button>
+          </div>
+          <button type="button" class="itemCartBtn" data-add="${p.productId}">カートへ入れる</button>
+        </div>`;
+      }).join("");
+      area.querySelectorAll("[data-down]").forEach((b) => b.onclick = () => { const id = Number(b.dataset.down); counts[id] = Math.max(1, (counts[id] || 1) - 1); document.getElementById("count-" + id).textContent = counts[id]; });
+      area.querySelectorAll("[data-up]").forEach((b) => b.onclick = () => { const id = Number(b.dataset.up); counts[id] = (counts[id] || 1) + 1; document.getElementById("count-" + id).textContent = counts[id]; });
+      area.querySelectorAll("[data-add]").forEach((b) => b.onclick = () => addCart(Number(b.dataset.add)));
+    }
+    function addCart(productId) {
+      const p = products.find((x) => x.productId === productId);
+      const qty = counts[productId] || 1;
+      const matched = matchedAllergens(p);
+      if (matched.length) {
+        if (!window.confirm(`この商品には、登録済みのアレルギー情報と一致する項目があります。\n\n対象アレルギー：${matched.join("、")}\n\nアレルギー登録された商品ですがよろしいですか？`)) return;
+      }
+      TeamA.addToCart(TeamA.session().userId, productId, qty);
+      toast(`${p.productName}を${qty}個カートに追加しました。`);
+    }
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["customer"], "customer-item-list.html")) return;
+      const s = TeamA.session();
+      TeamAUI.renderHeader("customer", "商品一覧");
+      document.getElementById("welcome").textContent = `ようこそ、${s.userName || "お客様"} 様`;
+      custAllergenNames = TeamA.customerAllergenNames(s.userId);
+      products = TeamA.productsActive();
+      products.forEach((p) => counts[p.productId] = 1);
+      if (products.length) {
+        document.getElementById("slideshowSection").style.display = "";
+        renderSlides();
+        slideTimer = setInterval(() => { currentSlide = (currentSlide + 1) % products.length; renderSlides(); }, 5000);
+        document.getElementById("slidePrev").onclick = () => { currentSlide = currentSlide === 0 ? products.length - 1 : currentSlide - 1; renderSlides(); };
+        document.getElementById("slideNext").onclick = () => { currentSlide = (currentSlide + 1) % products.length; renderSlides(); };
+      }
+      renderCards();
+    });
+  </script>
+</body>
+
+</html>

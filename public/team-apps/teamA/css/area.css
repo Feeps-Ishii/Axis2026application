@@ -1,0 +1,343 @@
+.areaConfigPage,
+.deliveryGroupPage {
+  min-height: 100vh;
+  background-color: var(--bg-white);
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+.pageTitle {
+  background-color: var(--dark-navy);
+  color: #ffffff;
+  padding: 24px 40px;
+}
+
+.pageTitle h1 {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+.orderCount {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  font-weight: normal;
+}
+
+.searchFilterBox {
+  padding: 24px 40px;
+  background-color: var(--bg-light);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.areaFormBox,
+.deliveryGroupFormBox {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.areaFormHeader,
+.deliveryGroupFormHeader {
+  width: 100%;
+}
+
+.areaSectionTitle,
+.deliveryGroupSectionTitle {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--dark-navy);
+  border-left: 4px solid var(--main-blue);
+  padding-left: 10px;
+  margin: 0;
+}
+
+.areaHelpText,
+.deliveryGroupHelpText {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.orderInputContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.formGroup input,
+.formGroup select,
+.formControlSelect {
+  padding: 12px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  background-color: #ffffff;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formControlSelect:focus {
+  border-color: var(--main-blue);
+}
+
+.areaIdInput {
+  max-width: 220px;
+}
+
+.areaZipInput {
+  max-width: 360px;
+}
+
+.groupNameInput {
+  max-width: 260px;
+}
+
+.groupZipInput {
+  max-width: 340px;
+}
+
+.groupDriverInput {
+  max-width: 260px;
+}
+
+.btnSubmit,
+.btnSearch,
+.btnBack,
+.btnTableAction,
+.postalTagDelete {
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 6px;
+  transition: background-color 0.2s, opacity 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnSubmit {
+  background-color: var(--sub-green);
+  color: #ffffff;
+  padding: 14px 24px;
+}
+
+.btnSubmit:hover {
+  background-color: #1b5e20;
+}
+
+.btnSearch {
+  background-color: var(--main-blue);
+  color: #ffffff;
+  padding: 12px 22px;
+}
+
+.btnSearch:hover {
+  background-color: #124d7c;
+}
+
+.btnBack {
+  background-color: var(--bg-table-head);
+  border: 1px solid var(--border-color);
+  color: var(--text-dark);
+  padding: 14px 26px;
+}
+
+.btnBack:hover {
+  background-color: #e2e8f0;
+}
+
+.btnAlign {
+  display: flex;
+  align-items: flex-end;
+}
+
+.areaActionBox {
+  padding: 24px 40px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tableWrapper {
+  padding: 24px 40px;
+  overflow-x: auto;
+}
+
+.areaListHeader,
+.deliveryGroupListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.orderTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orderTable th,
+.orderTable td {
+  padding: 16px 14px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  vertical-align: top;
+}
+
+.orderTable th {
+  background-color: var(--bg-table-head);
+  color: var(--dark-navy);
+  text-align: left;
+  font-weight: bold;
+}
+
+.orderTable tbody tr:nth-child(even) {
+  background-color: #fafbfc;
+}
+
+.orderTable tbody tr:hover {
+  background-color: var(--bg-light);
+}
+
+.btnTableAction {
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  color: #ffffff;
+}
+
+.btnTableEdit {
+  background-color: var(--main-blue);
+  margin-right: 6px;
+}
+
+.btnTableEdit:hover {
+  background-color: #124d7c;
+}
+
+.btnTableDelete {
+  background-color: var(--danger-red);
+}
+
+.btnTableDelete:hover {
+  background-color: var(--danger-red-dark);
+}
+
+.postalTagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.postalTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background-color: #e0f2fe;
+  border: 1px solid #bae6fd;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: bold;
+}
+
+.postalTagDelete {
+  width: 18px;
+  height: 18px;
+  background-color: #0f172a;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.postalTagDelete:hover {
+  background-color: var(--danger-red);
+}
+
+.cellTextMuted {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.successMessage {
+  margin: 8px 0 0;
+  color: var(--sub-green);
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.errorMessage {
+  margin: 8px 0 0;
+  color: var(--danger-red);
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.submitActionBox {
+  padding: 30px 40px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .pageTitle h1 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .orderInputContainer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .areaIdInput,
+  .areaZipInput,
+  .groupNameInput,
+  .groupZipInput,
+  .groupDriverInput {
+    max-width: 100%;
+  }
+
+  .submitActionBox {
+    flex-direction: column;
+  }
+
+  .btnSubmit,
+  .btnBack {
+    width: 100%;
+  }
+
+  .areaActionBox {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注文詳細画面 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/item.css">
+</head>
+
+<body>
+  <div class="orderDetailPage">
+    <div class="fixedBottomBg" aria-hidden="true"></div>
+
+    <div id="appHeader"></div>
+
+    <div class="itemContainer">
+      <section class="itemPageHeading">
+        <span class="itemWelcome">定期配送の商品・個数・期間を変更</span>
+        <h2 class="itemMainTitle">注文詳細画面</h2>
+        <p class="itemMainSubtitle">マイページの注文一覧から選択された注文を確認・変更できます</p>
+      </section>
+
+      <section class="orderChangeSection">
+        <div class="orderChangeSectionHeader">
+          <h2 class="orderChangeSectionTitle">注文情報</h2>
+          <span class="orderChangeSectionSubtext">マイページの注文一覧から選択された注文</span>
+        </div>
+
+        <div class="orderChangeInfoCard">
+          <div class="orderChangeInfoRow">
+            <span class="orderChangeInfoLabel">注文ID</span>
+            <span class="orderChangeInfoValue" id="odOrderNo"></span>
+          </div>
+          <div class="orderChangeInfoRow">
+            <span class="orderChangeInfoLabel">注文者</span>
+            <span class="orderChangeInfoValue" id="odCustomer"></span>
+          </div>
+          <div class="orderChangeInfoRow">
+            <span class="orderChangeInfoLabel">配送種別</span>
+            <span class="orderChangeInfoValue">定期配送</span>
+          </div>
+          <div class="orderChangeInfoRow">
+            <span class="orderChangeInfoLabel">現在の状態</span>
+            <span class="orderChangeStatus">変更受付中</span>
+          </div>
+        </div>
+
+        <div id="deadlineWarn"></div>
+      </section>
+
+      <section class="orderChangeSection">
+        <div class="orderChangeSectionHeader">
+          <h2 class="orderChangeSectionTitle">商品変更</h2>
+          <span class="orderChangeSectionSubtext">個数の増減・商品変更・削除ができます</span>
+        </div>
+
+        <div class="orderChangeTableWrap">
+          <table class="orderChangeTable">
+            <thead>
+              <tr>
+                <th>商品ID</th>
+                <th>商品写真</th>
+                <th>商品名</th>
+                <th>個数</th>
+                <th>商品変更</th>
+                <th>小計</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="odItems"></tbody>
+          </table>
+        </div>
+
+        <div class="orderChangeAddBox">
+          <select class="orderChangeAddSelect" id="addProductSelect"></select>
+          <button type="button" class="orderChangeAddBtn" id="addProductBtn">商品を追加</button>
+        </div>
+      </section>
+
+      <section class="orderChangeSection">
+        <div class="orderChangeSectionHeader">
+          <h2 class="orderChangeSectionTitle">定期配送設定</h2>
+          <span class="orderChangeSectionSubtext">配送期間・配送サイクルを変更できます</span>
+        </div>
+
+        <div class="orderChangeFormGrid">
+          <div class="orderChangeFormGroup">
+            <label for="deliveryCycle">配送サイクル</label>
+            <select id="deliveryCycle" class="orderChangeSelect">
+              <option>毎週</option>
+              <option>隔週</option>
+              <option>月1回</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="orderChangeFormGroup">
+          <label for="startDate">開始日</label>
+          <input type="date" id="startDate" value="2026-06-01">
+        </div>
+        <div class="orderChangeFormGroup">
+          <label for="endDate">終了日</label>
+          <input type="date" id="endDate" value="2026-08-31">
+        </div>
+        <div class="orderChangeFormGroup">
+          <label for="nextDelivery">次回配送日</label>
+          <input type="date" id="nextDelivery" value="2026-06-05">
+        </div>
+      </section>
+
+      <section class="orderChangeSection">
+        <div class="orderChangeSectionHeader">
+          <h2 class="orderChangeSectionTitle">停止・削除</h2>
+          <span class="orderChangeSectionSubtext">定期配送の一時停止または注文削除ができます</span>
+        </div>
+
+        <div class="orderChangeStopBox">
+          <div class="orderChangeStopCard">
+            <h3>定期配送を一時停止</h3>
+            <p>指定した期間だけ定期配送を停止します。</p>
+            <div class="orderChangeStopDate">
+              <input type="date" value="2026-06-10" class="stopCtl">
+              <span>〜</span>
+              <input type="date" value="2026-06-24" class="stopCtl">
+            </div>
+            <button type="button" class="orderChangeStopBtn stopCtl">一時停止する</button>
+          </div>
+
+          <div class="orderChangeStopCard orderChangeDangerCard">
+            <h3>注文を削除</h3>
+            <p>この注文を削除します。削除後は注文一覧に表示されません。</p>
+            <button type="button" class="orderChangeDangerBtn stopCtl" id="deleteBtn">注文を削除する</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="orderChangeTotalBox">
+        <span class="orderChangeTotalLabel">変更後の合計金額</span>
+        <span class="orderChangeTotalPrice" id="odTotal">¥0</span>
+      </section>
+
+      <div class="orderChangeActionBox">
+        <a href="./customer-mypage.html" class="orderChangeBackBtn">マイページへ戻る</a>
+        <button type="button" class="orderChangeConfirmBtn" id="confirmBtn">変更内容を確認</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = TeamAUI.esc;
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["customer"], "customer-order-detail.html")) return;
+
+      TeamAUI.renderHeader("customer", "注文詳細画面");
+
+      const qp = new URLSearchParams(location.search);
+      const orderNo = qp.get("orderNo") || "";
+      const idParam = qp.get("id");
+
+      let order = orderNo ? TeamA.orderByNo(orderNo) : null;
+      if (!order && idParam) order = TeamA.orderById(idParam);
+
+      const displayOrderNo = order ? order.orderNo : (orderNo || idParam || "");
+      document.getElementById("odOrderNo").textContent = displayOrderNo;
+
+      const cust = order ? TeamA.customerById(order.customerId) : null;
+      document.getElementById("odCustomer").textContent = cust ? cust.customerName : "";
+
+      const deliveryDate = order ? order.deliveryDate : "";
+      if (deliveryDate) {
+        document.getElementById("nextDelivery").value = deliveryDate;
+      }
+
+      function createLocalDate(t) { const [y, m, d] = t.split("-").map(Number); return new Date(y, m - 1, d); }
+      function todayDateOnly() { const [y, m, d] = TeamA.today().split("-").map(Number); return new Date(y, m - 1, d); }
+      function canChangeOrder() {
+        if (!deliveryDate) return true;
+        const dv = createLocalDate(deliveryDate);
+        const deadline = new Date(dv); deadline.setDate(deadline.getDate() - 3);
+        return todayDateOnly() <= deadline;
+      }
+      function deadlineText() {
+        if (!deliveryDate) return "";
+        const dv = createLocalDate(deliveryDate);
+        const deadline = new Date(dv); deadline.setDate(deadline.getDate() - 3);
+        const y = deadline.getFullYear();
+        const m = String(deadline.getMonth() + 1).padStart(2, "0");
+        const d = String(deadline.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      }
+
+      const isChangeAllowed = canChangeOrder();
+      const dlText = deadlineText();
+      const warn = document.getElementById("deadlineWarn");
+      if (!isChangeAllowed) {
+        warn.innerHTML = `<div style="margin-top:16px;padding:12px;border-radius:8px;background-color:#fff1f2;color:#b91c1c;font-weight:bold;border:1px solid #fecdd3;">この注文は配送日の3日前を過ぎているため、変更できません。</div>`;
+      } else if (dlText) {
+        warn.innerHTML = `<div style="margin-top:16px;padding:12px;border-radius:8px;background-color:#ecfdf5;color:#047857;font-weight:bold;border:1px solid #bbf7d0;">この注文は ${esc(dlText)} まで変更できます。</div>`;
+      }
+
+      const productOptions = TeamA.productsActive().map((p) => ({
+        productId: p.productId, productName: p.productName, price: p.price, imagePath: p.imagePath,
+      }));
+
+      let orderItems = order ? TeamA.orderItemsOf(order.orderId).map((it, index) => {
+        const p = TeamA.productById(it.productId) || {};
+        return {
+          rowId: `existing-${it.productId}-${index}`,
+          productId: it.productId,
+          productName: it.productName || p.productName || "",
+          price: Number(it.unitPrice != null ? it.unitPrice : p.price) || 0,
+          quantity: Number(it.quantity) || 1,
+          imagePath: p.imagePath || null,
+        };
+      }) : [];
+
+      const productOptionsHtml = productOptions.map((p) =>
+        `<option value="${p.productId}">${esc(p.productName)}</option>`).join("");
+
+      function renderItems() {
+        const tbody = document.getElementById("odItems");
+        if (orderItems.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7">商品がありません。</td></tr>`;
+        } else {
+          tbody.innerHTML = orderItems.map((item) => {
+            const opts = productOptions.map((p) =>
+              `<option value="${p.productId}" ${p.productId === item.productId ? "selected" : ""}>${esc(p.productName)}</option>`).join("");
+            const dis = isChangeAllowed ? "" : "disabled";
+            return `<tr data-row="${esc(item.rowId)}">
+              <td>${item.productId}</td>
+              <td><img src="${esc(TeamA.img(item.imagePath))}" alt="${esc(item.productName)}" class="orderChangeImage" onerror="this.src='./images/no_image.png'"></td>
+              <td>${esc(item.productName)}</td>
+              <td>
+                <div class="orderChangeCountArea">
+                  <button type="button" class="orderChangeCountBtn" data-act="down" ${dis}>－</button>
+                  <span class="orderChangeCount">${item.quantity}</span>
+                  <button type="button" class="orderChangeCountBtn" data-act="up" ${dis}>＋</button>
+                </div>
+              </td>
+              <td>
+                <select class="orderChangeSelect" data-act="change" ${dis}>${opts}</select>
+              </td>
+              <td class="orderChangePriceText">¥${(item.price * item.quantity).toLocaleString()}</td>
+              <td><button type="button" class="orderChangeDeleteBtn" data-act="delete" ${dis}>削除</button></td>
+            </tr>`;
+          }).join("");
+        }
+        updateTotal();
+      }
+
+      function updateTotal() {
+        const total = orderItems.reduce((s, it) => s + it.price * it.quantity, 0);
+        document.getElementById("odTotal").textContent = "¥" + total.toLocaleString();
+      }
+
+      document.getElementById("odItems").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-act]");
+        if (!btn || !isChangeAllowed) return;
+        const tr = btn.closest("tr"); const rowId = tr.dataset.row;
+        const item = orderItems.find((i) => i.rowId === rowId);
+        if (!item) return;
+        const act = btn.dataset.act;
+        if (act === "down") item.quantity = Math.max(1, item.quantity - 1);
+        else if (act === "up") item.quantity = item.quantity + 1;
+        else if (act === "delete") orderItems = orderItems.filter((i) => i.rowId !== rowId);
+        renderItems();
+      });
+
+      document.getElementById("odItems").addEventListener("change", (e) => {
+        const sel = e.target.closest("[data-act='change']");
+        if (!sel || !isChangeAllowed) return;
+        const tr = sel.closest("tr"); const rowId = tr.dataset.row;
+        const item = orderItems.find((i) => i.rowId === rowId);
+        const newProd = productOptions.find((p) => p.productId === Number(sel.value));
+        if (item && newProd) {
+          item.productId = newProd.productId;
+          item.productName = newProd.productName;
+          item.price = newProd.price;
+          item.imagePath = newProd.imagePath;
+          renderItems();
+        }
+      });
+
+      const addSelect = document.getElementById("addProductSelect");
+      addSelect.innerHTML = `<option value="">追加する商品を選択</option>` + productOptionsHtml;
+      if (productOptions.length > 0) addSelect.value = String(productOptions[0].productId);
+      document.getElementById("addProductBtn").addEventListener("click", () => {
+        if (!isChangeAllowed) return;
+        if (addSelect.value === "") { alert("追加する商品を選択してください。"); return; }
+        const prod = productOptions.find((p) => p.productId === Number(addSelect.value));
+        if (!prod) { alert("商品が見つかりません。"); return; }
+        const ex = orderItems.find((i) => i.productId === prod.productId);
+        if (ex) { ex.quantity += 1; }
+        else {
+          orderItems.push({
+            rowId: `new-${prod.productId}-${Date.now()}`,
+            productId: prod.productId, productName: prod.productName,
+            price: prod.price, quantity: 1, imagePath: prod.imagePath,
+          });
+        }
+        renderItems();
+      });
+
+      if (!isChangeAllowed) {
+        ["deliveryCycle", "startDate", "endDate", "nextDelivery"].forEach((id) => { document.getElementById(id).disabled = true; });
+        document.querySelectorAll(".stopCtl").forEach((el) => { el.disabled = true; });
+        document.getElementById("addProductSelect").disabled = true;
+        document.getElementById("addProductBtn").disabled = true;
+        document.getElementById("confirmBtn").disabled = true;
+      }
+
+      document.getElementById("deleteBtn").addEventListener("click", () => {
+        if (!isChangeAllowed) return;
+        location.href = "./customer-order-delete-confirm.html?orderNo=" + encodeURIComponent(displayOrderNo);
+      });
+
+      document.getElementById("confirmBtn").addEventListener("click", () => {
+        if (!canChangeOrder()) {
+          alert("この注文は配送日の3日前を過ぎているため、変更できません。");
+          return;
+        }
+        TeamA.setDraft("orderUpdateData", {
+          orderNo: displayOrderNo,
+          orderId: order ? order.orderId : null,
+          orderItems: orderItems,
+          deliveryCycle: document.getElementById("deliveryCycle").value,
+          startDate: document.getElementById("startDate").value,
+          endDate: document.getElementById("endDate").value,
+          nextDelivery: document.getElementById("nextDelivery").value,
+        });
+        location.href = "./customer-order-update-confirm.html?orderNo=" + encodeURIComponent(displayOrderNo);
+      });
+
+      renderItems();
+    });
+  </script>
+</body>
+
+</html>

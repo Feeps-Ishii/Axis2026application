@@ -1,0 +1,688 @@
+.customerDetailPage,
+.requestUpdatePage {
+    min-height: 100vh;
+    color: var(--text);
+    background-color: #f4faff;
+    line-height: 1.7;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.fixedBottomBg {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 210px;
+    background-image: url("../images/mypage_bg_bottom_fixed.png");
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: cover;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.customerContainer {
+    width: min(1320px, calc(100% - 56px));
+    margin: 0 auto;
+    padding: 14px 0 220px;
+    position: relative;
+    isolation: isolate;
+    z-index: 1;
+}
+
+.customerContainer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    height: 330px;
+    transform: translateX(-50%);
+    background-image: url("../images/mypage_bg_top.png");
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.customerPageHeading {
+    min-height: 126px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10px 0 14px;
+}
+
+.customerWelcome {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--green-dark);
+    background-color: rgba(233, 248, 238, 0.9);
+    border: 1px solid rgba(47, 158, 68, 0.22);
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: 0.92rem;
+    font-weight: 900;
+}
+
+.customerWelcome::before {
+    content: "🌿";
+}
+
+.customerMainTitle {
+    margin-top: 12px;
+    color: var(--gunjo-dark);
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+}
+
+.customerMainTitle::after {
+    content: "";
+    display: block;
+    width: 340px;
+    max-width: 100%;
+    height: 4px;
+    margin-top: 10px;
+    background-color: var(--blue);
+    border-radius: 999px;
+}
+
+.customerMainSubtitle {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 0.98rem;
+    font-weight: 700;
+}
+
+.customerSection,
+.customerActionBox {
+    position: relative;
+    z-index: 2;
+    background-color: rgba(255, 255, 255, 0.96);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.customerSection {
+    padding: 26px 28px;
+    margin-top: 22px;
+}
+
+.customerSectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.customerSectionTitle {
+    color: var(--gunjo-dark);
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    padding-left: 14px;
+    border-left: 6px solid var(--green);
+}
+
+.customerSectionSubtext {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.customerCard,
+.customerInfoCard {
+    background-color: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.customerCard {
+    padding: 22px;
+}
+
+.customerInfoCard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    overflow: hidden;
+}
+
+.customerDetailInfoCard {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.customerInfoRow {
+    padding: 18px;
+    border-right: 1px solid var(--line);
+    background-color: #ffffff;
+}
+
+.customerInfoRow:last-child {
+    border-right: none;
+}
+
+.customerInfoLabel {
+    display: block;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 900;
+    margin-bottom: 5px;
+}
+
+.customerInfoValue {
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 900;
+}
+
+.customerFormGrid,
+.customerDetailFormGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.customerFormGroup {
+    margin-top: 18px;
+}
+
+.customerFormGrid .customerFormGroup,
+.customerDetailFormGrid .customerFormGroup,
+.customerCardFormGrid .customerFormGroup {
+    margin-top: 0;
+}
+
+.customerFormGroup label {
+    display: block;
+    color: var(--gunjo-dark);
+    font-size: 0.88rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.customerFormGroup input,
+.customerFormGroup select,
+.customerTextarea {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid #c7dcec;
+    border-radius: 9px;
+    background-color: #ffffff;
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 700;
+    outline: none;
+}
+
+.customerFormGroup input:focus,
+.customerFormGroup select:focus,
+.customerTextarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 4px rgba(13, 99, 168, 0.12);
+}
+
+.customerTextarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.customerCheckboxGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.customerCheckboxGridSmall {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.customerCheckLabel,
+.customerRadioLabel {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--gunjo-dark);
+    font-size: 0.92rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.customerCheckLabel {
+    background-color: var(--blue-pale);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    transition: 0.2s ease;
+}
+
+.customerCheckLabel:hover {
+    border-color: var(--blue);
+    background-color: var(--blue-soft);
+    transform: translateY(-1px);
+}
+
+.customerCheckLabel input,
+.customerRadioLabel input {
+    width: 17px;
+    height: 17px;
+    accent-color: var(--green);
+}
+
+.customerRadioBox {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    background-color: var(--blue-pale);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+}
+
+.customerPaymentBox {
+    margin-bottom: 0;
+}
+
+.customerCautionText {
+    margin-top: 14px;
+    color: var(--danger);
+    font-size: 0.85rem;
+    font-weight: 900;
+}
+
+.customerHelpText {
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.customerActionBox {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 24px;
+    padding: 26px 20px;
+}
+
+.customerBackBtn,
+.customerSubmitBtn {
+    width: 100%;
+    max-width: 260px;
+    padding: 14px 20px;
+    border-radius: 9px;
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    transition: 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.customerBackBtn {
+    color: var(--gunjo);
+    background-color: #ffffff;
+    border: 2px solid #c9dceb;
+}
+
+.customerBackBtn:hover {
+    background-color: var(--blue-soft);
+    transform: translateY(-1px);
+}
+
+.customerSubmitBtn {
+    color: #ffffff;
+    background-color: var(--green);
+    border: 2px solid var(--green);
+    box-shadow: 0 8px 14px rgba(47, 158, 68, 0.22);
+}
+
+.customerSubmitBtn::before {
+    content: "✓";
+    margin-right: 8px;
+}
+
+.customerSubmitBtn:hover {
+    background-color: var(--green-dark);
+    border-color: var(--green-dark);
+    transform: translateY(-1px);
+}
+
+/* 会員情報変更専用：支払方法 */
+
+.displayNone {
+    display: none !important;
+}
+
+.customerPaymentDetailBox {
+    margin-top: 18px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.customerPaymentDetailTitle {
+    color: var(--gunjo-dark);
+    font-size: 1.08rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    margin-bottom: 14px;
+    padding-left: 12px;
+    border-left: 5px solid var(--green);
+}
+
+.customerPaymentDetailLabel {
+    display: inline-block;
+    color: var(--green-dark);
+    background-color: var(--green-soft);
+    border: 1px solid #9bd8b2;
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 0.82rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.customerRegisteredCardBox {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 20px;
+    background-color: var(--blue-pale);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.customerRegisteredCardNumber {
+    color: var(--gunjo-dark);
+    font-size: 1.05rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+}
+
+.customerNewCardBtn {
+    flex: 0 0 auto;
+    padding: 10px 18px;
+    color: #ffffff;
+    background-color: var(--blue);
+    border: 2px solid var(--blue);
+    border-radius: 9px;
+    font-size: 0.92rem;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    box-shadow: 0 8px 14px rgba(13, 99, 168, 0.22);
+    transition: 0.2s ease;
+}
+
+.customerNewCardBtn:hover {
+    background-color: var(--gunjo);
+    border-color: var(--gunjo);
+    transform: translateY(-1px);
+}
+
+.customerNewCardForm {
+    margin-top: 18px;
+    padding: 20px;
+    background-color: var(--blue-pale);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.customerCardFormGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.customerRegistPage {
+    min-height: 100vh;
+    color: var(--text);
+    background-color: #f4faff;
+    line-height: 1.7;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.mockupControls {
+    position: relative;
+    z-index: 2;
+    margin: 0 0 22px;
+    padding: 16px 20px;
+    background-color: rgba(255, 255, 255, 0.96);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.mockupControlsLabel {
+    color: var(--gunjo-dark);
+    font-weight: 900;
+}
+
+.btnRole {
+    padding: 9px 18px;
+    border-radius: 999px;
+    border: 2px solid #c9dceb;
+    color: var(--gunjo);
+    background-color: #ffffff;
+    font-weight: 900;
+    transition: 0.2s ease;
+}
+
+.btnRole:hover {
+    background-color: var(--blue-soft);
+    transform: translateY(-1px);
+}
+
+.activeRole {
+    color: #ffffff;
+    background-color: var(--green);
+    border-color: var(--green);
+    box-shadow: 0 8px 14px rgba(47, 158, 68, 0.22);
+}
+
+.paymentFormArea {
+    grid-column: span 2;
+}
+
+.creditCardBox,
+.paypayBox,
+.codBox {
+    margin-top: 18px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.creditCardTitle,
+.paypayTitle,
+.codTitle {
+    color: var(--gunjo-dark);
+    font-size: 1.08rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    margin: 0 0 14px;
+    padding-left: 12px;
+    border-left: 5px solid var(--green);
+}
+
+.creditCardGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.productSelectBox {
+    margin-top: 18px;
+    padding: 18px;
+    background-color: var(--blue-pale);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.productCheckboxList {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.btnToggleList {
+    width: 100%;
+    padding: 13px 18px;
+    color: var(--gunjo);
+    background-color: #ffffff;
+    border: 2px solid #c9dceb;
+    border-radius: 9px;
+    font-weight: 900;
+    text-align: left;
+    transition: 0.2s ease;
+}
+
+.btnToggleList:hover {
+    background-color: var(--blue-soft);
+    border-color: var(--blue);
+    transform: translateY(-1px);
+}
+
+.customerFormGroupSingle {
+    max-width: 420px;
+}
+
+@media (max-width: 1180px) {
+    .customerDetailInfoCard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .customerDetailInfoCard .customerInfoRow:nth-child(2n) {
+        border-right: none;
+    }
+
+    .customerDetailInfoCard .customerInfoRow {
+        border-bottom: 1px solid var(--line);
+    }
+
+    .customerDetailInfoCard .customerInfoRow:last-child {
+        border-bottom: none;
+    }
+}
+
+@media (max-width: 900px) {
+
+    .customerInfoCard,
+    .customerDetailInfoCard,
+    .customerFormGrid,
+    .customerDetailFormGrid,
+    .customerCheckboxGrid,
+    .customerCheckboxGridSmall {
+        grid-template-columns: 1fr;
+    }
+
+    .customerInfoRow,
+    .customerDetailInfoCard .customerInfoRow,
+    .customerDetailInfoCard .customerInfoRow:nth-child(2n) {
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .customerInfoRow:last-child,
+    .customerDetailInfoCard .customerInfoRow:last-child {
+        border-bottom: none;
+    }
+
+    .paymentFormArea {
+        grid-column: span 1;
+    }
+
+    .creditCardGrid,
+    .productCheckboxList {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .customerContainer {
+        width: min(100% - 28px, 1320px);
+        padding-bottom: 160px;
+    }
+
+    .customerContainer::before {
+        height: 260px;
+        background-size: auto 260px;
+    }
+
+    .fixedBottomBg {
+        height: 150px;
+        background-size: auto 150px;
+    }
+
+    .customerPageHeading {
+        min-height: 110px;
+    }
+
+    .customerMainTitle {
+        font-size: 1.45rem;
+    }
+
+    .customerSection {
+        padding: 22px 16px;
+    }
+
+    .customerSectionHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .customerRadioBox {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .customerActionBox {
+        flex-direction: column;
+    }
+
+    .customerBackBtn,
+    .customerSubmitBtn {
+        max-width: none;
+    }
+
+    .customerRegisteredCardBox {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .customerNewCardBtn {
+        width: 100%;
+    }
+
+    .customerCardFormGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .mockupControls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btnRole {
+        width: 100%;
+    }
+}

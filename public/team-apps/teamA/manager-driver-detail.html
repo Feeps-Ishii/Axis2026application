@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ドライバー情報変更 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/driver.css">
+</head>
+
+<body>
+  <div class="driverDetailPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageTitle">
+        <div>つばさ配送サービス 業務管理システム</div>
+        <div class="orderCount">ドライバー情報変更</div>
+      </section>
+
+      <section class="formBox">
+        <div class="formGroup">
+          <label for="drv-id">ドライバーID</label>
+          <input type="text" id="drv-id" readonly>
+        </div>
+
+        <div class="formGroup">
+          <label for="drv-name">ドライバー名</label>
+          <input type="text" id="drv-name">
+        </div>
+
+        <div class="formGroup">
+          <label for="drv-phone">連絡先（電話番号）</label>
+          <input type="tel" id="drv-phone">
+        </div>
+
+        <div class="formGroup">
+          <label for="drv-vehicle-no">車両番号（任意）</label>
+          <input type="text" id="drv-vehicle-no">
+        </div>
+
+        <div class="formGroup">
+          <label for="drv-vehicle-info">車両情報（任意）</label>
+          <input type="text" id="drv-vehicle-info">
+        </div>
+
+        <div class="formGroup">
+          <label class="checkboxLabel">
+            <span>冷蔵・冷凍対応あり</span>
+            <input type="checkbox" id="drv-refrigerated">
+          </label>
+        </div>
+
+        <div class="formGroup">
+          <label for="drv-password">新しいパスワード（変更時のみ）</label>
+          <input type="password" id="drv-password" placeholder="変更しない場合は空欄">
+        </div>
+
+        <div class="formGroup">
+          <label for="drv-current-password">現在のパスワード（パスワード変更時のみ）</label>
+          <input type="password" id="drv-current-password" placeholder="現在のパスワードを入力">
+        </div>
+
+        <p id="successMessage" class="successMessage" style="display:none;"></p>
+        <p id="errorMessage" class="errorMessage" style="display:none;"></p>
+
+        <div class="submitActionBox">
+          <a href="./manager-drivers.html" class="btnBack">一覧に戻る</a>
+          <button type="button" id="btnSubmit" class="btnSubmit">変更を保存する</button>
+        </div>
+      </section>
+    </main>
+
+    <div id="managerFooter"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"])) return;
+      TeamAUI.renderHeader("staff", "ドライバー情報変更");
+      TeamAUI.renderManagerFooter();
+
+      const err = document.getElementById("errorMessage");
+      const msg = document.getElementById("successMessage");
+      const btn = document.getElementById("btnSubmit");
+      function showErr(t) { err.textContent = t; err.style.display = "block"; }
+      function val(id) { return document.getElementById(id).value; }
+
+      const driverId = Number(new URLSearchParams(location.search).get("driverId"));
+      const d = TeamA.driverById(driverId);
+      if (!d) { showErr("ドライバー情報の取得に失敗しました。"); return; }
+
+      let driverCode = d.driverCode;
+      document.getElementById("drv-id").value = d.driverCode;
+      document.getElementById("drv-name").value = d.driverName;
+      document.getElementById("drv-phone").value = d.phone;
+      document.getElementById("drv-vehicle-no").value = d.vehicleNo || "";
+      document.getElementById("drv-vehicle-info").value = d.vehicleInfo || "";
+      document.getElementById("drv-refrigerated").checked = !!d.refrigeratedFlag;
+
+      btn.addEventListener("click", () => {
+        msg.style.display = "none";
+        err.style.display = "none";
+
+        const driverName = val("drv-name").trim();
+        const phone = val("drv-phone").trim();
+        const vehicleNo = val("drv-vehicle-no").trim();
+        const vehicleInfo = val("drv-vehicle-info").trim();
+        const refrigeratedFlag = document.getElementById("drv-refrigerated").checked;
+        const password = val("drv-password").trim();
+        const currentPassword = val("drv-current-password").trim();
+
+        if (driverName === "") { showErr("ドライバー名を入力してください。"); return; }
+        if (phone === "") { showErr("電話番号を入力してください。"); return; }
+        if (password !== "" && currentPassword === "") { showErr("現在のパスワードを入力してください。"); return; }
+        if (password !== "" && password.length < 8) { showErr("新しいパスワードは8文字以上で入力してください。"); return; }
+
+        const isPasswordChanged = password !== "";
+
+        const ok = window.confirm(
+          `以下の内容で変更してよろしいですか？\n\n` +
+          `ドライバーID：${driverCode}\n` +
+          `ドライバー名：${driverName}\n` +
+          `電話番号：${phone}\n` +
+          `車両番号：${vehicleNo || "未入力"}\n` +
+          `車両情報：${vehicleInfo || "未入力"}\n` +
+          `冷蔵・冷凍対応：${refrigeratedFlag ? "あり" : "なし"}\n` +
+          `パスワード変更：${isPasswordChanged ? "あり" : "なし"}`
+        );
+        if (!ok) return;
+
+        const upd = { driverName, phone, vehicleNo, vehicleInfo, refrigeratedFlag };
+        if (isPasswordChanged) upd.passwordHash = password;
+        TeamA.updateDriver(driverId, upd);
+        location.href = "./manager-driver-complete.html?mode=update";
+      });
+    });
+  </script>
+</body>
+
+</html>

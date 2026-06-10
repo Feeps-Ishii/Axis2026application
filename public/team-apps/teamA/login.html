@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/login.css">
+</head>
+
+<body>
+  <main class="loginPage">
+    <div class="fixedBottomBg" aria-hidden="true"></div>
+
+    <div class="loginShell">
+      <section class="loginBrandArea">
+        <div class="loginCopy">
+          <span class="loginCopyLabel">新鮮な食材を、安心してお届け</span>
+          <h1>つばさ配送サービス</h1>
+          <p>商品注文・定期配送・配送状況の確認を行うためのログイン画面です。</p>
+        </div>
+        <div class="loginLogoCard">
+          <img src="./images/tsubasa-logo-2.png" alt="つばさ配送サービス" class="loginLogo">
+        </div>
+      </section>
+
+      <section class="loginBox">
+        <div id="loginHeader" class="loginHeader loginTitleCustomer">お客様ログイン</div>
+        <div class="loginBody">
+          <p id="errorMessage" class="errorMessage" style="display:none;"></p>
+
+          <!-- 顧客 -->
+          <div id="form-customer">
+            <div class="formGroup">
+              <label for="phone">電話番号</label>
+              <input type="tel" id="phone" placeholder="例: 09012345678">
+            </div>
+            <div class="formGroup">
+              <label for="customer-password">パスワード</label>
+              <input type="password" id="customer-password" placeholder="パスワードを入力">
+            </div>
+            <button type="button" class="btnLogin" data-role="customer">ログイン</button>
+            <div class="registerLink">
+              初めてご利用の方は<a href="./customer-register.html">こちらから新規登録</a>
+            </div>
+            <div class="loginLinks">
+              <button type="button" class="btnSwitch" data-switch="staff">社員用ログインはこちら</button>
+              <button type="button" class="btnSwitch" data-switch="driver">ドライバー用ログインはこちら</button>
+            </div>
+          </div>
+
+          <!-- 社員 -->
+          <div id="form-staff" style="display:none;">
+            <div class="formGroup">
+              <label for="staff-id">社員コード</label>
+              <input type="text" id="staff-id" placeholder="例: 1001">
+            </div>
+            <div class="formGroup">
+              <label for="staff-password">パスワード</label>
+              <input type="password" id="staff-password" placeholder="パスワードを入力">
+            </div>
+            <button type="button" class="btnLogin staffLoginBtn" data-role="staff">社員システムへログイン</button>
+            <div class="loginLinks">
+              <button type="button" class="btnSwitch" data-switch="customer">お客様（顧客）ログインに戻る</button>
+              <button type="button" class="btnSwitch" data-switch="driver">ドライバー用ログインはこちら</button>
+            </div>
+          </div>
+
+          <!-- ドライバー -->
+          <div id="form-driver" style="display:none;">
+            <div class="formGroup">
+              <label for="driver-id">ドライバーコード</label>
+              <input type="text" id="driver-id" placeholder="例: 2001">
+            </div>
+            <div class="formGroup">
+              <label for="driver-password">パスワード</label>
+              <input type="password" id="driver-password" placeholder="パスワードを入力">
+            </div>
+            <button type="button" class="btnLogin driverLoginBtn" data-role="driver">ドライバー用画面へログイン</button>
+            <div class="loginLinks">
+              <button type="button" class="btnSwitch" data-switch="customer">お客様（顧客）ログインに戻る</button>
+              <button type="button" class="btnSwitch" data-switch="staff">社員用ログインはこちら</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- デモ用アカウント -->
+    <div style="position:relative; z-index:5; max-width:560px; margin:16px auto 40px; padding:12px 16px; background:rgba(255,255,255,.9); border-radius:10px; font-size:13px; line-height:1.8; color:#11243d;">
+      <strong>デモ用アカウント（パスワードはすべて password123）</strong><br>
+      お客様（電話番号）: 09011112222 / 09022223333 / 09033334444<br>
+      社員（社員コード）: 1001（管理者）/ 1002（社員）<br>
+      ドライバー（コード）: 2001 / 2002
+    </div>
+  </main>
+
+  <script src="./js/db.js"></script>
+  <script>
+    const TITLES = {
+      customer: ["お客様ログイン", "loginTitleCustomer"],
+      staff: ["社員ログイン", "loginTitleStaff"],
+      driver: ["ドライバーログイン", "loginTitleDriver"],
+    };
+    let role = "customer";
+    function switchRole(next) {
+      role = next;
+      ["customer", "staff", "driver"].forEach((r) => {
+        document.getElementById("form-" + r).style.display = r === next ? "" : "none";
+      });
+      const h = document.getElementById("loginHeader");
+      h.className = "loginHeader " + TITLES[next][1];
+      h.textContent = TITLES[next][0];
+      document.getElementById("errorMessage").style.display = "none";
+    }
+    function idFor(r) {
+      return r === "customer" ? "phone" : r === "staff" ? "staff-id" : "driver-id";
+    }
+    function passFor(r) {
+      return r === "customer" ? "customer-password" : r === "staff" ? "staff-password" : "driver-password";
+    }
+    function doLogin(r) {
+      const err = document.getElementById("errorMessage");
+      err.style.display = "none";
+      const loginId = document.getElementById(idFor(r)).value.trim();
+      const password = document.getElementById(passFor(r)).value.trim();
+      if (!loginId || !password) {
+        err.textContent = "ログインIDとパスワードを入力してください。";
+        err.style.display = "block";
+        return;
+      }
+      const res = TeamA.login(r, loginId, password);
+      if (!res.ok) {
+        err.textContent = res.message || "ログインに失敗しました。";
+        err.style.display = "block";
+        return;
+      }
+      location.href = res.redirectUrl;
+    }
+
+    TeamA.init().then(() => {
+      document.querySelectorAll("[data-switch]").forEach((b) =>
+        b.addEventListener("click", () => switchRole(b.dataset.switch)));
+      document.querySelectorAll("[data-role]").forEach((b) =>
+        b.addEventListener("click", () => doLogin(b.dataset.role)));
+      // Enterキーでログイン
+      ["customer-password", "staff-password", "driver-password"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(role); });
+      });
+    });
+  </script>
+</body>
+
+</html>

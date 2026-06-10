@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注文内容確認 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/item.css">
+</head>
+
+<body>
+  <div class="orderDetailPage">
+    <div class="fixedBottomBg"></div>
+
+    <div id="appHeader"></div>
+
+    <div class="itemContainer">
+      <section class="itemPageHeading">
+        <span class="itemWelcome">入力内容をご確認ください</span>
+        <h2 class="itemMainTitle">注文内容変更確認</h2>
+        <p class="itemMainSubtitle">この内容で注文を更新します</p>
+      </section>
+
+      <section class="orderChangeSection">
+        <div class="orderChangeSectionHeader">
+          <h2 class="orderChangeSectionTitle">確認内容</h2>
+        </div>
+
+        <div class="orderChangeInfoCard">
+          <div class="orderChangeInfoRow">
+            <span class="orderChangeInfoLabel">注文番号</span>
+            <span class="orderChangeInfoValue" id="cfOrderNo"></span>
+          </div>
+          <div class="orderChangeInfoRow">
+            <span class="orderChangeInfoLabel">配送サイクル</span>
+            <span class="orderChangeInfoValue" id="cfCycle"></span>
+          </div>
+          <div class="orderChangeInfoRow">
+            <span class="orderChangeInfoLabel">開始日</span>
+            <span class="orderChangeInfoValue" id="cfStart"></span>
+          </div>
+          <div class="orderChangeInfoRow">
+            <span class="orderChangeInfoLabel">終了日</span>
+            <span class="orderChangeInfoValue" id="cfEnd"></span>
+          </div>
+          <div class="orderChangeInfoRow">
+            <span class="orderChangeInfoLabel">次回配送日</span>
+            <span class="orderChangeInfoValue" id="cfNext"></span>
+          </div>
+          <div class="orderChangeInfoRow">
+            <span class="orderChangeInfoLabel">合計金額</span>
+            <span class="orderChangeInfoValue" id="cfTotal"></span>
+          </div>
+        </div>
+
+        <div class="orderChangeTableWrap">
+          <table class="orderChangeTable">
+            <thead>
+              <tr>
+                <th>商品名</th>
+                <th>単価</th>
+                <th>数量</th>
+                <th>小計</th>
+              </tr>
+            </thead>
+            <tbody id="cfItems"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="orderChangeActionBox">
+        <a href="#" id="backLink" class="orderChangeBackBtn">戻る</a>
+        <button type="button" class="orderChangeConfirmBtn" id="updateBtn">注文内容を更新する</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = TeamAUI.esc;
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["customer"], "customer-order-update-confirm.html")) return;
+
+      TeamAUI.renderHeader("customer", "注文内容確認");
+
+      const qp = new URLSearchParams(location.search);
+      const orderNo = qp.get("orderNo") || "";
+      const data = TeamA.getDraft("orderUpdateData");
+
+      const container = document.querySelector(".itemContainer");
+
+      if (!data) {
+        container.innerHTML = `<div>読み込み中...</div>`;
+        return;
+      }
+
+      document.getElementById("backLink").href = "./customer-order-detail.html?orderNo=" + encodeURIComponent(data.orderNo || orderNo);
+
+      document.getElementById("cfOrderNo").textContent = data.orderNo || "";
+      document.getElementById("cfCycle").textContent = data.deliveryCycle || "";
+      document.getElementById("cfStart").textContent = data.startDate || "";
+      document.getElementById("cfEnd").textContent = data.endDate || "";
+      document.getElementById("cfNext").textContent = data.nextDelivery || "";
+
+      const items = data.orderItems || [];
+      const total = items.reduce((s, it) => s + it.price * it.quantity, 0);
+      document.getElementById("cfTotal").textContent = "¥" + total.toLocaleString();
+
+      document.getElementById("cfItems").innerHTML = items.map((item) =>
+        `<tr>
+          <td>${esc(item.productName)}</td>
+          <td>¥${(Number(item.price) || 0).toLocaleString()}</td>
+          <td>${item.quantity}</td>
+          <td>¥${(item.price * item.quantity).toLocaleString()}</td>
+        </tr>`).join("");
+
+      document.getElementById("updateBtn").addEventListener("click", () => {
+        const orderId = data.orderId != null ? data.orderId : (TeamA.orderByNo(data.orderNo) || {}).orderId;
+        if (orderId != null) {
+          TeamA.updateOrder(orderId, {
+            deliveryDate: data.nextDelivery,
+            requestNote: "フロント更新テスト",
+          });
+        }
+        alert("注文内容を更新しました。");
+        TeamA.clearDraft("orderUpdateData");
+        window.location.href = "./customer-mypage.html";
+      });
+    });
+  </script>
+</body>
+
+</html>

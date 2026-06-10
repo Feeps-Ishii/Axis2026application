@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>処理完了 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/ManagerFooter.css">
+  <link rel="stylesheet" href="./css/driver.css">
+  <link rel="stylesheet" href="./css/employee.css">
+</head>
+
+<body>
+  <div class="employeeDetailPage">
+    <div id="appHeader"></div>
+
+    <main class="container">
+      <section class="pageTitle">
+        <div>つばさ配送サービス 業務管理システム</div>
+        <div class="orderCount" id="titleText">処理完了</div>
+      </section>
+
+      <section class="completeBox">
+        <div class="completeIcon">✓</div>
+        <h2 class="completeTitle" id="messageText">処理が完了しました。</h2>
+        <p class="completeText">続けて操作する場合は、社員一覧へ戻ってください。</p>
+        <div class="submitActionBox">
+          <a href="./manager-employees.html" class="btnSubmit">社員一覧へ戻る</a>
+        </div>
+      </section>
+    </main>
+
+    <div id="managerFooter"></div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["admin", "staff"])) return;
+
+      const mode = new URLSearchParams(location.search).get("mode");
+      let title = "処理完了";
+      let message = "処理が完了しました。";
+      if (mode === "register") { title = "社員登録完了"; message = "社員の登録が完了しました。"; }
+      if (mode === "update") { title = "社員情報変更完了"; message = "社員情報の変更が完了しました。"; }
+      if (mode === "delete") { title = "社員情報削除完了"; message = "社員データの削除が完了しました。"; }
+
+      TeamAUI.renderHeader("staff", title);
+      TeamAUI.renderManagerFooter();
+      document.getElementById("titleText").textContent = title;
+      document.getElementById("messageText").textContent = message;
+      document.title = title + " | つばさ配送サービス";
+    });
+  </script>
+</body>
+
+</html>

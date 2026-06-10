@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注文削除確認 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/item.css">
+</head>
+
+<body>
+  <div class="orderDetailPage">
+    <div class="fixedBottomBg"></div>
+
+    <div id="appHeader"></div>
+
+    <div class="itemContainer">
+      <section class="itemPageHeading">
+        <span class="itemWelcome">削除内容をご確認ください</span>
+        <h2 class="itemMainTitle">注文削除確認</h2>
+        <p class="itemMainSubtitle">この注文を削除します</p>
+      </section>
+
+      <section class="orderChangeSection">
+        <div class="orderChangeInfoCard">
+          <div class="orderChangeInfoRow">
+            <span class="orderChangeInfoLabel">注文番号</span>
+            <span class="orderChangeInfoValue" id="dcOrderNo"></span>
+          </div>
+        </div>
+
+        <p style="margin-top:20px;color:red;font-weight:bold;">この操作は取り消せません。</p>
+      </section>
+
+      <div class="orderChangeActionBox">
+        <a href="#" id="backLink" class="orderChangeBackBtn">戻る</a>
+        <button type="button" class="orderChangeDangerBtn" id="deleteBtn">注文を削除する</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["customer"], "customer-order-delete-confirm.html")) return;
+
+      TeamAUI.renderHeader("customer", "注文削除確認");
+
+      const qp = new URLSearchParams(location.search);
+      const orderNo = qp.get("orderNo") || "";
+      const idParam = qp.get("id");
+
+      let order = orderNo ? TeamA.orderByNo(orderNo) : null;
+      if (!order && idParam) order = TeamA.orderById(idParam);
+      const displayOrderNo = order ? order.orderNo : (orderNo || idParam || "");
+
+      document.getElementById("dcOrderNo").textContent = displayOrderNo;
+      document.getElementById("backLink").href = "./customer-order-detail.html?orderNo=" + encodeURIComponent(displayOrderNo);
+
+      document.getElementById("deleteBtn").addEventListener("click", () => {
+        if (order) TeamA.cancelOrder(order.orderId);
+        alert("注文をキャンセルしました。");
+        window.location.href = "./customer-mypage.html";
+      });
+    });
+  </script>
+</body>
+
+</html>

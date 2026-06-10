@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>要望の追加・変更 | つばさ配送サービス</title>
+  <link rel="stylesheet" href="./css/globals.css">
+  <link rel="stylesheet" href="./css/Header.css">
+  <link rel="stylesheet" href="./css/customer-request.css">
+</head>
+
+<body>
+  <div class="requestUpdatePage">
+    <div class="fixedBottomBg" aria-hidden="true"></div>
+
+    <div id="appHeader"></div>
+
+    <div class="customerContainer">
+      <div id="errorMessage" style="color:red;font-weight:bold;margin-bottom:16px;padding:10px;border:1px solid red;background-color:#fee;border-radius:4px;display:none;"></div>
+
+      <section class="customerPageHeading">
+        <span class="customerWelcome">アレルギー・苦手食材・配送指示を管理</span>
+        <h2 class="customerMainTitle">要望の追加・変更</h2>
+        <p class="customerMainSubtitle">商品や配送に関する希望を登録して、次回以降の注文に反映できます。</p>
+      </section>
+
+      <section class="customerSection">
+        <div class="customerSectionHeader">
+          <h2 class="customerSectionTitle">登録者情報</h2>
+          <span class="customerSectionSubtext">マイページの登録情報</span>
+        </div>
+
+        <div class="customerInfoCard">
+          <div class="customerInfoRow">
+            <span class="customerInfoLabel">氏名</span>
+            <span class="customerInfoValue" id="rqName"></span>
+          </div>
+          <div class="customerInfoRow">
+            <span class="customerInfoLabel">支払方法</span>
+            <span class="customerInfoValue" id="rqPayment"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="customerSection">
+        <div class="customerSectionHeader">
+          <h2 class="customerSectionTitle">アレルギー登録</h2>
+          <span class="customerSectionSubtext">該当するアレルギーを選択してください</span>
+        </div>
+
+        <div class="customerCard">
+          <div class="customerCheckboxGrid" id="allergenGrid"></div>
+        </div>
+      </section>
+
+      <section class="customerSection">
+        <div class="customerSectionHeader">
+          <h2 class="customerSectionTitle">嫌いな食べ物登録</h2>
+          <span class="customerSectionSubtext">苦手な食材や避けたい食材を登録できます</span>
+        </div>
+
+        <div class="customerCard">
+          <div class="customerCheckboxGrid" id="dislikeGrid"></div>
+        </div>
+      </section>
+
+      <section class="customerSection">
+        <div class="customerSectionHeader">
+          <h2 class="customerSectionTitle">デフォルト配送指示</h2>
+          <span class="customerSectionSubtext" id="deliveryStateText">次回以降の注文に自動反映されます</span>
+        </div>
+
+        <div class="customerCard">
+          <div class="customerRadioBox">
+            <label class="customerRadioLabel">
+              <input type="checkbox" id="leaveAtDoor"> 置き配希望
+            </label>
+            <label class="customerRadioLabel">
+              <input type="checkbox" id="frozenDelivery"> 冷凍便希望
+            </label>
+          </div>
+          <p class="customerCautionText" id="cautionText">※ 置き配を希望している場合、代引きは選択できません。</p>
+        </div>
+      </section>
+
+      <section class="customerSection">
+        <div class="customerSectionHeader">
+          <h2 class="customerSectionTitle">自由記入</h2>
+          <span class="customerSectionSubtext">配送や商品に関するその他の要望を登録できます</span>
+        </div>
+
+        <div class="customerCard">
+          <div class="customerFormGroup">
+            <label for="requestText">自由記入欄</label>
+            <textarea id="requestText" class="customerTextarea" maxlength="500"
+              placeholder="例：インターホンは鳴らさないでください。段ボールは小さめでお願いします。"></textarea>
+            <div id="charCount" style="margin-top:6px;text-align:right;font-size:0.85rem;color:#666;">0 / 500文字</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="customerActionBox">
+        <a href="./customer-mypage.html" class="customerBackBtn">マイページへ戻る</a>
+        <button type="button" class="customerSubmitBtn" id="submitBtn">要望を変更する</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    const esc = TeamAUI.esc;
+    const REQUEST_TEXT_MAX_LENGTH = 500;
+    const PAYMENT_LABEL = { credit: "クレジットカード", cod: "代引き", paypay: "PayPay" };
+
+    TeamA.init().then(() => {
+      if (!TeamA.requireRole(["customer"], "customer-request.html")) return;
+
+      const cid = TeamA.session().userId;
+      const cust = TeamA.customerById(cid) || {};
+      const pref = TeamA.customerPreference(cid) || {};
+
+      TeamAUI.renderHeader("customer", "要望の追加・変更");
+
+      const paymentDisplayName = PAYMENT_LABEL[cust.defaultPaymentMethod] || "-";
+      document.getElementById("rqName").textContent = cust.customerName || "";
+      document.getElementById("rqPayment").textContent = paymentDisplayName;
+      document.getElementById("cautionText").textContent =
+        "※ 置き配を希望している場合、代引きは選択できません。（現在の支払方法: " + paymentDisplayName + "）";
+
+      const allergens = TeamA.allergens().filter((a) => a.allergenName !== "なし");
+      const products = TeamA.productsActive();
+
+      const myAllergenNames = TeamA.customerAllergenNames(cid);
+      const selectedAllergies = new Set(
+        allergens.filter((a) => myAllergenNames.includes(a.allergenName)).map((a) => a.allergenId)
+      );
+      const myDislikedNames = TeamA.customerDislikedNames(cid);
+      const selectedDislikes = new Set(
+        products.filter((p) => myDislikedNames.includes(p.productName)).map((p) => p.productId)
+      );
+
+      document.getElementById("allergenGrid").innerHTML = allergens.map((a) =>
+        `<label class="customerCheckLabel">
+          <input type="checkbox" data-allergen="${a.allergenId}" ${selectedAllergies.has(a.allergenId) ? "checked" : ""}>
+          ${esc(a.allergenName)}
+        </label>`).join("");
+
+      const dislikeGrid = document.getElementById("dislikeGrid");
+      if (products.length > 0) {
+        dislikeGrid.innerHTML = products.map((p) =>
+          `<label class="customerCheckLabel">
+            <input type="checkbox" data-product="${p.productId}" ${selectedDislikes.has(p.productId) ? "checked" : ""}>
+            ${esc(p.productName)}
+          </label>`).join("");
+      } else {
+        dislikeGrid.innerHTML = `<p style="color:#666;font-size:0.9rem;">※現在、選択できる商品が登録されていません。</p>`;
+      }
+
+      const leaveEl = document.getElementById("leaveAtDoor");
+      const frozenEl = document.getElementById("frozenDelivery");
+      leaveEl.checked = pref.leaveAtDoorFlag != null ? !!pref.leaveAtDoorFlag : !!cust.defaultLeaveAtDoorFlag;
+      frozenEl.checked = pref.frozenFlag != null ? !!pref.frozenFlag : !!cust.defaultFrozenFlag;
+
+      function updateStateText() {
+        const isNormal = !leaveEl.checked && !frozenEl.checked;
+        let txt = "次回以降の注文に自動反映されます （現在の状態:";
+        if (isNormal) txt += " 通常配送";
+        if (leaveEl.checked) txt += "【置き配】";
+        if (frozenEl.checked) txt += "【冷凍便】";
+        txt += "）";
+        document.getElementById("deliveryStateText").textContent = txt;
+      }
+      leaveEl.addEventListener("change", updateStateText);
+      frozenEl.addEventListener("change", updateStateText);
+      updateStateText();
+
+      const requestText = document.getElementById("requestText");
+      const note = pref.preferenceNote || "";
+      requestText.value = (!note || note === "設定なし") ? "" : note;
+      const charCount = document.getElementById("charCount");
+      function updateCount() {
+        charCount.textContent = requestText.value.length + " / " + REQUEST_TEXT_MAX_LENGTH + "文字";
+        charCount.style.color = requestText.value.length >= REQUEST_TEXT_MAX_LENGTH ? "red" : "#666";
+      }
+      requestText.addEventListener("input", updateCount);
+      updateCount();
+
+      const errEl = document.getElementById("errorMessage");
+
+      function getSelectedAllergenIds() {
+        return Array.from(document.querySelectorAll("#allergenGrid input:checked")).map((el) => Number(el.dataset.allergen));
+      }
+      function getSelectedDislikeIds() {
+        return Array.from(document.querySelectorAll("#dislikeGrid input:checked")).map((el) => Number(el.dataset.product));
+      }
+
+      function buildPreferenceNote() {
+        const clean = requestText.value.trim();
+        return clean === "" ? "設定なし" : clean;
+      }
+
+      function validateInput(preferenceNote, allergyIds, dislikeIds) {
+        if (leaveEl.checked && cust.defaultPaymentMethod === "cod") {
+          return "置き配を希望している場合、支払方法が代引きのままでは登録できません。会員情報変更画面で支払方法を変更してください。";
+        }
+        if (allergyIds.length > 10) return "アレルギーは10個以内で選択してください。";
+        if (dislikeIds.length > 10) return "嫌いな食べ物は10個以内で選択してください。";
+        if (preferenceNote.length > REQUEST_TEXT_MAX_LENGTH) return "自由記入欄は" + REQUEST_TEXT_MAX_LENGTH + "文字以内で入力してください。";
+        return "";
+      }
+
+      function buildConfirmMessage(preferenceNote, allergyIds, dislikeIds) {
+        const allergyNames = allergens.filter((a) => allergyIds.includes(a.allergenId)).map((a) => a.allergenName);
+        const dislikeNames = products.filter((p) => dislikeIds.includes(p.productId)).map((p) => p.productName);
+        return (
+          "以下の内容で要望を変更してよろしいですか？\n\n" +
+          "【アレルギー】\n" + (allergyNames.length > 0 ? allergyNames.join("、") : "なし") + "\n\n" +
+          "【嫌いな食べ物】\n" + (dislikeNames.length > 0 ? dislikeNames.join("、") : "なし") + "\n\n" +
+          "【配送指示】\n" +
+          (leaveEl.checked ? "置き配希望" : "置き配なし") + "\n" +
+          (frozenEl.checked ? "冷凍便希望" : "冷凍便なし") + "\n\n" +
+          "【自由記入】\n" + preferenceNote
+        );
+      }
+
+      document.getElementById("submitBtn").addEventListener("click", () => {
+        errEl.style.display = "none";
+        const allergyIds = getSelectedAllergenIds();
+        const dislikeIds = getSelectedDislikeIds();
+        const preferenceNote = buildPreferenceNote();
+
+        const msg = validateInput(preferenceNote, allergyIds, dislikeIds);
+        if (msg) {
+          errEl.textContent = msg; errEl.style.display = "block";
+          window.scrollTo(0, 0);
+          return;
+        }
+
+        if (!window.confirm(buildConfirmMessage(preferenceNote, allergyIds, dislikeIds))) return;
+
+        TeamA.saveCustomerPreference(cid, {
+          leaveAtDoorFlag: leaveEl.checked,
+          frozenFlag: frozenEl.checked,
+          preferenceNote: preferenceNote,
+        });
+        TeamA.setCustomerAllergens(cid, allergyIds);
+        TeamA.setCustomerDisliked(cid, dislikeIds);
+
+        location.href = "./customer-mypage.html";
+      });
+    });
+  </script>
+</body>
+
+</html>

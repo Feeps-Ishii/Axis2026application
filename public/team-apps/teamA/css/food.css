@@ -1,0 +1,481 @@
+.foodListPage,
+.foodRegistPage,
+.foodUpdatePage,
+.foodDeletePage {
+  min-height: 100vh;
+  background-color: var(--food-bg-light);
+  color: var(--food-text-dark);
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 30px;
+  min-height: 80vh;
+}
+
+.pageTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid var(--food-main-blue);
+  padding-bottom: 10px;
+  margin-bottom: 30px;
+}
+
+.pageTitle div:first-child {
+  font-size: 0.9rem;
+  color: var(--food-text-muted);
+  font-weight: bold;
+}
+
+.orderCount {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--food-main-blue);
+}
+
+.searchFilterBox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8fafc;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid var(--food-border-color);
+  margin-bottom: 24px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.searchField {
+  display: flex;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 520px;
+}
+
+.filterSelects {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.categorySelect {
+  width: 180px;
+  min-width: 180px;
+  max-width: 180px;
+}
+
+.searchField input,
+.filterSelects select,
+.formGroup input,
+.formGroup select {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 1px solid var(--food-border-color);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s;
+  background-color: #ffffff;
+}
+
+.searchField input:focus,
+.filterSelects select:focus,
+.formGroup input:focus,
+.formGroup select:focus {
+  border-color: var(--food-main-blue);
+}
+
+.formGroup input:read-only {
+  background-color: #f1f5f9;
+  color: var(--food-text-muted);
+  cursor: not-allowed;
+  border-color: var(--food-border-color);
+}
+
+.formBox {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px 0;
+}
+
+.formGroup {
+  margin-bottom: 24px;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: var(--food-main-blue);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.orderTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.orderTable th,
+.orderTable td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--food-border-color);
+}
+
+.orderTable th {
+  background-color: #f1f5f9;
+  color: var(--food-main-blue);
+  font-weight: bold;
+}
+
+.orderTable tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.alertWarningBox {
+  background-color: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 24px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.submitActionBox {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.btnSearch,
+.btnStoppedList,
+.btnRegisterCustomer,
+.btnSubmit,
+.btnBack,
+.btnDanger,
+.btnTableAction {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s, opacity 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnSearch:hover,
+.btnStoppedList:hover,
+.btnRegisterCustomer:hover,
+.btnSubmit:hover,
+.btnBack:hover,
+.btnDanger:hover,
+.btnTableAction:hover {
+  opacity: 0.9;
+}
+
+.btnSearch {
+  background-color: #64748b;
+  color: #ffffff;
+}
+
+.btnStoppedList {
+  background-color: #be185d;
+  color: #ffffff;
+}
+
+.btnStoppedList:hover {
+  background-color: #9d174d;
+}
+
+.btnRegisterCustomer {
+  background-color: var(--food-sub-green);
+  color: #ffffff;
+}
+
+.btnSubmit {
+  background-color: var(--food-sub-green);
+  color: #ffffff;
+  min-width: 160px;
+}
+
+.btnBack {
+  background-color: #94a3b8;
+  color: #ffffff;
+  min-width: 160px;
+}
+
+.btnDanger {
+  background-color: var(--food-danger-red);
+  color: #ffffff;
+  min-width: 160px;
+}
+
+.btnDanger:hover {
+  background-color: var(--food-danger-hover);
+}
+
+.btnTableAction {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
+
+.btnTableEdit {
+  background-color: var(--food-main-blue);
+  color: #ffffff;
+  margin-right: 4px;
+}
+
+.btnTableDelete {
+  background-color: var(--food-danger-red);
+  color: #ffffff;
+}
+
+/* ==========================================
+   商品登録画面 追加項目用
+   他画面に影響が出にくいように追加定義
+   ========================================== */
+
+/* 商品説明 textarea */
+.formGroup textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 1px solid var(--food-border-color);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s;
+  background-color: #ffffff;
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+.formGroup textarea:focus {
+  border-color: var(--food-main-blue);
+}
+
+/* 成功メッセージ */
+.successMessage {
+  margin: 12px 0 0;
+  color: var(--food-sub-green);
+  font-size: 0.95rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* エラーメッセージ */
+.errorMessage {
+  margin: 12px 0 0;
+  color: var(--food-danger-red);
+  font-size: 0.95rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* 入力補足テキスト */
+.formHelpText {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--food-text-muted);
+}
+
+/* 商品画像パスの例表示などに使用 */
+.formExampleText {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--food-text-muted);
+}
+
+/* 登録ボタン disabled 時 */
+.btnSubmit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==========================================
+   商品画像アップロード用 追加CSS
+   ========================================== */
+
+.imagePreviewBox {
+  margin-top: 12px;
+  width: 180px;
+  height: 140px;
+  border: 1px solid var(--food-border-color);
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagePreview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ==========================================
+   完了画面
+   ========================================== */
+
+.completeBox {
+  max-width: 640px;
+  margin: 60px auto 20px;
+  padding: 40px 32px;
+  text-align: center;
+  background-color: #f8fafc;
+  border: 1px solid var(--food-border-color);
+  border-radius: 8px;
+}
+
+.completeIcon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background-color: var(--food-sub-green);
+  color: #ffffff;
+  font-size: 2.4rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.completeTitle {
+  margin: 0 0 12px;
+  color: var(--food-main-blue);
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.completeText {
+  margin: 0;
+  color: var(--food-text-muted);
+  font-size: 0.95rem;
+}
+
+.allergenCheckBox {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px 14px;
+  padding: 14px;
+  border: 1px solid #d7e5f3;
+  border-radius: 12px;
+  background: #f8fcff;
+}
+
+.allergenCheckLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid #d7e5f3;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #11243d;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.allergenCheckLabel:hover {
+  background: #eaf5ff;
+  border-color: #0d63a8;
+}
+
+.allergenCheckLabel input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.allergenText {
+  display: inline-block;
+  max-width: 220px;
+  line-height: 1.6;
+  color: #b45309;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.allergenText {
+  display: inline-block;
+  max-width: 220px;
+  line-height: 1.6;
+  color: #b45309;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.allergenNoneText {
+  display: inline-block;
+  color: #11243d;
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+
+  .foodListPage,
+  .foodRegistPage,
+  .foodUpdatePage,
+  .foodDeletePage {
+    padding: 12px;
+  }
+
+  .container {
+    padding: 20px;
+  }
+
+  .pageTitle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .searchFilterBox,
+  .searchField,
+  .filterSelects {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchField {
+    min-width: 0;
+  }
+
+  .submitActionBox {
+    flex-direction: column;
+  }
+
+  .btnSubmit,
+  .btnBack,
+  .btnDanger {
+    width: 100%;
+  }
+}
