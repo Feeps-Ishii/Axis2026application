@@ -1,33 +1,22 @@
 [
   {
-    "slug": "teamE",
-    "name": "グループE",
-    "appName": "ニシキギ（建設現場 管理システム）",
-    "description": "本社/現場のログイン、現場ポータル、日報・安全点検・トラブル管理、現場チャットを JSON + localStorage で擬似再現したモックです。",
+    "slug": "teamA",
+    "name": "グループA",
+    "appName": "つばさ配送サービス（食材デリバリー 受発注・配送管理）",
+    "description": "お客様（商品注文・カート・マイページ・配送要望）、社員/管理者（注文承認・電話注文・商品/ドライバー/社員/エリア管理）、ドライバー（配送管理）の3ロールを JSON + localStorage で擬似再現したモックです。元はNext.js+Spring構成。",
     "category": "業務系",
-    "accent": "#2563eb",
+    "accent": "#2f9e44",
     "ready": true,
     "entry": "login.html"
   },
   {
-    "slug": "teamI",
-    "name": "グループI",
-    "appName": "ことのは書房（書籍・POP管理システム）",
-    "description": "書店向けの在庫管理・取り寄せ予約・POP掲示板・店員マスタを JSON + localStorage で擬似再現したモックです。",
-    "category": "業務系",
-    "accent": "#16a34a",
-    "ready": true,
-    "entry": "login.html"
-  },
-  {
-    "slug": "teamF",
-    "name": "グループF",
-    "appName": "花あかりの湯（旅館 予約管理システム）",
-    "description": "従業員の予約管理・客室管理・顧客カルテ・女将ボット、お客様の予約/変更/キャンセルを JSON + localStorage で擬似再現したモックです。",
-    "category": "業務系",
-    "accent": "#db2777",
-    "ready": true,
-    "entry": "login.html"
+    "slug": "teamB",
+    "name": "グループB",
+    "appName": "（アプリ名未定）",
+    "description": "チームの成果物を public/team-apps/teamB/ に配置してください。",
+    "category": "未分類",
+    "accent": "#4f46e5",
+    "ready": false
   },
   {
     "slug": "teamC",
@@ -36,26 +25,6 @@
     "description": "教室長・講師・生徒のログイン、生徒カルテ、授業記録・宿題・成績管理、月/週スケジュールと個別/自習室の予約、お知らせ配信を JSON + localStorage で擬似再現したモックです。",
     "category": "業務系",
     "accent": "#ea580c",
-    "ready": true,
-    "entry": "login.html"
-  },
-  {
-    "slug": "teamH",
-    "name": "グループH",
-    "appName": "進捗マルわかりシステム（マルセイ精密工業 製造進捗管理）",
-    "description": "管理者・職人・営業のログイン、作業指示書管理、工程進捗の更新と進捗管理書、設備稼働ダッシュボード、技能継承（ナレッジ）共有を JSON + localStorage で擬似再現したモックです。",
-    "category": "業務系",
-    "accent": "#0ea5e9",
-    "ready": true,
-    "entry": "login.html"
-  },
-  {
-    "slug": "teamG",
-    "name": "グループG",
-    "appName": "ひだまり支援センター（訪問介護 事務作業管理システム）",
-    "description": "管理者・ヘルパー・家族のログイン、利用者/スタッフ/サービスプラン管理、訪問記録と全報告登録、家族報告の承認・差戻し、申し送り、家族連絡、請求情報を JSON + localStorage で擬似再現したモックです。",
-    "category": "業務系",
-    "accent": "#f59e0b",
     "ready": true,
     "entry": "login.html"
   },
@@ -70,22 +39,53 @@
     "entry": "login.html"
   },
   {
-    "slug": "teamA",
-    "name": "グループA",
-    "appName": "つばさ配送サービス（食材デリバリー 受発注・配送管理）",
-    "description": "お客様（商品注文・カート・マイページ・配送要望）、社員/管理者（注文承認・電話注文・商品/ドライバー/社員/エリア管理）、ドライバー（配送管理）の3ロールを JSON + localStorage で擬似再現したモックです。元はNext.js+Spring構成。",
+    "slug": "teamE",
+    "name": "グループE",
+    "appName": "ニシキギ（建設現場 管理システム）",
+    "description": "本社/現場のログイン、現場ポータル、日報・安全点検・トラブル管理、現場チャットを JSON + localStorage で擬似再現したモックです。",
     "category": "業務系",
-    "accent": "#2f9e44",
+    "accent": "#2563eb",
     "ready": true,
     "entry": "login.html"
   },
   {
-    "slug": "team9",
-    "name": "グループ9",
-    "appName": "（アプリ名未定）",
-    "description": "チームの成果物を public/team-apps/team9/ に配置してください。",
-    "category": "未分類",
-    "accent": "#4f46e5",
-    "ready": false
+    "slug": "teamF",
+    "name": "グループF",
+    "appName": "花あかりの湯（旅館 予約管理システム）",
+    "description": "従業員の予約管理・客室管理・顧客カルテ・女将ボット、お客様の予約/変更/キャンセルを JSON + localStorage で擬似再現したモックです。",
+    "category": "業務系",
+    "accent": "#db2777",
+    "ready": true,
+    "entry": "login.html"
+  },
+  {
+    "slug": "teamG",
+    "name": "グループG",
+    "appName": "ひだまり支援センター（訪問介護 事務作業管理システム）",
+    "description": "管理者・ヘルパー・家族のログイン、利用者/スタッフ/サービスプラン管理、訪問記録と全報告登録、家族報告の承認・差戻し、申し送り、家族連絡、請求情報を JSON + localStorage で擬似再現したモックです。",
+    "category": "業務系",
+    "accent": "#f59e0b",
+    "ready": true,
+    "entry": "login.html"
+  },
+  {
+    "slug": "teamH",
+    "name": "グループH",
+    "appName": "進捗マルわかりシステム（マルセイ精密工業 製造進捗管理）",
+    "description": "管理者・職人・営業のログイン、作業指示書管理、工程進捗の更新と進捗管理書、設備稼働ダッシュボード、技能継承（ナレッジ）共有を JSON + localStorage で擬似再現したモックです。",
+    "category": "業務系",
+    "accent": "#0ea5e9",
+    "ready": true,
+    "entry": "login.html"
+  },
+  {
+    "slug": "teamI",
+    "name": "グループI",
+    "appName": "ことのは書房（書籍・POP管理システム）",
+    "description": "書店向けの在庫管理・取り寄せ予約・POP掲示板・店員マスタを JSON + localStorage で擬似再現したモックです。",
+    "category": "業務系",
+    "accent": "#16a34a",
+    "ready": true,
+    "entry": "login.html"
   }
 ]
