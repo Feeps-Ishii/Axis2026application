@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>食材募集一覧画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<!-- 検索は下部インラインスクリプトで再実装（行を非同期描画後に都度取得）。
+		     元 food-recruit-list.js は DOMContentLoaded 時に空の行をキャプチャしてしまうため読み込まない。 -->
+		<p class="screen-id">food-recruit-list</p>
+		<h2 class="page-title">食材募集一覧</h2>
+		<p class="page-lead"></p>
+		<div class="search-box">
+
+			<div class="search-row">
+
+				<select id="shokudo-keyword" class="search-input">
+					<option value="">食堂名を選択</option>
+				</select>
+
+				<input
+					id="keyword"
+					class="search-input"
+					type="search"
+					placeholder="キーワードを入力">
+
+				<button type="button" class="search-button" id="search-button">
+					検索
+				</button>
+
+				<button type="button" class="secondary-button" id="clear-button">
+					クリア
+				</button>
+			</div>
+
+		</div>
+		<section class="table-card" aria-label="食材募集一覧">
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th>タイトル</th>
+						<th>食堂</th>
+						<th>食材名</th>
+						<th>数量</th>
+						<th>期限日</th>
+						<th>備考</th>
+						<th>状態</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+
+				<tbody id="recruitTbody">
+					<tr id="no-result-row">
+						<td><p id="no-result-message"
+							class="no-result-message"
+							style="display: none;">
+							検索結果がありません。
+						</p></td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+		<a class="secondary-button" href="./dashboard.html">ダッシュボードへ戻る</a>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		function esc(s) {
+			return String(s == null ? "" : s)
+				.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+		}
+		function fmtDateTime(s) {
+			if (!s) return "";
+			return String(s).slice(0, 16).replace(/-/g, "-").replace(" ", " ");
+		}
+		function statusInfo(st) {
+			if (st === 1) return { cls: "status-recruiting", label: "募集中" };
+			if (st === 2) return { cls: "status-closed", label: "終了" };
+			if (st === 3) return { cls: "status-completed", label: "完了" };
+			return { cls: "status-unknown", label: "未設定" };
+		}
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireStaff('food-recruit-list.html')) return;
+
+			// 食堂セレクト
+			const sel = document.getElementById("shokudo-keyword");
+			TeamD.shokudosActive().forEach((s) => {
+				const o = document.createElement("option");
+				o.value = s.shokudoName;
+				o.textContent = s.shokudoName;
+				sel.appendChild(o);
+			});
+
+			const foodNameMap = TeamD.foodNameMap();
+			const quantityMap = TeamD.quantityMap();
+			const tbody = document.getElementById("recruitTbody");
+			const noResultRow = document.getElementById("no-result-row");
+
+			const list = TeamD.foodRecruitsActive();
+			const rowsHtml = list.map((f) => {
+				const shokudoName = TeamD.shokudoName(f.shokudoId) || "未設定";
+				const foodName = foodNameMap[f.foodRecruitId] != null ? foodNameMap[f.foodRecruitId] : "未設定";
+				const qty = quantityMap[f.foodRecruitId] != null ? quantityMap[f.foodRecruitId] : "未設定";
+				const si = statusInfo(f.status);
+				return `
+					<tr>
+						<td>${esc(f.title)}</td>
+						<td>${esc(shokudoName)}</td>
+						<td>${esc(foodName)}</td>
+						<td>${esc(qty)}</td>
+						<td>${esc(fmtDateTime(f.deadlineDate))}</td>
+						<td>${esc(f.remarks)}</td>
+						<td>
+							<span class="status-badge ${si.cls}">${si.label}</span>
+						</td>
+						<td class="action-links">
+							<a class="text-link" href="./food-recruit-edit.html?id=${f.foodRecruitId}">編集</a>
+							<a class="text-link" href="javascript:void(0);" data-del="${f.foodRecruitId}">削除</a>
+						</td>
+					</tr>`;
+			}).join("");
+
+			if (list.length === 0) {
+				tbody.insertAdjacentHTML("afterbegin", `<tr><td colspan="8">登録されている食材募集はありません。</td></tr>`);
+			} else {
+				noResultRow.insertAdjacentHTML("beforebegin", rowsHtml);
+			}
+
+			// 削除
+			tbody.addEventListener("click", (e) => {
+				const a = e.target.closest("[data-del]");
+				if (!a) return;
+				e.preventDefault();
+				if (!confirm("この募集を削除しますか？")) return;
+				TeamD.deleteFoodRecruit(Number(a.getAttribute("data-del")));
+				location.reload();
+			});
+
+			// 検索（food-recruit-list.js は DOMContentLoaded 時に行を取得するため、
+			// 非同期描画後の行に対しては動作しない。ここで行を都度取得して検索する）
+			const noResultMessage = document.getElementById("no-result-message");
+			const searchRows = () => {
+				const selectedShokudo = sel.value.trim().toLowerCase();
+				const keyword = document.getElementById("keyword").value.trim().toLowerCase();
+				let visibleCount = 0;
+				document.querySelectorAll(".data-table tbody tr").forEach((row) => {
+					const cells = row.querySelectorAll("td");
+					if (cells.length < 8) return;
+					const shokudoName = cells[1].textContent.trim().toLowerCase();
+					const allText = row.textContent.trim().toLowerCase();
+					const isShokudoMatch = selectedShokudo === "" || shokudoName.includes(selectedShokudo);
+					const isKeywordMatch = keyword === "" || allText.includes(keyword);
+					const isVisible = isShokudoMatch && isKeywordMatch;
+					row.style.display = isVisible ? "" : "none";
+					if (isVisible) visibleCount++;
+				});
+				noResultMessage.style.display = visibleCount === 0 ? "block" : "none";
+			};
+			document.getElementById("search-button").addEventListener("click", searchRows);
+			document.getElementById("keyword").addEventListener("keydown", (ev) => {
+				if (ev.key === "Enter") { ev.preventDefault(); searchRows(); }
+			});
+			document.getElementById("clear-button").addEventListener("click", () => {
+				sel.value = "";
+				document.getElementById("keyword").value = "";
+				document.querySelectorAll(".data-table tbody tr").forEach((row) => {
+					if (row.id !== "no-result-row") row.style.display = "";
+				});
+				noResultMessage.style.display = "none";
+			});
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>管理者ダッシュボード画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<!-- 左メニュー -->
+		<aside class="admin-sidebar">
+			<div class="sidebar-profile">
+				<div class="sidebar-avatar">👤</div>
+				<div class="sidebar-user-name" id="sidebarUserName">ゲスト</div>
+				<div class="sidebar-role">管理者</div>
+			</div>
+
+			<nav class="sidebar-menu">
+				<div class="sidebar-group">
+					<h3>募集管理</h3>
+					<a href="./food-recruit-form.html">食材募集登録</a>
+					<a href="./volunteer-recruit-form.html">ボランティア募集登録</a>
+				</div>
+
+				<div class="sidebar-group">
+					<h3>寄付・参加管理</h3>
+					<a href="./food-donation-list.html">食材寄付一覧</a>
+					<a href="./volunteer-entry-list.html">参加者一覧</a>
+				</div>
+
+				<div class="sidebar-group">
+					<h3>ユーザー管理</h3>
+					<a href="./volunteer-list.html">ボランティア名簿</a>
+					<a href="./user-list.html">ユーザー名簿</a>
+				</div>
+			</nav>
+		</aside>
+
+		<!-- タイトル -->
+		<section class="admin-main">
+			<p class="screen-id">Admin Dashboard</p>
+			<h2 class="page-title">管理者ダッシュボード</h2>
+			<p class="page-lead"></p>
+
+			<section class="dashboard-section">
+				<h3 class="dashboard-section-title">募集管理</h3>
+				<div class="dashboard-grid">
+					<a class="dashboard-card" href="./food-recruit-form.html">
+						<span>食材募集を登録</span>
+						<small>食材を募集する投稿を作成</small>
+					</a>
+					<a class="dashboard-card" href="./volunteer-recruit-form.html">
+						<span>ボランティア募集を登録</span>
+						<small>ボランティア募集を作成</small>
+					</a>
+				</div>
+			</section>
+			<section class="dashboard-section">
+				<h3 class="dashboard-section-title">募集一覧</h3>
+				<div class="dashboard-grid">
+					<a class="dashboard-card" href="./food-recruit-list.html">
+						<span>食材募集一覧</span>
+						<small>食材募集一覧</small>
+					</a>
+					<a class="dashboard-card" href="./volunteer-recruit-list.html">
+						<span>ボランティア募集一覧</span>
+						<small>ボランティア募集一覧</small>
+					</a>
+				</div>
+			</section>
+
+			<section class="dashboard-section">
+				<h3 class="dashboard-section-title">寄付・参加管理</h3>
+				<div class="dashboard-grid">
+					<a class="dashboard-card" href="./food-donation-list.html">
+						<span>食材寄付一覧</span>
+						<small>寄付申込の確認・対応状況管理</small>
+					</a>
+					<a class="dashboard-card" href="./volunteer-entry-list.html">
+						<span>ボランティア参加者一覧</span>
+						<small>募集ごとの参加者を確認</small>
+					</a>
+				</div>
+			</section>
+
+			<section class="dashboard-section">
+				<h3 class="dashboard-section-title">ユーザー管理</h3>
+				<div class="dashboard-grid">
+					<a class="dashboard-card" href="./volunteer-list.html">
+						<span>ボランティア名簿</span>
+						<small>登録者情報・参加可能日を管理</small>
+					</a>
+					<a class="dashboard-card" href="./user-list.html">
+						<span>ユーザー名簿</span>
+						<small>管理者・食堂管理者・ボランティアを管理</small>
+					</a>
+				</div>
+			</section>
+
+			<section class="dashboard-section">
+				<h3 class="dashboard-section-title">食堂管理</h3>
+				<div class="dashboard-grid">
+					<a class="dashboard-card" href="./shokudo-form.html">
+						<span>食堂を登録</span>
+						<small>食堂情報を追加・編集</small>
+					</a>
+					<a class="dashboard-card" href="./shokudo-list.html">
+						<span>食堂一覧</span>
+						<small>登録済み食堂を確認</small>
+					</a>
+					<a class="dashboard-card" href="./sns-list.html">
+						<span>SNSリンク管理</span>
+						<small>各食堂のSNS・HPリンクを管理</small>
+					</a>
+				</div>
+			</section>
+
+			<section class="dashboard-section">
+				<h3 class="dashboard-section-title">広報・感謝</h3>
+				<div class="dashboard-grid">
+					<a class="dashboard-card" href="./message-form.html">
+						<span>感謝メッセージを作成</span>
+						<small>寄付者・ボランティア向けに投稿</small>
+					</a>
+				</div>
+			</section>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamD.init().then(() => {
+			if (!TeamD.requireStaff('dashboard.html')) return;
+			const u = TeamD.currentUser();
+			document.getElementById("sidebarUserName").textContent = u ? u.name : "ゲスト";
+		});
+	</script>
+</body>
+
+</html>

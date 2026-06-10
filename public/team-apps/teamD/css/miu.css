@@ -1,0 +1,128 @@
+/* ==============================
+  みう用
+   ============================== */
+
+/* ==============================
+   食材寄付一覧：状態表示
+   ============================== */
+
+/* 未受取・受取済の共通デザイン */
+.status-pending,
+.status-complete {
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 999px;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.4;
+	font-family: inherit;
+	white-space: nowrap;
+}
+
+/* 未受取（クリック可能） */
+.status-pending {
+	background-color: #fff3cd !important;
+	color: #856404 !important;
+	border: none;
+	cursor: pointer;
+}
+
+/* 未受取ホバー */
+.status-pending:hover {
+	opacity: 0.8;
+}
+
+/* 受取済 */
+.status-complete {
+	background-color: #d4edda !important;
+	color: #155724 !important;
+	border: none;
+}
+
+/* ==============================
+   削除ボタン
+   ============================== */
+
+   .delete-link {
+   	border: none;
+   	background: none;
+   	padding: 0;
+   	margin: 0;
+   	font-family: inherit;
+   	font-size: 13px;
+   	line-height: 1.5;
+   	color: #d85a2a;
+   	cursor: pointer;
+   	text-decoration: none;
+   	vertical-align: baseline;
+   }
+
+   button.text-link {
+       border: none;
+       background: none;
+       padding: 0;
+       margin: 0;
+       font: inherit;
+       color: inherit;
+       cursor: pointer;
+   }
+   
+   button.text-link {
+   	border: none;
+   	background: none;
+   	padding: 0;
+   	margin-top: 10px; /* 編集と合わせる */
+   	color: var(--color-main-dark);
+   	font-weight: 700;
+   	font-size: inherit;
+   	font-family: inherit;
+   	cursor: pointer;
+   }
+
+/* ==============================
+   共通アクションボタン
+   ============================== */
+
+.action-button {
+	border: none;
+	background: none;
+	padding: 0;
+	margin: 0;
+	font: inherit;
+	cursor: pointer;
+}
+
+.search-area {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.search-area input {
+	flex: 1;
+}
+
+.search-button,
+.reset-button {
+	display: inline-block;
+	padding: 8px 16px;
+	border: 1px solid #e7cdbb;
+	border-radius: 20px;
+	background: #fff;
+	color: #d85a2a;
+	font-size: 13px;
+	text-decoration: none;
+	cursor: pointer;
+	min-width: 80px;
+	text-align: center;
+}
+
+.search-button:hover,
+.reset-button:hover {
+	background-color: #faf6f2;
+}
+
+.confirm-button-area {
+	justify-content: center;
+}
+

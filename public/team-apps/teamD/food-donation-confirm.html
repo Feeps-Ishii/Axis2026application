@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>食材寄付確認 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Food Donation Confirmation</p>
+		<h2 class="page-title">食材寄付確認</h2>
+		<p class="page-lead"></p>
+
+		<section class="card confirm-card">
+			<dl class="confirm-list">
+				<div class="confirm-row">
+					<dt>賞味期限</dt>
+					<dd><span id="c-expirationDate"></span></dd>
+				</div>
+
+				<div class="confirm-row">
+					<dt>寄付数量</dt>
+					<dd><span id="c-quantity"></span> <span id="c-unit"></span></dd>
+				</div>
+
+				<div class="confirm-row">
+					<dt>受渡方法</dt>
+					<dd><span id="c-method"></span></dd>
+				</div>
+
+				<div class="confirm-row">
+					<dt>備考</dt>
+					<dd><span id="c-remarks"></span></dd>
+				</div>
+			</dl>
+
+			<div class="button-area confirm-button-area">
+				<button type="button" class="primary-button" id="confirmBtn" data-button-id="B-001">登録/送信</button>
+				<button type="button" class="secondary-button" id="backBtn">修正する</button>
+			</div>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		function fmtSlash(s) {
+			return s ? String(s).slice(0, 10).replace(/-/g, "/") : "";
+		}
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireLogin('food-donation-confirm.html')) return;
+
+			const draft = TeamD.getDraft("donation");
+			if (!draft) {
+				location.href = "./food-recruit-list.html";
+				return;
+			}
+
+			const method = TeamD.handoffMethodById(draft.methodId);
+			document.getElementById("c-expirationDate").textContent = fmtSlash(draft.expirationDate);
+			document.getElementById("c-quantity").textContent = draft.quantity != null ? draft.quantity : "";
+			document.getElementById("c-unit").textContent = draft.unit || "";
+			document.getElementById("c-method").textContent = method ? method.methodName : "";
+			document.getElementById("c-remarks").textContent = draft.remarks || "";
+
+			document.getElementById("confirmBtn").addEventListener("click", () => {
+				TeamD.createDonation(draft, TeamD.currentUser().userId);
+				TeamD.clearDraft("donation");
+				location.href = "./complete.html?type=portal";
+			});
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./food-donation-form.html?foodRecruitId=" + draft.foodRecruitId;
+			});
+		});
+	</script>
+</body>
+
+</html>

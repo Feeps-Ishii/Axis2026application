@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>食材寄付入力画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+	<style>
+		.unit-label {
+			min-width: 48px;
+			padding: 10px 14px;
+			border: 1px solid #ddd;
+			border-radius: 8px;
+			background-color: #f8f8f8;
+			font-weight: bold;
+			text-align: center;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Food Donation Input</p>
+		<h2 class="page-title">食材寄付入力</h2>
+		<p class="page-lead"></p>
+
+		<form class="card form-card" id="donationForm" novalidate>
+			<div class="form-grid">
+
+				<div class="form-field">
+					<label for="I-009">賞味期限 <span class="required-mark">必須</span></label>
+					<input type="date" id="I-009" name="expirationDate" data-item-id="I-009" data-label="賞味期限"
+						data-required="true">
+					<small class="field-help">本日以降の日時を記入してください</small>
+					<p id="I-009-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-010">受渡方法 <span class="required-mark">必須</span></label>
+					<select id="I-010" name="methodId" data-item-id="I-010" data-label="受渡方法" data-required="true">
+						<option value="">選択してください</option>
+					</select>
+					<small class="field-help">受け渡し方法を選択してください</small>
+					<p id="I-010-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-012">寄付数量 <span class="required-mark">必須</span></label>
+					<div style="display: flex; gap: 12px; align-items: center;">
+						<input type="number" id="I-012" name="quantity" min="1" data-label="寄付数量"
+							data-required="true" style="flex: 1;">
+						<span class="unit-label" id="unitLabel">kg</span>
+					</div>
+					<small class="field-help">寄付する数量を入力してください</small>
+					<p id="I-012-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field form-field-full">
+					<label for="I-011">備考</label>
+					<textarea id="I-011" name="remarks" data-item-id="I-011" data-label="備考" rows="4"
+						placeholder="備考を入力してください"></textarea>
+					<small class="field-help">未開封・破損有無などの伝達事項があれば記入してください</small>
+					<p id="I-011-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+			</div>
+
+			<div class="button-area">
+				<button type="submit" class="primary-button" data-button-id="B-001"
+					data-next-screen="SC-005 食材寄付確認画面">確認へ</button>
+				<a id="backBtn" class="secondary-button" href="#">戻る</a>
+			</div>
+		</form>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const foodRecruitId = Number(new URLSearchParams(location.search).get("foodRecruitId"));
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireLogin('food-donation-form.html')) return;
+
+			if (!foodRecruitId) {
+				location.href = "./food-recruit-list.html";
+				return;
+			}
+
+			// 単位：募集食品 → food.credit
+			const rf = TeamD.recruitFoodByRecruitId(foodRecruitId);
+			const food = rf ? TeamD.foodById(rf.foodId) : null;
+			const unit = food ? (food.credit || "") : "";
+			document.getElementById("unitLabel").textContent = unit;
+
+			// 受渡方法
+			const methodSel = document.getElementById("I-010");
+			TeamD.handoffMethods().forEach((m) => {
+				const o = document.createElement("option");
+				o.value = m.methodId;
+				o.textContent = m.methodName;
+				methodSel.appendChild(o);
+			});
+
+			document.getElementById("backBtn").setAttribute(
+				"href", "./food-recruit-detail.html?id=" + foodRecruitId
+			);
+
+			// draft 復元
+			const draft = TeamD.getDraft("donation");
+			if (draft && Number(draft.foodRecruitId) === foodRecruitId) {
+				document.getElementById("I-009").value = draft.expirationDate || "";
+				methodSel.value = draft.methodId || "";
+				document.getElementById("I-012").value = draft.quantity || "";
+				document.getElementById("I-011").value = draft.remarks || "";
+			}
+
+			const today = TeamD.today();
+
+			document.getElementById("donationForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				let ok = true;
+				const expirationDate = document.getElementById("I-009").value;
+				const methodId = methodSel.value;
+				const quantityRaw = document.getElementById("I-012").value.trim();
+				const remarks = document.getElementById("I-011").value;
+
+				const set = (eid, msg) => { document.getElementById(eid).textContent = msg; if (msg) ok = false; };
+
+				if (!expirationDate) set("I-009-error", "賞味期限を入力してください");
+				else if (expirationDate < today) set("I-009-error", "本日以降の日付を入力してください");
+				else set("I-009-error", "");
+
+				set("I-010-error", methodId ? "" : "受渡方法を選択してください");
+
+				if (quantityRaw === "") set("I-012-error", "寄付数量を入力してください");
+				else if (!/^[0-9]+$/.test(quantityRaw)) set("I-012-error", "数量は数字で入力してください");
+				else {
+					const n = Number(quantityRaw);
+					if (n < 1 || n > 999) set("I-012-error", "数量は1〜999の範囲で入力してください");
+					else set("I-012-error", "");
+				}
+
+				set("I-011-error", remarks.length > 1000 ? "備考は1000文字以内で入力してください" : "");
+
+				if (!ok) return;
+
+				TeamD.setDraft("donation", {
+					foodRecruitId, expirationDate, methodId, remarks, quantity: quantityRaw, unit,
+				});
+				location.href = "./food-donation-confirm.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

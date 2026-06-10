@@ -60,13 +60,14 @@
     "entry": "login.html"
   },
   {
-    "slug": "team7",
-    "name": "グループ7",
-    "appName": "（アプリ名未定）",
-    "description": "チームの成果物を public/team-apps/team7/ に配置してください。",
-    "category": "未分類",
-    "accent": "#ca8a04",
-    "ready": false
+    "slug": "teamD",
+    "name": "グループD",
+    "appName": "まちのこ食卓プロジェクト（子ども食堂 支援ポータル）",
+    "description": "管理者・食堂職員・ボランティアのログイン、統合ポータル（食材募集／ボランティア募集／緊急募集／感謝メッセージ／開催マップ）、食堂・ユーザー・ボランティア名簿、食材寄付、参加申込、感謝メッセージ配信、参加スタンプ＆バッジを JSON + localStorage で擬似再現したモックです。",
+    "category": "地域系",
+    "accent": "#0d9488",
+    "ready": true,
+    "entry": "login.html"
   },
   {
     "slug": "team8",

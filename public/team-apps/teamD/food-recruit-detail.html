@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>食材募集詳細画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container" style="margin-top: 80px;">
+		<p class="screen-id">Food Donation Detail</p>
+
+		<h2 class="page-title">食材募集詳細</h2>
+		<p class="page-lead"></p>
+
+		<section class="card confirm-card">
+			<dl class="confirm-list">
+				<div class="confirm-row" data-db-table="T_FOOD_RECRUIT" data-db-column="title">
+					<dt>タイトル</dt>
+					<dd><span id="I-001" data-confirm-field="I-001"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_FOOD_RECRUIT" data-db-column="shokudo_id">
+					<dt>食堂</dt>
+					<dd><span id="I-002" data-confirm-field="I-002"></span></dd>
+				</div>
+
+				<div class="confirm-row">
+					<dt>食材名</dt>
+					<dd><span id="foodName"></span></dd>
+				</div>
+
+				<div class="confirm-row">
+					<dt>数量</dt>
+					<dd><span id="quantity"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_FOOD_RECRUIT" data-db-column="deadline_date">
+					<dt>期限日</dt>
+					<dd><span id="I-005" data-confirm-field="I-005"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_FOOD_RECRUIT" data-db-column="remarks">
+					<dt>備考</dt>
+					<dd><span id="I-006" data-confirm-field="I-006"></span></dd>
+				</div>
+
+				<div class="confirm-row" data-db-table="T_FOOD_RECRUIT" data-db-column="status">
+					<dt>状態</dt>
+					<dd><span id="I-007" data-confirm-field="I-007"></span></dd>
+				</div>
+			</dl>
+
+			<div class="button-area">
+				<a id="donateBtn" class="primary-button" href="#" data-button-id="B-001"
+					data-next-screen="SC-004_食材寄付入力">この食材を寄付する</a>
+				<a id="backBtn" class="secondary-button" href="./portal.html" data-button-id="B-003">戻る</a>
+			</div>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const params = new URLSearchParams(location.search);
+		const id = Number(params.get("id"));
+		const from = params.get("from");
+
+		function statusLabel(st) {
+			const n = Number(st);
+			return n === 1 ? "募集中" : n === 2 ? "終了" : n === 3 ? "完了" : "不明";
+		}
+		function fmtSlash(s) {
+			return s ? String(s).slice(0, 10).replace(/-/g, "/") : "";
+		}
+
+		TeamD.init().then(() => {
+			const rec = TeamD.foodRecruitById(id);
+			if (!rec) {
+				location.href = "./portal.html";
+				return;
+			}
+			const shokudo = TeamD.shokudoByIdAny(rec.shokudoId);
+			const rf = TeamD.recruitFoodByRecruitId(id);
+			const food = rf ? TeamD.foodById(rf.foodId) : null;
+
+			document.getElementById("I-001").textContent = rec.title || "";
+			document.getElementById("I-002").textContent = shokudo ? shokudo.shokudoName : "";
+			document.getElementById("foodName").textContent = food ? food.foodName : "";
+			document.getElementById("quantity").textContent = rf ? rf.requiredQuantity : "";
+			document.getElementById("I-005").textContent = fmtSlash(rec.deadlineDate);
+			document.getElementById("I-006").textContent = rec.remarks || "";
+			document.getElementById("I-007").textContent = statusLabel(rec.status);
+
+			document.getElementById("donateBtn").setAttribute(
+				"href", "./food-donation-form.html?foodRecruitId=" + id
+			);
+
+			// 戻る先：from=list なら寄付一覧、それ以外はポータル
+			document.getElementById("backBtn").setAttribute(
+				"href", from === "list" ? "./food-donation-list.html" : "./portal.html"
+			);
+		});
+	</script>
+</body>
+
+</html>

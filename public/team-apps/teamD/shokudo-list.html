@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>食堂一覧画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<style>
+		.search-form {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.search-form select {
+			width: 200px;
+			padding: 6px;
+		}
+
+		.search-form input[type="text"] {
+			width: 250px;
+			padding: 6px;
+		}
+
+		.search-form button {
+			padding: 6px 16px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+
+		<p class="screen-id">Shokudo List</p>
+		<h2 class="page-title">食堂一覧</h2>
+		<p class="page-lead"><!-- タイトルの下に文を表示 --></p>
+
+		<form id="searchForm" class="search-form" onsubmit="return false;">
+
+			<p><label>食堂名</label></p>
+
+			<select name="shokudoName" id="shokudoNameSelect">
+				<option value="">すべて</option>
+			</select>
+
+			<label>住所</label>
+
+			<input type="text" name="address" id="addressInput" placeholder="住所を入力">
+
+			<button type="submit" class="primary-button">
+				検索
+			</button>
+
+			<a href="javascript:void(0);" id="clearBtn" class="secondary-button">
+				クリア
+			</a>
+
+		</form>
+
+		<section class="table-card" aria-label="食堂一覧" style="max-height:600px; overflow-y:auto;">
+
+			<table class="data-table">
+
+				<thead>
+					<tr>
+						<th>食堂ID</th>
+						<th>食堂名</th>
+						<th>紹介文</th>
+						<th>郵便番号</th>
+						<th>住所</th>
+						<th>電話番号</th>
+						<th>HP</th>
+						<th>SNS</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+
+				<tbody id="shokudoTbody">
+				</tbody>
+
+			</table>
+
+		</section>
+
+		<div class="button-area" style="justify-content:flex-start; margin-top:20px;">
+			<a href="./dashboard.html" class="secondary-button">
+				ダッシュボードへ戻る
+			</a>
+		</div>
+
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		function esc(s) {
+			return String(s == null ? "" : s)
+				.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+		}
+		function truncate(s, n) {
+			const v = String(s == null ? "" : s);
+			return v.length > n ? v.substring(0, n) + "…" : v;
+		}
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireStaff("shokudo-list.html")) return;
+
+			const select = document.getElementById("shokudoNameSelect");
+			const addressInput = document.getElementById("addressInput");
+			const tbody = document.getElementById("shokudoTbody");
+
+			// 食堂名のselect（active食堂名一覧）
+			TeamD.shokudosActive().forEach((s) => {
+				const opt = document.createElement("option");
+				opt.value = s.shokudoName;
+				opt.textContent = s.shokudoName;
+				select.appendChild(opt);
+			});
+
+			function render(list) {
+				if (!list.length) {
+					tbody.innerHTML = `<tr><td colspan="8">食堂情報が登録されていません。</td></tr>`;
+					return;
+				}
+				tbody.innerHTML = list.map((s) => {
+					const hp = s.hpUrl
+						? `<a class="text-link" href="${esc(s.hpUrl)}">HP</a>` : "";
+					const sns = s.snsUrl
+						? `<a class="text-link" href="${esc(s.snsUrl)}">SNS</a>` : "";
+					return `
+						<tr>
+							<td class="table-cell-id">${esc(s.shokudoId)}</td>
+							<td class="table-cell-name" title="${esc(s.shokudoName)}">${esc(truncate(s.shokudoName, 15))}</td>
+							<td class="table-cell-description" title="${esc(s.description)}">${esc(truncate(s.description, 40))}</td>
+							<td class="table-cell-postal-code">${esc(s.postalCode)}</td>
+							<td class="table-cell-address" title="${esc(s.address)}">${esc(truncate(s.address, 20))}</td>
+							<td class="table-cell-phone">${esc(s.phoneNumber)}</td>
+							<td>${hp}</td>
+							<td>${sns}</td>
+							<td class="action-links">
+								<a class="text-link" href="./shokudo-edit.html?id=${s.shokudoId}">編集</a>
+								<a class="text-link" href="javascript:void(0);" data-delete="${s.shokudoId}">削除</a>
+							</td>
+						</tr>`;
+				}).join("");
+			}
+
+			function doSearch() {
+				const name = select.value;
+				const address = addressInput.value;
+				render(TeamD.shokudoSearch(name, address));
+			}
+
+			document.getElementById("searchForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				doSearch();
+			});
+
+			document.getElementById("clearBtn").addEventListener("click", () => {
+				select.value = "";
+				addressInput.value = "";
+				render(TeamD.shokudosActive());
+			});
+
+			tbody.addEventListener("click", (e) => {
+				const link = e.target.closest("[data-delete]");
+				if (!link) return;
+				e.preventDefault();
+				if (!confirm("この募集を削除しますか？")) return;
+				TeamD.deleteShokudo(Number(link.getAttribute("data-delete")));
+				doSearch();
+			});
+
+			// 初期表示：全件
+			render(TeamD.shokudosActive());
+		});
+	</script>
+</body>
+
+</html>

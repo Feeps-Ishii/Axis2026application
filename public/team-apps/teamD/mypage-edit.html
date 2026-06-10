@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ボランティア情報編集画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Volunteer Edit</p>
+		<h2 class="page-title">ボランティア情報編集</h2>
+		<p class="page-lead">登録しているボランティア情報を更新します。</p>
+
+		<form class="card form-card" id="editForm" data-validate="true">
+
+			<div id="errorBox" class="error-message" style="display:none;">
+				<p id="errorMessage">エラーメッセージ</p>
+			</div>
+
+			<div class="form-grid">
+
+				<!-- 氏名 -->
+				<div class="form-field" data-db-table="T_USER" data-db-column="name">
+					<label for="I-001">氏名 <span class="required-mark">必須</span></label>
+					<input type="text" id="I-001" name="name" data-item-id="I-001"
+						data-label="氏名" data-required="true" maxlength="50" data-max-length="50" required
+						pattern="^[ぁ-んァ-ヶ一-龯a-zA-Z・-]+$" title="氏名は文字、ハイフン(-)、中点(・)のみ入力できます" placeholder="例：田中太郎">
+					<small class="field-help">50文字以内で入力して下さい</small>
+					<p id="I-001-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<!-- ニックネーム -->
+				<div class="form-field" data-db-table="T_USER" data-db-column="nickname">
+					<label for="I-002">ニックネーム <span class="required-mark">必須</span></label>
+					<input type="text" id="I-002" name="nickname" data-item-id="I-002" data-label="ニックネーム"
+						data-required="true" maxlength="100" data-max-length="100" required placeholder="例：たろう">
+					<small class="field-help">参加一覧には「ニックネーム」が表示されます</small>
+					<p id="I-002-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<!-- 電話番号 -->
+				<div class="form-field" data-db-table="T_USER" data-db-column="phone">
+					<label for="I-003">電話番号 <span class="required-mark">必須</span></label>
+					<input type="tel" id="I-003" name="phone" data-item-id="I-003"
+						data-label="電話番号" data-required="true" data-pattern="phone" maxlength="20" data-max-length="20"
+						required pattern="^[0-9]{2,4}-[0-9]{2,4}-[0-9]{3,4}$" title="090-1234-5678 の形式で入力してください"
+						placeholder="例：090-1234-5678">
+					<small class="field-help">半角数字/ハイフンのみ使用できます</small>
+					<p id="I-003-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<!-- メール -->
+				<div class="form-field" data-db-table="T_USER" data-db-column="email">
+					<label for="I-004">メールアドレス <span class="required-mark">必須</span></label>
+					<input type="email" id="I-004" name="email" data-item-id="I-004"
+						data-label="メールアドレス" data-required="true" maxlength="100" data-max-length="100" required
+						pattern="^[A-Za-z0-9._-]+@[A-Za-z0-9._-]+\.[A-Za-z]{2,}$" title="メールアドレスの形式で入力してください"
+						placeholder="例：sample@example.com">
+					<small class="field-help">メール形式で入力して下さい</small>
+					<p id="I-004-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<!-- パスワード -->
+				<div class="form-field" data-db-table="T_USER" data-db-column="pass">
+					<label for="I-005">パスワード（変更時のみ）</label>
+					<input type="password" id="I-005" name="pass" data-item-id="I-005" data-label="パスワード"
+						maxlength="255" data-max-length="255" minlength="8" pattern="^.{8,}$"
+						title="パスワードは8文字以上で入力してください" placeholder="変更する場合のみ入力">
+					<small class="field-help">未入力の場合は変更されません</small>
+					<p id="I-005-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<!-- 郵便番号 -->
+				<div class="form-field" data-db-table="T_VOLUNTEER_PROFILE" data-db-column="postal_code">
+					<label for="I-007">郵便番号 <span class="required-mark">必須</span></label>
+					<input type="text" id="I-007" name="postalCode" data-item-id="I-007" data-label="郵便番号"
+						data-required="true" maxlength="8" data-max-length="8" required pattern="^[0-9]{3}-[0-9]{4}$"
+						title="123-4567 の形式で入力してください" placeholder="例：123-4567">
+					<small class="field-help">半角数字/ハイフンのみ使用できます</small>
+					<p id="I-007-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<!-- 住所 -->
+				<div class="form-field" data-db-table="T_VOLUNTEER_PROFILE" data-db-column="address">
+					<label for="I-008">住所 <span class="required-mark">必須</span></label>
+					<input type="text" id="I-008" name="address" data-item-id="I-008" data-label="住所"
+						data-required="true" maxlength="255" data-max-length="255" required placeholder="例：福岡県福岡市中央区〇〇">
+					<small class="field-help">255文字以内で入力して下さい</small>
+					<p id="I-008-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<!-- 年齢 -->
+				<div class="form-field" data-db-table="T_VOLUNTEER_PROFILE" data-db-column="age">
+					<label for="I-009">年齢 <span class="required-mark">必須</span></label>
+					<input type="number" id="I-009" name="age" data-item-id="I-009" data-label="年齢"
+						data-required="true" min="0" max="150" required placeholder="例：28">
+					<small class="field-help">0〜150の数値</small>
+					<p id="I-009-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<!-- 職業 -->
+				<div class="form-field" data-db-table="T_VOLUNTEER_PROFILE" data-db-column="occupation">
+					<label for="I-010">職業</label>
+					<input type="text" id="I-010" name="occupation" data-item-id="I-010" data-label="職業"
+						maxlength="100" data-max-length="100" placeholder="例：会社員">
+					<small class="field-help">100文字以内で入力して下さい</small>
+					<p id="I-010-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<!-- 参加可能日時 -->
+				<div class="form-field form-field-full">
+					<label>参加可能曜日・時間</label>
+					<div id="shiftArea"></div>
+				</div>
+
+				<!-- 参加可能地域 -->
+				<div class="form-field form-field-full">
+					<label>参加可能地域</label>
+					<div id="regionArea" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;"></div>
+				</div>
+
+				<!-- 資格・経験 -->
+				<div class="form-field form-field-full">
+					<label>資格・経験</label>
+
+					<div style="margin-top:10px;">
+						<div style="display:flex; align-items:center; justify-content:flex-start; gap:8px; margin-bottom:10px;">
+							<input type="checkbox" id="cookingExperience" name="cookingExperience" value="true" style="width:auto;">
+							<label for="cookingExperience" style="margin:0;">調理経験あり</label>
+						</div>
+						<div style="display:flex; align-items:center; justify-content:flex-start; gap:8px; margin-bottom:10px;">
+							<input type="checkbox" id="nutritionist" name="nutritionist" value="true" style="width:auto;">
+							<label for="nutritionist" style="margin:0;">栄養士資格あり</label>
+						</div>
+						<div style="display:flex; align-items:center; justify-content:flex-start; gap:8px; margin-bottom:10px;">
+							<input type="checkbox" id="childcare" name="childcare" value="true" style="width:auto;">
+							<label for="childcare" style="margin:0;">保育士資格あり</label>
+						</div>
+						<div style="display:flex; align-items:center; justify-content:flex-start; gap:8px;">
+							<input type="checkbox" id="driverLicense" name="driverLicense" value="true" style="width:auto;">
+							<label for="driverLicense" style="margin:0;">運転免許あり</label>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<!-- 評価コメント（管理者・職員のみ） -->
+			<div class="form-field form-field-full" id="evaluationField" style="display:none;">
+				<label for="evaluationComment">評価コメント</label>
+				<textarea id="evaluationComment" name="evaluationComment" rows="5" maxlength="1000"
+					placeholder="ボランティアへの評価コメントを入力"></textarea>
+			</div>
+
+			<div class="button-area">
+				<button type="submit" class="primary-button">更新する</button>
+				<a class="secondary-button" id="backLink" href="./mypage.html">戻る</a>
+			</div>
+		</form>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamD.init().then(() => {
+			if (!TeamD.requireLogin('mypage-edit.html')) return;
+
+			const params = new URLSearchParams(location.search);
+			const volunteerId = params.get("volunteerId");
+			const adminMode = volunteerId != null && volunteerId !== "";
+
+			let profile, targetUser, targetUserId, backFile;
+
+			if (adminMode) {
+				profile = TeamD.volunteerProfileById(Number(volunteerId));
+				if (!profile) {
+					alert("ボランティア情報が存在しません。");
+					location.href = "./volunteer-list.html";
+					return;
+				}
+				targetUserId = profile.userId;
+				targetUser = TeamD.userById(targetUserId) || {};
+				backFile = "volunteer-list.html";
+			} else {
+				targetUser = TeamD.currentUser();
+				targetUserId = targetUser.userId;
+				profile = TeamD.volunteerProfileByUserId(targetUserId) || {};
+				backFile = "mypage.html";
+			}
+
+			document.getElementById("backLink").setAttribute("href", "./" + backFile);
+
+			// プレフィル
+			document.getElementById("I-001").value = targetUser.name || "";
+			document.getElementById("I-002").value = profile.nickname || "";
+			document.getElementById("I-003").value = targetUser.phone || "";
+			document.getElementById("I-004").value = targetUser.email || "";
+			document.getElementById("I-007").value = profile.postalCode || "";
+			document.getElementById("I-008").value = profile.address || "";
+			document.getElementById("I-009").value = profile.age != null ? profile.age : "";
+			document.getElementById("I-010").value = profile.occupation || "";
+			document.getElementById("cookingExperience").checked = !!profile.cookingExperience;
+			document.getElementById("nutritionist").checked = !!profile.nutritionist;
+			document.getElementById("childcare").checked = !!profile.childcare;
+			document.getElementById("driverLicense").checked = !!profile.driverLicense;
+
+			// シフト（曜日×時間）
+			const days = TeamD.days();
+			const times = TeamD.times();
+			const selectedShifts = TeamD.selectedShiftValues(targetUserId);
+			document.getElementById("shiftArea").innerHTML = days.map((day) => `
+				<div style="margin-bottom: 16px;">
+					<p style="font-weight: bold; margin-bottom: 8px;">${day.dayName}</p>
+					<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+						${times.map((time) => {
+							const val = day.dayId + "-" + time.timeId;
+							const checked = selectedShifts.indexOf(val) !== -1 ? "checked" : "";
+							return `<label style="display: flex; align-items: center; gap: 4px;">
+								<input type="checkbox" name="shiftValues" value="${val}" ${checked} style="width: auto;">
+								<span>${time.startTime}～${time.endTime}</span>
+							</label>`;
+						}).join("")}
+					</div>
+				</div>`).join("");
+
+			// 地域
+			const regions = TeamD.regions();
+			const selectedRegions = TeamD.selectedRegionIds(targetUserId);
+			document.getElementById("regionArea").innerHTML = regions.map((region) => {
+				const checked = selectedRegions.indexOf(region.regionId) !== -1 ? "checked" : "";
+				return `<label style="display: flex; align-items: center; gap: 4px;">
+					<input type="checkbox" name="regionIds" value="${region.regionId}" ${checked} style="width: auto;">
+					<span>${region.regionName}</span>
+				</label>`;
+			}).join("");
+
+			// 評価コメント（管理者・職員のみ編集可）
+			const staff = TeamD.isStaff();
+			if (staff) {
+				document.getElementById("evaluationField").style.display = "";
+				document.getElementById("evaluationComment").value = profile.evaluationComment || "";
+			}
+
+			// 送信
+			document.getElementById("editForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				const form = e.target;
+				if (typeof form.checkValidity === "function" && !form.checkValidity()) {
+					form.reportValidity();
+					return;
+				}
+
+				const userObj = {
+					name: document.getElementById("I-001").value.trim(),
+					phone: document.getElementById("I-003").value.trim(),
+					email: document.getElementById("I-004").value.trim(),
+					pass: document.getElementById("I-005").value,
+				};
+				const profileObj = {
+					nickname: document.getElementById("I-002").value.trim(),
+					postalCode: document.getElementById("I-007").value.trim(),
+					address: document.getElementById("I-008").value.trim(),
+					age: document.getElementById("I-009").value,
+					occupation: document.getElementById("I-010").value.trim(),
+					cookingExperience: document.getElementById("cookingExperience").checked,
+					nutritionist: document.getElementById("nutritionist").checked,
+					childcare: document.getElementById("childcare").checked,
+					driverLicense: document.getElementById("driverLicense").checked,
+				};
+				if (staff) {
+					profileObj.evaluationComment = document.getElementById("evaluationComment").value;
+				}
+
+				const shiftValues = Array.from(
+					document.querySelectorAll('input[name="shiftValues"]:checked')
+				).map((c) => c.value);
+				const regionIds = Array.from(
+					document.querySelectorAll('input[name="regionIds"]:checked')
+				).map((c) => Number(c.value));
+
+				try {
+					if (adminMode) {
+						TeamD.updateVolunteerById(Number(volunteerId), userObj, profileObj, shiftValues, regionIds);
+						location.href = "./complete.html?back=volunteer-list.html";
+					} else {
+						TeamD.updateVolunteerByUserId(targetUserId, userObj, profileObj, shiftValues, regionIds, TeamD.isStaff());
+						location.href = "./complete.html?back=mypage.html";
+					}
+				} catch (err) {
+					const box = document.getElementById("errorBox");
+					document.getElementById("errorMessage").textContent = err.message || "更新に失敗しました。";
+					box.style.display = "";
+					window.scrollTo(0, 0);
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

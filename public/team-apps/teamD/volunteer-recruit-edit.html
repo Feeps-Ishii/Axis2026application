@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ボランティア募集編集画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Volunteer Recruit Edit</p>
+		<h2 class="page-title">ボランティア募集編集</h2>
+		<p class="page-lead"></p>
+
+		<p id="errorMessage" class="error-message" style="display:none;"></p>
+
+		<form class="card form-card" id="recruitForm" data-validate="true" novalidate>
+			<div class="form-grid">
+				<div class="form-field">
+					<label for="I-001">募集タイトル <span class="required-mark">必須</span></label>
+					<input type="text" id="I-001" name="I-001" data-item-id="I-001"
+						data-db-table="T_VOLUNTEER_RECRUIT" data-db-column="title" data-label="募集タイトル"
+						data-required="true" maxlength="100" data-max-length="100" placeholder="募集タイトルを入力してください">
+					<small class="field-help">※100文字以内 </small>
+					<p id="I-001-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-002">食堂 <span class="required-mark">必須</span></label>
+					<select id="I-002" name="I-002" data-item-id="I-002" data-db-table="T_VOLUNTEER_RECRUIT"
+						data-db-column="shokudo_id" data-label="食堂" data-required="true">
+						<option value="">選択してください</option>
+					</select>
+					<small class="field-help">※開催食堂を選択</small>
+					<p id="I-002-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-003">開催日 <span class="required-mark">必須</span></label>
+					<input type="date" id="I-003" name="eventDate" data-item-id="I-003"
+						data-db-table="T_VOLUNTEER_RECRUIT" data-db-column="event_date" data-label="開催日"
+						data-required="true" placeholder="開催日を入力してください">
+					<small class="field-help">※現在日時以降</small>
+					<p id="I-003-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-010">開催時間 <span class="required-mark">必須</span></label>
+					<input type="time" id="I-010" name="eventTime" data-item-id="I-010"
+						data-db-table="T_VOLUNTEER_RECRUIT" data-db-column="event_date" data-label="開催時間"
+						data-required="true" placeholder="開催時間を入力してください">
+					<small class="field-help"></small>
+					<p id="I-010-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-011">終了時間 <span class="required-mark">必須</span></label>
+					<input type="time" id="I-011" name="endTime" data-item-id="I-011"
+						data-db-table="T_VOLUNTEER_RECRUIT" data-db-column="end_date" data-label="終了時間"
+						data-required="true" placeholder="終了時間を入力してください">
+					<small class="field-help">※開催時間以降</small>
+					<p id="I-011-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field form-field-full">
+					<label for="I-004">開催場所 <span class="required-mark">必須</span></label>
+					<input type="text" id="I-004" name="I-004" data-item-id="I-004"
+						data-db-table="T_VOLUNTEER_RECRUIT" data-db-column="location" data-label="開催場所"
+						data-required="true" maxlength="255" data-max-length="255" placeholder="住所を入力してください">
+					<small class="field-help"></small>
+					<p id="I-004-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field form-field-full">
+					<label for="I-005">募集内容 <span class="required-mark">必須</span></label>
+					<textarea id="I-005" name="I-005" data-item-id="I-005"
+						data-db-table="T_VOLUNTEER_RECRUIT" data-db-column="description" data-label="募集内容"
+						data-required="true" rows="4" placeholder="募集内容を入力してください"></textarea>
+					<small class="field-help">※活動内容・持ち物等の詳細</small>
+					<p id="I-005-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-006">定員数 <span class="required-mark">必須</span></label>
+					<input type="number" id="I-006" name="I-006" data-item-id="I-006"
+						data-db-table="T_VOLUNTEER_RECRUIT" data-db-column="capacity" data-label="定員数"
+						data-required="true" placeholder="定員数を入力してください">
+					<small class="field-help">※1以上</small>
+					<p id="I-006-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-007">応募期限 <span class="required-mark">必須</span></label>
+					<input type="datetime-local" id="I-007" name="deadline" data-item-id="I-007"
+						data-db-table="T_VOLUNTEER_RECRUIT" data-db-column="deadline" data-label="応募期限"
+						data-required="true" placeholder="応募期限を入力してください">
+					<small class="field-help">※開催日時以前</small>
+					<p id="I-007-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label class="check-field">
+						<input type="checkbox" id="I-008" name="isUrgent" data-item-id="I-008"
+							data-db-table="T_VOLUNTEER_RECRUIT" data-db-column="is_urgent" data-label="緊急フラグ"
+							value="true">
+						<span>緊急フラグを有効にする</span>
+					</label>
+					<small class="field-help">※緊急掲示板に表示</small>
+					<p id="I-008-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-009">状態 <span class="required-mark">必須</span></label>
+					<select id="I-009" name="I-009" data-item-id="I-009" data-db-table="T_VOLUNTEER_RECRUIT"
+						data-db-column="status" data-label="状態" data-required="true">
+						<option value="0">募集中</option>
+						<option value="1">締切</option>
+						<option value="2">完了</option>
+					</select>
+					<small class="field-help"></small>
+					<p id="I-009-error" class="error-message" aria-live="polite"></p>
+				</div>
+			</div>
+
+			<div class="button-area">
+				<button type="submit" class="primary-button" data-button-id="B-001"
+					data-next-screen="SC-021 ボランティア募集確認画面">更新する</button>
+				<button type="button" class="secondary-button" data-button-id="B-002"
+					data-next-screen="SC-016 管理者ダッシュボード" onclick="history.back()">戻る</button>
+			</div>
+		</form>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const recruitId = Number(new URLSearchParams(location.search).get("id"));
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireStaff("volunteer-recruit-edit.html")) return;
+
+			const form = document.getElementById("recruitForm");
+			const errBox = document.getElementById("errorMessage");
+			const shokudoSelect = document.getElementById("I-002");
+
+			TeamD.shokudosActive().forEach((s) => {
+				const opt = document.createElement("option");
+				opt.value = s.shokudoId;
+				opt.textContent = s.shokudoName;
+				shokudoSelect.appendChild(opt);
+			});
+
+			const ef = TeamD.recruitEditForm(recruitId);
+			if (!ef) {
+				window.location.href = "./volunteer-recruit-list.html";
+				return;
+			}
+
+			document.getElementById("I-001").value = ef.title || "";
+			shokudoSelect.value = ef.shokudoId || "";
+			document.getElementById("I-003").value = ef.eventDate || "";
+			document.getElementById("I-010").value = ef.eventTime || "";
+			document.getElementById("I-011").value = ef.endTime || "";
+			document.getElementById("I-004").value = ef.location || "";
+			document.getElementById("I-005").value = ef.description || "";
+			document.getElementById("I-006").value = ef.capacity != null ? ef.capacity : "";
+			document.getElementById("I-007").value = ef.deadline || "";
+			document.getElementById("I-008").checked = !!ef.isUrgent;
+			document.getElementById("I-009").value = String(ef.status);
+
+			form.addEventListener("submit", (e) => {
+				e.preventDefault();
+				if (form.querySelector('[aria-invalid="true"]')) return;
+
+				const eventTime = document.getElementById("I-010").value;
+				const endTime = document.getElementById("I-011").value;
+				const eventDate = document.getElementById("I-003").value;
+				const deadline = document.getElementById("I-007").value;
+				const capacity = document.getElementById("I-006").value;
+
+				errBox.style.display = "none";
+				errBox.textContent = "";
+				const errors = [];
+				if (capacity === "" || Number(capacity) < 1) errors.push("定員数は1以上で入力してください");
+				if (eventTime && endTime && endTime < eventTime) errors.push("終了時間は開催時間以降で入力してください");
+				if (eventDate && eventTime && deadline && deadline > `${eventDate}T${eventTime}`) {
+					errors.push("応募期限は開催日時以前で入力してください");
+				}
+				if (errors.length) {
+					errBox.textContent = errors[0];
+					errBox.style.display = "block";
+					return;
+				}
+
+				TeamD.updateRecruit(recruitId, {
+					title: document.getElementById("I-001").value.trim(),
+					shokudoId: shokudoSelect.value,
+					eventDate,
+					eventTime,
+					endTime,
+					location: document.getElementById("I-004").value.trim(),
+					description: document.getElementById("I-005").value.trim(),
+					capacity,
+					deadline,
+					isUrgent: document.getElementById("I-008").checked,
+					status: document.getElementById("I-009").value,
+				});
+				window.location.href = "./complete.html?back=volunteer-recruit-list.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

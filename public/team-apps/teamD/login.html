@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ログイン画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+
+		<p class="screen-id">Login</p>
+
+		<h2 class="page-title">ログイン</h2>
+		<p class="page-lead"></p>
+
+		<p id="errorMessage" class="error-message" style="display:none;"></p>
+
+		<form class="card form-card" id="loginForm">
+
+			<div class="form-field form-field-full">
+
+				<div class="form-field">
+					<label for="I-001">
+						メールアドレス
+						<span class="required-mark">必須</span>
+					</label>
+					<input type="email" id="I-001" name="I-001" placeholder="メールアドレスを入力してください">
+				</div>
+
+				<div class="form-field form-field-full">
+					<label for="I-002">
+						パスワード
+						<span class="required-mark">必須</span>
+					</label>
+					<input type="password" id="I-002" name="I-002" placeholder="パスワードを入力してください">
+				</div>
+			</div>
+
+			<div class="button-area">
+				<button type="submit" class="primary-button" data-button-id="B-001">ログイン</button>
+				<button type="button" class="secondary-button"
+					onclick="location.href='./volunteer-register.html'">新規登録</button>
+				<button type="button" class="secondary-button" id="adminCreateBtn" style="display:none;"
+					onclick="location.href='./user-register.html'">管理者作成</button>
+			</div>
+
+			<!-- デモ用ログイン情報 -->
+			<div class="card" style="margin-top:16px; background:#f6fbfa; font-size:13px; line-height:1.8;">
+				<strong>デモ用アカウント（パスワードはすべて password）</strong><br>
+				管理者：admin@example.com<br>
+				食堂職員：shokudo01@example.com 〜 shokudo05@example.com<br>
+				ボランティア：volunteer1@example.com 〜 volunteer400@example.com
+			</div>
+		</form>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const params = new URLSearchParams(location.search);
+		const redirect = params.get("redirect");
+
+		TeamD.init().then(() => {
+			if (TeamD.isAdmin()) {
+				document.getElementById("adminCreateBtn").style.display = "";
+			}
+		});
+
+		document.getElementById("loginForm").addEventListener("submit", (e) => {
+			e.preventDefault();
+			const email = document.getElementById("I-001").value.trim();
+			const pass = document.getElementById("I-002").value;
+			const user = TeamD.login(email, pass);
+			const err = document.getElementById("errorMessage");
+			if (!user) {
+				err.textContent = "メールアドレスまたはパスワードが違います。";
+				err.style.display = "block";
+				return;
+			}
+			if (redirect) {
+				location.href = "./" + redirect;
+			} else {
+				location.href = "./portal.html";
+			}
+		});
+	</script>
+</body>
+
+</html>

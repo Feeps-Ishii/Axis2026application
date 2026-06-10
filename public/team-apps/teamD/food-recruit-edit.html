@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>食材募集編集画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container" style="margin-top: 80px;">
+		<p class="screen-id">food-edit</p>
+		<h2 class="page-title">食材募集編集</h2>
+		<p class="page-lead"> </p>
+
+		<form class="card form-card" id="editForm" novalidate>
+			<div class="form-grid">
+				<div class="form-field">
+					<label for="I-001">タイトル <span class="required-mark">必須</span></label>
+					<input type="text" id="I-001" name="title" data-item-id="I-001" data-label="タイトル"
+						data-required="true" maxlength="200" data-max-length="200" placeholder="タイトルを入力してください">
+					<p id="I-001-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-002">食堂 <span class="required-mark">必須</span></label>
+					<select id="I-002" name="shokudoId" data-item-id="I-002" data-label="食堂" data-required="true">
+						<option value="">選択してください</option>
+					</select>
+					<p id="I-002-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-003">食材名 <span class="required-mark">必須</span></label>
+					<select id="I-003" name="foodId" data-item-id="I-003" data-label="食材名" data-required="true">
+						<option value="">選択してください</option>
+					</select>
+					<p id="I-003-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-004">数量 <span class="required-mark">必須</span></label>
+					<input type="text" id="I-004" name="requiredQuantity" data-item-id="I-004" data-label="数量"
+						data-required="true" maxlength="50" data-max-length="50" placeholder="例：5kg、10個、3箱">
+					<p id="I-004-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-005">期限日 <span class="required-mark">必須</span></label>
+					<input type="date" id="I-005" name="deadlineDate" data-item-id="I-005" data-label="期限日"
+						data-required="true" placeholder="期限日を入力してください">
+					<p id="I-005-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field form-field-full">
+					<label for="I-006">備考</label>
+					<textarea id="I-006" name="remarks" data-item-id="I-006" data-label="備考" rows="4"
+						placeholder="備考を入力してください"></textarea>
+					<p id="I-006-error" class="error-message" aria-live="polite"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="I-007">状態 <span class="required-mark">必須</span></label>
+					<select id="I-007" name="status" data-item-id="I-007" data-label="状態" data-required="true">
+						<option value="">選択してください</option>
+						<option value="1">募集中</option>
+						<option value="2">終了</option>
+						<option value="3">完了</option>
+					</select>
+					<p id="I-007-error" class="error-message" aria-live="polite"></p>
+				</div>
+			</div>
+
+			<div class="button-area">
+				<button type="submit" class="primary-button" data-button-id="B-001"
+					data-next-screen="SC-013_完了画面">更新する</button>
+				<a href="./dashboard.html" class="secondary-button" data-button-id="B-003">戻る</a>
+			</div>
+		</form>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		const id = Number(new URLSearchParams(location.search).get("id"));
+
+		function validateRequiredQuantity(value) {
+			const v = String(value == null ? "" : value).trim();
+			if (v === "") return "数量を入力してください";
+			if (!/^[0-9]+$/.test(v)) return "数量は数字で入力してください";
+			const n = Number(v);
+			if (n < 1 || n > 99999) return "数量は1〜99999の範囲で入力してください";
+			return "";
+		}
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireStaff('food-recruit-edit.html')) return;
+
+			const rec = TeamD.foodRecruitById(id);
+			if (!rec) {
+				location.href = "./food-recruit-list.html";
+				return;
+			}
+			const rf = TeamD.recruitFoodByRecruitId(id);
+
+			const shokudoSel = document.getElementById("I-002");
+			TeamD.shokudosActive().forEach((s) => {
+				const o = document.createElement("option");
+				o.value = s.shokudoId;
+				o.textContent = s.shokudoName;
+				shokudoSel.appendChild(o);
+			});
+
+			const foodSel = document.getElementById("I-003");
+			TeamD.foods().forEach((f) => {
+				const o = document.createElement("option");
+				o.value = f.foodId;
+				o.textContent = f.foodName;
+				foodSel.appendChild(o);
+			});
+
+			document.getElementById("I-001").value = rec.title || "";
+			shokudoSel.value = rec.shokudoId;
+			if (rf) {
+				foodSel.value = rf.foodId;
+				document.getElementById("I-004").value = rf.requiredQuantity != null ? rf.requiredQuantity : "";
+			}
+			document.getElementById("I-005").value = rec.deadlineDate ? String(rec.deadlineDate).slice(0, 10) : "";
+			document.getElementById("I-006").value = rec.remarks || "";
+			document.getElementById("I-007").value = rec.status != null ? String(rec.status) : "";
+
+			document.getElementById("editForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				let ok = true;
+				const title = document.getElementById("I-001").value.trim();
+				const shokudoId = shokudoSel.value;
+				const foodId = foodSel.value;
+				const requiredQuantity = document.getElementById("I-004").value.trim();
+				const deadlineDate = document.getElementById("I-005").value;
+				const remarks = document.getElementById("I-006").value;
+				const status = document.getElementById("I-007").value;
+
+				const set = (eid, msg) => { document.getElementById(eid).textContent = msg; if (msg) ok = false; };
+				set("I-001-error", title ? "" : "タイトルを入力してください");
+				set("I-002-error", shokudoId ? "" : "食堂を選択してください");
+				set("I-003-error", foodId ? "" : "食材名を選択してください");
+				set("I-004-error", validateRequiredQuantity(requiredQuantity));
+				set("I-005-error", deadlineDate ? "" : "期限日を入力してください");
+				set("I-007-error", status ? "" : "状態を選択してください");
+
+				if (!ok) return;
+
+				TeamD.updateFoodRecruit(id, {
+					title, shokudoId, foodId, requiredQuantity, deadlineDate, remarks, status,
+				});
+				location.href = "./complete.html?type=foodRecruitList";
+			});
+		});
+	</script>
+</body>
+
+</html>

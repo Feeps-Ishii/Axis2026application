@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ユーザー名簿画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">User List</p>
+		<h2 class="page-title">ユーザー名簿</h2>
+
+		<section class="table-toolbar">
+			<form id="searchForm">
+				<h3 style="margin-bottom:10px;">検索条件</h3>
+
+				<div style="display:flex; align-items:end; gap:20px; margin-bottom:15px;">
+
+					<div>
+						<label for="name">名前</label><br>
+						<input id="name" type="search" name="name" placeholder="名前で検索">
+					</div>
+
+					<div>
+						<label for="authority">権限</label><br>
+						<select id="authority" name="authority">
+							<option value="">すべて</option>
+							<option value="1">管理者</option>
+							<option value="2">食堂職員</option>
+							<option value="3">ボランティア</option>
+						</select>
+					</div>
+
+					<div>
+						<label for="shokudoName">食堂名</label><br>
+						<select id="shokudoName" name="shokudoName">
+							<option value="">すべて</option>
+						</select>
+					</div>
+
+					<button type="submit" class="primary-button">検索</button>
+
+					<a href="javascript:void(0);" id="clearBtn" class="secondary-button">クリア</a>
+
+				</div>
+			</form>
+		</section>
+
+		<section class="table-card" aria-label="ユーザー名簿">
+			<div style="overflow:auto; width:100%; max-height:600px;">
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th>ユーザーID</th>
+							<th>名前</th>
+							<th>電話番号</th>
+							<th>メール</th>
+							<th>権限</th>
+							<th>食堂名</th>
+							<th>登録日時</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody id="userTbody"></tbody>
+				</table>
+			</div>
+		</section>
+
+		<a class="secondary-button" href="./dashboard.html">ダッシュボードへ戻る</a>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		function esc(s) {
+			return String(s == null ? "" : s)
+				.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+		}
+		function truncate(s, n) {
+			const v = String(s == null ? "" : s);
+			return v.length > n ? v.substring(0, n) + "…" : v;
+		}
+		function fmtDate(s) {
+			return s ? String(s).slice(0, 10).replace(/-/g, "/") : "-";
+		}
+		function authorityLabel(a) {
+			return a === 1 ? "管理者" : a === 2 ? "職員" : a === 3 ? "ボランティア" : "不明";
+		}
+
+		TeamD.init().then(() => {
+			if (!TeamD.requireStaff("user-list.html")) return;
+
+			const nameInput = document.getElementById("name");
+			const authoritySel = document.getElementById("authority");
+			const shokudoSel = document.getElementById("shokudoName");
+			const tbody = document.getElementById("userTbody");
+
+			TeamD.shokudosActive().forEach((s) => {
+				const opt = document.createElement("option");
+				opt.value = s.shokudoName;
+				opt.textContent = s.shokudoName;
+				shokudoSel.appendChild(opt);
+			});
+
+			const shokudoNameMap = TeamD.userShokudoNameMap();
+
+			function render(list) {
+				if (!list.length) {
+					tbody.innerHTML = `<tr><td colspan="8">ユーザー情報が登録されていません。</td></tr>`;
+					return;
+				}
+				tbody.innerHTML = list.map((u) => {
+					const sname = shokudoNameMap[u.userId] || "-";
+					return `
+						<tr>
+							<td>${esc(u.userId)}</td>
+							<td title="${esc(u.name)}">${esc(truncate(u.name, 10))}</td>
+							<td>${esc(u.phone)}</td>
+							<td>${esc(u.email)}</td>
+							<td><span class="badge">${esc(authorityLabel(u.authority))}</span></td>
+							<td title="${esc(sname)}">${esc(sname === "-" ? "-" : truncate(sname, 12))}</td>
+							<td>${esc(fmtDate(u.createdAt))}</td>
+							<td style="width:120px; text-align:center; white-space:nowrap;" class="action-links">
+								<a class="text-link" href="./user-edit.html?id=${u.userId}">編集</a>
+								|
+								<a class="text-link" href="javascript:void(0);" data-delete="${u.userId}">削除</a>
+							</td>
+						</tr>`;
+				}).join("");
+			}
+
+			function doSearch() {
+				render(TeamD.searchUsers(nameInput.value, authoritySel.value, shokudoSel.value));
+			}
+
+			document.getElementById("searchForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				doSearch();
+			});
+
+			document.getElementById("clearBtn").addEventListener("click", () => {
+				nameInput.value = "";
+				authoritySel.value = "";
+				shokudoSel.value = "";
+				render(TeamD.searchUsers("", "", ""));
+			});
+
+			tbody.addEventListener("click", (e) => {
+				const link = e.target.closest("[data-delete]");
+				if (!link) return;
+				e.preventDefault();
+				if (!confirm("このユーザーを削除しますか？")) return;
+				TeamD.deleteUser(Number(link.getAttribute("data-delete")));
+				doSearch();
+			});
+
+			render(TeamD.searchUsers("", "", ""));
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ボランティア登録確認画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Volunteer Confirm</p>
+		<h2 class="page-title">ボランティア登録確認</h2>
+		<p class="page-lead"><!-- タイトルの下に文を表示 --></p>
+
+		<p id="errorMessage" style="color:red; font-weight:bold; display:none;"></p>
+
+		<section class="card confirm-card">
+			<dl class="confirm-list">
+				<div class="confirm-row">
+					<dt>氏名</dt>
+					<dd><span id="c-name"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>電話番号</dt>
+					<dd><span id="c-phone"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>メールアドレス</dt>
+					<dd><span id="c-email"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>パスワード</dt>
+					<dd><span id="c-pass"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>権限</dt>
+					<dd>ボランティア</dd>
+				</div>
+				<div class="confirm-row">
+					<dt>ニックネーム</dt>
+					<dd><span id="c-nickname"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>郵便番号</dt>
+					<dd><span id="c-postalCode"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>住所</dt>
+					<dd><span id="c-address"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>年齢</dt>
+					<dd><span id="c-age"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>職業</dt>
+					<dd><span id="c-occupation"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>調理経験</dt>
+					<dd><span id="c-cooking"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>栄養士資格</dt>
+					<dd><span id="c-nutritionist"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>保育士資格</dt>
+					<dd><span id="c-childcare"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>運転免許</dt>
+					<dd><span id="c-driver"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>参加可能曜日・時間</dt>
+					<dd><span id="c-shift"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>参加可能地域</dt>
+					<dd><span id="c-region"></span></dd>
+				</div>
+			</dl>
+
+			<div class="button-area">
+				<button type="button" class="primary-button" id="confirmBtn" data-button-id="B-001">
+					確定する
+				</button>
+				<button type="button" class="secondary-button" id="backBtn" data-button-id="B-002">
+					戻る
+				</button>
+			</div>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		function esc(s) {
+			return String(s == null ? "" : s)
+				.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+		}
+
+		TeamD.init().then(() => {
+			const draft = TeamD.getDraft("volunteer");
+			if (!draft) {
+				location.href = "./volunteer-register.html";
+				return;
+			}
+			const u = draft.user || {};
+			const p = draft.profile || {};
+			const shiftValues = draft.shiftValues || [];
+			const regionIds = draft.regionIds || [];
+
+			document.getElementById("c-name").innerHTML = esc(u.name);
+			document.getElementById("c-phone").innerHTML = esc(u.phone);
+			document.getElementById("c-email").innerHTML = esc(u.email);
+			document.getElementById("c-pass").innerHTML = esc(u.pass);
+			document.getElementById("c-nickname").innerHTML = esc(p.nickname);
+			document.getElementById("c-postalCode").innerHTML = esc(p.postalCode);
+			document.getElementById("c-address").innerHTML = esc(p.address);
+			document.getElementById("c-age").innerHTML = esc(p.age);
+			document.getElementById("c-occupation").innerHTML = esc(p.occupation);
+			document.getElementById("c-cooking").innerHTML = p.cookingExperience ? "あり" : "なし";
+			document.getElementById("c-nutritionist").innerHTML = p.nutritionist ? "あり" : "なし";
+			document.getElementById("c-childcare").innerHTML = p.childcare ? "あり" : "なし";
+			document.getElementById("c-driver").innerHTML = p.driverLicense ? "あり" : "なし";
+
+			// 参加可能曜日・時間（曜日順 月火水木金土日, 同曜日は時間を「・」で連結, 曜日間は<br>）
+			const order = ["月", "火", "水", "木", "金", "土", "日"];
+			const byDay = {};
+			shiftValues.forEach((v) => {
+				const [d, t] = String(v).split("-").map(Number);
+				const dn = TeamD.dayName(d);
+				(byDay[dn] = byDay[dn] || []).push(TeamD.timeLabel(t));
+			});
+			const shiftText = order
+				.filter((d) => byDay[d] && byDay[d].length)
+				.map((d) => `${esc(d)} ${byDay[d].map(esc).join("・")}`)
+				.join("<br>");
+			document.getElementById("c-shift").innerHTML = shiftText || "未選択";
+
+			// 参加可能地域
+			const regionText = regionIds.map((id) => esc(TeamD.regionName(id))).join(" / ");
+			document.getElementById("c-region").innerHTML = regionText || "未選択";
+
+			document.getElementById("confirmBtn").addEventListener("click", () => {
+				const err = document.getElementById("errorMessage");
+				try {
+					TeamD.createVolunteer(u, p, shiftValues, regionIds);
+					TeamD.clearDraft("volunteer");
+					location.href = "./complete.html?type=portal";
+				} catch (ex) {
+					err.textContent = ex.message;
+					err.style.display = "block";
+				}
+			});
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./volunteer-register.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

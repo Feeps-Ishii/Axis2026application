@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>完了画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Complete</p>
+		<h2 class="page-title">完了</h2>
+		<p class="page-lead"></p>
+		<section class="complete-card card">
+			<div class="complete-icon">✓</div>
+			<h2>処理が完了しました</h2>
+			<p>登録・更新内容が正常に保存されました。</p>
+			<a id="backLink" href="./portal.html" class="secondary-button">戻る</a>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		// ?back=<file.html> を最優先。なければ ?type= から戻り先を決定（元 CompleteController 準拠）。
+		const params = new URLSearchParams(location.search);
+		const TYPE_MAP = {
+			admin: "dashboard.html",
+			foodRecruitList: "food-recruit-list.html",
+			foodDonationList: "food-donation-list.html",
+			messageList: "message-form.html",
+			userList: "user-list.html",
+			volunteerList: "volunteer-list.html",
+			shokudoList: "shokudo-list.html",
+			portal: "portal.html",
+		};
+		const back = params.get("back");
+		const type = params.get("type");
+		const file = back || TYPE_MAP[type] || "portal.html";
+		document.getElementById("backLink").setAttribute("href", "./" + file);
+	</script>
+</body>
+
+</html>

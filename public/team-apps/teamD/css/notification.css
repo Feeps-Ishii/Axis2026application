@@ -1,0 +1,340 @@
+@charset "UTF-8";
+
+/* ==============================
+   通知：通常ヘッダー内表示用
+   ============================== */
+
+.notification-box {
+	position: relative;
+	display: inline-block;
+	margin-right: 16px;
+}
+
+.notification-button {
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: inherit;
+	font: inherit;
+	position: relative;
+	padding: 4px 8px;
+}
+
+.notification-count {
+	display: inline-block;
+	min-width: 18px;
+	padding: 2px 6px;
+	margin-left: 4px;
+	border-radius: 999px;
+	background: #d9534f;
+	color: #fff;
+	font-size: 12px;
+	line-height: 1.2;
+	text-align: center;
+}
+
+.notification-dropdown {
+	display: none;
+	position: absolute;
+	top: 32px;
+	right: 0;
+	width: 320px;
+	max-height: 360px;
+	overflow-y: auto;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	padding: 0;
+	z-index: 9999;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+.notification-dropdown.is-open {
+	display: block;
+}
+
+.notification-header {
+	padding: 12px 14px;
+	border-bottom: 1px solid #eee;
+	background: #f8f8f8;
+}
+
+.notification-empty {
+	padding: 14px;
+	margin: 0;
+}
+
+.notification-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.notification-item {
+	padding: 12px 14px;
+	border-bottom: 1px solid #eee;
+	font-size: 14px;
+}
+
+.notification-item:last-child {
+	border-bottom: none;
+}
+
+
+/* ==============================
+   フローティング通知
+   HTML構造は変えず、ヘッダーを基準に配置
+   ============================== */
+
+/* absolute配置の基準にする */
+.header {
+	position: relative;
+}
+
+/* PC表示：ログイン付近の右端に配置 */
+.floating-notification-box {
+	position: absolute;
+	top: 50%;
+
+	/* ログイン表示とかぶる場合は 140px〜220px で調整 */
+	right: 30px;
+
+	transform: translateY(-50%);
+	z-index: 9999;
+}
+
+.floating-notification-button {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	border: none;
+	background: #ffffff;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+	cursor: pointer;
+	font-size: 20px;
+	position: relative;
+}
+
+.floating-notification-count {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+	min-width: 18px;
+	padding: 2px 5px;
+	border-radius: 999px;
+	background: #d9534f;
+	color: #fff;
+	font-size: 12px;
+	line-height: 1.2;
+	text-align: center;
+}
+
+/* PC表示：通知一覧 */
+.floating-notification-dropdown {
+	display: none;
+	position: absolute;
+	top: 52px;
+
+	/* 右側にはみ出しにくいよう、右基準で開く */
+	right: 0;
+
+	width: 220px;
+	max-height: 360px;
+	overflow-y: auto;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	z-index: 10000;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.floating-notification-dropdown.is-open {
+	display: block;
+}
+
+.floating-notification-header {
+	padding: 12px 14px;
+	border-bottom: 1px solid #eee;
+	background: #f8f8f8;
+}
+
+.floating-notification-empty {
+	padding: 14px;
+	margin: 0;
+}
+
+.floating-notification-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.floating-notification-item {
+	padding: 12px 14px;
+	border-bottom: 1px solid #eee;
+	font-size: 14px;
+}
+
+.floating-notification-item:last-child {
+	border-bottom: none;
+}
+
+
+/* ==============================
+   スマホ表示
+   ヘッダー下の右端に固定
+   ============================== */
+@media screen and (max-width: 768px) {
+
+	.floating-notification-box {
+		position: fixed;
+
+		/* ヘッダー下に表示。ズレたら 80px〜110px で調整 */
+		top: 96px;
+
+		/* スマホでも右端に置く */
+		right: 12px;
+		left: auto;
+
+		transform: none;
+		z-index: 9999;
+	}
+	}
+
+	.floating-notification-button {
+		width: 42px;
+		height: 42px;
+		font-size: 18px;
+	}
+
+	.floating-notification-dropdown {
+		top: 50px;
+
+		/* スマホでは右基準で開く */
+		right: 0;
+		left: auto;
+
+		width: calc(100vw - 24px);
+		max-height: 60vh;
+	}
+
+	/* 通知フォームは余白を消します */
+	.floating-notification-form {
+	    margin: 0;
+	}
+
+	/* 通知1件分をクリックできるボタンにします */
+	.floating-notification-link {
+	    display: block;
+	    width: 100%;
+	    padding: 12px 14px;
+	    border: none;
+	    background: transparent;
+	    color: inherit;
+	    font: inherit;
+	    text-align: left;
+	    cursor: pointer;
+	}
+
+	/* hover時だけ背景色を変えます */
+	.floating-notification-link:hover {
+	    background: #fff0df;
+	}
+
+	/* button側に余白を持たせるため、li側の余白は消します */
+	.floating-notification-item {
+	    padding: 0;
+	    border-bottom: 1px solid #eee;
+	    font-size: 14px;
+	}
+
+	.floating-notification-item:last-child {
+	    border-bottom: none;
+	}
+
+	.floating-notification-link strong {
+	    display: block;
+	    font-size: 14px;
+	    font-weight: 700;
+	}
+
+	/* スマホ表示だけ */
+	@media screen and (max-width: 768px) {
+	    .floating-notification-box {
+	        position: fixed;
+	        top: 96px;
+	        right: 12px;
+	        left: auto;
+	        transform: none;
+	        z-index: 9999;
+	    }
+
+	    .floating-notification-button {
+	        width: 42px;
+	        height: 42px;
+	        font-size: 18px;
+	    }
+
+	    .floating-notification-dropdown {
+	        top: 50px;
+	        right: 0;
+	        left: auto;
+	        width: calc(100vw - 24px);
+	        max-height: 60vh;
+	    }
+	}
+	
+	@media screen and (min-width: 769px) {
+	    .floating-notification-dropdown {
+	        width: 320px;
+	        max-width: 320px;
+	    }
+	}
+	
+	.notification-action-area {
+	    margin-top: 12px;
+	    display: flex;
+	    justify-content: flex-end;
+	    gap: 8px;
+	}
+
+	.notification-action-button {
+	    border-radius: 20px;
+	    padding: 6px 14px;
+	    font-size: 13px;
+	    font-weight: 600;
+	    cursor: pointer;
+	    transition: 0.2s;
+	}
+
+	/* メイン */
+	.notification-open-button {
+	    background: #f59e0b;
+	    color: white;
+	    border: none;
+	}
+
+	.notification-open-button:hover {
+	    background: #ea8a00;
+	    transform: translateY(-1px);
+	}
+
+	/* サブ */
+	.notification-read-button {
+	    background: #fff7ed;
+	    color: #b45309;
+	    border: 1px solid #fdba74;
+	}
+
+	.notification-read-button:hover {
+	    background: #fed7aa;
+	}
+	
+	.floating-notification-item {
+	    padding: 12px;
+	    border-bottom: 1px solid #eee;
+	}
+
+	.floating-notification-item:hover {
+	    background: #fffaf3;
+	}

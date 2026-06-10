@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ボランティア参加確認画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./js/validation.js" defer></script>
+</head>
+
+<body>
+	<div id="appHeader"></div>
+
+	<main class="main-container">
+		<p class="screen-id">Volunteer Confirm</p>
+		<h2 class="page-title">ボランティア参加確認</h2>
+		<p class="page-lead"></p>
+
+		<p id="errorMessage" class="error-message" style="display:none;"></p>
+
+		<section class="card confirm-card">
+			<dl class="confirm-list">
+				<div class="confirm-row">
+					<dt>氏名</dt>
+					<dd><span id="I-001"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>ニックネーム</dt>
+					<dd><span id="I-002"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>郵便番号</dt>
+					<dd><span id="I-003"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>住所</dt>
+					<dd><span id="I-004"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>電話番号</dt>
+					<dd><span id="I-005"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>メールアドレス</dt>
+					<dd><span id="I-006"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>健康状態</dt>
+					<dd><span id="I-009"></span></dd>
+				</div>
+				<div class="confirm-row">
+					<dt>備考</dt>
+					<dd><span id="I-007"></span></dd>
+				</div>
+			</dl>
+
+			<div class="button-area">
+				<button type="button" id="confirmBtn" class="primary-button">登録/送信</button>
+				<button type="button" id="backBtn" class="secondary-button">修正する</button>
+			</div>
+		</section>
+	</main>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		TeamD.init().then(() => {
+			if (!TeamD.requireLogin("volunteer-entry-confirm.html")) return;
+
+			const draft = TeamD.getDraft("entry");
+			if (!draft) {
+				window.location.href = "./portal.html";
+				return;
+			}
+			const errBox = document.getElementById("errorMessage");
+
+			document.getElementById("I-001").textContent = draft.name || "";
+			document.getElementById("I-002").textContent = draft.nickname || "";
+			document.getElementById("I-003").textContent = draft.postalCode || "";
+			document.getElementById("I-004").textContent = draft.address || "";
+			document.getElementById("I-005").textContent = draft.phoneNumber || "";
+			document.getElementById("I-006").textContent = draft.email || "";
+			document.getElementById("I-009").textContent = draft.healthCondition || "";
+			document.getElementById("I-007").textContent = draft.remarks || "";
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				window.location.href = "./volunteer-entry-form.html?recruitId=" + draft.recruitId;
+			});
+
+			document.getElementById("confirmBtn").addEventListener("click", () => {
+				try {
+					TeamD.createEntry(draft, draft.recruitId, TeamD.currentUser().userId);
+					TeamD.clearDraft("entry");
+					window.location.href = "./complete.html?type=portal";
+				} catch (err) {
+					errBox.textContent = err.message;
+					errBox.style.display = "block";
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

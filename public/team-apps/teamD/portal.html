@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>統合ポータル画面 | まちのこ食卓プロジェクト</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+
+<body>
+	<!-- 共通ヘッダー -->
+	<div id="appHeader"></div>
+
+	<!-- トップ画像（ヒーロースライダー） -->
+	<section class="photo-section" aria-labelledby="photo-title">
+		<section class="hero-slider">
+			<div class="hero-slide active">
+				<img src="./images/img1.png" alt="子ども食堂の様子">
+				<div class="hero-overlay">
+					<p class="hero-subtitle">地域でつながる</p>
+					<h2>みんなで囲む、あたたかい食卓</h2>
+				</div>
+			</div>
+			<div class="hero-slide active">
+				<img src="./images/img4.png" alt="笑顔の女児童">
+				<div class="hero-overlay">
+					<p class="hero-subtitle">地域の笑顔</p>
+					<h2>子供たちが笑顔になれる場所へ</h2>
+				</div>
+			</div>
+			<div class="hero-slide active">
+				<img src="./images/img5.png" alt="子ども食堂の様子">
+				<div class="hero-overlay">
+					<p class="hero-subtitle">地域で支える</p>
+					<h2>あなたのできることが、誰かの笑顔に</h2>
+				</div>
+			</div>
+		</section>
+	</section>
+
+	<main class="main-container">
+		<section class="hero-section">
+			<div>
+				<p class="eyebrow">参加しやすく、感謝でつながる</p>
+				<h2>まちのこ食卓 統合ポータル</h2>
+				<p></p>
+			</div>
+			<form class="search-box" role="search" onsubmit="return false;">
+				<label for="keyword">募集を検索</label>
+				<input id="keyword" type="search" placeholder="食堂名・食材名で検索" data-search-input>
+			</form>
+		</section>
+
+		<!-- 緊急募集 -->
+		<section class="urgent-section" aria-labelledby="urgent-title">
+			<h2 id="urgent-title">緊急募集</h2>
+			<div id="urgentArea"></div>
+		</section>
+
+		<section class="tab-section" aria-label="募集一覧">
+			<div class="tab-buttons" role="tablist">
+				<button type="button" data-tab-button data-target="food-panel" aria-selected="true">食材募集</button>
+				<button type="button" data-tab-button data-target="volunteer-panel" aria-selected="false">ボランティア募集</button>
+				<button type="button" data-tab-button data-target="thanks-panel" aria-selected="false">感謝メッセージ</button>
+			</div>
+
+			<div id="food-panel" class="card-grid hidden" data-tab-panel></div>
+			<div id="volunteer-panel" class="card-grid hidden" data-tab-panel></div>
+			<div id="thanks-panel" class="card-grid hidden thanks-slide-area" data-tab-panel></div>
+		</section>
+	</main>
+
+	<!-- 地図エリア -->
+	<section class="map-section" id="mapSection">
+		<h2>ボランティア開催マップ</h2>
+		<div class="map-search">
+			<input id="searchInput" type="text" placeholder="住所を検索">
+			<button type="button" onclick="searchMap()">検索</button>
+			<a href="javascript:void(0);" class="secondary-button" onclick="clearMapSearch()">クリア</a>
+		</div>
+		<div id="map"></div>
+	</section>
+
+	<script src="./js/db.js"></script>
+	<script src="./js/header.js"></script>
+	<script>
+		function fmtDate(s) {
+			return s ? String(s).slice(0, 10).replace(/-/g, "/") : "";
+		}
+		function esc(s) {
+			return String(s == null ? "" : s)
+				.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+		}
+
+		TeamD.init().then(() => {
+			const snm = TeamD.shokudoNameMap();
+			const foodNameMap = TeamD.foodNameMap();
+			const quantityMap = TeamD.quantityMap();
+
+			// 緊急募集
+			const urgent = TeamD.portalUrgentRecruits();
+			const urgentArea = document.getElementById("urgentArea");
+			if (urgent.length === 0) {
+				urgentArea.innerHTML = `<p>現在、緊急募集はありません。</p>`;
+			} else {
+				urgentArea.innerHTML = urgent.map((u) => `
+					<article class="urgent-card" data-search-card>
+						<span class="badge badge-urgent">緊急</span>
+						<div>
+							<span class="date-chip">開催日：${fmtDate(u.eventDate)}</span>
+							<span class="date-chip">期限日：${fmtDate(u.deadline)}</span>
+						</div>
+						<h3>${esc(u.title)}</h3>
+						<p class="card-shokudo-name"><span>${esc(snm[u.shokudoId] || "食堂名未設定")}</span></p>
+						<p>${esc(u.description)}</p>
+						<p>現在の応募人数：<span>${u.currentCount}</span> / <span>${u.capacity}</span> 人</p>
+						<a class="primary-button" href="./volunteer-recruit-detail.html?id=${u.recruitId}">詳細を見る</a>
+					</article>`).join("");
+			}
+
+			// 食材募集
+			const foods = TeamD.portalFoodRecruits();
+			const foodPanel = document.getElementById("food-panel");
+			foodPanel.innerHTML = (foods.length ? foods.map((f) => `
+				<article class="list-card" data-search-card>
+					<div>
+						<span class="badge">食材</span>
+						<span class="date-chip">期限日：${fmtDate(f.deadlineDate)}</span>
+					</div>
+					<h3>${esc(f.title)}</h3>
+					<p class="card-shokudo-name">${esc(f.shokudo ? f.shokudo.shokudoName : "食堂名未設定")}</p>
+					<p>食材名：<span>${esc(foodNameMap[f.foodRecruitId] || "未設定")}</span></p>
+					<p>数量：<span>${esc(quantityMap[f.foodRecruitId] || "未設定")}</span></p>
+					<p>${esc(f.remarks)}</p>
+					<a class="text-link" href="./food-recruit-detail.html?id=${f.foodRecruitId}">詳細を見る</a>
+				</article>`).join("") : `<p>現在、食材募集はありません。</p>`);
+
+			// ボランティア募集
+			const vols = TeamD.portalVolunteerRecruits();
+			const volPanel = document.getElementById("volunteer-panel");
+			volPanel.innerHTML = (vols.length ? vols.map((v) => `
+				<article class="list-card" data-search-card>
+					<div>
+						<span class="badge">ボランティア</span>
+						<span class="date-chip">期限日：${fmtDate(v.eventDate)}</span>
+					</div>
+					<h3>${esc(v.title)}</h3>
+					<p class="card-shokudo-name"><span>${esc(snm[v.shokudoId] || "食堂名未設定")}</span></p>
+					<p>${esc(v.description)}</p>
+					<p>現在の応募人数：<span>${v.currentCount}</span> / <span>${v.capacity}</span> 人</p>
+					<a class="text-link" href="./volunteer-recruit-detail.html?id=${v.recruitId}">詳細を見る</a>
+				</article>`).join("") : `<p>現在、ボランティア募集はありません。</p>`);
+
+			// 感謝メッセージ
+			const thanks = TeamD.portalThanks();
+			const thanksPanel = document.getElementById("thanks-panel");
+			thanksPanel.innerHTML = (thanks.length ? thanks.map((t) => `
+				<article class="list-card thanks-card">
+					<div>
+						<span class="badge">感謝</span>
+						<span class="date-chip">${fmtDate(t.createdAt)}</span>
+					</div>
+					<h3>${esc(t.shokudoName || "食堂名未設定")}</h3>
+					<p>${esc(t.message)}</p>
+				</article>`).join("") : `<p>感謝メッセージはありません。</p>`);
+
+			// 地図用データ（map.js が参照）
+			window.volunteerData = vols.map((v) => ({
+				recruitId: v.recruitId,
+				shokudoName: snm[v.shokudoId] || "",
+				title: v.title,
+				location: v.location,
+				description: v.description,
+				eventDate: v.eventDate,
+				currentCount: v.currentCount,
+				capacity: v.capacity,
+			}));
+
+			// 動的描画後に portal.js（タブ/スライダー/検索）と map.js を読み込む
+			["./js/portal.js", "./js/map.js"].forEach((src) => {
+				const s = document.createElement("script");
+				s.src = src;
+				document.body.appendChild(s);
+			});
+		});
+	</script>
+</body>
+
+</html>
