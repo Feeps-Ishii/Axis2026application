@@ -174,6 +174,8 @@
     restockAlerts: (storeId) =>
       TeamI.stocks()
         .filter((s) => s.storeId === Number(storeId) && s.stockCount <= s.alertThreshold)
+        // 不足数（発注閾値 − 在庫数）が大きい順に並べる
+        .sort((a, b) => (b.alertThreshold - b.stockCount) - (a.alertThreshold - a.stockCount))
         .map((s) => {
           const b = TeamI.book(s.bookId) || {};
           return {

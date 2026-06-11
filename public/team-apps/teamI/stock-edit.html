@@ -22,8 +22,8 @@
 				</div>
 
 				<div class="form-group" style="display: flex; gap: 15px;">
-					<div style="flex: 1;"><label>在庫数</label><input type="number" id="stockCount" name="stockCount"></div>
-					<div style="flex: 1;"><label>発注閾値</label><input type="number" id="alertThreshold" name="alertThreshold"></div>
+					<div style="flex: 1;"><label>在庫数</label><input type="number" id="stockCount" name="stockCount" min="0" max="99999"></div>
+					<div style="flex: 1;"><label>発注閾値</label><input type="number" id="alertThreshold" name="alertThreshold" min="0" max="50000"></div>
 					<div style="flex: 1;"><label>棚位置</label><input type="text" id="shelfLocation" name="shelfLocation"></div>
 				</div>
 

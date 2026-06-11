@@ -82,7 +82,7 @@
 						<div class="form-group"><label>予約番号</label><input type="text" value="${TeamI.esc(ORDER.id)}" disabled></div>
 						<div class="form-group"><label>予約日時</label><input type="text" value="${TeamI.esc(TeamI.fmtDateTime(ORDER.reservedAt))}" disabled></div>
 						<div class="form-group full-width"><label>書籍タイトル</label><input type="text" value="${TeamI.esc(book.title)}" disabled></div>
-						<div class="form-group full-width"><label>出荷店舗 → 受け取り店舗</label><input type="text" value="${TeamI.esc(TeamI.storeName(ORDER.shippingStoreId) + " → " + TeamI.storeName(ORDER.pickupStoreId))}" disabled></div>
+						<div class="form-group full-width"><label>発送店舗 → 受け取り店舗</label><input type="text" value="${TeamI.esc(TeamI.storeName(ORDER.shippingStoreId) + " → " + TeamI.storeName(ORDER.pickupStoreId))}" disabled></div>
 					</div>
 				</div>
 
