@@ -16,7 +16,8 @@ export default function Home() {
         </h1>
         <p className="mt-3 max-w-2xl text-black/70 dark:text-white/70">
           全{teams.length}チームの成果物を講師側でまとめた起動ポータルです。
-          各カードの「起動」から擬似アプリ（JSON + localStorage モック）を開きます。
+          各カードからモデル企業の詳細を開き、その画面の「起動」ボタンで
+          擬似アプリ（JSON + localStorage モック）を開きます。
           現在 {readyCount} / {teams.length} チーム配置済み。
         </p>
       </header>
@@ -48,11 +49,11 @@ export default function Home() {
               <div className="mt-5">
                 {team.ready ? (
                   <Link
-                    href={`/apps/${team.slug}`}
+                    href={`/teams/${team.slug}`}
                     className="inline-flex w-full items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
                     style={{ backgroundColor: team.accent }}
                   >
-                    起動する
+                    モデル企業を見る →
                   </Link>
                 ) : (
                   <span className="inline-flex w-full items-center justify-center rounded-full border border-dashed border-black/20 px-4 py-2.5 text-sm font-medium text-black/40 dark:border-white/20 dark:text-white/40">
