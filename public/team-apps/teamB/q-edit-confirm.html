@@ -44,8 +44,12 @@
 		</section>
 
 		<section>
-			<button type="button" id="doneBtn">問診票を更新する</button>
-			<button type="button" id="backBtn">修正画面へ戻る</button>
+			<form id="doneForm">
+				<input type="submit" value="問診票を更新する">
+			</form>
+			<form id="backForm">
+				<input type="submit" value="修正画面へ戻る">
+			</form>
 		</section>
 	</main>
 
@@ -74,10 +78,12 @@
 			set("v-useMynaInsurance", d.useMynaInsurance);
 			set("v-memo", d.memo);
 
-			document.getElementById("doneBtn").addEventListener("click", () => {
+			document.getElementById("doneForm").addEventListener("submit", (e) => {
+				e.preventDefault();
 				location.href = "./q-edit-complete.html";
 			});
-			document.getElementById("backBtn").addEventListener("click", () => {
+			document.getElementById("backForm").addEventListener("submit", (e) => {
+				e.preventDefault();
 				location.href = "./q-edit.html?questionnaireId=" + d.questionnaireId;
 			});
 		});
