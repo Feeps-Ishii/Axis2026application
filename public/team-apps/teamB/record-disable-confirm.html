@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カルテ無効化確認</title>
+    <link rel="stylesheet" href="./css/admin/records/disable-confirm.css">
+</head>
+<body>
+    <header>
+        <h1>カルテ無効化確認</h1>
+        <div class="header-right">
+            <a href="./admin.html" class="header-btn">管理者TOP</a>
+            <a href="javascript:void(0)" class="header-btn" onclick="TeamB.logout()">ログアウト</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <nav class="breadcrumb" aria-label="パンくずリスト">管理者TOP ＞ 患者管理 ＞ カルテ詳細 ＞ カルテ無効化</nav>
+
+        <section class="confirm-card" aria-labelledby="disableTitle">
+            <div class="warning-icon">!</div>
+            <h2 id="disableTitle" class="confirm-title">本当にカルテを無効化してよろしいですか？</h2>
+            <p class="confirm-message">以下のカルテを無効化します。無効化後、このカルテは通常の診療業務では利用できなくなります。</p>
+
+            <table class="confirm-table">
+                <tr><th>カルテID</th><td id="v_recordId"></td></tr>
+                <tr><th>予約ID</th><td id="v_appointmentId"></td></tr>
+                <tr><th>主訴</th><td id="v_chiefComplaint"></td></tr>
+                <tr><th>診断名</th><td id="v_diagnosis"></td></tr>
+            </table>
+
+            <div class="button-area">
+                <a class="back-btn" id="backBtn" href="#">戻る</a>
+                <button type="button" class="disable-btn" id="disableBtn">無効化する</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="./js/db.js"></script>
+    <script>
+        TeamB.init().then(() => {
+            const s = TeamB.requireStaff();
+            if (!s) return;
+
+            const id = new URLSearchParams(location.search).get("id");
+            const r = TeamB.record(id);
+            if (!r) { alert("対象のカルテが見つかりません。"); location.href = "./admin.html"; return; }
+
+            document.getElementById("v_recordId").textContent = r.recordId;
+            document.getElementById("v_appointmentId").textContent = r.appointmentId == null ? "" : r.appointmentId;
+            document.getElementById("v_chiefComplaint").textContent = r.chiefComplaint == null ? "" : r.chiefComplaint;
+            document.getElementById("v_diagnosis").textContent = r.diagnosis == null ? "" : r.diagnosis;
+
+            document.getElementById("backBtn").href = "./record-detail.html?id=" + encodeURIComponent(id);
+
+            document.getElementById("disableBtn").addEventListener("click", () => {
+                location.href = "./record-disable-done.html?id=" + encodeURIComponent(id);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<link rel="stylesheet" href="./css/rsv/user_reservation.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約者マイページ</title>
+</head>
+
+<body>
+	<header>
+
+		<h1>予約者マイページ</h1>
+
+
+
+	</header>
+
+	<hr>
+
+	<main>
+
+		<section>
+			<p
+				style="font-size: 1.1em; font-weight: bold; margin-bottom: 40px; background-color: #f9f9f9; padding: 10px; border-left: 5px solid #d9534f;">
+				現在の待ち人数は
+				<span id="humannum" style="color: #d9534f; font-size: 1.4em;">
+
+				</span>
+				人です。
+
+				<br><br>
+
+				現在のおおよそのご案内時刻は
+				<span id="estimatedTime" style="color: #0275d8; font-size: 1.4em;">
+
+				</span>
+				頃です。
+			</p>
+			<h2>現在の予約情報</h2>
+
+			<p id="errorMessage" style="color: red; font-weight: bold; display:none;"></p>
+
+			<table border="1" id="reservationTable" style="display:none;">
+
+				<tr>
+					<th>予約区分</th>
+					<td id="reservationType"></td>
+				</tr>
+
+				<tr>
+					<th>氏名</th>
+					<td id="name"></td>
+				</tr>
+
+				<tr>
+					<th>フリガナ</th>
+					<td id="nameKana"></td>
+				</tr>
+
+				<tr>
+					<th>生年月日</th>
+					<td id="birthday"></td>
+				</tr>
+
+				<tr>
+					<th>性別</th>
+					<td id="gender"></td>
+				</tr>
+
+				<tr>
+					<th>住所</th>
+					<td id="address"></td>
+				</tr>
+
+				<tr>
+					<th>電話番号</th>
+					<td id="phoneNumber"></td>
+				</tr>
+
+				<tr>
+					<th>受診科</th>
+					<td id="departmentName"></td>
+				</tr>
+
+				<tr>
+					<th>症状</th>
+					<td id="symptom"></td>
+				</tr>
+
+				<tr>
+					<th>症状詳細</th>
+					<td id="symptomDetail"></td>
+				</tr>
+
+				<tr>
+					<th>マイナ保険証連携</th>
+					<td id="insurance"></td>
+				</tr>
+
+				<tr>
+					<th>予防接種希望時間</th>
+					<td id="vaccinationTime"></td>
+				</tr>
+
+				<tr>
+					<th>備考</th>
+					<td id="remarks"></td>
+				</tr>
+
+			</table>
+
+		</section>
+
+		<hr>
+
+
+		<!-- 操作メニュー -->
+		<section class="menu-section" id="menuSection" style="display:none;">
+
+			<h2>操作メニュー</h2>
+
+			<ul>
+				<li>
+					<a id="cancelLink" href="#" class="menu-btn">予約キャンセル</a>
+				</li>
+
+				<li id="questionnaireItem">
+					<a id="questionnaireLink" href="#" class="menu-btn"></a>
+				</li>
+			</ul>
+
+		</section>
+
+		<hr>
+
+
+		<!-- 注意事項 -->
+		<section>
+
+			<h2>ご案内</h2>
+
+			<ul>
+				<li>順番が近づきましたらご来院ください。</li>
+				<li>来院時は保険証またはマイナ保険証をご持参ください。</li>
+				<li>発熱症状のある方は受付へお声掛けください。</li>
+
+				<li>
+					順番が近づきましたらご来院ください。
+				</li>
+
+				<li>
+					来院時は保険証またはマイナ保険証をご持参ください。
+				</li>
+
+				<li>
+					発熱症状のある方は受付へお声掛けください。
+				</li>
+
+			</ul>
+
+		</section>
+
+	</main>
+
+	<hr>
+
+	<!-- フッター -->
+	<footer>
+
+		<p>
+			© 2026 さくら野診療所
+		</p>
+
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			const sess = TeamB.requirePatient();
+			if (!sess) return;
+
+			const w = TeamB.waitInfo();
+			document.getElementById("humannum").textContent = w.humannum;
+			document.getElementById("estimatedTime").textContent = w.estimatedTime;
+
+			// 当該患者の有効な予約（キャンセル除外）を取得。当日以降を優先し、新しい順。
+			const appts = TeamB.appointments()
+				.filter((a) => Number(a.patientId) === Number(sess.patientId) && a.status !== "キャンセル")
+				.map((a) => TeamB.appointmentView(a.appointmentId))
+				.sort((a, b) => String(b.appointmentDate).localeCompare(String(a.appointmentDate)));
+
+			const today = TeamB.today();
+			const view = appts.find((a) => String(a.appointmentDate).slice(0, 10) >= today) || appts[0];
+
+			if (!view) {
+				const em = document.getElementById("errorMessage");
+				em.textContent = "表示できる予約情報がありません。";
+				em.style.display = "block";
+				return;
+			}
+
+			const p = view.patient;
+			const q = view.questionnaire;
+
+			const set = (id, v) => { document.getElementById(id).textContent = v; };
+			const genderJp = (g) => (g === "male" || g === "男" ? "男性" : (g === "female" || g === "女" ? "女性" : g || ""));
+			const vacc = view.appointmentTime ? String(view.appointmentTime).slice(0, 5) : "なし";
+
+			set("reservationType", view.reservationType || "");
+			set("name", `${p.lastName || ""} ${p.firstName || ""}`.trim());
+			set("nameKana", `${p.lastNameKana || ""} ${p.firstNameKana || ""}`.trim());
+			set("birthday", TeamB.fmtDate(p.birthday));
+			set("gender", genderJp(p.gender));
+			set("address", p.address ? p.address : "（未登録）");
+			set("phoneNumber", p.phoneNumber ? p.phoneNumber : "（未登録）");
+			set("departmentName", view.departmentName || "");
+			set("symptom", q ? (q.symptomNames || q.symptomDetail || "") : (view.reason || ""));
+			set("symptomDetail", q ? (q.symptomDetail || "") : "");
+			set("insurance", q ? (q.useMynaInsurance || "") : "");
+			set("vaccinationTime", vacc);
+			set("remarks", view.memo ? view.memo : "なし");
+
+			document.getElementById("reservationTable").style.display = "";
+			document.getElementById("menuSection").style.display = "";
+
+			// キャンセル導線
+			document.getElementById("cancelLink").href =
+				"./reservation-cancel-confirm.html?appointmentId=" + view.appointmentId;
+
+			// 問診票導線
+			const qLink = document.getElementById("questionnaireLink");
+			if (q) {
+				qLink.href = "./q-edit.html?questionnaireId=" + q.questionnaireId;
+				qLink.textContent = "Web問診票修正";
+			} else {
+				qLink.href = "./q-new.html?appointmentId=" + view.appointmentId;
+				qLink.textContent = "Web問診票入力";
+			}
+		});
+	</script>
+
+
+</body>
+
+</html>

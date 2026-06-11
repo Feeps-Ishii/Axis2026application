@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン画面</title>
+
+    <link rel="stylesheet" href="./css/login/h_login.css">
+</head>
+
+<body>
+
+    <!-- メッセージ表示モーダル -->
+    <div id="messageModal"
+         class="message-modal"
+         style="display: none;">
+
+        <div class="message-content">
+
+            <p id="messageText">
+                メッセージ
+            </p>
+
+            <button type="button" onclick="closeMessage();">
+                OK
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="login-container">
+
+        <div class="login-card" id="loginCard">
+
+            <div class="logo-area">
+
+                <div class="logo-icon">
+                    🏥
+                </div>
+
+                <h1>
+                    管理者ログイン画面
+                </h1>
+
+                <p>
+                    IDとパスワードを入力してください
+                </p>
+
+            </div>
+
+            <form id="loginForm" method="post">
+
+                <div class="form-group">
+
+                    <label>
+                        スタッフIDまたはメールアドレス
+                    </label>
+
+                    <input type="text"
+                           id="loginId"
+                           name="loginId"
+                           placeholder="スタッフIDまたはメールアドレスを入力">
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        パスワード
+                    </label>
+
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           placeholder="パスワードを入力">
+
+                </div>
+
+                <button type="submit" class="login-btn">
+                    ログイン
+                </button>
+
+            </form>
+
+            <div class="sub-links">
+
+                <a href="./password-reset.html">
+                    パスワードを忘れた方
+                </a>
+
+            </div>
+
+            <!-- パスワード再発行 -->
+            <div id="forgot-box" style="display: none;">
+
+                <div class="demo-box">
+
+                    <h3>
+                        パスワード再発行
+                    </h3>
+
+                    <p style="margin-bottom: 14px;">
+                        登録済みメールアドレスを入力してください
+                    </p>
+
+                    <form id="forgotForm" method="post">
+
+                        <input type="email"
+                               name="email"
+                               class="forgot-input"
+                               placeholder="sample@example.com">
+
+                        <button type="submit" class="forgot-btn">
+                            送信する
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="./js/db.js"></script>
+    <script>
+
+        function closeMessage() {
+            const modal = document.getElementById("messageModal");
+            if (modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        function showForgotPassword() {
+            const box = document.getElementById("forgot-box");
+            if (box.style.display === "none") {
+                box.style.display = "block";
+            } else {
+                box.style.display = "none";
+            }
+        }
+
+        function showMessage(msg) {
+            document.getElementById("messageText").textContent = msg;
+            document.getElementById("messageModal").style.display = "flex";
+        }
+
+        TeamB.init().then(() => {
+
+            document.getElementById("loginForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const loginId = document.getElementById("loginId").value.trim();
+                const password = document.getElementById("password").value;
+
+                if (!loginId) {
+                    showMessage("スタッフIDまたはメールアドレスを入力してください");
+                    return;
+                }
+                if (!password) {
+                    showMessage("パスワードを入力してください");
+                    return;
+                }
+
+                const staff = TeamB.staffLogin(loginId, password);
+                if (!staff) {
+                    showMessage("スタッフIDまたはメールアドレス、パスワードが違います");
+                    return;
+                }
+
+                TeamB.setStaffSession(staff);
+                location.href = "./admin.html";
+            });
+
+        });
+
+    </script>
+
+</body>
+
+</html>

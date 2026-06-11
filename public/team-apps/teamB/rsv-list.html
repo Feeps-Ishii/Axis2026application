@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約一覧</title>
+	<link rel="stylesheet" href="./css/rsv/reservation_past_view.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>予約一覧</h1>
+
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">
+				管理者TOP
+			</a>
+
+			<a href="javascript:void(0)" onclick="TeamB.logout()" class="header-btn">
+				ログアウト
+			</a>
+		</div>
+	</header>
+
+	<div class="container">
+
+		<div class="breadcrumb">
+			管理者TOP ＞ 予約管理 ＞ 予約一覧
+		</div>
+
+		<div class="card">
+
+			<h2 class="section-title">
+				予約検索
+			</h2>
+
+			<form id="searchForm">
+
+				<div class="search-grid">
+
+					<div class="form-group">
+						<label>患者名</label>
+						<input type="text" name="patientName" placeholder="患者名を入力">
+					</div>
+
+					<div class="form-group">
+						<label>診察券番号</label>
+						<input type="text" name="cardNo" placeholder="12345">
+					</div>
+
+					<div class="form-group">
+						<label>受診日</label>
+						<input type="date" name="visitDate">
+					</div>
+
+					<div class="form-group">
+						<label>診療科</label>
+
+						<select name="departmentName">
+
+							<option value="">
+								すべて
+							</option>
+
+							<option value="内科">
+								内科
+							</option>
+
+							<option value="小児科">
+								小児科
+							</option>
+
+							<option value="予防接種">
+								予防接種
+							</option>
+
+						</select>
+					</div>
+
+					<div class="form-group reservation-status-group">
+						<label>予約状態</label>
+
+						<div class="status-checkbox-area">
+
+							<label class="status-check-label status-check-all">
+								<input type="checkbox" id="checkAllStatus">
+								全て
+							</label>
+
+							<label class="status-check-label">
+								<input type="checkbox" name="reservationStatus" value="未受付" class="status-check">
+								未受付
+							</label>
+
+							<label class="status-check-label">
+								<input type="checkbox" name="reservationStatus" value="受付済" class="status-check">
+								受付済
+							</label>
+
+							<label class="status-check-label">
+								<input type="checkbox" name="reservationStatus" value="案内済" class="status-check">
+								案内済
+							</label>
+
+							<label class="status-check-label">
+								<input type="checkbox" name="reservationStatus" value="不在" class="status-check">
+								不在
+							</label>
+
+							<label class="status-check-label">
+								<input type="checkbox" name="reservationStatus" value="キャンセル" class="status-check">
+								キャンセル
+							</label>
+
+						</div>
+					</div>
+
+				</div>
+
+				<div class="search-btn-area">
+
+					<button type="button" class="clear-btn" onclick="clearSearchCondition()">
+						条件クリア
+					</button>
+
+					<button type="submit" class="search-btn">
+						検索
+					</button>
+
+				</div>
+
+			</form>
+
+		</div>
+
+		<div class="card">
+
+			<div class="section-header">
+
+				<h2 class="section-title">
+					検索結果・予約一覧
+				</h2>
+
+				<div class="section-buttons">
+
+					<button type="button" class="register-btn" onclick="location.href='./rsv-today.html'">
+						本日の予約一覧へ
+					</button>
+
+					<button type="button" class="register-btn" onclick="location.href='./rsv-new.html'">
+						＋ 予約登録
+					</button>
+
+				</div>
+
+			</div>
+
+			<div class="table-wrap">
+
+				<table>
+
+					<thead>
+						<tr>
+							<th>予約ID</th>
+							<th>患者名</th>
+							<th>診察券番号</th>
+							<th>予約日時</th>
+							<th>診療科</th>
+							<th>担当医</th>
+							<th>問診票</th>
+							<th>予約状態</th>
+							<th>患者情報</th>
+						</tr>
+					</thead>
+
+					<tbody id="tableBody"></tbody>
+
+				</table>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const E = TeamB.esc;
+
+		function statusBadge(status) {
+			if (status === '未受付' || status === '予約済') {
+				return `<span class="status status-tab-unaccepted">未受付</span>`;
+			}
+			const map = {
+				"受付済": "status-tab-received",
+				"案内済": "status-tab-guided",
+				"不在": "status-tab-absent",
+				"キャンセル": "status-tab-cancel",
+			};
+			if (map[status]) {
+				return `<span class="status ${map[status]}">${E(status)}</span>`;
+			}
+			return `<span class="status status-reserved">${E(status)}</span>`;
+		}
+
+		function readFilters() {
+			const fd = new FormData(document.getElementById("searchForm"));
+			return {
+				patientName: (fd.get("patientName") || "").trim(),
+				cardNo: (fd.get("cardNo") || "").trim(),
+				visitDate: fd.get("visitDate") || "",
+				departmentName: fd.get("departmentName") || "",
+				statuses: fd.getAll("reservationStatus"),
+			};
+		}
+
+		function render() {
+			const f = readFilters();
+			let rows = TeamB.searchAppointments({
+				patientName: f.patientName,
+				cardNo: f.cardNo,
+				visitDate: f.visitDate,
+				departmentName: f.departmentName,
+			});
+			if (f.statuses.length) {
+				rows = rows.filter((v) => f.statuses.includes(v.status));
+			}
+
+			document.getElementById("tableBody").innerHTML = rows.map((v) => {
+				const qReg = v.questionnaire
+					? `<span class="status status-arrived">登録済</span>`
+					: `<span class="status status-waiting">未登録</span>`;
+				const doctorName = v.record ? TeamB.staffName(v.record.doctorStaffId) : "";
+				return `
+				<tr>
+					<td>${E(v.appointmentId)}</td>
+					<td>${E(v.patientName)}</td>
+					<td>${E(v.cardNumber)}</td>
+					<td>
+						<span>${E(v.appointmentDate)}</span>
+						<span>${E(v.appointmentTime)}</span>
+					</td>
+					<td>${E(v.departmentName)}</td>
+					<td>${E(doctorName)}</td>
+					<td>${qReg}</td>
+					<td>${statusBadge(v.status)}</td>
+					<td>
+						<div class="table-actions">
+							<button type="button" class="detail-btn"
+								onclick="location.href='./patient-detail.html?id=${E(v.patientId)}'">
+								患者詳細
+							</button>
+							<button type="button" class="questionnaire-btn"
+								onclick="location.href='./q-new.html?appointmentId=${E(v.appointmentId)}&from=pastReservation'">
+								問診票
+							</button>
+						</div>
+					</td>
+				</tr>`;
+			}).join("");
+		}
+
+		function clearSearchCondition() {
+			document.querySelector('input[name="patientName"]').value = '';
+			document.querySelector('input[name="cardNo"]').value = '';
+			document.querySelector('input[name="visitDate"]').value = '';
+			document.querySelector('select[name="departmentName"]').value = '';
+			document.querySelectorAll('.status-check').forEach((c) => { c.checked = false; });
+			const checkAll = document.getElementById('checkAllStatus');
+			if (checkAll) checkAll.checked = false;
+			render();
+		}
+
+		TeamB.init().then(() => {
+			if (!TeamB.requireStaff()) return;
+
+			document.getElementById("searchForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				render();
+			});
+
+			const checkAllStatus = document.getElementById("checkAllStatus");
+			const statusChecks = document.querySelectorAll(".status-check");
+			if (checkAllStatus) {
+				checkAllStatus.addEventListener("change", function () {
+					statusChecks.forEach((c) => { c.checked = checkAllStatus.checked; });
+				});
+				statusChecks.forEach((c) => {
+					c.addEventListener("change", function () {
+						const checkedCount = document.querySelectorAll(".status-check:checked").length;
+						checkAllStatus.checked = checkedCount === statusChecks.length;
+					});
+				});
+			}
+
+			render();
+		});
+	</script>
+
+</body>
+
+</html>

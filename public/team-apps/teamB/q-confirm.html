@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>問診票登録確認</title>
+	<link rel="stylesheet" href="./css/user-questionnaire.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>問診票登録確認</h1>
+		<nav>
+			<a href="./reservation-mypage.html">予約者マイページへ戻る</a>
+		</nav>
+	</header>
+
+	<main>
+		<section>
+			<h2>入力内容確認</h2>
+			<p>以下の内容で問診票を登録します。</p>
+		</section>
+
+		<section>
+			<h2>問診情報</h2>
+
+			<table border="1">
+				<tr><th>来院日</th><td id="v-visitDate"></td></tr>
+				<tr><th>発症日</th><td id="v-symptomStartDate"></td></tr>
+				<tr><th>症状の経過</th><td id="v-symptomProgress"></td></tr>
+				<tr><th>体温</th><td><span id="v-bodyTemperature"></span>℃</td></tr>
+				<tr><th>症状</th><td id="v-symptomNames"></td></tr>
+				<tr><th>症状詳細</th><td id="v-symptomDetail"></td></tr>
+				<tr><th>海外渡航歴</th><td id="v-hasOverseasTravel"></td></tr>
+				<tr><th>海外渡航先</th><td id="v-overseasTravelPlace"></td></tr>
+				<tr><th>感染症接触歴</th><td id="v-infectionContactStatus"></td></tr>
+				<tr><th>妊娠の可能性</th><td id="v-pregnancyStatus"></td></tr>
+				<tr><th>お薬手帳</th><td id="v-hasMedicineNotebook"></td></tr>
+				<tr><th>マイナ保険証利用</th><td id="v-useMynaInsurance"></td></tr>
+				<tr><th>備考</th><td id="v-memo"></td></tr>
+			</table>
+		</section>
+
+		<section>
+			<button type="button" id="doneBtn">問診票を登録する</button>
+			<button type="button" id="backBtn">入力画面へ戻る</button>
+		</section>
+	</main>
+
+	<footer>
+		<p>© 2026 さくら野診療所</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			const d = TeamB.getDraft("q-user");
+			if (!d) { location.href = "./reservation-mypage.html"; return; }
+
+			const set = (id, v) => document.getElementById(id).textContent = v == null ? "" : v;
+			set("v-visitDate", d.visitDate);
+			set("v-symptomStartDate", d.symptomStartDate);
+			set("v-symptomProgress", d.symptomProgress);
+			set("v-bodyTemperature", d.bodyTemperature);
+			set("v-symptomNames", (d.symptomNames || []).join("、"));
+			set("v-symptomDetail", d.symptomDetail);
+			set("v-hasOverseasTravel", d.hasOverseasTravel ? "あり" : "なし");
+			set("v-overseasTravelPlace", d.overseasTravelPlace);
+			set("v-infectionContactStatus", d.infectionContactStatus);
+			set("v-pregnancyStatus", d.pregnancyStatus);
+			set("v-hasMedicineNotebook", d.hasMedicineNotebook ? "あり" : "なし");
+			set("v-useMynaInsurance", d.useMynaInsurance);
+			set("v-memo", d.memo);
+
+			document.getElementById("doneBtn").addEventListener("click", () => {
+				location.href = "./q-complete.html";
+			});
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./q-new.html?appointmentId=" + d.appointmentId;
+			});
+		});
+	</script>
+
+</body>
+
+</html>

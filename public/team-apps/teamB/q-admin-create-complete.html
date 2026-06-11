@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>紙問診票登録完了</title>
+	<link rel="stylesheet" href="./css/admin-questionnaire.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>紙問診票登録完了</h1>
+
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">管理者TOP</a>
+			<a href="javascript:void(0)" class="header-btn" onclick="TeamB.logout()">ログアウト</a>
+		</div>
+	</header>
+
+	<div class="container">
+
+		<div class="breadcrumb">
+			<a href="./admin.html">管理者TOP</a>
+			<span> ＞ </span>
+			<a id="bcList" href="./q-admin-list.html">問診票一覧</a>
+			<span> ＞ </span>
+			<span>紙問診票登録完了</span>
+		</div>
+
+		<div class="card complete-card">
+
+			<div class="check-icon">
+				✓
+			</div>
+
+			<div class="complete-title">
+				紙問診票の登録が完了しました
+			</div>
+
+			<p class="complete-message">
+				紙で提出された問診票の登録が完了しました。<br>
+				登録された問診票は問診票一覧画面から確認できます。
+			</p>
+
+			<div class="info-box">
+
+				<div class="info-row">
+					<div class="info-label">来院日</div>
+					<div class="info-value" id="v-visitDate"></div>
+				</div>
+
+				<div class="info-row">
+					<div class="info-label">体温</div>
+					<div class="info-value"><span id="v-bodyTemperature"></span> ℃</div>
+				</div>
+
+				<div class="info-row">
+					<div class="info-label">感染症疑い</div>
+					<div class="info-value" id="v-infectionFlag"></div>
+				</div>
+
+				<div class="info-row">
+					<div class="info-label">問診票状態</div>
+					<div class="info-value">登録済み</div>
+				</div>
+
+			</div>
+
+			<div class="button-area">
+				<button class="list-btn" type="button" id="listBtn">
+					問診票一覧へ戻る
+				</button>
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			if (!TeamB.requireStaff()) return;
+
+			const d = TeamB.getDraft("q-admin");
+			if (!d) { location.href = "./q-admin-list.html"; return; }
+
+			const symptomNames = d.symptomNames || [];
+			// 感染症疑い判定（コントローラ準拠）
+			const infectionFlag =
+				d.hasOverseasTravel === true ||
+				d.infectionContactStatus === "あり" ||
+				symptomNames.includes("発熱");
+
+			const symMaster = TeamB.symptoms();
+			const symptomIds = symptomNames
+				.map((nm) => { const s = symMaster.find((x) => x.symptomName === nm); return s ? s.symptomId : null; })
+				.filter((x) => x != null);
+
+			const data = {
+				appointmentId: d.appointmentId,
+				visitDate: d.visitDate,
+				symptomStartDate: d.symptomStartDate,
+				symptomNames: symptomNames.join(","),
+				symptomProgress: d.symptomProgress,
+				symptomDetail: d.symptomDetail,
+				bodyTemperature: d.bodyTemperature,
+				hasOverseasTravel: d.hasOverseasTravel,
+				overseasTravelPlace: d.overseasTravelPlace,
+				infectionContactStatus: d.infectionContactStatus,
+				pregnancyStatus: d.pregnancyStatus,
+				hasMedicineNotebook: d.hasMedicineNotebook,
+				useMynaInsurance: d.useMynaInsurance,
+				memo: d.memo,
+				infectionFlag: infectionFlag,
+				status: "入力済",
+			};
+
+			const saved = TeamB.createQuestionnaire(data, symptomIds);
+			const from = d.from || "questionnaireList";
+			TeamB.clearDraft("q-admin");
+
+			document.getElementById("v-visitDate").textContent = saved.visitDate || "";
+			document.getElementById("v-bodyTemperature").textContent = saved.bodyTemperature == null ? "" : saved.bodyTemperature;
+			document.getElementById("v-infectionFlag").textContent = infectionFlag ? "あり" : "なし";
+
+			if (from === "todayReservation") {
+				document.getElementById("bcList").textContent = "本日の予約一覧";
+				document.getElementById("bcList").href = "./rsv-today.html";
+				const btn = document.getElementById("listBtn");
+				btn.textContent = "本日の予約一覧へ戻る";
+				btn.addEventListener("click", () => { location.href = "./rsv-today.html"; });
+			} else {
+				document.getElementById("listBtn").addEventListener("click", () => { location.href = "./q-admin-list.html"; });
+			}
+		});
+	</script>
+
+</body>
+
+</html>

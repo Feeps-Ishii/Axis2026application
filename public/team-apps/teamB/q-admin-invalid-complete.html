@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>問診票無効化完了</title>
+	<link rel="stylesheet" href="./css/admin-questionnaire.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>問診票無効化完了</h1>
+
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">管理者TOP</a>
+			<a href="javascript:void(0)" class="header-btn" onclick="TeamB.logout()">ログアウト</a>
+		</div>
+	</header>
+
+	<div class="container">
+
+		<div class="breadcrumb">
+			<a href="./admin.html">管理者TOP</a>
+			<span> ＞ </span>
+			<a href="./q-admin-list.html">問診票一覧</a>
+			<span> ＞ </span>
+			<a id="bcDetail" href="javascript:void(0)">問診票詳細</a>
+			<span> ＞ </span>
+			<span>無効化完了</span>
+		</div>
+
+		<div class="complete-card invalid-complete-card">
+
+			<div class="check-icon">
+				✓
+			</div>
+
+			<div class="complete-title">
+				問診票を無効化しました
+			</div>
+
+			<p class="complete-message">
+				対象の問診票は正常に無効化されました。<br>
+				通常の診療・受付業務では利用されません。
+			</p>
+
+			<div class="summary-box">
+
+				<div class="summary-row">
+					<div class="summary-label">患者名</div>
+					<div class="summary-value" id="v-patientName"></div>
+				</div>
+
+				<div class="summary-row">
+					<div class="summary-label">診察券番号</div>
+					<div class="summary-value" id="v-cardNumber"></div>
+				</div>
+
+				<div class="summary-row">
+					<div class="summary-label">受付番号</div>
+					<div class="summary-value" id="v-queue"></div>
+				</div>
+
+				<div class="summary-row">
+					<div class="summary-label">来院日</div>
+					<div class="summary-value" id="v-visitDate"></div>
+				</div>
+
+				<div class="summary-row">
+					<div class="summary-label">体温</div>
+					<div class="summary-value"><span id="v-bodyTemperature"></span> ℃</div>
+				</div>
+
+				<div class="summary-row">
+					<div class="summary-label">無効化後ステータス</div>
+					<div class="summary-value">
+						<span class="status-invalid">無効</span>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="notice-box">
+				※ 無効化された問診票は通常一覧では利用対象外になります。<br>
+				※ 監査・履歴管理のためデータ自体は保持されます。<br>
+				※ 必要に応じて管理者権限で再確認できます。
+			</div>
+
+			<div class="button-area">
+
+				<button class="detail-btn" type="button" id="detailBtn">
+					問診票詳細へ戻る
+				</button>
+
+				<button class="list-btn" type="button" id="listBtn">
+					問診票一覧へ戻る
+				</button>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			if (!TeamB.requireStaff()) return;
+
+			const params = new URLSearchParams(location.search);
+			const id = Number(params.get("id"));
+
+			const reasonDraft = TeamB.getDraft("q-admin-invalid");
+			const invalidReason = reasonDraft && Number(reasonDraft.questionnaireId) === id ? reasonDraft.invalidReason : null;
+
+			TeamB.invalidateQuestionnaire(id);
+			// 無効化理由を保持（監査用）
+			if (invalidReason) {
+				TeamB.updateQuestionnaire(id, { invalidReason: invalidReason });
+			}
+			TeamB.clearDraft("q-admin-invalid");
+
+			const v = TeamB.questionnaireView(id);
+			if (!v) { location.href = "./q-admin-list.html"; return; }
+			const appt = v.appointment || {};
+
+			document.getElementById("bcDetail").href = "./q-admin-detail.html?id=" + id;
+
+			const set = (eid, val) => document.getElementById(eid).textContent = val == null ? "" : val;
+			set("v-patientName", v.patientName);
+			set("v-cardNumber", v.cardNumber);
+			set("v-queue", appt.dailyQueueNumber);
+			set("v-visitDate", v.visitDate);
+			set("v-bodyTemperature", v.bodyTemperature);
+
+			document.getElementById("detailBtn").addEventListener("click", () => {
+				location.href = "./q-admin-detail.html?id=" + id;
+			});
+			document.getElementById("listBtn").addEventListener("click", () => {
+				location.href = "./q-admin-list.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

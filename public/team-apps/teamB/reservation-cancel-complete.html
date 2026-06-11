@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約キャンセル完了</title>
+	<link rel="stylesheet" href="./css/rsv/user_reservation.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>予約キャンセル完了</h1>
+		<nav>
+		</nav>
+	</header>
+
+	<hr>
+
+	<main>
+
+		<section>
+			<h2>予約をキャンセルしました</h2>
+
+			<p>
+				ご予約のキャンセルが完了しました。
+			</p>
+
+			<p>
+				再度予約を行う場合は、予約・問診トップページから受付してください。
+			</p>
+		</section>
+
+		<hr>
+
+		<section>
+			<h2>メニュー</h2>
+
+			<ul>
+				<li>
+					<a href="./reservationTop.html">
+						予約・問診トップへ戻る
+					</a>
+				</li>
+
+				<li>
+					<a href="./index.html">
+						診療所トップページへ戻る
+					</a>
+				</li>
+			</ul>
+		</section>
+
+	</main>
+
+	<hr>
+
+	<footer>
+		<p>
+			© 2026 さくら野診療所
+		</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			const sess = TeamB.requirePatient();
+			if (!sess) return;
+
+			const params = new URLSearchParams(location.search);
+			const appointmentId = params.get("appointmentId");
+			if (appointmentId) {
+				TeamB.cancelAppointment(appointmentId);
+			}
+		});
+	</script>
+
+</body>
+
+</html>

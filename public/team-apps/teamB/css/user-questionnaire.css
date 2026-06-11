@@ -1,0 +1,396 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   CSS変数の定義
+   ========================================================================== */
+:root {
+    --color-primary: #e67a84;
+    --color-primary-light: #fbebee;
+    --color-info-light: #eef7f9;
+    --color-info: #5caec4;
+    --color-success: #4caf50;
+    --color-accent: #e05353;
+    --color-text-main: #333333;
+    --color-bg-admin: #f4f6f9;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --font-base: 16px;
+    --font-lg: 20px;
+    --font-xl: 24px;
+    --weight-normal: 400;
+    --weight-medium: 500;
+    --weight-bold: 700;
+}
+
+/* ==========================================================================
+   全体の基本スタイル
+   ========================================================================== */
+body {
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif !important;
+    font-size: var(--font-base);
+    color: var(--color-text-main);
+    background-color: #ffffff;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+hr {
+    display: none !important;
+}
+
+/* ==========================================================================
+   レイアウト
+   ========================================================================== */
+header {
+    background-color: #ffffff;
+    border-bottom: 3px solid var(--color-primary);
+    padding: var(--space-md) var(--space-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+header h1 {
+    font-size: var(--font-xl);
+    color: var(--color-primary);
+    margin: 0;
+}
+
+header nav a {
+    color: var(--color-text-main);
+    text-decoration: none;
+    font-size: calc(var(--font-base) * 0.9);
+    border: 1px solid var(--color-text-main);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+header nav a:hover {
+    background-color: var(--color-text-main);
+    color: #ffffff;
+}
+
+main {
+    width: 90%;
+    max-width: 1000px;
+    margin: var(--space-xl) auto;
+    padding: 0 var(--space-md);
+}
+
+section h2 {
+    font-size: var(--font-lg) !important;
+    color: var(--color-text-main) !important;
+    border-left: 5px solid var(--color-primary) !important;
+    padding-left: var(--space-sm) !important;
+    margin-top: var(--space-xl) !important;
+    margin-bottom: var(--space-lg) !important;
+    background: none !important;
+}
+
+section:first-of-type h2 {
+    margin-top: 0 !important;
+}
+
+footer {
+    background-color: var(--color-bg-admin);
+    text-align: center;
+    padding: var(--space-md);
+    margin-top: var(--space-xl);
+    font-size: calc(var(--font-base) * 0.8);
+}
+
+footer p {
+    margin: 0;
+}
+
+/* ==========================================================================
+   フォーム・ボタンのスタイル
+   ========================================================================== */
+form {
+    background-color: var(--color-primary-light) !important;
+    padding: var(--space-lg);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+form p {
+    font-weight: var(--weight-bold);
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-xs);
+    color: var(--color-text-main);
+}
+
+form p:first-of-type {
+    margin-top: 0;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="tel"],
+select,
+textarea {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-base);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    transition: border-color 0.3s ease;
+    font-family: inherit !important;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="tel"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(230, 122, 132, 0.2);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+form br {
+    display: none;
+}
+
+input[type="radio"] {
+    margin-top: var(--space-sm);
+    margin-bottom: var(--space-sm);
+    margin-right: var(--space-xs);
+    cursor: pointer;
+}
+
+input[type="radio"]+label {
+    margin-right: var(--space-lg);
+    cursor: pointer;
+    display: inline-block;
+}
+
+/* 送信ボタンの共通設定 */
+main section form input[type="submit"] {
+    margin-top: 32px !important;
+    margin-bottom: 16px !important;
+    display: block !important;
+    width: 100% !important;
+    font-size: var(--font-lg) !important;
+    font-weight: var(--weight-bold) !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: var(--space-md) !important;
+}
+
+/* 登録・更新ボタン用（既存） */
+main section form input[type="submit"][value*="登録"],
+main section form input[type="submit"][value*="更新"] {
+    background-color: var(--color-primary) !important;
+    color: #ffffff !important;
+}
+
+/* 確認画面へ進むボタン用（今回追加） */
+main section form input[type="submit"][value*="確認"] {
+    background-color: #d66b75 !important;
+    /* ここをピンク色にしました */
+    color: #ffffff !important;
+}
+
+main section form input[type="submit"][value*="登録"]:hover,
+main section form input[type="submit"][value*="更新"]:hover {
+    background-color: #d96b86 !important;
+}
+
+main section form input[type="submit"][value*="戻る"] {
+    background-color: #aaaaaa !important;
+    color: #ffffff !important;
+}
+
+main section form input[type="submit"][value*="戻る"]:hover {
+    background-color: #888888 !important;
+}
+
+/* ==========================================================================
+   テーブル・枠線の調整
+   ========================================================================== */
+main section table,
+main table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border: 1px solid #dddddd !important;
+    margin-top: var(--space-md) !important;
+    margin-bottom: var(--space-xl) !important;
+    background-color: #ffffff !important;
+}
+
+main section table th,
+main table th {
+    background-color: var(--color-bg-admin) !important;
+    color: var(--color-text-main) !important;
+    font-weight: var(--weight-bold) !important;
+    padding: var(--space-md) !important;
+    text-align: left !important;
+    width: 35% !important;
+    border: 1px solid #dddddd !important;
+}
+
+main section table td,
+main table td {
+    background-color: #ffffff !important;
+    padding: var(--space-md) !important;
+    color: var(--color-text-main) !important;
+    border: 1px solid #dddddd !important;
+}
+
+/* 外側の section の枠・背景を消す設定 */
+main section:has(form input[type="submit"]) {
+    background-color: transparent !important;
+    /* 背景を透明に */
+    padding: 0 !important;
+    /* 余白をなくす */
+    border-radius: 0 !important;
+    /* 角丸を解除 */
+    box-shadow: none !important;
+    /* 影を消す */
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* 内側の form だけに枠・背景を残す */
+main section form {
+    background-color: var(--color-primary-light) !important;
+    padding: var(--space-lg) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+main section form:has(input[type="submit"])+br {
+    display: none !important;
+}
+
+/* ==========================================================================
+   箇条書きのスタイル（メニューを除外して適用）
+   ========================================================================== */
+/* ==========================================================================\
+   箇条書きのスタイルを修正
+   ========================================================================== */
+
+/* 全ての ul から箇条書きの点(disc)を外す */
+main section ul {
+    list-style-type: none !important;
+    padding-left: 0 !important;
+}
+
+/* 「ご案内」セクションなどの普通の箇条書きには点を戻す */
+main section:not(:has(.menu-list)) ul {
+    list-style-type: disc !important;
+    padding-left: var(--space-lg) !important;
+}
+
+/* 箇条書きのliの設定 */
+main section:not(:has(.menu-list)) ul li {
+    display: list-item !important;
+    margin-bottom: 12px !important;
+    line-height: 1.7 !important;
+}
+
+/* menu-list クラスが付いているものはボタンとして綺麗に並べる */
+.menu-list {
+    list-style-type: none !important;
+    padding: 0 !important;
+}
+
+.menu-list li a {
+    display: block !important;
+    text-align: center !important;
+    background-color: #ffffff !important;
+    color: var(--color-text-main) !important;
+    text-decoration: none !important;
+    padding: var(--space-md) !important;
+    border: 2px solid var(--color-primary) !important;
+    border-radius: 6px !important;
+    font-weight: var(--weight-bold) !important;
+    margin-bottom: 10px !important;
+}
+
+.menu-list li a:hover {
+    background-color: var(--color-primary) !important;
+    color: #ffffff !important;
+}
+
+
+
+/* --- 1. 全てのフォームに対する共通の基本設定 --- */
+main section form {
+    background-color: var(--color-primary-light) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    padding: 16px 16px !important;
+    /* 基本の余白 */
+    margin-bottom: 16px !important;
+}
+
+main section form input[type="submit"] {
+    margin: 4px 0 !important;
+}
+
+/* --- 2. 「確認画面へ進む」ボタンがあるページだけの特別な設定 --- */
+/* :has() のセレクタをより具体的に指定して、他への影響を防ぐ */
+main section:has(form input[type="submit"][value*="確認"]) form {
+    padding: 32px 24px !important;
+    /* ここを大きくすると枠が縦に伸びる */
+    margin-top: 50px !important;
+    /* 上の文章との距離を離す */
+}
+
+/* --- 3. sectionの枠を消す設定はそのまま残してね --- */
+main section:has(form input[type="submit"]) {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* --- 「入力内容確認へ進む」ボタンだけの専用の余白設定 --- */
+/* 他のページに影響が出ないよう、もっと具体的に指定するよ */
+main section form:has(input[type="submit"][value*="確認"]) input[type="submit"] {
+    margin-top: 40px !important;
+    /* ここを大きくするとボタンが下に下がる */
+    margin-bottom: 20px !important;
+}
+
+/* フォームの各項目間の余白を調整 */
+.form-item,
+.form-group {
+    margin-bottom: 24px !important;
+    /* ここで調整してください */
+}
+
+/* 必須ラベルのデザイン */
+.required {
+    background-color: #d64d5a;
+    /* 診療所のテーマカラー */
+    color: #ffffff;
+    /* 文字は白 */
+    font-size: 0.8em;
+    /* 少し小さく */
+    padding: 2px 6px;
+    /* 余白調整 */
+    border-radius: 4px;
+    /* ここを調整！ */
+    margin-left: 8px;
+    /* 左側の文字との隙間 */
+    font-weight: bold;
+}

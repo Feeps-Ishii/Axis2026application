@@ -1,0 +1,113 @@
+body {
+    margin: 0;
+    background: #f2f2f2;
+    color: #222;
+    font-family: "Yu Gothic", "Meiryo", sans-serif;
+}
+
+.toolbar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+}
+
+.toolbar a,
+.toolbar button {
+    padding: 8px 14px;
+    border: 1px solid #777;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #222;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.print-page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 20px auto;
+    padding: 18mm;
+    box-sizing: border-box;
+    background: #ffffff;
+}
+
+.print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    border-bottom: 2px solid #333;
+    margin-bottom: 18px;
+}
+
+.print-header h1 {
+    margin: 0 0 8px;
+    font-size: 24px;
+}
+
+.clinic-name {
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+section {
+    margin-top: 20px;
+}
+
+h2 {
+    margin: 0 0 8px;
+    padding: 6px 8px;
+    border-left: 5px solid #555;
+    background: #f5f5f5;
+    font-size: 17px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+th,
+td {
+    border: 1px solid #777;
+    padding: 8px;
+    vertical-align: top;
+    word-break: break-word;
+    font-size: 13px;
+}
+
+th {
+    width: 28%;
+    background: #eeeeee;
+    text-align: left;
+}
+
+@media print {
+    body {
+        background: #ffffff;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .print-page {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    @page {
+        size: A4;
+        margin: 12mm;
+    }
+}

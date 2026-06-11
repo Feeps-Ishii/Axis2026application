@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>システムTOP</title>
+    <link rel="stylesheet" href="./css/admin/style.css">
+    <link rel="stylesheet" href="./css/admin/top.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>カルテ・患者管理システム</h1>
+        <div class="header-right">
+            <span id="loginStaffName">ログインユーザー</span>
+            <a class="logout-btn" href="javascript:void(0)" onclick="TeamB.logout()">ログアウト</a>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="hero">
+            <h2>システムTOP</h2>
+            <p>
+                予約管理、問診票管理、患者情報管理、スタッフ管理を行う
+                管理者向けシステムです。<br>
+                患者情報一覧から患者詳細へ遷移し、
+                カルテ登録・カルテ編集・問診票詳細・患者情報編集を行えます。
+            </p>
+        </section>
+
+        <nav class="menu-grid" aria-label="管理者メニュー">
+
+            <section class="menu-card">
+                <h3>本日の予約一覧</h3>
+                <p>
+                    登録済みの予約情報を確認します。<br>
+                    予約内容確認や予約キャンセルを行えます。
+                </p>
+                <a class="menu-btn blue-btn" href="./rsv-today.html">
+                    本日の予約一覧へ
+                </a>
+            </section>
+
+            <section class="menu-card">
+                <h3>問診票一覧</h3>
+                <p>
+                    患者が登録した問診票情報を確認します。<br>
+                    問診票詳細や無効化処理を行えます。
+                </p>
+                <a class="menu-btn orange-btn" href="./q-admin-list.html">
+                    問診票一覧へ
+                </a>
+            </section>
+
+            <section class="menu-card">
+                <h3>患者情報一覧</h3>
+                <p>
+                    患者情報を検索・確認します。<br>
+                    患者詳細からカルテ管理を行えます。
+                </p>
+                <a class="menu-btn green-btn" href="./patient-list.html">
+                    患者情報一覧へ
+                </a>
+            </section>
+
+            <section class="menu-card">
+                <h3>スタッフ一覧</h3>
+                <p>
+                    スタッフ情報を確認します。<br>
+                    スタッフ詳細や編集画面へ遷移できます。
+                </p>
+                <a class="menu-btn purple-btn" href="./staff-list.html">
+                    スタッフ一覧へ
+                </a>
+            </section>
+
+        </nav>
+
+    </main>
+
+    <script src="./js/db.js"></script>
+    <script>
+        TeamB.init().then(() => {
+            const s = TeamB.requireStaff();
+            if (!s) return;
+            document.getElementById("loginStaffName").textContent = s.name || "";
+        });
+    </script>
+
+</body>
+
+</html>

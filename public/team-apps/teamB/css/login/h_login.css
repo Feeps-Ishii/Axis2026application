@@ -1,0 +1,259 @@
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Yu Gothic", "Meiryo", sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+
+            background:
+                linear-gradient(135deg,
+                    #dff4ff 0%,
+                    #bfe8ff 100%);
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 460px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.12);
+            position: relative;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #166534;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            font-weight: bold;
+            text-align: center;
+            border: 1px solid #86efac;
+        }
+
+        .error-message {
+            display: none;
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid #fecaca;
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .logo-icon {
+            width: 90px;
+            height: 90px;
+            background: #edf8ff;
+            color: #3b82f6;
+            border-radius: 24px;
+            margin: 0 auto 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 42px;
+            font-weight: bold;
+        }
+
+        .logo-area h1 {
+            font-size: 30px;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .logo-area p {
+            color: #6b7280;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
+        }
+
+        .login-btn {
+            width: 100%;
+            border: none;
+            background: #60a5fa;
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background: #3b82f6;
+        }
+
+        .sub-links {
+            margin-top: 24px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .sub-links a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .sub-links a:hover {
+            text-decoration: underline;
+        }
+
+        .demo-box {
+            margin-top: 28px;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 14px;
+            padding: 18px;
+        }
+
+        .demo-box h3 {
+            font-size: 15px;
+            color: #0369a1;
+            margin-bottom: 10px;
+        }
+
+        .demo-box p {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #4b5563;
+        }
+
+        .forgot-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 15px;
+            margin-bottom: 14px;
+        }
+
+        .forgot-input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
+        }
+
+        .forgot-input.error {
+            border-color: #ef4444;
+            background: #fff1f2;
+        }
+
+        .forgot-btn {
+            width: 100%;
+            border: none;
+            background: #60a5fa;
+            color: white;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .forgot-btn:hover {
+            background: #3b82f6;
+        }
+
+        @media (max-width: 768px) {
+
+            .login-card {
+                padding: 36px 24px;
+            }
+
+            .logo-area h1 {
+                font-size: 26px;
+            }
+
+            .sub-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    
+button,
+.btn,
+a.button,
+input[type="submit"],
+input[type="button"]{
+    min-width:120px;
+    text-align:center;
+}
+
+/* ===== 共通追加：ボタン統一・罫線・中央寄せ ===== */
+table {
+    border-collapse: collapse;
+}
+
+table th,
+table td {
+    border: 1px solid #e5e7eb;
+}
+
+table th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+button,
+.btn,
+a.btn,
+input[type="submit"],
+input[type="button"] {
+    min-width: 120px;
+    min-height: 42px;
+    text-align: center;
+}

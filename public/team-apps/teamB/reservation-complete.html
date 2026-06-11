@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約完了</title>
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="./css/rsv/user_reservation.css">
+</head>
+
+<body>
+
+	<!-- ヘッダー -->
+	<header>
+
+		<h1>予約完了</h1>
+
+		<nav>
+
+			<a href="./reservationTop.html">
+				予約・問診トップへ戻る
+			</a>
+
+		</nav>
+
+	</header>
+
+	<hr>
+
+	<main>
+
+		<!-- 完了メッセージ -->
+		<section>
+
+			<h2>予約が完了しました</h2>
+
+			<p>
+				ご予約ありがとうございます。
+			</p>
+
+			<p>
+				受付内容を登録しました。
+			</p>
+
+			<p style="font-size: 1.1em; font-weight: bold; margin-bottom: 40px; background-color: #f9f9f9; padding: 10px; border-left: 5px solid #d9534f;">
+			    現在の待ち人数は
+			    <span id="humannum" style="color: #d9534f; font-size: 1.4em;">
+
+			    </span>
+			    人です。
+
+			    <br><br>
+
+			    現在のおおよそのご案内時刻は
+			    <span id="estimatedTime" style="color: #0275d8; font-size: 1.4em;">
+
+			    </span>
+			    頃です。
+			</p>
+
+		</section>
+
+		<hr>
+
+		<!-- 予約情報 -->
+		<section>
+
+			<h2>予約情報</h2>
+
+			<table border="1">
+
+				<tr>
+					<th>予約番号</th>
+					<td id="appointmentId"></td>
+				</tr>
+
+				<tr>
+					<th>受付番号</th>
+					<td id="dailyQueueNumber"></td>
+				</tr>
+
+				<tr>
+					<th>氏名</th>
+					<td id="patientName"></td>
+				</tr>
+
+				<tr>
+					<th>予防接種希望時間</th>
+					<td id="vaccinationTime"></td>
+				</tr>
+
+			</table>
+
+		</section>
+
+		<hr>
+
+		<!-- 案内 -->
+		<section>
+
+			<h2>ご案内</h2>
+
+			<ul>
+
+				<li>
+					順番が近づきましたらご来院ください。
+				</li>
+
+				<li>
+					来院時は保険証またはマイナ保険証をご持参ください。
+				</li>
+
+				<li>
+					発熱症状のある方は受付へお声掛けください。
+				</li>
+
+				<li>
+					予防接種予約はスタッフ確認後に確定となります。
+				</li>
+
+			</ul>
+
+		</section>
+
+		<hr>
+
+		<!-- 操作メニュー -->
+		<section>
+
+			<h2>メニュー</h2>
+
+			<ul>
+
+				<li>
+					<a href="./reservationAuth.html">
+						予約者マイページへ
+					</a>
+				</li>
+
+				<li>
+					<a href="./reservationTop.html">
+						予約・問診トップへ戻る
+					</a>
+				</li>
+
+				<li>
+					<a href="./index.html">
+						診療所トップページへ戻る
+					</a>
+				</li>
+
+			</ul>
+
+		</section>
+
+	</main>
+
+	<hr>
+
+	<!-- フッター -->
+	<footer>
+
+		<p>
+			© 2026 さくら野診療所
+		</p>
+
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			const d = TeamB.getDraft("reservation");
+			if (!d) {
+				location.href = "./reservationTop.html";
+				return;
+			}
+
+			const genderToJp = (g) => (g === "male" ? "男" : (g === "female" ? "女" : g));
+
+			let patientId = d.patientId;
+
+			// 初診なら患者を新規作成
+			if (d.reservationType === "初診" && !patientId) {
+				const p = TeamB.createPatient({
+					lastName: d.lastName,
+					firstName: d.firstName,
+					lastNameKana: d.lastNameKana,
+					firstNameKana: d.firstNameKana,
+					birthday: d.birthday,
+					gender: genderToJp(d.gender),
+					address: d.address,
+					phoneNumber: d.phoneNumber,
+				});
+				patientId = p.patientId;
+			}
+
+			// 受診理由（症状＋詳細）
+			const reason = [d.symptom, d.symptomDetail].filter((x) => x).join(" / ");
+
+			const apptData = {
+				patientId: patientId,
+				departmentId: Number(d.departmentId),
+				appointmentDate: TeamB.today(),
+				reservationType: d.reservationType,
+				reservationMethod: "Web",
+				reason: reason,
+			};
+			// 予防接種は希望時間を来院時刻に
+			if (Number(d.departmentId) === 3 && d.vaccinationTime) {
+				apptData.appointmentTime = d.vaccinationTime;
+			}
+
+			const appt = TeamB.createAppointment(apptData);
+
+			// 待ち時間情報
+			const w = TeamB.waitInfo();
+			document.getElementById("humannum").textContent = w.humannum;
+			document.getElementById("estimatedTime").textContent = w.estimatedTime;
+
+			document.getElementById("appointmentId").textContent = appt.appointmentId;
+			document.getElementById("dailyQueueNumber").textContent = appt.dailyQueueNumber;
+			document.getElementById("patientName").textContent = `${d.lastName} ${d.firstName}`;
+			document.getElementById("vaccinationTime").textContent = d.vaccinationTime || "なし";
+
+			TeamB.clearDraft("reservation");
+		});
+	</script>
+
+</body>
+
+</html>

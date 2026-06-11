@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>問診票新規登録</title>
+	<link rel="stylesheet" href="./css/user-questionnaire.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>問診票新規登録</h1>
+		<nav>
+			<a href="./reservation-mypage.html">予約者マイページへ戻る</a>
+		</nav>
+	</header>
+
+	<main>
+		<section>
+			<h2>問診情報入力</h2>
+			<p>来院前に問診票をご入力ください。</p>
+
+			<form id="qForm">
+
+				<input type="hidden" id="appointmentId">
+
+				<div class="form-item">
+					<p><label for="visitDate">来院日<span class="required">必須</span></label></p>
+					<input type="date" id="visitDate" disabled>
+				</div>
+
+				<div class="form-item">
+					<p><label for="symptomStartDate">発症日<span class="required">必須</span></label></p>
+					<input type="date" id="symptomStartDate">
+					<div class="error-message" id="err-symptomStartDate"></div>
+				</div>
+
+				<div class="form-item">
+					<p>症状<span class="required">必須</span></p>
+					<div class="choice-group" id="symptomGroup"></div>
+					<div class="error-message" id="err-symptomNames"></div>
+				</div>
+
+				<div class="form-item">
+					<p><label for="symptomProgress">症状の経過<span class="required">必須</span></label></p>
+					<input type="text" id="symptomProgress" placeholder="例：2日前から発熱があります">
+					<div class="error-message" id="err-symptomProgress"></div>
+				</div>
+
+				<div class="form-item">
+					<p><label for="symptomDetail">症状詳細</label></p>
+					<textarea id="symptomDetail" rows="5" placeholder="症状を入力してください"></textarea>
+				</div>
+
+				<div class="form-item">
+					<p><label for="bodyTemperature">体温<span class="required">必須</span></label></p>
+					<div class="temperature-input">
+						<input type="text" id="bodyTemperature" placeholder="例：36.5">
+						<span>℃</span>
+					</div>
+					<div class="error-message" id="err-bodyTemperature"></div>
+				</div>
+
+				<div class="form-item">
+					<p>海外渡航歴<span class="required">必須</span></p>
+					<div class="choice-group">
+						<label><input type="radio" name="hasOverseasTravel" value="true"> あり</label>
+						<label><input type="radio" name="hasOverseasTravel" value="false"> なし</label>
+					</div>
+					<div class="error-message" id="err-hasOverseasTravel"></div>
+				</div>
+
+				<div class="form-item">
+					<p><label for="overseasTravelPlace">海外渡航先</label></p>
+					<input type="text" id="overseasTravelPlace" placeholder="例：中国、韓国など">
+				</div>
+
+				<div class="form-item">
+					<p>感染症接触歴<span class="required">必須</span></p>
+					<div class="choice-group">
+						<label><input type="radio" name="infectionContactStatus" value="あり"> あり</label>
+						<label><input type="radio" name="infectionContactStatus" value="なし"> なし</label>
+						<label><input type="radio" name="infectionContactStatus" value="不明"> 不明</label>
+					</div>
+					<div class="error-message" id="err-infectionContactStatus"></div>
+				</div>
+
+				<div class="form-item">
+					<p>妊娠の可能性<span class="required">必須</span></p>
+					<div class="choice-group">
+						<label><input type="radio" name="pregnancyStatus" value="あり"> あり</label>
+						<label><input type="radio" name="pregnancyStatus" value="なし"> なし</label>
+						<label><input type="radio" name="pregnancyStatus" value="不明"> 不明</label>
+					</div>
+					<div class="error-message" id="err-pregnancyStatus"></div>
+				</div>
+
+				<div class="form-item">
+					<p>お薬手帳<span class="required">必須</span></p>
+					<div class="choice-group">
+						<label><input type="radio" name="hasMedicineNotebook" value="true"> あり</label>
+						<label><input type="radio" name="hasMedicineNotebook" value="false"> なし</label>
+					</div>
+					<div class="error-message" id="err-hasMedicineNotebook"></div>
+				</div>
+
+				<div class="form-item">
+					<p>マイナ保険証利用<span class="required">必須</span></p>
+					<div class="choice-group">
+						<label><input type="radio" name="useMynaInsurance" value="利用する"> 利用する</label>
+						<label><input type="radio" name="useMynaInsurance" value="利用しない"> 利用しない</label>
+						<label><input type="radio" name="useMynaInsurance" value="不明"> 不明</label>
+					</div>
+					<div class="error-message" id="err-useMynaInsurance"></div>
+				</div>
+
+				<div class="form-item">
+					<p><label for="memo">備考</label></p>
+					<textarea id="memo" rows="3" placeholder="その他伝えたいことがあれば入力してください"></textarea>
+				</div>
+
+				<div class="form-item">
+					<input type="submit" value="入力内容確認へ進む">
+				</div>
+
+			</form>
+		</section>
+	</main>
+
+	<footer>
+		<p>© 2026 さくら野診療所</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			const params = new URLSearchParams(location.search);
+			const appointmentId = params.get("appointmentId");
+			const apptIdNum = Number(appointmentId);
+
+			if (!appointmentId || Number.isNaN(apptIdNum)) {
+				location.href = "./reservation-mypage.html";
+				return;
+			}
+
+			const appt = TeamB.appointment(apptIdNum);
+			if (!appt) {
+				location.href = "./reservation-mypage.html";
+				return;
+			}
+
+			// 予約IDに紐づく問診票が既にあれば修正画面へ
+			const existing = TeamB.medicalQuestionnaires()
+				.find((q) => Number(q.appointmentId) === apptIdNum && q.invalidFlag !== true);
+			if (existing) {
+				location.href = "./q-edit.html?questionnaireId=" + existing.questionnaireId;
+				return;
+			}
+
+			document.getElementById("appointmentId").value = appointmentId;
+			const visitDate = String(appt.appointmentDate).slice(0, 10);
+			document.getElementById("visitDate").value = visitDate;
+
+			// 症状チェックボックス
+			const group = document.getElementById("symptomGroup");
+			group.innerHTML = TeamB.activeSymptoms().map((s) =>
+				`<label><input type="checkbox" name="symptomNames" value="${TeamB.esc(s.symptomName)}"><span>${TeamB.esc(s.symptomName)}</span></label>`
+			).join("");
+
+			// 下書き復元（戻ってきた場合）
+			const draft = TeamB.getDraft("q-user");
+			if (draft && String(draft.appointmentId) === appointmentId) {
+				restore(draft);
+			}
+
+			function restore(d) {
+				const set = (id, v) => { if (v != null) document.getElementById(id).value = v; };
+				set("symptomStartDate", d.symptomStartDate);
+				set("symptomProgress", d.symptomProgress);
+				set("symptomDetail", d.symptomDetail);
+				set("bodyTemperature", d.bodyTemperature);
+				set("overseasTravelPlace", d.overseasTravelPlace);
+				set("memo", d.memo);
+				const radio = (name, v) => {
+					if (v == null) return;
+					const el = document.querySelector(`input[name="${name}"][value="${v}"]`);
+					if (el) el.checked = true;
+				};
+				radio("hasOverseasTravel", d.hasOverseasTravel == null ? null : String(d.hasOverseasTravel));
+				radio("infectionContactStatus", d.infectionContactStatus);
+				radio("pregnancyStatus", d.pregnancyStatus);
+				radio("hasMedicineNotebook", d.hasMedicineNotebook == null ? null : String(d.hasMedicineNotebook));
+				radio("useMynaInsurance", d.useMynaInsurance);
+				(d.symptomNames || []).forEach((nm) => {
+					const el = document.querySelector(`input[name="symptomNames"][value="${nm}"]`);
+					if (el) el.checked = true;
+				});
+			}
+
+			document.getElementById("qForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				const symptomNames = Array.from(document.querySelectorAll('input[name="symptomNames"]:checked')).map((c) => c.value);
+				const radioVal = (name) => { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : null; };
+
+				// 必須チェック
+				let ok = true;
+				document.querySelectorAll(".error-message").forEach((el) => el.textContent = "");
+				const symptomStartDate = document.getElementById("symptomStartDate").value;
+				const symptomProgress = document.getElementById("symptomProgress").value.trim();
+				const bodyTemperature = document.getElementById("bodyTemperature").value.trim();
+				const hasOverseasTravel = radioVal("hasOverseasTravel");
+				const infectionContactStatus = radioVal("infectionContactStatus");
+				const pregnancyStatus = radioVal("pregnancyStatus");
+				const hasMedicineNotebook = radioVal("hasMedicineNotebook");
+				const useMynaInsurance = radioVal("useMynaInsurance");
+
+				const fail = (id, msg) => { document.getElementById(id).textContent = msg; ok = false; };
+				if (!symptomStartDate) fail("err-symptomStartDate", "発症日を入力してください");
+				if (symptomNames.length === 0) fail("err-symptomNames", "症状を選択してください");
+				if (!symptomProgress) fail("err-symptomProgress", "症状の経過を入力してください");
+				if (!bodyTemperature) fail("err-bodyTemperature", "体温を入力してください");
+				if (hasOverseasTravel == null) fail("err-hasOverseasTravel", "海外渡航歴を選択してください");
+				if (infectionContactStatus == null) fail("err-infectionContactStatus", "感染症接触歴を選択してください");
+				if (pregnancyStatus == null) fail("err-pregnancyStatus", "妊娠の可能性を選択してください");
+				if (hasMedicineNotebook == null) fail("err-hasMedicineNotebook", "お薬手帳を選択してください");
+				if (useMynaInsurance == null) fail("err-useMynaInsurance", "マイナ保険証利用を選択してください");
+				if (!ok) return;
+
+				const data = {
+					mode: "create",
+					appointmentId: apptIdNum,
+					visitDate: visitDate,
+					symptomStartDate: symptomStartDate,
+					symptomNames: symptomNames,
+					symptomProgress: symptomProgress,
+					symptomDetail: document.getElementById("symptomDetail").value,
+					bodyTemperature: bodyTemperature,
+					hasOverseasTravel: hasOverseasTravel === "true",
+					overseasTravelPlace: document.getElementById("overseasTravelPlace").value,
+					infectionContactStatus: infectionContactStatus,
+					pregnancyStatus: pregnancyStatus,
+					hasMedicineNotebook: hasMedicineNotebook === "true",
+					useMynaInsurance: useMynaInsurance,
+					memo: document.getElementById("memo").value,
+				};
+				TeamB.setDraft("q-user", data);
+				location.href = "./q-confirm.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

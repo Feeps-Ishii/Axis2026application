@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>スタッフ一覧</title>
+
+	<style>
+		/* リセット・基本設定 */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: "Yu Gothic", "Meiryo", sans-serif;
+		}
+
+		body {
+			background: #f4f7fb;
+			color: #333;
+		}
+
+		/* ヘッダー */
+		header {
+			background: #2f6fec;
+			color: white;
+			padding: 16px 32px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		}
+
+		header h1 {
+			font-size: 26px;
+		}
+
+		.header-right {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+		}
+
+		.header-btn {
+			background: white;
+			color: #2f6fec;
+			text-decoration: none;
+			padding: 10px 18px;
+			border-radius: 8px;
+			font-weight: bold;
+			border: none;
+			cursor: pointer;
+		}
+
+		.header-btn:hover {
+			background: #e8efff;
+		}
+
+		/* コンテナ・カード */
+		.container {
+			width: 95%;
+			max-width: 1200px;
+			margin: 36px auto;
+		}
+
+		.card {
+			background: white;
+			border-radius: 18px;
+			padding: 30px;
+			margin-bottom: 28px;
+			box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+		}
+
+		.breadcrumb {
+			font-size: 14px;
+			color: #6b7280;
+			margin-bottom: 22px;
+			font-weight: bold;
+		}
+
+		.section-title {
+			font-size: 26px;
+			color: #1f2937;
+			margin-bottom: 24px;
+		}
+
+		.section-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+		}
+
+		/* 検索フォーム */
+		.search-grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 20px;
+		}
+
+		.form-group label {
+			display: block;
+			margin-bottom: 10px;
+			font-weight: bold;
+			color: #374151;
+		}
+
+		.form-group input,
+		.form-group select {
+			width: 100%;
+			padding: 12px;
+			border: 1px solid #d1d5db;
+			border-radius: 10px;
+			font-size: 14px;
+		}
+
+		.form-group input:hover,
+		.form-group select:hover {
+			border-color: #2f6fec;
+		}
+
+		.search-btn-area {
+			margin-top: 26px;
+			display: flex;
+			justify-content: flex-end;
+			gap: 16px;
+		}
+
+		/* 検索・クリアボタン共通 */
+		.search-btn {
+
+			background: #2f6fec;
+
+			color: white;
+
+			padding: 14px 34px;
+
+			border-radius: 10px;
+
+			border: none;
+
+			font-weight: bold;
+
+			cursor: pointer;
+
+		}
+
+
+
+		.search-btn:hover {
+
+			background: #1e5ad3;
+
+		}
+
+
+
+		.clear-btn {
+
+			background: #eef2f7;
+
+			color: #374151;
+
+			padding: 14px 28px;
+
+			border-radius: 10px;
+
+			border: none;
+
+			font-weight: bold;
+
+			cursor: pointer;
+
+			display: inline-block;
+
+			text-decoration: none;
+
+			text-align: center;
+
+			font-size: 13px;
+
+		}
+
+
+
+		.clear-btn:hover {
+
+			background: #dce3ec;
+
+			border-color: #a0aec0;
+
+		}
+
+		/* 登録ボタン */
+		.register-btn {
+			background: #2f6fec;
+			color: white;
+			border: none;
+			padding: 14px 24px;
+			border-radius: 10px;
+			font-weight: bold;
+			cursor: pointer;
+		}
+
+		.register-btn:hover {
+			background: #1e5ad3;
+		}
+
+		/* テーブル */
+		.table-wrap {
+			overflow-x: auto;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			table-layout: fixed;
+		}
+
+		table th {
+			background: #edf3ff;
+			color: #374151;
+			padding: 18px;
+			text-align: left;
+			border-right: 1px solid #e5e7eb;
+		}
+
+		table td {
+			padding: 18px;
+			border-bottom: 1px solid #e5e7eb;
+			border-right: 1px solid #e5e7eb;
+		}
+
+		table th:last-child,
+		table td:last-child {
+			border-right: none;
+		}
+
+		tr:hover {
+			background: #eef2ff !important;
+		}
+
+		/* カラム幅設定 */
+		table th:nth-child(2),
+		table td:nth-child(2) {
+			width: 18%;
+		}
+
+		table th:nth-child(5),
+		table td:nth-child(5) {
+			width: 32%;
+		}
+
+		table th:nth-child(6),
+		table td:nth-child(6) {
+			width: 140px;
+		}
+
+		/* ステータスバッジ */
+		.status {
+			padding: 8px 24px;
+			border-radius: 20px;
+			font-size: 14px;
+			font-weight: bold;
+			display: inline-block;
+			line-height: 1;
+		}
+
+		.status-active {
+			background: #dcfce7;
+			color: #166534;
+		}
+
+		.status-inactive {
+			background: #fee2e2;
+			color: #b91c1c;
+		}
+
+		/* ページネーション */
+		.pagination {
+			display: flex;
+			justify-content: center;
+			gap: 8px;
+			margin-top: 25px;
+		}
+
+		.pagination a,
+		.pagination span,
+		.dummy-box {
+			padding: 8px 16px;
+			border-radius: 8px;
+			border: 2px solid #cbd5e0;
+			text-decoration: none;
+			color: #444;
+			background-color: white;
+			min-width: 40px;
+			text-align: center;
+			display: inline-block;
+			cursor: pointer;
+		}
+
+		.pagination .current {
+			background-color: #2f6fec;
+			color: white;
+			border: 1px solid #2f6fec;
+		}
+
+		.pagination a:hover:not(.current) {
+			background-color: #ebf8ff;
+			border-color: #2f6fec;
+			color: #2b6cb0;
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1>スタッフ一覧</h1>
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">管理者TOP</a>
+			<a href="#" class="header-btn" onclick="TeamB.logout();return false;">ログアウト</a>
+		</div>
+	</header>
+
+	<div class="container">
+		<div class="breadcrumb">管理者TOP ＞ スタッフ管理 ＞ スタッフ一覧</div>
+
+		<div class="card">
+			<h2 class="section-title">スタッフ検索</h2>
+			<form id="searchForm">
+				<div class="search-grid">
+					<div class="form-group">
+						<label>スタッフ名</label>
+						<input type="text" name="staffName" id="staffName" placeholder="スタッフ名を入力">
+					</div>
+					<div class="form-group">
+						<label>所属部署</label>
+						<select name="department" id="department">
+							<option value="">すべて</option>
+							<option value="受付">受付</option>
+							<option value="内科">内科</option>
+							<option value="小児科">小児科</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>権限</label>
+						<select name="role" id="role">
+							<option value="">すべて</option>
+							<option value="管理者">管理者</option>
+							<option value="一般">一般</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>状態</label>
+						<select name="status" id="status">
+							<option value="">すべて</option>
+							<option value="有効">有効</option>
+							<option value="無効">無効</option>
+						</select>
+					</div>
+				</div>
+				<div class="search-btn-area">
+					<a href="./staff-list.html" class="clear-btn">条件クリア</a>
+					<button type="submit" class="search-btn">検索</button>
+				</div>
+			</form>
+		</div>
+
+		<div class="card">
+			<div class="section-header">
+				<h2 class="section-title">検索結果・スタッフ一覧</h2>
+				<button class="register-btn" onclick="location.href='./staff-new.html'">＋ スタッフ登録</button>
+			</div>
+
+			<div class="table-wrap">
+				<table>
+					<thead>
+						<tr>
+							<th>スタッフID</th>
+							<th>氏名</th>
+							<th>所属部署</th>
+							<th>権限</th>
+							<th>メールアドレス</th>
+							<th>状態</th>
+						</tr>
+					</thead>
+					<tbody id="staffTbody"></tbody>
+				</table>
+			</div>
+
+			<div class="pagination" id="pagination"></div>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		const PAGE_SIZE = 3;
+
+		function readQuery() {
+			const p = new URLSearchParams(location.search);
+			return {
+				staffName: p.get("staffName") || "",
+				department: p.get("department") || "",
+				role: p.get("role") || "",
+				status: p.get("status") || "",
+				page: Math.max(0, parseInt(p.get("page") || "0", 10) || 0),
+			};
+		}
+
+		function buildUrl(overrides) {
+			const q = Object.assign(readQuery(), overrides);
+			const p = new URLSearchParams();
+			if (q.staffName) p.set("staffName", q.staffName);
+			if (q.department) p.set("department", q.department);
+			if (q.role) p.set("role", q.role);
+			if (q.status) p.set("status", q.status);
+			p.set("page", q.page);
+			return "./staff-list.html?" + p.toString();
+		}
+
+		TeamB.init().then(() => {
+			TeamB.requireStaff();
+			const q = readQuery();
+
+			document.getElementById("staffName").value = q.staffName;
+			document.getElementById("department").value = q.department;
+			document.getElementById("role").value = q.role;
+			document.getElementById("status").value = q.status;
+
+			document.getElementById("searchForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				location.href = buildUrl({
+					staffName: document.getElementById("staffName").value.trim(),
+					department: document.getElementById("department").value,
+					role: document.getElementById("role").value,
+					status: document.getElementById("status").value,
+					page: 0,
+				});
+			});
+
+			// 状態: 原本は 有効/無効 → db層は 在籍/無効
+			const statusMap = { "有効": "在籍", "無効": "無効", "": "" };
+			const all = TeamB.staffList({
+				staffName: q.staffName,
+				jobType: q.department,
+				authorityType: q.role,
+				status: statusMap[q.status] || "",
+			});
+
+			const totalPages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
+			const page = Math.min(q.page, totalPages - 1);
+			const rows = all.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+
+			const tbody = document.getElementById("staffTbody");
+			tbody.innerHTML = rows.map((s) => {
+				const badge = s.invalidFlag
+					? '<span class="status status-inactive">無効</span>'
+					: '<span class="status status-active">有効</span>';
+				return `<tr>
+					<td>${TeamB.esc(s.staffId)}</td>
+					<td><a href="./staff-detail.html?id=${TeamB.esc(s.staffId)}" style="color: #2f6fec; text-decoration: underline; font-weight: bold;">${TeamB.esc(s.name)}</a></td>
+					<td>${TeamB.esc(s.jobType)}</td>
+					<td>${TeamB.esc(s.authorityType)}</td>
+					<td>${TeamB.esc(s.email)}</td>
+					<td>${badge}</td>
+				</tr>`;
+			}).join("");
+
+			renderPagination(page, totalPages);
+		});
+
+		function renderPagination(page, totalPages) {
+			const el = document.getElementById("pagination");
+			let html = "";
+			const prev = page > 0 ? page - 1 : 0;
+			html += `<a href="${buildUrl({ page: prev })}">＜</a>`;
+
+			let start;
+			if (page === 0) start = 0;
+			else if (page === totalPages - 1 && totalPages > 2) start = totalPages - 3;
+			else start = page - 1;
+
+			for (let i = 0; i < 3; i++) {
+				const cur = start + i;
+				if (cur < totalPages && cur >= 0) {
+					const cls = page === cur ? "current" : "";
+					html += `<a class="${cls}" href="${buildUrl({ page: cur })}">${cur + 1}</a>`;
+				} else {
+					html += `<span class="dummy-box"></span>`;
+				}
+			}
+
+			const next = page + 1 < totalPages ? page + 1 : page;
+			html += `<a href="${buildUrl({ page: next })}">＞</a>`;
+			el.innerHTML = html;
+		}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,1133 @@
+@charset "UTF-8";
+
+/* 旧版CSSへ差し戻し（予約 + 予約者マイページ） */
+
+
+/* ===== restored from reservation.css ===== */
+
+/* ==========================================================================
+   CSS変数の定義（新しく細分化されたルールを適用しました）
+   ========================================================================== */
+:root {
+  /* ==========================================
+     カラー定義（Color）
+     ========================================== */
+  --color-primary: #e67a84;
+  /* さくら野ピンク（メインカラー） */
+  --color-primary-light: #fbebee;
+  /* 薄いピンク（背景・完了メッセージ用） */
+
+  /* 💡 【新設】薄い水色（テーブルのヘッダーや、爽やかなアクセント用） */
+  --color-info-light: #eef7f9;
+  /* さくら野ブルー（ほんのり緑がかった優しい水色） */
+  --color-info: #5caec4;
+  /* しっかりした水色（枠線や文字のアクセント用） */
+
+  --color-success: #4caf50;
+  /* 予防接種・通常（グリーン） */
+  --color-accent: #e05353;
+  /* 発熱・警告（レッド） */
+  --color-text-main: #333333;
+  /* 基本の文字色（ダークグレー） */
+  --color-bg-admin: #f4f6f9;
+  /* 管理画面などの薄いグレー背景 */
+
+  /* ==========================================
+     余白のルール（Spacing）
+     ========================================== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* ==========================================
+     文字のルール（Typography）
+     ========================================== */
+  /* フォントサイズ */
+  --font-base: 16px;
+  --font-lg: 20px;
+  --font-xl: 24px;
+
+  /* 💡 【新設】文字の太さ（一目で重要度が伝わるように細分化） */
+  --weight-normal: 400;
+  /* 通常の文字 */
+  --weight-medium: 500;
+  /* ほんのり太字（見出しなど） */
+  --weight-bold: 700;
+  /* ガッツリ太字（強調・ボタン） */
+}
+
+/* ==========================================================================
+   全体の基本スタイル
+   ========================================================================== */
+body {
+  font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  font-size: var(--font-base);
+  color: var(--color-text-main);
+  background-color: #ffffff;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+/* 横線の非表示 */
+hr {
+  display: none;
+}
+
+/* ==========================================================================
+   レイアウト（ヘッダー・メイン・フッター）
+   ========================================================================== */
+header {
+  background-color: #ffffff;
+  border-bottom: 3px solid var(--color-primary);
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+header h1 {
+  font-size: var(--font-xl);
+  color: var(--color-primary);
+  margin: 0;
+}
+
+header nav a {
+  color: var(--color-text-main);
+  text-decoration: none;
+  font-size: calc(var(--font-base) * 0.9);
+  border: 1px solid var(--color-text-main);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+header nav a:hover {
+  background-color: var(--color-text-main);
+  color: #ffffff;
+}
+
+main {
+  width: 90%;
+  max-width: 1000px;
+  margin: var(--space-xl) auto;
+  padding: 0 var(--space-md);
+}
+
+/* すべての画面のh2見出しを、消えたりバグったりしないように優しく一括指定 */
+section h2 {
+  font-size: var(--font-lg);
+  color: var(--color-text-main);
+  border-left: 5px solid var(--color-primary);
+  padding-left: var(--space-sm);
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+
+section:first-of-type h2 {
+  margin-top: 0;
+}
+
+footer {
+  background-color: var(--color-bg-admin);
+  text-align: center;
+  padding: var(--space-md);
+  margin-top: var(--space-xl);
+  font-size: calc(var(--font-base) * 0.8);
+}
+
+footer p {
+  margin: 0;
+}
+
+/* ==========================================================================
+   フォーム要素のスタイル（入力画面のベース）
+   ========================================================================== */
+form {
+  background-color: var(--color-primary-light);
+  padding: var(--space-lg);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+form p {
+  font-weight: var(--weight-bold);
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-xs);
+  color: var(--color-text-main);
+}
+
+form p:first-of-type {
+  margin-top: 0;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="tel"],
+select,
+textarea {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-base);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]#address {
+  width: 100%;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="tel"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(230, 122, 132, 0.2);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+form br {
+  display: none;
+}
+
+/* ==========================================================================
+   ラジオボタンのスタイル
+   ========================================================================== */
+input[type="radio"] {
+  margin-top: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  margin-right: var(--space-xs);
+  cursor: pointer;
+}
+
+input[type="radio"]+label {
+  margin-right: var(--space-lg);
+  cursor: pointer;
+  display: inline-block;
+}
+
+/* ==========================================================================
+   送信ボタンのスタイル
+   ========================================================================== */
+input[type="submit"] {
+  display: block;
+  width: 100%;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-size: var(--font-lg);
+  font-weight: var(--weight-bold);
+  border: none;
+  border-radius: 4px;
+  padding: var(--space-md);
+  margin-top: var(--space-xl);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  box-shadow: 0 4px 6px rgba(230, 122, 132, 0.2);
+}
+
+input[type="submit"]:hover {
+  background-color: #d66b75;
+}
+
+input[type="submit"]:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 3px rgba(230, 122, 132, 0.2);
+}
+
+/* ==========================================================================
+   レスポンシブ対応（スマホ表示の微調整）
+   ========================================================================== */
+@media (max-width: 480px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--space-md);
+  }
+
+  header nav {
+    margin-top: var(--space-sm);
+    width: 100%;
+  }
+
+  header nav a {
+    display: block;
+    text-align: center;
+  }
+
+  main {
+    margin: var(--space-lg) auto;
+  }
+
+  form {
+    padding: var(--space-md);
+  }
+}
+
+/* ==========================================================================
+   各画面の追加スタイル（PC・スマホ共通）
+   ========================================================================== */
+
+/* --- 1. 予約完了画面のスタイル --- */
+.complete-msg p {
+  background-color: var(--color-primary-light);
+  border-left: 4px solid var(--color-primary);
+  padding: var(--space-md);
+  border-radius: 0 4px 4px 0;
+  font-weight: var(--weight-bold);
+  margin: 0;
+}
+
+.complete-msg p+p {
+  margin-top: var(--space-xs);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-xl);
+  font-size: var(--font-base);
+}
+
+table,
+table th,
+table td {
+  border: 1px solid #e0e0e0 !important;
+}
+
+th,
+td {
+  padding: var(--space-md);
+  text-align: left;
+}
+
+th {
+  background-color: var(--color-bg-admin);
+  color: var(--color-text-main);
+  width: 35%;
+  font-weight: var(--weight-bold);
+}
+
+td {
+  background-color: #ffffff;
+}
+
+main ul {
+  padding-left: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+main li {
+  margin-bottom: var(--space-sm);
+  line-height: 1.5;
+}
+
+section:last-of-type ul {
+  list-style: none;
+  padding: 0;
+}
+
+section:last-of-type li {
+  margin-bottom: var(--space-md);
+}
+
+section:last-of-type li a {
+  display: block;
+  text-align: center;
+  background-color: #ffffff;
+  color: var(--color-text-main);
+  text-decoration: none;
+  padding: var(--space-md);
+  border: 2px solid var(--color-primary);
+  border-radius: 6px;
+  font-weight: var(--weight-bold);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+section:last-of-type li a:hover {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+/* --- 2. キャンセル完了画面の専用スタイル --- */
+.cancel-status {
+  background-color: #fcf2f2;
+  border-left: 4px solid var(--color-accent);
+  padding: var(--space-md);
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-lg);
+  border-radius: 0 4px 4px 0;
+  font-size: var(--font-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+}
+
+.cancel-notice {
+  font-size: calc(var(--font-base) * 0.9);
+  color: #666666;
+  line-height: 1.8;
+  margin-bottom: var(--space-xl);
+  padding-left: var(--space-xs);
+}
+
+/* --- 3. 予約確認画面・キャンセル確認画面の専用スタイル --- */
+
+/* 薄ピンクの枠（背景）の設定 */
+main section form:has(input[type="submit"]) {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background-color: var(--color-primary-light) !important;
+  padding: var(--space-lg) !important;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-top: var(--space-sm) !important;
+  margin-bottom: var(--space-sm) !important;
+}
+
+/* ボタンとボタンの間にあるHTMLの「<br>」を非表示にして、確認画面の行間を縮める */
+main section form:has(input[type="submit"])+br {
+  display: none !important;
+}
+
+/* 確認画面のボタンが枠の真ん中にカチッと配置される設定 */
+main section form input[type="submit"] {
+  margin: 0 !important;
+  display: block;
+  width: 100%;
+}
+
+/* 「〜戻る」「マイページへ〜」ボタンをグレーにする設定 */
+main section form input[type="submit"][value*="戻る"],
+main section form input[type="submit"][value*="マイページ"] {
+  background-color: #aaaaaa !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+main section form input[type="submit"][value*="戻る"]:hover,
+main section form input[type="submit"][value*="マイページ"]:hover {
+  background-color: #888888 !important;
+}
+
+
+/* ==========================================================================
+   初診・再診の「予約入力画面」のボタン位置ズレ解消ルール
+   ========================================================================== */
+
+/* 1. 入力画面のボタンがピンクの箱の底を突き破るバグを完全に修正します */
+form:has(input[type="radio"], select, input[type="text"]) {
+  padding-bottom: var(--space-xl) !important;
+  /* 底のクッションを32pxに強化して広げる */
+}
+
+/* 2. ボタンの上の隙間（32px）を綺麗に保ちつつ、下の潰れをリセット */
+form:has(input[type="radio"], select, input[type="text"]) input[type="submit"] {
+  margin-top: var(--space-xl) !important;
+  margin-bottom: 0 !important;
+  /* 下への突き抜けを防止 */
+}
+
+/* 必須ラベルのデザイン */
+.required {
+  background-color: #d64d5a;
+  /* 診療所のテーマカラー */
+  color: #ffffff;
+  /* 文字は白 */
+  font-size: 0.8em;
+  /* 少し小さく */
+  padding: 2px 6px;
+  /* 余白調整 */
+  border-radius: 4px;
+  /* ここを調整！ */
+  margin-left: 8px;
+  /* 左側の文字との隙間 */
+  font-weight: bold;
+}
+
+
+/* ===== restored from style.css ===== */
+
+/* ==========================================
+   さくら野診療所
+   予約者マイページCSS
+========================================== */
+/* ==========================================
+   CSS変数
+========================================== */
+
+:root {
+
+    /* ==========================================
+     Color
+  ========================================== */
+
+    --color-primary: #e67a84;
+
+    --color-primary-light: #fbebee;
+
+    --color-info-light: #eef7f9;
+
+    --color-info: #5caec4;
+
+    --color-success: #4caf50;
+
+    --color-accent: #e05353;
+
+    --color-text-main: #333333;
+
+    --color-bg-admin: #f4f6f9;
+
+    /* ==========================================
+     Space
+  ========================================== */
+
+    --space-xs: 4px;
+
+    --space-sm: 8px;
+
+    --space-md: 16px;
+
+    --space-lg: 24px;
+
+    --space-xl: 32px;
+
+    /* ==========================================
+     Typography
+  ========================================== */
+
+    --font-base: 16px;
+
+    --font-lg: 20px;
+
+    --font-xl: 24px;
+
+    --weight-normal: 400;
+
+    --weight-medium: 500;
+
+    --weight-bold: 700;
+}
+
+/* ==========================================
+   全体
+========================================== */
+
+body {
+
+    font-family:
+        "Helvetica Neue",
+        Arial,
+        "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
+        Meiryo,
+        sans-serif;
+
+    font-size: var(--font-base);
+
+    color: var(--color-text-main);
+
+    background-color: #ffffff;
+
+    line-height: 1.6;
+
+    margin: 0;
+
+    padding: 0;
+}
+
+/* ==========================================
+   横線非表示
+========================================== */
+
+hr {
+
+    display: none;
+}
+
+/* ==========================================
+   ヘッダー
+========================================== */
+
+header {
+
+    background-color: #ffffff;
+
+    border-bottom:
+        3px solid var(--color-primary);
+
+    padding:
+        var(--space-md) var(--space-lg);
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: var(--space-sm);
+}
+
+/* タイトル */
+
+header h1 {
+
+    font-size: var(--font-xl);
+
+    color: var(--color-primary);
+
+    margin: 0;
+
+    font-weight: var(--weight-bold);
+}
+
+/* ==========================================
+   ナビゲーション
+========================================== */
+
+header nav a {
+
+    color: var(--color-text-main);
+
+    text-decoration: none;
+
+    font-size:
+        calc(var(--font-base) * 0.9);
+
+    border:
+        1px solid var(--color-text-main);
+
+    padding:
+        var(--space-sm) var(--space-md);
+
+    border-radius: 4px;
+
+    transition: all 0.3s ease;
+}
+
+/* hover */
+
+header nav a:hover {
+
+    background-color:
+        var(--color-text-main);
+
+    color: #ffffff;
+}
+
+/* ==========================================
+   メイン
+========================================== */
+
+main {
+
+    width: 90%;
+
+    max-width: 1000px;
+
+    margin:
+        var(--space-xl) auto;
+
+    padding:
+        0 var(--space-md);
+}
+
+/* ==========================================
+   section
+========================================== */
+
+section {
+
+    background-color: #ffffff;
+
+    padding: var(--space-lg);
+
+    margin-bottom: var(--space-xl);
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================
+   見出し
+========================================== */
+
+section h2 {
+
+    font-size: var(--font-lg);
+
+    color: var(--color-text-main);
+
+    border-left:
+        5px solid var(--color-primary);
+
+    padding-left:
+        var(--space-sm);
+
+    margin-top: 0;
+
+    margin-bottom:
+        var(--space-lg);
+
+    font-weight:
+        var(--weight-bold);
+}
+
+/* ==========================================
+   テーブル
+========================================== */
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin-top:
+        var(--space-md);
+
+    margin-bottom:
+        var(--space-xl);
+
+    font-size:
+        var(--font-base);
+}
+
+/* 線 */
+
+table,
+table th,
+table td {
+
+    border:
+        1px solid #e0e0e0;
+}
+
+/* 左列 */
+
+th {
+
+    width: 35%;
+
+    background-color:
+        var(--color-bg-admin);
+
+    color:
+        var(--color-text-main);
+
+    text-align: left;
+
+    padding:
+        var(--space-md);
+
+    font-weight:
+        var(--weight-bold);
+}
+
+/* 右列 */
+
+td {
+
+    background-color: #ffffff;
+
+    padding:
+        var(--space-md);
+}
+
+/* ==========================================
+   リスト
+========================================== */
+
+ul {
+
+    list-style: none;
+
+    padding: 0;
+
+    margin: 0;
+}
+
+/* ==========================================
+   メニュー
+========================================== */
+
+li {
+
+    margin-bottom:
+        var(--space-md);
+}
+
+/* ==========================================
+   操作メニューボタン
+========================================== */
+
+li a {
+
+    display: block;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background-color: #ffffff;
+
+    color: var(--color-text-main);
+
+    text-decoration: none;
+
+    text-align: center;
+
+    padding:
+        var(--space-md);
+
+    border:
+        2px solid var(--color-primary);
+
+    border-radius: 6px;
+
+    font-size:
+        var(--font-base);
+
+    font-weight:
+        var(--weight-bold);
+
+    transition:
+        all 0.3s ease;
+
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* hover */
+
+li a:hover {
+
+    background-color:
+        var(--color-primary);
+
+    color: #ffffff;
+}
+
+/* click */
+
+li a:active {
+
+    transform: translateY(1px);
+}
+
+/* ==========================================
+   ご案内
+========================================== */
+
+section:last-of-type ul {
+
+    padding-left:
+        var(--space-lg);
+
+    list-style: disc;
+}
+
+section:last-of-type li {
+
+    margin-bottom:
+        var(--space-sm);
+
+    line-height: 1.6;
+}
+
+/* ==========================================
+   認証フォーム
+========================================== */
+
+form {
+
+    background-color:
+        var(--color-primary-light);
+
+    padding:
+        var(--space-xl);
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.05);
+
+    margin-top:
+        var(--space-lg);
+}
+
+/* ==========================================
+   フォーム説明文
+========================================== */
+
+section p {
+
+    line-height: 1.7;
+}
+
+/* ==========================================
+   ラベル用p
+========================================== */
+
+form p {
+
+    margin-top:
+        var(--space-lg);
+
+    margin-bottom:
+        var(--space-xs);
+}
+
+/* 最初だけ余白なし */
+
+form p:first-of-type {
+
+    margin-top: 0;
+}
+
+/* ==========================================
+   ラベル
+========================================== */
+
+label {
+
+    font-weight:
+        var(--weight-bold);
+
+    color:
+        var(--color-text-main);
+
+    font-size:
+        var(--font-base);
+}
+
+/* ==========================================
+   入力欄
+========================================== */
+
+input[type="text"],
+input[type="date"] {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding:
+        var(--space-sm) var(--space-md);
+
+    font-size:
+        var(--font-base);
+
+    border:
+        1px solid #cccccc;
+
+    border-radius: 4px;
+
+    background-color: #ffffff;
+
+    transition:
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+/* focus */
+
+input[type="text"]:focus,
+input[type="date"]:focus {
+
+    outline: none;
+
+    border-color:
+        var(--color-primary);
+
+    box-shadow:
+        0 0 0 2px rgba(230, 122, 132, 0.2);
+}
+
+/* ==========================================
+   送信ボタン
+========================================== */
+
+input[type="submit"] {
+
+    display: block;
+
+    width: 100%;
+
+    background-color:
+        var(--color-primary);
+
+    color: #ffffff;
+
+    font-size:
+        var(--font-base);
+
+    font-weight:
+        var(--weight-bold);
+
+    border: none;
+
+    border-radius: 6px;
+
+    padding:
+        var(--space-md);
+
+    margin-top:
+        var(--space-xl);
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.3s ease,
+        transform 0.1s ease;
+
+    box-shadow:
+        0 4px 6px rgba(230, 122, 132, 0.2);
+}
+
+/* hover */
+
+input[type="submit"]:hover {
+
+    background-color: #d66b75;
+}
+
+/* click */
+
+input[type="submit"]:active {
+
+    transform: translateY(1px);
+
+    box-shadow:
+        0 2px 3px rgba(230, 122, 132, 0.2);
+}
+
+/* ==========================================
+   br無効化
+========================================== */
+
+form br {
+
+    display: none;
+}
+
+/* ==========================================
+   フッター
+========================================== */
+
+footer {
+
+    background-color:
+        var(--color-bg-admin);
+
+    text-align: center;
+
+    padding:
+        var(--space-md);
+
+    margin-top:
+        var(--space-xl);
+
+    font-size:
+        calc(var(--font-base) * 0.8);
+}
+
+footer p {
+
+    margin: 0;
+}
+
+/* ==========================================
+   スマホ対応
+========================================== */
+
+@media (max-width: 480px) {
+
+    header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        padding:
+            var(--space-md);
+    }
+
+    header nav {
+
+        margin-top:
+            var(--space-sm);
+
+        width: 100%;
+    }
+
+    header nav a {
+
+        display: block;
+
+        text-align: center;
+    }
+
+    main {
+
+        margin:
+            var(--space-lg) auto;
+    }
+
+    /* テーブルレスポンシブ */
+
+    th,
+    td {
+
+        display: block;
+
+        width: 100%;
+
+        box-sizing: border-box;
+    }
+
+    th {
+
+        border-bottom: none;
+    }
+
+    td {
+
+        margin-bottom:
+            var(--space-sm);
+    }
+}
+
+/* 必須ラベルのデザイン */
+.required {
+    background-color: #d64d5a;
+    /* 診療所のテーマカラー */
+    color: #ffffff;
+    /* 文字は白 */
+    font-size: 0.8em;
+    /* 少し小さく */
+    padding: 2px 6px;
+    /* 余白調整 */
+    border-radius: 4px;
+    /* ここを調整！ */
+    margin-left: 8px;
+    /* 左側の文字との隙間 */
+    font-weight: bold;
+}

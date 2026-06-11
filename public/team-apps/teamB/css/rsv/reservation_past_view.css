@@ -1,0 +1,512 @@
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Yu Gothic", "Meiryo", sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #333;
+        }
+
+        header {
+            background: #2f6fec;
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 26px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-btn {
+            background: white;
+            color: #2f6fec;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 36px auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 30px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+        }
+
+        .section-title {
+            font-size: 26px;
+            color: #1f2937;
+            margin-bottom: 24px;
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .search-btn-area {
+            margin-top: 26px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+        }
+
+        .clear-btn,
+        .search-btn {
+            border: none;
+            padding: 14px 34px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .clear-btn {
+            background: white;
+            color: #444;
+            border: 1px solid #d1d5db;
+        }
+
+        .search-btn {
+            background: #2f6fec;
+            color: white;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .section-buttons {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .register-btn {
+            background: #2f6fec;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1250px;
+        }
+
+        table th {
+            background: #edf3ff;
+            color: #374151;
+            padding: 14px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        table td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background: #f9fbff;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-reserved {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .status-arrived {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-waiting {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-cancel {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .reception-btn,
+        .cancel-btn,
+        .detail-btn,
+        .questionnaire-btn {
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .reception-btn {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .cancel-btn {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .detail-btn {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .questionnaire-btn {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding-top: 24px;
+        }
+
+        .pagination button {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            border: 2px solid #d6dfeb;
+            background: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .pagination .current {
+            background: #2f6fec;
+            color: white;
+            border: none;
+        }
+
+        @media (max-width: 768px) {
+
+            header {
+                padding: 16px;
+                flex-direction: column;
+                gap: 14px;
+                align-items: flex-start;
+            }
+
+            .header-right {
+                width: 100%;
+            }
+
+            .header-btn {
+                text-align: right;
+                flex: 1;
+            }
+
+            .container {
+                width: 100%;
+                padding: 0 12px;
+            }
+
+            .card {
+                padding: 24px;
+            }
+
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-btn-area {
+                flex-direction: column;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .section-buttons {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .register-btn {
+                width: 100%;
+            }
+        }
+
+
+        /* 統合版 共通調整 */
+        table th,
+        table td {
+            border-right: 1px solid #e5e7eb;
+        }
+
+        table th:last-child,
+        table td:last-child {
+            border-right: none;
+        }
+
+        .search-btn-area,
+        .form-actions,
+        .action-area {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .clear-btn {
+            background: #eef2f7;
+            color: #374151;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .clear-btn:hover {
+            background: #dce3ec;
+        }
+
+        .radio-group,
+        .check-group,
+        .vertical-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .radio-group label,
+        .check-group label,
+        .vertical-options label {
+            display: block;
+        }
+
+
+        /* 共通レイアウト調整 */
+        header {
+            background: #2f6fec;
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 26px;
+            color: white;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .header-btn {
+            background: white;
+            color: #2f6fec;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .header-btn:hover {
+            background: #e8efff;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 36px auto;
+        }
+
+        .breadcrumb {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 22px;
+            font-weight: bold;
+        }
+
+        button,
+        .btn,
+        a.button,
+        input[type="submit"],
+        input[type="button"] {
+            min-width: 120px;
+            text-align: center;
+        }
+
+/* ===== 共通追加：固定ヘッダー・ボタン統一・罫線・中央寄せ ===== */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+table th,
+table td {
+    border: 1px solid #e5e7eb;
+}
+
+table th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table-actions,
+.section-buttons,
+.search-btn-area,
+.form-actions,
+.action-area,
+.patient-info-actions {
+    align-items: center;
+}
+
+.table-actions > button,
+.table-actions > form > button,
+.patient-info-actions > button,
+.section-buttons > button,
+.search-btn-area > button,
+.form-actions > button,
+.action-area > button,
+.header-right > .header-btn,
+button.btn,
+a.btn,
+input[type="submit"],
+input[type="button"] {
+    min-width: 120px;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+}
+
+
+
+/* 予約状態チェックボックス：患者名・診察券番号・受診日・診療科の下に横長で表示 */
+.reservation-status-group {
+            grid-column: 1 / -1;
+        }
+
+        .status-checkbox-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 12px;
+            min-height: 45px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            background: #ffffff;
+        }
+
+        .status-check-label {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 6px;
+            margin: 0 !important;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #f3f4f6;
+            font-size: 13px;
+            font-weight: bold;
+            color: #374151;
+            cursor: pointer;
+        }
+
+        .status-check-label input {
+            width: auto;
+            cursor: pointer;
+        }
+
+        .status-check-all {
+            background: #e8efff;
+            color: #2f6fec;
+        }
+

@@ -1,0 +1,74 @@
+/* ===== 共通追加：固定ヘッダー・ボタン統一・罫線・中央寄せ ===== */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+table th,
+table td {
+    border: 1px solid #e5e7eb;
+}
+
+table th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table-actions,
+.section-buttons,
+.search-btn-area,
+.form-actions,
+.action-area,
+.patient-info-actions {
+    align-items: center;
+}
+
+.table-actions > button,
+.table-actions > form > button,
+.patient-info-actions > button,
+.section-buttons > button,
+.search-btn-area > button,
+.form-actions > button,
+.action-area > button,
+.header-right > .header-btn,
+button.btn,
+a.btn,
+input[type="submit"],
+input[type="button"] {
+    min-width: 120px;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.status-checkbox-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    align-items: center;
+}
+
+.status-check-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+    color: #374151;
+}
+
+.status-check-label input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.reservation-status-group {
+    grid-column: 1 / -1;
+}

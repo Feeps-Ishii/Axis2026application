@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カルテ印刷プレビュー</title>
+    <link rel="stylesheet" href="./css/admin/print/record-preview.css">
+</head>
+<body>
+    <div class="no-print toolbar">
+        <a id="backLink" href="#">カルテ詳細へ戻る</a>
+        <button type="button" onclick="window.print()">印刷</button>
+        <a id="excelLink" href="javascript:void(0)" onclick="alert('デモではダウンロードは省略しています')">Excel出力</a>
+        <a id="pdfLink" href="javascript:void(0)" onclick="alert('デモではダウンロードは省略しています')">PDFプレビュー</a>
+    </div>
+
+    <main class="print-page">
+        <header class="print-header">
+            <h1>カルテ印刷帳票</h1>
+            <div class="clinic-name">さくら野診療所</div>
+        </header>
+
+        <section>
+            <h2>基本情報</h2>
+            <table>
+                <tr><th>カルテID</th><td id="v_recordId"></td></tr>
+                <tr><th>予約ID</th><td id="v_appointmentId"></td></tr>
+                <tr><th>医師スタッフID</th><td id="v_doctorStaffId"></td></tr>
+                <tr><th>出力日時</th><td id="v_printedAt"></td></tr>
+                <tr><th>出力者</th><td id="v_loginStaffName"></td></tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>主訴・現病歴</h2>
+            <table>
+                <tr><th>主訴</th><td id="v_chiefComplaint"></td></tr>
+                <tr><th>現病歴</th><td id="v_presentIllness"></td></tr>
+                <tr><th>誘因</th><td id="v_triggerFactor"></td></tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>診察所見</h2>
+            <table>
+                <tr><th>体温</th><td><span id="v_bodyTemperature"></span> ℃</td></tr>
+                <tr><th>血圧</th><td><span id="v_systolicBp"></span> / <span id="v_diastolicBp"></span> mmHg</td></tr>
+                <tr><th>脈拍</th><td><span id="v_pulse"></span> 回/分</td></tr>
+                <tr><th>SpO2</th><td><span id="v_spo2"></span> %</td></tr>
+                <tr><th>身体所見</th><td id="v_physicalExam"></td></tr>
+                <tr><th>神経学的所見</th><td id="v_neurologicalExam"></td></tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>検査・診断・処方</h2>
+            <table>
+                <tr><th>血液検査</th><td id="v_bloodTest"></td></tr>
+                <tr><th>尿検査</th><td id="v_urineTest"></td></tr>
+                <tr><th>心電図</th><td id="v_ecg"></td></tr>
+                <tr><th>レントゲン</th><td id="v_xray"></td></tr>
+                <tr><th>診断名</th><td id="v_diagnosis"></td></tr>
+                <tr><th>ICD-10</th><td id="v_icd10Code"></td></tr>
+                <tr><th>処方薬</th><td id="v_prescription"></td></tr>
+                <tr><th>処置</th><td id="v_treatment"></td></tr>
+                <tr><th>次回来院予定日</th><td id="v_nextVisitDate"></td></tr>
+                <tr><th>医師メモ</th><td id="v_doctorMemo"></td></tr>
+                <tr><th>備考</th><td id="v_memo"></td></tr>
+            </table>
+        </section>
+    </main>
+
+    <script src="./js/db.js"></script>
+    <script>
+        TeamB.init().then(() => {
+            const s = TeamB.requireStaff();
+            if (!s) return;
+
+            const id = new URLSearchParams(location.search).get("id");
+            const r = TeamB.recordView(id);
+            if (!r) { alert("対象のカルテが見つかりません。"); location.href = "./admin.html"; return; }
+
+            document.getElementById("backLink").href = "./record-detail.html?id=" + encodeURIComponent(id);
+
+            const fields = ["recordId", "appointmentId", "doctorStaffId", "chiefComplaint",
+                "presentIllness", "triggerFactor", "bodyTemperature", "systolicBp", "diastolicBp",
+                "pulse", "spo2", "physicalExam", "neurologicalExam", "bloodTest", "urineTest",
+                "ecg", "xray", "diagnosis", "icd10Code", "prescription", "treatment",
+                "nextVisitDate", "doctorMemo", "memo"];
+            fields.forEach((f) => {
+                document.getElementById("v_" + f).textContent = r[f] == null ? "" : r[f];
+            });
+
+            document.getElementById("v_printedAt").textContent = TeamB.fmtDate(TeamB.today());
+            document.getElementById("v_loginStaffName").textContent = TeamB.staffSession().name || "";
+        });
+    </script>
+</body>
+</html>

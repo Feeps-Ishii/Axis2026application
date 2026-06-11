@@ -1,0 +1,1326 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   管理者側 問診票画面 共通CSS
+   --------------------------------------------------------------------------
+   管理者側の問診票一覧・詳細・紙問診票登録・登録確認・登録完了・
+   無効化画面で使用する。
+   画面ごとにCSSを分けず、admin-questionnaire.css 1つに統一する。
+   ========================================================================== */
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: "Yu Gothic", "Meiryo", sans-serif;
+}
+
+body {
+	background: #f4f7fb;
+	color: #333333;
+}
+
+/* 画面上部に画面名と管理者メニューを表示する */
+header {
+	background: #2f6fec;
+	color: #ffffff;
+	padding: 16px 32px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	position: sticky;
+	top: 0;
+	z-index: 1000;
+}
+
+header h1 {
+	font-size: 26px;
+	color: #ffffff;
+}
+
+/* 管理者TOP・ログアウトなどのヘッダー右側リンク */
+.header-right {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	flex-wrap: wrap;
+}
+
+.header-btn {
+	background: #ffffff;
+	color: #2f6fec;
+	text-decoration: none;
+	padding: 10px 18px;
+	border-radius: 8px;
+	font-weight: bold;
+	border: none;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 120px;
+	min-height: 42px;
+	text-align: center;
+	white-space: nowrap;
+}
+
+.header-btn:hover {
+	background: #e8efff;
+}
+
+/* 画面中央にコンテンツ幅をそろえる */
+.container {
+	width: 95%;
+	max-width: 1200px;
+	margin: 36px auto;
+}
+
+/* 現在位置を示すパンくず */
+.breadcrumb {
+	font-size: 14px;
+	color: #6b7280;
+	font-weight: bold;
+	margin-bottom: 22px;
+}
+
+.breadcrumb a {
+	color: #2563eb;
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.breadcrumb a:hover {
+	text-decoration: underline;
+}
+
+.breadcrumb span {
+	color: #666;
+}
+
+/* パンくずと戻るボタンを横並びにする */
+.breadcrumb-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 22px;
+	flex-wrap: wrap;
+}
+
+/* 詳細画面などで一覧へ戻るためのボタン */
+.list-back-btn {
+	background: #ffffff;
+	color: #2f6fec;
+	text-decoration: none;
+
+	display: block;
+	width: 100%;
+	max-width: 400px;
+
+	margin: 0 auto;
+
+	padding: 12px 20px;
+
+	border-radius: 8px;
+	font-weight: bold;
+	border: 1px solid #d1d5db;
+
+	text-align: center;
+}
+
+.list-back-btn:hover {
+	background: #e8efff;
+}
+
+.detail-back-area {
+	justify-content: center;
+}
+
+/* 検索条件・一覧・詳細情報・確認画面を白いカードで囲む */
+.card,
+.form-card,
+.confirm-card {
+	background: #ffffff;
+	border-radius: 18px;
+	padding: 30px;
+	margin-bottom: 28px;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+/* 完了画面のカードは中央寄せにする */
+.complete-card {
+	text-align: center;
+	padding: 54px 34px;
+}
+
+/* 受付スタッフへ入力目的を伝える案内文 */
+.notice-box {
+	background: #eff6ff;
+	border-left: 6px solid #2f6fec;
+	color: #1d4ed8;
+	border-radius: 12px;
+	padding: 18px 22px;
+	font-weight: bold;
+	line-height: 1.8;
+	margin-bottom: 28px;
+}
+
+/* 確認画面の注意メッセージ */
+.message-box {
+	background: #edf3ff;
+	color: #1e3a8a;
+	padding: 18px;
+	border-radius: 12px;
+	margin-bottom: 28px;
+	line-height: 1.8;
+	font-weight: bold;
+}
+
+/* ページ内タイトル */
+.page-title {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 24px;
+}
+
+.page-title h2 {
+	font-size: 30px;
+	color: #1f2937;
+}
+
+/* カード内の見出し */
+.section-title {
+	font-size: 26px;
+	color: #1f2937;
+	margin-bottom: 24px;
+	border-left: 6px solid #2f6fec;
+	padding-left: 14px;
+}
+
+/* 見出しと操作ボタンを横並びにする */
+.section-header,
+.list-title-area {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 24px;
+	flex-wrap: wrap;
+}
+
+.section-header .section-title,
+.list-title-area .section-title {
+	margin-bottom: 0;
+}
+
+/* フォームや確認表示をセクションごとに分ける */
+.section {
+	margin-bottom: 36px;
+}
+
+.section:last-child {
+	margin-bottom: 0;
+}
+
+/* 検索フォームを画面幅に応じて折り返す */
+.search-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 20px;
+}
+
+.form-group label {
+	display: block;
+	margin-bottom: 10px;
+	font-weight: bold;
+	color: #374151;
+}
+
+.form-group input,
+.form-group select {
+	width: 100%;
+	padding: 12px;
+	border: 1px solid #d1d5db;
+	border-radius: 10px;
+	font-size: 14px;
+	background: #ffffff;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+	outline: none;
+	border-color: #60a5fa;
+	box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.12);
+}
+
+/* 紙問診票登録画面の入力フォーム */
+.input-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 20px;
+}
+
+.input-item {
+	background: #f9fbff;
+	border: 1px solid #dbeafe;
+	border-radius: 14px;
+	padding: 16px;
+}
+
+.input-item.wide {
+	grid-column: 1 / -1;
+}
+
+.input-item label {
+	display: block;
+	font-weight: bold;
+	margin-bottom: 8px;
+	color: #374151;
+}
+
+.required {
+	color: #ef4444;
+	font-weight: bold;
+	margin-left: 4px;
+}
+
+.input-item input,
+.input-item select,
+.input-item textarea {
+	width: 100%;
+	padding: 12px;
+	border: 1px solid #d1d5db;
+	border-radius: 10px;
+	font-size: 14px;
+	background: #ffffff;
+}
+
+.input-item input:focus,
+.input-item select:focus,
+.input-item textarea:focus {
+	outline: none;
+	border-color: #60a5fa;
+	box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.12);
+}
+
+.input-item textarea {
+	min-height: 120px;
+	resize: vertical;
+}
+
+/* チェックボックスをタグ風に表示する */
+.tag-input-area {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.check-item {
+	display: inline-flex !important;
+	align-items: center;
+	gap: 6px;
+	background: #edf3ff;
+	padding: 10px 14px;
+	border-radius: 999px;
+	cursor: pointer;
+	font-weight: bold;
+	color: #1d4ed8;
+	border: 1px solid #bfdbfe;
+}
+
+.check-item:hover {
+	background: #dbeafe;
+}
+
+.check-item input {
+	width: auto;
+}
+
+/* 確認画面の情報表示 */
+.info-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 16px;
+}
+
+.info-item {
+	background: #f9fbff;
+	border: 1px solid #dbeafe;
+	border-radius: 12px;
+	padding: 16px;
+}
+
+.info-item.wide {
+	grid-column: 1 / -1;
+}
+
+.info-label {
+	font-size: 13px;
+	color: #6b7280;
+	font-weight: bold;
+	margin-bottom: 8px;
+}
+
+.info-value {
+	font-size: 16px;
+	color: #111827;
+	font-weight: bold;
+	line-height: 1.7;
+}
+
+/* 症状など複数値をタグとして表示する */
+.tag-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.tag {
+	background: #eff6ff;
+	border: 1px solid #bfdbfe;
+	color: #1d4ed8;
+	border-radius: 999px;
+	padding: 7px 14px;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+/* 完了画面のチェックアイコン */
+.check-icon {
+	width: 96px;
+	height: 96px;
+	border-radius: 50%;
+	border: 6px solid #22c55e;
+	color: #22c55e;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 54px;
+	font-weight: bold;
+	margin: 0 auto 28px;
+}
+
+/* 完了画面の見出し */
+.complete-title {
+	font-size: 32px;
+	font-weight: bold;
+	margin-bottom: 18px;
+	color: #166534;
+}
+
+/* 完了画面の説明文 */
+.complete-message {
+	font-size: 18px;
+	line-height: 1.8;
+	color: #444444;
+	margin-bottom: 36px;
+}
+
+/* 完了画面の登録情報 */
+.info-box {
+	max-width: 650px;
+	margin: 0 auto 36px;
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	overflow: hidden;
+	text-align: left;
+}
+
+.info-row {
+	display: flex;
+	border-bottom: 1px solid #e5e7eb;
+	font-size: 16px;
+}
+
+.info-row:last-child {
+	border-bottom: none;
+}
+
+.info-row .info-label {
+	width: 240px;
+	background: #edf3ff;
+	color: #1e293b;
+	font-weight: bold;
+	padding: 18px;
+	margin-bottom: 0;
+}
+
+.info-row .info-value {
+	flex: 1;
+	padding: 18px;
+	font-weight: bold;
+	color: #222222;
+}
+
+/* ボタン配置 */
+.button-area,
+.search-btn-area {
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.search-btn-area {
+	margin-top: 26px;
+}
+
+.button-area {
+	margin-top: 40px;
+}
+
+/* 完了画面のボタンは中央に配置する */
+.complete-card .button-area {
+	justify-content: center;
+}
+
+/* 共通ボタン */
+.clear-btn,
+.search-btn,
+.register-btn,
+.delete-btn,
+.confirm-btn,
+.back-btn,
+.list-btn {
+	border: none;
+	padding: 14px 28px;
+	border-radius: 10px;
+	font-size: 15px;
+	font-weight: bold;
+	cursor: pointer;
+	min-width: 160px;
+	min-height: 42px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+.clear-btn,
+.back-btn,
+.list-btn {
+	background: #eef2f7;
+	color: #374151;
+	border: 1px solid #d1d5db;
+}
+
+.clear-btn:hover,
+.back-btn:hover,
+.list-btn:hover {
+	background: #dce3ec;
+}
+
+.search-btn,
+.register-btn,
+.confirm-btn {
+	background: #2f6fec;
+	color: #ffffff;
+}
+
+.search-btn:hover,
+.register-btn:hover,
+.confirm-btn:hover {
+	background: #2558ba;
+}
+
+/* 無効化など、注意が必要な操作に使用する */
+.delete-btn {
+	background: #fee2e2;
+	color: #b91c1c;
+}
+
+.delete-btn:hover {
+	background: #fecaca;
+}
+
+/* ボタン用フォームが余白を持ちすぎないよう調整する */
+.button-area form {
+	margin: 0;
+}
+
+/* 横幅が足りない場合に表を横スクロールできるようにする */
+.table-wrap {
+	overflow-x: auto;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #ffffff;
+}
+
+.list-table {
+	min-width: 900px;
+}
+
+.detail-table {
+	min-width: 700px;
+}
+
+table th {
+	background: #edf3ff;
+	color: #374151;
+	padding: 14px;
+	text-align: center;
+	font-size: 14px;
+	border: 1px solid #e5e7eb;
+	vertical-align: middle;
+}
+
+table td {
+	padding: 14px;
+	border: 1px solid #e5e7eb;
+	font-size: 14px;
+	vertical-align: middle;
+}
+
+.detail-table th {
+	width: 260px;
+	text-align: left;
+}
+
+.detail-table td {
+	line-height: 1.8;
+}
+
+tbody tr:hover {
+	background: #f9fbff;
+}
+
+/* 感染疑いありなど、注意が必要な状態 */
+.status-danger {
+	background: #fee2e2;
+	color: #b91c1c;
+	padding: 6px 12px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: bold;
+	display: inline-block;
+}
+
+/* 通常状態や問題なしの表示 */
+.status-normal {
+	background: #dcfce7;
+	color: #166534;
+	padding: 6px 12px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: bold;
+	display: inline-block;
+}
+
+/* 一覧表の状態表示を中央に揃え、あり・なしを折り返さない */
+.status-cell {
+	text-align: center;
+	white-space: nowrap;
+	min-width: 80px;
+}
+
+/* あり・なしのラベルを横書き固定にする */
+.status-danger,
+.status-normal {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	white-space: nowrap;
+	min-width: 48px;
+}
+
+/* 詳細・無効化などの操作列を中央に揃える */
+.action-cell {
+	text-align: center;
+	white-space: nowrap;
+}
+
+/* 一覧表内の詳細リンク */
+.table-link {
+	text-decoration: none;
+	color: #2563eb;
+	font-weight: bold;
+}
+
+.table-link:hover {
+	text-decoration: underline;
+}
+
+/* ==========================================================================
+   問診票無効化確認画面
+   --------------------------------------------------------------------------
+   問診票を無効化する前に、対象情報と理由入力欄を表示する。
+   誤操作を防ぐため、赤系の警告デザインで統一する。
+   ========================================================================== */
+
+/* 無効化確認画面のカード */
+.invalid-card {
+	background: #fff7f7;
+	border: 3px solid #ef4444;
+	text-align: center;
+}
+
+/* 警告アイコン */
+.warning-icon {
+	width: 96px;
+	height: 96px;
+	border-radius: 50%;
+	background: #fee2e2;
+	color: #dc2626;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 58px;
+	font-weight: bold;
+	margin: 0 auto 24px;
+	border: 4px solid #fecaca;
+}
+
+/* 無効化確認のタイトル */
+.confirm-title {
+	font-size: 32px;
+	font-weight: bold;
+	color: #b91c1c;
+	margin-bottom: 18px;
+}
+
+/* 無効化確認の説明文 */
+.confirm-message {
+	font-size: 18px;
+	line-height: 1.8;
+	color: #7f1d1d;
+	margin-bottom: 34px;
+	font-weight: bold;
+}
+
+/* 無効化対象の問診票情報 */
+.target-box {
+	max-width: 700px;
+	margin: 0 auto 34px;
+	background: #ffffff;
+	border-radius: 14px;
+	overflow: hidden;
+	border: 1px solid #e5e7eb;
+	text-align: left;
+}
+
+.target-row {
+	display: flex;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.target-row:last-child {
+	border-bottom: none;
+}
+
+.target-label {
+	width: 240px;
+	background: #fdecec;
+	color: #7f1d1d;
+	font-weight: bold;
+	padding: 18px;
+}
+
+.target-value {
+	flex: 1;
+	padding: 18px;
+	font-weight: bold;
+	color: #222222;
+}
+
+/* 現在有効な問診票であることを示す表示 */
+.status-valid {
+	display: inline-block;
+	background: #dcfce7;
+	color: #166534;
+	padding: 8px 14px;
+	border-radius: 999px;
+	font-size: 13px;
+	font-weight: bold;
+}
+
+/* 無効化理由の入力欄 */
+.reason-box {
+	max-width: 700px;
+	margin: 0 auto 28px;
+	text-align: left;
+}
+
+.reason-label {
+	display: block;
+	margin-bottom: 12px;
+	font-size: 17px;
+	font-weight: bold;
+	color: #7f1d1d;
+}
+
+.reason-box textarea {
+	width: 100%;
+	min-height: 150px;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	padding: 16px;
+	font-size: 15px;
+	resize: vertical;
+	background: #ffffff;
+}
+
+.reason-box textarea:focus {
+	outline: none;
+	border-color: #ef4444;
+	box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+}
+
+/* 無効化時の注意事項 */
+.final-check {
+	max-width: 700px;
+	margin: 0 auto 36px;
+	background: #fffbeb;
+	border: 1px solid #facc15;
+	border-radius: 12px;
+	padding: 18px;
+	text-align: left;
+	font-size: 15px;
+	line-height: 1.8;
+	color: #854d0e;
+	font-weight: bold;
+}
+
+/* 無効化実行ボタン */
+.disable-btn {
+	background: #dc2626;
+	color: #ffffff;
+	border: none;
+	padding: 14px 28px;
+	border-radius: 10px;
+	font-size: 15px;
+	font-weight: bold;
+	cursor: pointer;
+	min-width: 220px;
+	min-height: 42px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	white-space: nowrap;
+}
+
+.disable-btn:hover {
+	background: #b91c1c;
+}
+
+/* ==========================================================================
+   問診票無効化完了画面
+   --------------------------------------------------------------------------
+   無効化完了後の結果を赤系デザインで表示する。
+   登録完了画面と区別するため、警告色を使う。
+   ========================================================================== */
+
+/* 無効化完了画面のカード */
+.invalid-complete-card {
+	background: #fff7f7;
+	border: 3px solid #fecaca;
+	text-align: center;
+	padding: 54px 34px;
+}
+
+/* 無効化完了画面ではチェックアイコンを赤系にする */
+.invalid-complete-card .check-icon {
+	border-color: #ef4444;
+	color: #ef4444;
+}
+
+/* 無効化完了画面のタイトル */
+.invalid-complete-card .complete-title {
+	color: #b91c1c;
+}
+
+/* 無効化完了画面の説明文 */
+.invalid-complete-card .complete-message {
+	color: #7f1d1d;
+	font-weight: bold;
+}
+
+/* 無効化完了後の概要情報 */
+.summary-box {
+	max-width: 700px;
+	margin: 0 auto 36px;
+	background: #ffffff;
+	border-radius: 14px;
+	overflow: hidden;
+	border: 1px solid #e5e7eb;
+	text-align: left;
+}
+
+.summary-row {
+	display: flex;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.summary-row:last-child {
+	border-bottom: none;
+}
+
+.summary-label {
+	width: 240px;
+	background: #fdecec;
+	color: #7f1d1d;
+	font-weight: bold;
+	padding: 18px;
+}
+
+.summary-value {
+	flex: 1;
+	padding: 18px;
+	font-weight: bold;
+	color: #222222;
+}
+
+/* 無効状態を示すラベル */
+.status-invalid {
+	display: inline-block;
+	background: #fee2e2;
+	color: #b91c1c;
+	padding: 8px 14px;
+	border-radius: 999px;
+	font-size: 13px;
+	font-weight: bold;
+}
+
+/* 詳細画面へ戻るボタン */
+.detail-btn {
+	background: #ffffff;
+	color: #444444;
+	border: 1px solid #d1d5db;
+	padding: 14px 28px;
+	border-radius: 10px;
+	font-size: 15px;
+	font-weight: bold;
+	cursor: pointer;
+	min-width: 220px;
+	min-height: 42px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	white-space: nowrap;
+}
+
+.detail-btn:hover {
+	background: #f3f4f6;
+}
+
+/* 入力エラー表示 */
+.error-message {
+	margin-top: 8px;
+	color: #dc2626;
+	font-size: 13px;
+	font-weight: bold;
+	line-height: 1.5;
+}
+
+/* スマートフォン幅でも崩れにくくする */
+@media (max-width: 768px) {
+
+	header {
+		padding: 16px;
+		flex-direction: column;
+		gap: 14px;
+		align-items: flex-start;
+	}
+
+	.header-right {
+		width: 100%;
+	}
+
+	.header-btn {
+		flex: 1;
+		text-align: center;
+	}
+
+	.container {
+		width: 100%;
+		padding: 0 12px;
+	}
+
+	.breadcrumb-row {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.list-back-btn {
+		width: 100%;
+	}
+
+	.card,
+	.form-card,
+	.confirm-card {
+		padding: 24px;
+	}
+
+	.complete-card {
+		padding: 42px 24px;
+	}
+
+	.section-title {
+		font-size: 24px;
+	}
+
+	.section-header,
+	.list-title-area {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.search-btn-area,
+	.button-area {
+		justify-content: flex-start;
+		width: 100%;
+	}
+
+	.clear-btn,
+	.search-btn,
+	.register-btn,
+	.delete-btn,
+	.confirm-btn,
+	.back-btn,
+	.list-btn {
+		width: 100%;
+	}
+
+	.info-row {
+		flex-direction: column;
+	}
+
+	.info-row .info-label {
+		width: 100%;
+	}
+
+	.detail-table th,
+	.detail-table td {
+		display: block;
+		width: 100%;
+	}
+
+	/* 一覧表の状態表示を中央に揃える */
+	.status-cell {
+		text-align: center;
+		white-space: nowrap;
+	}
+
+	/* 詳細・無効化などの操作列を中央に揃える */
+	.action-cell {
+		text-align: center;
+		white-space: nowrap;
+	}
+
+	/* 一覧表の詳細リンク */
+	.table-link {
+		display: inline-block;
+		padding: 6px 12px;
+		border-radius: 4px;
+		text-decoration: none;
+		font-size: 14px;
+	}
+
+	/* 無効化ボタン */
+	.disable-btn {
+		display: inline-block;
+		padding: 6px 12px;
+		border-radius: 4px;
+		font-size: 14px;
+		text-align: center;
+		white-space: nowrap;
+	}
+
+	/* 条件クリアをボタン風リンクとして表示する */
+	.search-btn-area .clear-btn {
+		display: inline-block;
+		text-align: center;
+		text-decoration: none;
+	}
+}
+
+/* 状態列と操作列の区切りを分かりやすくする */
+.action-start {
+	border-left: 3px solid #cbd5e1;
+}
+
+/* 一覧表の操作ボタン共通 */
+.detail-action-btn,
+.invalid-action-btn,
+.valid-action-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 72px;
+	min-height: 34px;
+	padding: 6px 10px;
+	border-radius: 8px;
+	font-size: 13px;
+	font-weight: bold;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+	font-family: inherit;
+	box-sizing: border-box;
+}
+
+/* 詳細ボタン */
+.detail-action-btn {
+	background: #dbeafe;
+	color: #1d4ed8;
+	border: 1px solid #93c5fd;
+}
+
+.detail-action-btn:hover {
+	background: #bfdbfe;
+}
+
+/* 無効化ボタン */
+.invalid-action-btn {
+	background: #fee2e2;
+	color: #b91c1c;
+	border: 1px solid #fecaca;
+}
+
+.invalid-action-btn:hover {
+	background: #fecaca;
+}
+
+/* 有効化ボタン：無効化ボタンの緑版 */
+.valid-action-btn {
+	background: #dcfce7;
+	color: #166534;
+	border: 1px solid #bbf7d0;
+}
+
+.valid-action-btn:hover {
+	background: #bbf7d0;
+}
+
+/* 有効化ボタンを囲むformの余白を消す */
+.valid-form {
+	margin: 0;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* 詳細列 */
+.detail-column {
+	background-color: #f8fbff;
+}
+
+/* 無効化・有効化列 */
+.invalid-column {
+	background-color: #fff8f8;
+}
+
+/* 状態と操作列の区切り */
+.action-header,
+.action-start {
+	border-left: 3px solid #94a3b8;
+}
+
+/* 操作列のヘッダー背景 */
+.action-header {
+	background-color: #eef4ff;
+}
+
+.invalid-header {
+	background-color: #fff1f2;
+}
+
+/* 体温入力欄 */
+.temperature-input {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.temperature-input input {
+	max-width: 160px;
+}
+
+.temperature-input span {
+	font-weight: bold;
+	white-space: nowrap;
+}
+
+/* 問診票有効化確認ポップアップ */
+.modal-overlay {
+	display: none;
+	position: fixed;
+	inset: 0;
+	z-index: 2000;
+	background: rgba(15, 23, 42, 0.45);
+	align-items: center;
+	justify-content: center;
+}
+
+.modal-overlay.is-open {
+	display: flex;
+}
+
+.modal-box {
+	width: min(90vw, 520px);
+	background: #ffffff;
+	border-radius: 18px;
+	padding: 34px 30px;
+	text-align: center;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.modal-box h2 {
+	margin-bottom: 16px;
+	color: #166534;
+}
+
+.modal-box p {
+	margin-bottom: 24px;
+	font-weight: bold;
+}
+
+.modal-button-area {
+	display: flex;
+	justify-content: center;
+	gap: 14px;
+	flex-wrap: wrap;
+}
+
+/* ポップアップ内のボタンサイズを統一する */
+.modal-button-area button {
+	min-width: 130px;
+	min-height: 42px;
+}
+
+/* 詳細画面の有効化ボタン：無効化ボタンの緑版 */
+.valid-delete-btn {
+	background: #dcfce7;
+	color: #166534;
+}
+
+.valid-delete-btn:hover {
+	background: #bbf7d0;
+}
+
+/* ポップアップ内の有効化ボタン */
+.valid-modal-btn {
+	border: none;
+	padding: 14px 28px;
+	border-radius: 10px;
+	font-size: 15px;
+	font-weight: bold;
+	cursor: pointer;
+	min-width: 160px;
+	min-height: 42px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	white-space: nowrap;
+	text-decoration: none;
+	background: #22c55e;
+	color: #ffffff;
+}
+
+.valid-modal-btn:hover {
+	background: #16a34a;
+}
+
+/* ポップアップ内のボタン配置 */
+.modal-button-area {
+	display: flex;
+	justify-content: center;
+	gap: 12px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.modal-button-area form {
+	margin: 0;
+}
+
+/* 詳細画面の問診票状態変更ボタン */
+.questionnaire-invalid-btn,
+.questionnaire-valid-btn {
+	border: none;
+	padding: 14px 28px;
+	border-radius: 10px;
+	font-size: 15px;
+	font-weight: bold;
+	cursor: pointer;
+	min-width: 160px;
+	min-height: 42px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	white-space: nowrap;
+	text-decoration: none;
+	font-family: inherit;
+}
+
+.questionnaire-invalid-btn {
+	background: #fee2e2;
+	color: #b91c1c;
+}
+
+.questionnaire-invalid-btn:hover {
+	background: #fecaca;
+}
+
+.questionnaire-valid-btn {
+	background: #dcfce7;
+	color: #166534;
+}
+
+.questionnaire-valid-btn:hover {
+	background: #bbf7d0;
+}
+
+/* ポップアップ内のボタン */
+.modal-valid-btn,
+.modal-cancel-btn {
+	border: none;
+	padding: 14px 28px;
+	border-radius: 10px;
+	font-size: 15px;
+	font-weight: bold;
+	cursor: pointer;
+	min-width: 160px;
+	min-height: 42px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	white-space: nowrap;
+	font-family: inherit;
+}
+
+.modal-valid-btn {
+	background: #dcfce7;
+	color: #166534;
+}
+
+.modal-valid-btn:hover {
+	background: #bbf7d0;
+}
+
+.modal-cancel-btn {
+	background: #eef2f7;
+	color: #374151;
+}
+
+.modal-cancel-btn:hover {
+	background: #dce3ec;
+}
+
+.modal-button-area form {
+	margin: 0;
+}

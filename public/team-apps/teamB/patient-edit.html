@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>患者情報編集</title>
+    <link rel="stylesheet" href="./css/patient/patient_update.css">
+</head>
+
+<body>
+
+<header>
+
+    <h1>カルテ・患者管理システム</h1>
+
+    <div class="header-right">
+        <a href="./admin.html" class="header-btn">管理者TOP</a>
+        <a href="#" class="header-btn" onclick="TeamB.logout();return false;">ログアウト</a>
+    </div>
+
+</header>
+
+<div class="container">
+
+    <div class="breadcrumb">
+        管理者TOP ＞ 患者管理 ＞ 患者情報編集
+    </div>
+
+    <form id="editForm" method="post">
+
+        <div class="card">
+
+            <div class="page-title">
+                <h2>患者情報編集</h2>
+            </div>
+
+            <h3 class="section-title">患者基本情報</h3>
+
+            <table class="form-table">
+
+                <tr>
+                    <th>患者ID</th>
+                    <td>
+                        <input type="text" name="patientId" id="patientId" readonly>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>
+                        姓
+                        <span class="required">必須</span>
+                    </th>
+                    <td>
+                        <input type="text" name="lastName" id="lastName" required>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>
+                        名
+                        <span class="required">必須</span>
+                    </th>
+                    <td>
+                        <input type="text" name="firstName" id="firstName" required>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>
+                        生年月日
+                        <span class="required">必須</span>
+                    </th>
+                    <td>
+                        <input type="date" name="birthday" id="birthday" required>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>
+                        性別
+                        <span class="required">必須</span>
+                    </th>
+                    <td>
+                        <select name="gender" id="gender" required>
+                            <option value="">選択してください</option>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                            <option value="その他">その他</option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>住所</th>
+                    <td>
+                        <input type="text" name="address" id="address">
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>
+                        連絡先
+                        <span class="required">必須</span>
+                    </th>
+                    <td>
+
+                        <input type="tel"
+                               name="phoneNumber"
+                               id="phoneNumber"
+                               pattern="[0-9]{10,11}"
+                               title="電話番号はハイフンなしの10～11桁で入力してください"
+                               required>
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>緊急連絡先</th>
+                    <td>
+                        <input type="text" name="emergencyContact" id="emergencyContact">
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>かかりつけ薬局</th>
+                    <td>
+                        <input type="text" name="familyPharmacy" id="familyPharmacy">
+                    </td>
+                </tr>
+
+            </table>
+
+            <div class="button-area">
+
+                <button type="button"
+                        class="reset-btn"
+                        id="backBtn">
+                    戻る
+                </button>
+
+                <button type="submit" class="confirm-btn">
+                    確認画面へ
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<script src="./js/db.js"></script>
+<script>
+TeamB.init().then(() => {
+    TeamB.requireStaff();
+
+    const id = new URLSearchParams(location.search).get("id");
+    const p = id ? TeamB.patient(id) : null;
+
+    if (!p) {
+        document.querySelector(".page-title h2").textContent = "患者が見つかりません。";
+        return;
+    }
+
+    // 既存値を流し込み（連絡先はハイフンなし表示）
+    document.getElementById("patientId").value = p.patientId;
+    document.getElementById("lastName").value = p.lastName || "";
+    document.getElementById("firstName").value = p.firstName || "";
+    document.getElementById("birthday").value = String(p.birthday || "").slice(0, 10);
+    document.getElementById("gender").value = p.gender || "";
+    document.getElementById("address").value = p.address || "";
+    document.getElementById("phoneNumber").value = TeamB.normalizePhone(p.phoneNumber);
+    document.getElementById("emergencyContact").value = p.emergencyContact || "";
+    document.getElementById("familyPharmacy").value = p.familyPharmacy || "";
+
+    document.getElementById("backBtn").addEventListener("click", () => {
+        location.href = "./patient-detail.html?id=" + encodeURIComponent(p.patientId);
+    });
+
+    document.getElementById("editForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const draft = {
+            patientId: p.patientId,
+            lastName: document.getElementById("lastName").value,
+            firstName: document.getElementById("firstName").value,
+            birthday: document.getElementById("birthday").value,
+            gender: document.getElementById("gender").value,
+            address: document.getElementById("address").value,
+            phoneNumber: document.getElementById("phoneNumber").value,
+            emergencyContact: document.getElementById("emergencyContact").value,
+            familyPharmacy: document.getElementById("familyPharmacy").value,
+        };
+        TeamB.setDraft("patient-edit", draft);
+        location.href = "./patient-edit-confirm.html";
+    });
+});
+</script>
+
+</body>
+
+</html>

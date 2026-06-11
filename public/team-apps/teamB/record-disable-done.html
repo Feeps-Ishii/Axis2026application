@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カルテ無効化完了</title>
+    <link rel="stylesheet" href="./css/admin/records/disable-confirm.css">
+</head>
+<body>
+    <header>
+        <h1>カルテ無効化完了</h1>
+        <div class="header-right">
+            <a href="./admin.html" class="header-btn">管理者TOP</a>
+            <a href="javascript:void(0)" class="header-btn" onclick="TeamB.logout()">ログアウト</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="confirm-card" aria-labelledby="doneTitle">
+            <h2 id="doneTitle" class="confirm-title">カルテを無効化しました</h2>
+            <p class="confirm-message">対象カルテID：<span id="v_recordId"></span></p>
+            <div class="button-area">
+                <a class="back-btn" id="backBtn" href="./patient-detail.html">患者一覧へ戻る</a>
+                <a class="header-btn" href="./admin.html">管理者TOPへ戻る</a>
+            </div>
+        </section>
+    </main>
+
+    <script src="./js/db.js"></script>
+    <script>
+        TeamB.init().then(() => {
+            const s = TeamB.requireStaff();
+            if (!s) return;
+
+            const id = new URLSearchParams(location.search).get("id");
+            const view = TeamB.recordView(id);
+            const patientId = view && view.appointment ? view.appointment.patientId : "";
+
+            TeamB.invalidateRecord(id);
+
+            document.getElementById("v_recordId").textContent = id == null ? "" : id;
+            document.getElementById("backBtn").href = "./patient-detail.html?id=" + encodeURIComponent(patientId);
+        });
+    </script>
+</body>
+</html>

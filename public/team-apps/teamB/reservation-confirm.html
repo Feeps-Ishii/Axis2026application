@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予約確認</title>
+    <link rel="stylesheet" href="./css/rsv/user_reservation.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>予約確認</h1>
+        <nav>
+            <a href="./reservationTop.html">
+                予約・問診トップへ戻る
+            </a>
+        </nav>
+    </header>
+
+    <hr>
+
+    <main>
+        <section>
+            <h2>入力内容確認</h2>
+            <p>
+                以下の内容で予約を登録します。内容に誤りがなければ「予約を確定する」ボタンを押してください。
+            </p>
+        </section>
+
+        <section>
+            <h2>予約情報</h2>
+            <table>
+                <tr>
+                    <th>予約区分</th>
+                    <td id="reservationType"></td>
+                </tr>
+                <tr>
+                    <th>氏名</th>
+                    <td id="name"></td>
+                </tr>
+                <tr>
+                    <th>フリガナ</th>
+                    <td id="nameKana"></td>
+                </tr>
+                <tr>
+                    <th>生年月日</th>
+                    <td id="birthday"></td>
+                </tr>
+                <tr>
+                    <th>性別</th>
+                    <td id="gender"></td>
+                </tr>
+                <tr>
+                    <th>住所</th>
+                    <td id="address"></td>
+                </tr>
+                <tr>
+                    <th>電話番号</th>
+                    <td id="phoneNumber"></td>
+                </tr>
+                <tr>
+                    <th>受診科</th>
+                    <td id="departmentName"></td>
+                </tr>
+                <tr>
+                    <th>症状</th>
+                    <td id="symptom"></td>
+                </tr>
+                <tr>
+                    <th>症状詳細</th>
+                    <td id="symptomDetail"></td>
+                </tr>
+                <tr>
+                    <th>保険証</th>
+                    <td id="insurance"></td>
+                </tr>
+                <tr id="vaccinationRow" style="display:none;">
+                    <th>予防接種希望時間</th>
+                    <td id="vaccinationTime"></td>
+                </tr>
+                <tr>
+                    <th>備考</th>
+                    <td id="remarks"></td>
+                </tr>
+            </table>
+        </section>
+
+        <section class="btn-group" style="margin-top: 20px;">
+
+            <div style="display: inline-block;">
+                <button type="button" id="confirmBtn" class="submit-btn">予約を確定する</button>
+            </div>
+
+            <div style="display: block; margin-top: 10px;">
+                <button type="button" id="backBtn" class="back-btn">入力画面へ戻る</button>
+            </div>
+
+        </section>
+    </main>
+
+    <hr>
+
+    <footer>
+        <p>© 2026 さくら野診療所</p>
+    </footer>
+
+    <script src="./js/db.js"></script>
+    <script>
+        TeamB.init().then(() => {
+            const d = TeamB.getDraft("reservation");
+            if (!d) {
+                location.href = "./reservationTop.html";
+                return;
+            }
+
+            const set = (id, v) => { document.getElementById(id).textContent = v; };
+            const deptName = (id) => {
+                const n = Number(id);
+                return n === 1 ? "内科" : (n === 2 ? "小児科" : (n === 3 ? "予防接種" : "その他"));
+            };
+
+            set("reservationType", d.reservationType);
+            set("name", `${d.lastName} ${d.firstName}`);
+            set("nameKana", `${d.lastNameKana} ${d.firstNameKana}`);
+            set("birthday", d.birthday);
+            set("gender", d.gender === "male" ? "男性" : (d.gender === "female" ? "女性" : d.gender));
+            set("address", d.address ? d.address : "（未登録）");
+            set("phoneNumber", d.phoneNumber);
+            set("departmentName", deptName(d.departmentId));
+            set("symptom", d.symptom);
+            set("symptomDetail", d.symptomDetail ? d.symptomDetail : "なし");
+            set("insurance", d.insurance === "linked" ? "連携済み" : "未連携");
+            set("remarks", d.remarks ? d.remarks : "なし");
+
+            if (Number(d.departmentId) === 3) {
+                document.getElementById("vaccinationRow").style.display = "";
+                set("vaccinationTime", d.vaccinationTime);
+            }
+
+            document.getElementById("confirmBtn").addEventListener("click", () => {
+                location.href = "./reservation-complete.html";
+            });
+
+            document.getElementById("backBtn").addEventListener("click", () => {
+                location.href = d.reservationType === "初診"
+                    ? "./reservation-first.html"
+                    : "./reservation-repeat.html";
+            });
+        });
+    </script>
+
+</body>
+
+</html>

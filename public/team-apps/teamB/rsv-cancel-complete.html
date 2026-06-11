@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約キャンセル完了</title>
+	<link rel="stylesheet" href="./css/rsv/reservation_not_complete.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>予約キャンセル完了</h1>
+
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">
+				管理者TOP
+			</a>
+
+			<a href="javascript:void(0)" onclick="TeamB.logout()" class="header-btn">
+				ログアウト
+			</a>
+		</div>
+	</header>
+
+	<div class="container">
+
+		<div class="breadcrumb">
+			管理者TOP ＞ 予約管理 ＞ 予約キャンセル確認 ＞ 予約キャンセル完了
+		</div>
+
+		<div class="complete-card">
+
+			<div class="check-icon">
+				✓
+			</div>
+
+			<div class="complete-title">
+				予約をキャンセルしました
+			</div>
+
+			<p class="complete-message">
+				対象の予約キャンセルが完了しました。<br>
+				必要に応じて患者様へキャンセル内容をご案内してください。
+			</p>
+
+			<div class="summary-box">
+
+				<div class="summary-row">
+					<div class="summary-label">
+						予約ID
+					</div>
+
+					<div class="summary-value" id="appointmentId"></div>
+				</div>
+
+				<div class="summary-row">
+					<div class="summary-label">
+						患者ID
+					</div>
+
+					<div class="summary-value" id="patientId"></div>
+				</div>
+
+				<div class="summary-row">
+					<div class="summary-label">
+						診療科ID
+					</div>
+
+					<div class="summary-value" id="departmentId"></div>
+				</div>
+
+				<div class="summary-row">
+					<div class="summary-label">
+						予約日
+					</div>
+
+					<div class="summary-value" id="appointmentDate"></div>
+				</div>
+
+				<div class="summary-row">
+					<div class="summary-label">
+						予約時間
+					</div>
+
+					<div class="summary-value" id="appointmentTime"></div>
+				</div>
+
+				<div class="summary-row">
+					<div class="summary-label">
+						予約区分
+					</div>
+
+					<div class="summary-value" id="reservationType"></div>
+				</div>
+
+				<div class="summary-row">
+					<div class="summary-label">
+						予約方法
+					</div>
+
+					<div class="summary-value" id="reservationMethod"></div>
+				</div>
+
+				<div class="summary-row">
+					<div class="summary-label">
+						状態
+					</div>
+
+					<div class="summary-value">
+						<span class="status-cancel">
+							キャンセル済み
+						</span>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="notice-box">
+				※ キャンセル済みの予約は通常の受付対象から外れます。<br>
+				※ 必要に応じて患者様へ予約キャンセル内容をご案内してください。<br>
+				※ 操作履歴はシステム内部に保持される場合があります。
+			</div>
+
+			<div class="button-area">
+
+				<button class="list-btn" type="button" onclick="location.href='./rsv-today.html'">
+					本日の予約一覧へ
+				</button>
+
+				<button class="top-btn" type="button" onclick="location.href='./admin.html'">
+					管理者TOPへ
+				</button>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			if (!TeamB.requireStaff()) return;
+
+			const params = new URLSearchParams(location.search);
+			const appointmentId = params.get("appointmentId");
+			if (!appointmentId) {
+				location.href = "./rsv-today.html";
+				return;
+			}
+
+			// キャンセル処理を実行（status = 'キャンセル'）
+			TeamB.cancelAppointment(appointmentId);
+			const r = TeamB.appointmentView(appointmentId);
+
+			const setText = (id, val) => {
+				const el = document.getElementById(id);
+				if (el) el.textContent = val == null ? "" : val;
+			};
+			if (r) {
+				setText("appointmentId", r.appointmentId);
+				setText("patientId", r.patientId);
+				setText("departmentId", r.departmentId);
+				setText("appointmentDate", r.appointmentDate);
+				setText("appointmentTime", r.appointmentTime);
+				setText("reservationType", r.reservationType);
+				setText("reservationMethod", r.reservationMethod);
+			}
+		});
+	</script>
+
+</body>
+
+</html>

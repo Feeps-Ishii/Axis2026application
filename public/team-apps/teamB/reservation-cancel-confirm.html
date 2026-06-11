@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約キャンセル確認</title>
+	<link rel="stylesheet" href="./css/rsv/user_reservation.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>予約キャンセル確認</h1>
+		<nav>
+		</nav>
+	</header>
+	<hr>
+
+	<main>
+		<section>
+			<h2>キャンセル内容確認</h2>
+
+			<p id="errorMessage" style="color: red; font-weight: bold; display:none;"></p>
+
+			<p style="color: red; font-weight: bold;">
+				以下の予約をキャンセルします。よろしければ「予約をキャンセルする」ボタンを押してください。
+			</p>
+		</section>
+		<hr>
+
+		<section id="infoSection" style="display:none;">
+			<h2>予約情報</h2>
+			<table border="1">
+				<tr>
+					<th>予約番号</th>
+					<td id="appointmentId"></td>
+				</tr>
+				<tr>
+					<th>予約区分</th>
+					<td id="reservationType"></td>
+				</tr>
+				<tr>
+					<th>氏名</th>
+					<td id="name"></td>
+				</tr>
+				<tr>
+					<th>フリガナ</th>
+					<td id="nameKana"></td>
+				</tr>
+				<tr>
+					<th>生年月日</th>
+					<td id="birthday"></td>
+				</tr>
+				<tr>
+					<th>性別</th>
+					<td id="gender"></td>
+				</tr>
+				<tr>
+					<th>住所</th>
+					<td id="address"></td>
+				</tr>
+				<tr>
+					<th>電話番号</th>
+					<td id="phoneNumber"></td>
+				</tr>
+				<tr>
+					<th>受診科</th>
+					<td id="departmentName"></td>
+				</tr>
+				<tr>
+					<th>症状</th>
+					<td id="symptom"></td>
+				</tr>
+				<tr>
+					<th>症状詳細</th>
+					<td id="symptomDetail"></td>
+				</tr>
+				<tr>
+					<th>マイナ保険証連携</th>
+					<td id="insurance"></td>
+				</tr>
+				<tr>
+					<th>予防接種希望時間</th>
+					<td id="vaccinationTime"></td>
+				</tr>
+			</table>
+		</section>
+		<hr>
+
+		<section class="btn-group" id="btnSection" style="display:none;">
+
+			<div style="display: inline-block;">
+				<button type="button" id="cancelBtn" class="submit-btn"
+					style="background-color: #d9534f; color: white;">予約をキャンセルする</button>
+			</div>
+
+			<div style="display: inline-block; margin-left: 10px; vertical-align: top;">
+				<a href="./reservation-mypage.html" class="menu-btn"
+					style="display: inline-block; padding: 6px 12px; border: 1px solid #ccc; text-decoration: none; color: #333; background-color: #f7f7f7; border-radius: 4px;">
+					キャンセルせずにマイページへ戻る
+				</a>
+			</div>
+
+		</section>
+	</main>
+	<hr>
+
+	<footer>
+		<p>
+			© 2026 さくら野診療所
+		</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			const sess = TeamB.requirePatient();
+			if (!sess) return;
+
+			const params = new URLSearchParams(location.search);
+			let appointmentId = params.get("appointmentId");
+
+			let view = null;
+			if (appointmentId) {
+				view = TeamB.appointmentView(appointmentId);
+				// 本人の予約か確認
+				if (view && Number(view.patientId) !== Number(sess.patientId)) view = null;
+			}
+			if (!view) {
+				// 本人のキャンセル可能な予約を探す
+				const appts = TeamB.appointments()
+					.filter((a) => Number(a.patientId) === Number(sess.patientId) && a.status !== "キャンセル")
+					.map((a) => TeamB.appointmentView(a.appointmentId))
+					.sort((a, b) => String(b.appointmentDate).localeCompare(String(a.appointmentDate)));
+				const today = TeamB.today();
+				view = appts.find((a) => String(a.appointmentDate).slice(0, 10) >= today) || appts[0];
+			}
+
+			if (!view) {
+				const em = document.getElementById("errorMessage");
+				em.textContent = "キャンセルできる予約情報がありません。";
+				em.style.display = "block";
+				return;
+			}
+
+			const p = view.patient;
+			const q = view.questionnaire;
+			const set = (id, v) => { document.getElementById(id).textContent = v; };
+			const genderJp = (g) => (g === "male" || g === "男" ? "男性" : (g === "female" || g === "女" ? "女性" : g || ""));
+			const vacc = view.appointmentTime ? String(view.appointmentTime).slice(0, 5) : "なし";
+			const insurance = q ? (q.useMynaInsurance === "利用する" || q.useMynaInsurance === "連携済み" ? "連携済み" : "未連携") : "未連携";
+
+			set("appointmentId", view.appointmentId);
+			set("reservationType", view.reservationType || "");
+			set("name", `${p.lastName || ""} ${p.firstName || ""}`.trim());
+			set("nameKana", `${p.lastNameKana || ""} ${p.firstNameKana || ""}`.trim());
+			set("birthday", TeamB.fmtDate(p.birthday));
+			set("gender", genderJp(p.gender));
+			set("address", p.address ? p.address : "（未登録）");
+			set("phoneNumber", p.phoneNumber || "");
+			set("departmentName", view.departmentName ? view.departmentName : "（未登録）");
+			set("symptom", q ? (q.symptomNames || q.symptomDetail || "") : (view.reason || ""));
+			set("symptomDetail", q ? (q.symptomDetail || "なし") : "なし");
+			set("insurance", insurance);
+			set("vaccinationTime", vacc);
+
+			document.getElementById("infoSection").style.display = "";
+			document.getElementById("btnSection").style.display = "";
+
+			document.getElementById("cancelBtn").addEventListener("click", () => {
+				location.href = "./reservation-cancel-complete.html?appointmentId=" + view.appointmentId;
+			});
+		});
+	</script>
+
+</body>
+
+</html>

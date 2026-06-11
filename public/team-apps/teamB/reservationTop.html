@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<link rel="stylesheet" href="./css/rsv/style.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約・問診トップページ</title>
+</head>
+
+<body>
+
+	<!-- ヘッダー -->
+	<header>
+
+		<h1>予約・問診トップページ</h1>
+
+		<nav>
+			<a href="./index.html">
+				診療所トップページへ戻る
+			</a>
+		</nav>
+
+	</header>
+
+	<hr>
+
+	<main>
+
+		<!-- 予約機能 -->
+		<section>
+
+			<p
+				style="font-size: 1.1em; font-weight: bold; margin-bottom: 40px; background-color: #f9f9f9; padding: 10px; border-left: 5px solid #d9534f;">
+				現在の待ち人数は
+				<span id="humannum" style="color: #d9534f; font-size: 1.4em;">
+
+				</span>
+				人です。
+
+				<br><br>
+
+				現在のおおよそのご案内時刻は
+				<span id="estimatedTime" style="color: #0275d8; font-size: 1.4em;">
+
+				</span>
+				頃です。
+			</p>
+
+			<h2>オンライン予約</h2>
+
+			<ul>
+
+				<li>
+					<a href="./reservation-first.html">
+						初診予約
+					</a>
+				</li>
+
+				<li>
+					<a href="./reservation-repeat.html">
+						再診予約
+					</a>
+				</li>
+
+				<li>
+					<a href="./reservationAuth.html">
+						予約者マイページ
+					</a>
+				</li>
+
+			</ul>
+
+		</section>
+
+		<hr>
+
+		<hr>
+
+		<!-- 注意事項 -->
+		<section>
+
+			<h2>ご利用案内</h2>
+
+			<ul>
+
+				<li>
+					Web受付時間は 7:00 ～ 18:00 です。
+				</li>
+
+				<li>
+					発熱症状のある方は来院前にWeb問診票の入力をお願いいたします。
+				</li>
+
+				<li>
+					予防接種予約は承認制です。
+				</li>
+
+				<li>
+					当日以外の予約はできません。
+				</li>
+
+			</ul>
+
+		</section>
+
+	</main>
+
+	<hr>
+
+	<!-- フッター -->
+	<footer>
+
+		<p>
+			© 2026 さくら野診療所
+		</p>
+
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			const w = TeamB.waitInfo();
+			document.getElementById("humannum").textContent = w.humannum;
+			document.getElementById("estimatedTime").textContent = w.estimatedTime;
+		});
+	</script>
+
+</body>
+
+</html>

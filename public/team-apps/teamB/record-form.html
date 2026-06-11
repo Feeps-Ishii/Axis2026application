@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">カルテ登録</title>
+    <link rel="stylesheet" href="./css/admin/records/form.css">
+</head>
+<body>
+    <header>
+        <h1>カルテ・患者管理システム</h1>
+        <div class="header-right">
+            <a href="./admin.html" class="header-btn">管理者TOP</a>
+            <a href="javascript:void(0)" class="header-btn" onclick="TeamB.logout()">ログアウト</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <nav class="breadcrumb" id="breadcrumb" aria-label="パンくずリスト">管理者TOP ＞ 患者管理 ＞ カルテ登録</nav>
+
+        <form id="recordForm">
+            <section class="card" aria-labelledby="recordFormTitle">
+                <div class="page-title">
+                    <h2 id="recordFormTitle">カルテ登録</h2>
+                </div>
+
+                <section aria-labelledby="requiredTitle">
+                    <h3 id="requiredTitle" class="section-title">基本情報</h3>
+                    <table class="form-table">
+                        <tr>
+                            <th><label for="appointmentId">予約ID<span class="required">必須</span></label></th>
+                            <td>
+                                <input id="appointmentId" type="number" name="appointmentId" placeholder="例：1" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label for="chiefComplaint">主訴<span class="required">必須</span></label></th>
+                            <td>
+                                <textarea id="chiefComplaint" name="chiefComplaint" placeholder="来院理由・主な症状を入力" required></textarea>
+                            </td>
+                        </tr>
+                        <tr><th><label for="presentIllness">現病歴</label></th><td><textarea id="presentIllness" name="presentIllness" placeholder="症状の経過を入力"></textarea></td></tr>
+                        <tr><th><label for="triggerFactor">誘因</label></th><td><textarea id="triggerFactor" name="triggerFactor" placeholder="症状のきっかけを入力"></textarea></td></tr>
+                    </table>
+                </section>
+
+                <section aria-labelledby="vitalFormTitle">
+                    <h3 id="vitalFormTitle" class="section-title">診察所見</h3>
+                    <table class="form-table">
+                        <tr><th><label for="bodyTemperature">体温</label></th><td><input id="bodyTemperature" type="number" step="0.1" name="bodyTemperature" placeholder="例：37.5"> ℃</td></tr>
+                        <tr><th><label for="systolicBp">血圧</label></th><td><input id="systolicBp" type="number" name="systolicBp" placeholder="収縮期"> / <input id="diastolicBp" type="number" name="diastolicBp" placeholder="拡張期"> mmHg</td></tr>
+                        <tr><th><label for="pulse">脈拍</label></th><td><input id="pulse" type="number" name="pulse" placeholder="例：80"> 回/分</td></tr>
+                        <tr><th><label for="spo2">SpO2</label></th><td><input id="spo2" type="number" name="spo2" placeholder="例：98"> %</td></tr>
+                        <tr><th><label for="physicalExam">身体所見</label></th><td><textarea id="physicalExam" name="physicalExam" placeholder="身体所見を入力"></textarea></td></tr>
+                        <tr><th><label for="neurologicalExam">神経学的所見</label></th><td><textarea id="neurologicalExam" name="neurologicalExam" placeholder="神経学的所見を入力"></textarea></td></tr>
+                    </table>
+                </section>
+
+                <section aria-labelledby="testFormTitle">
+                    <h3 id="testFormTitle" class="section-title">検査・診断・処方</h3>
+                    <table class="form-table">
+                        <tr><th><label for="bloodTest">血液検査</label></th><td><textarea id="bloodTest" name="bloodTest"></textarea></td></tr>
+                        <tr><th><label for="urineTest">尿検査</label></th><td><textarea id="urineTest" name="urineTest"></textarea></td></tr>
+                        <tr><th><label for="ecg">心電図</label></th><td><textarea id="ecg" name="ecg"></textarea></td></tr>
+                        <tr><th><label for="xray">レントゲン</label></th><td><textarea id="xray" name="xray"></textarea></td></tr>
+                        <tr><th><label for="diagnosis">診断名</label></th><td><input id="diagnosis" type="text" name="diagnosis" placeholder="例：急性上気道炎"></td></tr>
+                        <tr><th><label for="icd10Code">ICD-10コード</label></th><td><input id="icd10Code" type="text" name="icd10Code" placeholder="例：J06.9"></td></tr>
+                        <tr><th><label for="prescription">処方薬</label></th><td><textarea id="prescription" name="prescription"></textarea></td></tr>
+                        <tr><th><label for="treatment">処置</label></th><td><textarea id="treatment" name="treatment"></textarea></td></tr>
+                        <tr><th><label for="nextVisitDate">次回来院予定日</label></th><td><input id="nextVisitDate" type="date" name="nextVisitDate"></td></tr>
+                        <tr><th><label for="doctorMemo">医師メモ</label></th><td><textarea id="doctorMemo" name="doctorMemo"></textarea></td></tr>
+                        <tr><th><label for="memo">備考</label></th><td><textarea id="memo" name="memo"></textarea></td></tr>
+                    </table>
+                </section>
+
+                <div class="button-area">
+                    <a class="back-btn" id="backBtn" href="./admin.html">戻る</a>
+                    <button type="button" id="confirmBtn" class="submit-btn">確認へ</button>
+                </div>
+            </section>
+        </form>
+    </main>
+
+    <script src="./js/db.js"></script>
+    <script>
+        TeamB.init().then(() => {
+            const s = TeamB.requireStaff();
+            if (!s) return;
+
+            const params = new URLSearchParams(location.search);
+            const appointmentIdParam = params.get("appointmentId");
+            const recordIdParam = params.get("recordId");
+            const mode = recordIdParam ? "edit" : "register";
+
+            const fields = ["appointmentId", "chiefComplaint", "presentIllness", "triggerFactor",
+                "bodyTemperature", "systolicBp", "diastolicBp", "pulse", "spo2", "physicalExam",
+                "neurologicalExam", "bloodTest", "urineTest", "ecg", "xray", "diagnosis",
+                "icd10Code", "prescription", "treatment", "nextVisitDate", "doctorMemo", "memo"];
+
+            const titleText = mode === "edit" ? "カルテ編集" : "カルテ登録";
+            document.getElementById("pageTitle").textContent = titleText;
+            document.getElementById("recordFormTitle").textContent = titleText;
+            document.getElementById("breadcrumb").textContent =
+                mode === "edit" ? "管理者TOP ＞ 患者管理 ＞ カルテ編集" : "管理者TOP ＞ 患者管理 ＞ カルテ登録";
+
+            function setVal(id, v) { document.getElementById(id).value = (v === null || v === undefined) ? "" : v; }
+
+            // 既存draftがあれば復元（戻る/修正する対応）
+            const existingDraft = TeamB.getDraft("record");
+            let recordId = recordIdParam || null;
+
+            if (existingDraft && existingDraft.mode === mode &&
+                String(existingDraft.recordId || "") === String(recordIdParam || "") &&
+                String(existingDraft.appointmentId || "") === String(appointmentIdParam || existingDraft.appointmentId || "")) {
+                fields.forEach((f) => setVal(f, existingDraft[f]));
+                if (existingDraft.recordId) recordId = existingDraft.recordId;
+            } else if (mode === "edit") {
+                const r = TeamB.record(recordIdParam);
+                if (!r) { alert("対象のカルテが見つかりません。"); location.href = "./admin.html"; return; }
+                fields.forEach((f) => setVal(f, r[f]));
+                document.getElementById("backBtn").href = "./record-detail.html?id=" + encodeURIComponent(recordIdParam);
+            } else {
+                // 新規：予約IDを流し込み
+                if (appointmentIdParam) {
+                    setVal("appointmentId", appointmentIdParam);
+                    const av = TeamB.appointmentView(appointmentIdParam);
+                    if (av) {
+                        document.getElementById("backBtn").href = "./patient-detail.html?id=" + encodeURIComponent(av.patientId);
+                    }
+                }
+            }
+
+            document.getElementById("confirmBtn").addEventListener("click", () => {
+                const form = document.getElementById("recordForm");
+                if (!form.reportValidity()) return;
+                const draft = { mode: mode };
+                if (recordId) draft.recordId = recordId;
+                fields.forEach((f) => {
+                    const v = document.getElementById(f).value;
+                    draft[f] = v === "" ? null : v;
+                });
+                TeamB.setDraft("record", draft);
+                location.href = "./record-confirm.html";
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>患者情報編集確認</title>
+    <link rel="stylesheet" href="./css/patient/patient_update_check.css">
+</head>
+
+<body>
+
+<header>
+
+    <h1>カルテ・患者管理システム</h1>
+
+    <div class="header-right">
+        <a href="./admin.html" class="header-btn">管理者TOP</a>
+        <a href="#" class="header-btn" onclick="TeamB.logout();return false;">ログアウト</a>
+    </div>
+
+</header>
+
+<div class="container">
+
+    <div class="breadcrumb">
+        管理者TOP ＞ 患者管理 ＞ 患者情報編集確認
+    </div>
+
+    <div class="card">
+
+        <div class="page-title">
+            <h2>患者情報編集確認</h2>
+        </div>
+
+        <div class="message-box">
+            以下の内容で患者情報を更新します。<br>
+            内容に誤りがないか確認してください。
+        </div>
+
+        <h3 class="section-title">患者基本情報</h3>
+
+        <table class="confirm-table">
+
+            <tr>
+                <th>患者ID</th>
+                <td id="v_patientId"></td>
+            </tr>
+
+            <tr>
+                <th>姓</th>
+                <td id="v_lastName"></td>
+            </tr>
+
+            <tr>
+                <th>名</th>
+                <td id="v_firstName"></td>
+            </tr>
+
+            <tr>
+                <th>生年月日</th>
+                <td id="v_birthday"></td>
+            </tr>
+
+            <tr>
+                <th>性別</th>
+                <td id="v_gender"></td>
+            </tr>
+
+            <tr>
+                <th>住所</th>
+                <td id="v_address"></td>
+            </tr>
+
+            <tr>
+                <th>連絡先</th>
+                <td id="v_phoneNumber"></td>
+            </tr>
+
+            <tr>
+                <th>緊急連絡先</th>
+                <td id="v_emergencyContact"></td>
+            </tr>
+
+            <tr>
+                <th>かかりつけ薬局</th>
+                <td id="v_familyPharmacy"></td>
+            </tr>
+
+        </table>
+
+        <div class="button-area">
+
+            <button type="button"
+                    class="edit-btn"
+                    onclick="history.back()">
+                戻る
+            </button>
+
+            <button type="button" class="submit-btn" id="submitBtn">
+                更新する
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="./js/db.js"></script>
+<script>
+TeamB.init().then(() => {
+    TeamB.requireStaff();
+
+    const draft = TeamB.getDraft("patient-edit");
+    if (!draft) {
+        location.href = "./patient-list.html";
+        return;
+    }
+
+    const E = TeamB.esc;
+    const orig = TeamB.patient(draft.patientId) || {};
+
+    // 比較用に元値を整形（連絡先はハイフンなしで突き合わせ）
+    const oldValues = {
+        lastName: orig.lastName,
+        firstName: orig.firstName,
+        birthday: String(orig.birthday || "").slice(0, 10),
+        gender: orig.gender,
+        address: orig.address,
+        phoneNumber: TeamB.normalizePhone(orig.phoneNumber),
+        emergencyContact: orig.emergencyContact,
+        familyPharmacy: orig.familyPharmacy,
+    };
+    const newValues = {
+        lastName: draft.lastName,
+        firstName: draft.firstName,
+        birthday: String(draft.birthday || "").slice(0, 10),
+        gender: draft.gender,
+        address: draft.address,
+        phoneNumber: TeamB.normalizePhone(draft.phoneNumber),
+        emergencyContact: draft.emergencyContact,
+        familyPharmacy: draft.familyPharmacy,
+    };
+
+    const fields = ["lastName", "firstName", "birthday", "gender", "address", "phoneNumber", "emergencyContact", "familyPharmacy"];
+    const changed = TeamB.getChangedItems(oldValues, newValues, fields);
+
+    function setCell(key, value, comparable) {
+        const td = document.getElementById("v_" + key);
+        td.innerHTML = E(value);
+        if (comparable && changed[key]) {
+            td.style.backgroundColor = "#fff3cd";
+            td.style.fontWeight = "bold";
+        }
+    }
+
+    setCell("patientId", draft.patientId, false);
+    setCell("lastName", draft.lastName, true);
+    setCell("firstName", draft.firstName, true);
+    setCell("birthday", draft.birthday, true);
+    setCell("gender", draft.gender, true);
+    setCell("address", draft.address, true);
+    setCell("phoneNumber", draft.phoneNumber, true);
+    setCell("emergencyContact", draft.emergencyContact, true);
+    setCell("familyPharmacy", draft.familyPharmacy, true);
+
+    document.getElementById("submitBtn").addEventListener("click", () => {
+        location.href = "./patient-edit-complete.html";
+    });
+});
+</script>
+
+</body>
+
+</html>

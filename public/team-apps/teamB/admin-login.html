@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理者ログイン</title>
+    <link rel="stylesheet" href="./css/admin/style.css">
+</head>
+<body>
+<header>
+    <h1>管理者ログイン</h1>
+</header>
+<main>
+    <section aria-labelledby="loginTitle">
+        <h2 id="loginTitle">ログイン</h2>
+        <p id="errorMessage" style="color:red; display:none;"></p>
+        <form id="loginForm" method="post">
+            <div>
+                <label for="email">メールアドレス</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="password">パスワード</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">ログイン</button>
+        </form>
+    </section>
+</main>
+
+<script src="./js/db.js"></script>
+<script>
+    TeamB.init().then(() => {
+        const form = document.getElementById("loginForm");
+        const errBox = document.getElementById("errorMessage");
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const staff = TeamB.staffLogin(email, password);
+            if (!staff) {
+                errBox.textContent = "メールアドレスまたはパスワードが違います";
+                errBox.style.display = "";
+                return;
+            }
+            TeamB.setStaffSession(staff);
+            location.href = "./admin.html";
+        });
+    });
+</script>
+</body>
+</html>

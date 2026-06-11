@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>患者情報一覧</title>
+    <link rel="stylesheet" href="./css/patient/patient.css">
+</head>
+
+<body>
+
+<header>
+    <h1>カルテ・患者管理システム</h1>
+
+    <div class="header-right">
+        <a href="./admin.html" class="header-btn">管理者TOP</a>
+        <a href="#" class="header-btn" onclick="TeamB.logout();return false;">ログアウト</a>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="breadcrumb">
+        管理者TOP ＞ 患者管理 ＞ 患者情報一覧
+    </div>
+
+    <div class="card">
+
+        <h2 class="section-title">検索条件</h2>
+
+        <form id="searchForm" method="get">
+
+            <div class="search-grid">
+
+                <div class="form-group">
+                    <label>患者名</label>
+                    <input type="text"
+                           name="patientName"
+                           id="patientName"
+                           placeholder="患者名を入力">
+                </div>
+
+                <div class="form-group">
+                    <label>診察券番号</label>
+                    <input type="text"
+                           name="cardNumber"
+                           id="cardNumber"
+                           placeholder="診察券番号">
+                </div>
+
+                <div class="form-group">
+                    <label>性別</label>
+                    <select name="gender" id="gender">
+                        <option value="">すべて</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>状態</label>
+                    <select name="status" id="status">
+                        <option value="">すべて</option>
+                        <option value="有効">有効</option>
+                        <option value="無効">無効</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="search-btn-area">
+                <button type="button"
+                        class="clear-btn"
+                        id="clearBtn">
+                    条件クリア
+                </button>
+
+                <button type="submit" class="search-btn">
+                    検索
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="card">
+
+        <div class="list-title-area">
+            <h2 class="section-title">患者一覧</h2>
+        </div>
+
+        <div class="table-wrap">
+
+            <table>
+                <tr>
+                    <th>患者ID</th>
+                    <th>患者名</th>
+                    <th>性別</th>
+                    <th>生年月日</th>
+                    <th>電話番号</th>
+                    <th>診察券番号</th>
+                    <th>最終来院日</th>
+                    <th>状態</th>
+                    <th>詳細</th>
+                </tr>
+
+                <tbody id="listBody"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="./js/db.js"></script>
+<script>
+TeamB.init().then(() => {
+    TeamB.requireStaff();
+
+    const qs = new URLSearchParams(location.search);
+    const params = {
+        patientName: qs.get("patientName") || "",
+        cardNumber: qs.get("cardNumber") || "",
+        gender: qs.get("gender") || "",
+        status: qs.get("status") || "",
+    };
+
+    // フォームへ反映
+    document.getElementById("patientName").value = params.patientName;
+    document.getElementById("cardNumber").value = params.cardNumber;
+    document.getElementById("gender").value = params.gender;
+    document.getElementById("status").value = params.status;
+
+    // 状態未指定／有効 → invalid_flag=true は除外。無効 → 無効のみ。
+    const includeInvalid = params.status === "無効" || params.status === "";
+    let list = TeamB.patientList({ gender: params.gender, includeInvalid: includeInvalid });
+
+    // 原本は患者名と診察券番号が別項目なので、各々を別途突き合わせる。
+    if (params.patientName) {
+        list = list.filter((p) =>
+            `${p.lastName}${p.firstName}${p.lastNameKana}${p.firstNameKana}`.includes(params.patientName));
+    }
+    if (params.cardNumber) {
+        list = list.filter((p) => String(p.cardNumber).includes(params.cardNumber));
+    }
+    if (params.status === "有効") {
+        list = list.filter((p) => p.invalidFlag !== true);
+    } else if (params.status === "無効") {
+        list = list.filter((p) => p.invalidFlag === true);
+    }
+
+    // 最終来院日（その患者の予約の中で最も新しい日付）
+    const appts = TeamB.appointments();
+    function lastVisit(patientId) {
+        const ds = appts
+            .filter((a) => Number(a.patientId) === Number(patientId))
+            .map((a) => String(a.appointmentDate).slice(0, 10))
+            .sort();
+        return ds.length ? ds[ds.length - 1] : null;
+    }
+
+    const body = document.getElementById("listBody");
+    if (!list.length) {
+        body.innerHTML = '<tr><td colspan="9">該当する患者情報はありません。</td></tr>';
+    } else {
+        body.innerHTML = list.map((p) => {
+            const status = p.invalidFlag === true ? "無効" : "有効";
+            const statusClass = p.invalidFlag === true ? "inactive" : "active";
+            const lv = lastVisit(p.patientId);
+            return `<tr>
+                <td>${TeamB.esc(p.patientId)}</td>
+                <td>${TeamB.esc(p.lastName + " " + p.firstName)}</td>
+                <td>${TeamB.esc(p.gender)}</td>
+                <td>${TeamB.esc(p.birthday)}</td>
+                <td>${TeamB.esc(p.phoneNumber)}</td>
+                <td>${TeamB.esc(p.cardNumber)}</td>
+                <td>${lv ? TeamB.esc(lv) : "来院履歴なし"}</td>
+                <td><span class="status ${statusClass}">${TeamB.esc(status)}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <a class="detail-btn" href="./patient-detail.html?id=${encodeURIComponent(p.patientId)}">患者詳細</a>
+                    </div>
+                </td>
+            </tr>`;
+        }).join("");
+    }
+
+    document.getElementById("searchForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const sp = new URLSearchParams();
+        const pn = document.getElementById("patientName").value.trim();
+        const cn = document.getElementById("cardNumber").value.trim();
+        const g = document.getElementById("gender").value;
+        const st = document.getElementById("status").value;
+        if (pn) sp.set("patientName", pn);
+        if (cn) sp.set("cardNumber", cn);
+        if (g) sp.set("gender", g);
+        if (st) sp.set("status", st);
+        location.href = "./patient-list.html" + (sp.toString() ? "?" + sp.toString() : "");
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+        location.href = "./patient-list.html";
+    });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<link rel="stylesheet" href="./css/rsv/user_reservation.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約者マイページ認証</title>
+</head>
+
+<body>
+
+	<header>
+		<h1>予約者マイページ認証</h1>
+		<nav>
+			<a href="./reservationTop.html">予約・問診トップへ戻る</a>
+		</nav>
+	</header>
+
+	<hr>
+
+	<main>
+		<section>
+			<h2>本人確認</h2>
+			<p>予約情報を確認するため、以下の情報を入力してください。</p>
+
+			<div id="errorBox" class="error-summary" style="display:none;">
+				<p id="errorMessage" style="color: red; font-weight: bold;"></p>
+			</div>
+
+
+			<form id="authForm" method="post">
+
+				<p>
+					<label for="patientCardNumber">
+						診察券番号<span class="required"
+							style="background-color: #666; color: white; padding: 2px 5px; font-size: 0.8em; margin-left: 5px;">いずれか必須</span>
+					</label>
+				</p>
+				<input type="text" name="patientCardNumber" id="patientCardNumber"
+					placeholder="例：100001" maxlength="20">
+
+				<br>
+				<br>
+
+				<p>
+					<label for="phoneNumber">
+						電話番号<span class="required"
+							style="background-color: #666; color: white; padding: 2px 5px; font-size: 0.8em; margin-left: 5px;">いずれか必須</span>
+						<small style="display: block; font-weight: normal; font-size: 0.9em; color: #666;">
+							※初診の方や、診察券番号が不明な方はこちらを入力してください
+						</small>
+					</label>
+				</p>
+				<input type="tel" name="phoneNumber" id="phoneNumber"
+					placeholder="例：090-1234-5678" maxlength="15">
+				<br>
+				<br>
+
+				<p>
+					<label for="patientName">
+						氏名<span class="required"
+							style="background-color: red; color: white; padding: 2px 5px; font-size: 0.8em; margin-left: 5px;">必須</span>
+					</label>
+				</p>
+				<input type="text" name="patientName" id="patientName" placeholder="例：山田太郎"
+					required maxlength="50">
+
+				<br>
+				<br>
+
+				<p>
+					<label for="birthday">
+						生年月日<span class="required"
+							style="background-color: red; color: white; padding: 2px 5px; font-size: 0.8em; margin-left: 5px;">必須</span>
+					</label>
+				</p>
+				<input type="date" name="birthday" id="birthday" required>
+
+				<br>
+				<br>
+
+				<input type="submit" value="マイページへ進む">
+
+			</form>
+
+		</section>
+	</main>
+
+	<hr>
+
+	<footer>
+		<p>© 2026 さくら野診療所</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+
+			document.getElementById("authForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				const f = e.target;
+
+				const cardNumber = f.patientCardNumber.value.trim();
+				const phoneNumber = f.phoneNumber.value.trim();
+				const patientName = f.patientName.value.trim();
+				const birthday = f.birthday.value;
+
+				if (!cardNumber && !phoneNumber) {
+					document.getElementById("errorMessage").textContent = "診察券番号または電話番号のいずれかを入力してください";
+					document.getElementById("errorBox").style.display = "block";
+					return;
+				}
+
+				const form = { patientName, birthday };
+				if (cardNumber) form.cardNumber = cardNumber;
+				if (phoneNumber) form.phoneNumber = phoneNumber;
+
+				const patient = TeamB.patientAuth(form);
+
+				if (!patient) {
+					document.getElementById("errorMessage").textContent = "認証情報が一致しません";
+					document.getElementById("errorBox").style.display = "block";
+					return;
+				}
+
+				TeamB.setPatientSession(patient);
+				location.href = "./reservation-mypage.html";
+			});
+
+		});
+	</script>
+
+</body>
+
+</html>

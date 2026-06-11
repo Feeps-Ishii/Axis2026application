@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>問診票詳細</title>
+	<link rel="stylesheet" href="./css/admin-questionnaire.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>問診票詳細</h1>
+
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">管理者TOP</a>
+			<a href="javascript:void(0)" class="header-btn" onclick="TeamB.logout()">ログアウト</a>
+		</div>
+	</header>
+
+	<div class="container">
+
+		<div class="breadcrumb">
+			<a href="./admin.html">管理者TOP</a>
+			<span> ＞ </span>
+			<a id="bcList" href="./q-admin-list.html">問診票一覧</a>
+			<span> ＞ </span>
+			<span>問診票詳細</span>
+		</div>
+
+		<div class="card">
+
+			<div class="card">
+
+				<div class="section">
+					<h2 class="section-title">患者情報</h2>
+
+					<div class="table-wrap">
+						<table class="detail-table">
+							<tr><th>患者名</th><td id="v-patientName"></td></tr>
+							<tr><th>診察券番号</th><td id="v-cardNumber"></td></tr>
+							<tr><th>受付番号</th><td id="v-queue"></td></tr>
+						</table>
+					</div>
+				</div>
+
+				<div class="section">
+					<div class="section-header">
+						<h2 class="section-title">問診情報</h2>
+
+						<div class="button-area" id="actionArea"></div>
+					</div>
+
+					<div class="table-wrap">
+						<table class="detail-table">
+							<tr><th>来院日</th><td id="v-visitDate"></td></tr>
+							<tr><th>発症日</th><td id="v-symptomStartDate"></td></tr>
+							<tr><th>症状</th><td id="v-symptomNames"></td></tr>
+							<tr><th>症状の経過</th><td id="v-symptomProgress"></td></tr>
+							<tr><th>症状詳細</th><td id="v-symptomDetail"></td></tr>
+							<tr><th>体温</th><td><span id="v-bodyTemperature"></span>℃</td></tr>
+							<tr><th>海外渡航歴</th><td id="v-hasOverseasTravel"></td></tr>
+							<tr><th>海外渡航先</th><td id="v-overseasTravelPlace"></td></tr>
+							<tr><th>感染症接触歴</th><td id="v-infectionContactStatus"></td></tr>
+							<tr><th>妊娠状態</th><td id="v-pregnancyStatus"></td></tr>
+							<tr><th>お薬手帳</th><td id="v-hasMedicineNotebook"></td></tr>
+							<tr><th>マイナ保険証</th><td id="v-useMynaInsurance"></td></tr>
+							<tr><th>感染症疑い</th><td id="v-infectionFlag"></td></tr>
+							<tr><th>備考</th><td id="v-memo"></td></tr>
+							<tr><th>状態</th><td id="v-invalidFlag"></td></tr>
+						</table>
+					</div>
+				</div>
+
+				<div class="button-area detail-back-area">
+					<a id="backBtn" href="./q-admin-list.html" class="list-back-btn">問診票一覧へ戻る</a>
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<!-- 問診票有効化確認ポップアップ -->
+	<div id="validModal" class="modal-overlay">
+
+		<div class="modal-box">
+
+			<h2>問診票有効化確認</h2>
+
+			<p>この問診票を有効化しますか？</p>
+
+			<div class="modal-button-area">
+
+				<button type="button" id="validConfirmBtn" class="modal-valid-btn">
+					有効化する
+				</button>
+
+				<button type="button" class="modal-cancel-btn" onclick="closeValidModal()">
+					キャンセル
+				</button>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		function openValidModal() {
+			document.getElementById("validModal").classList.add("is-open");
+		}
+		function closeValidModal() {
+			document.getElementById("validModal").classList.remove("is-open");
+		}
+
+		TeamB.init().then(() => {
+			if (!TeamB.requireStaff()) return;
+
+			const params = new URLSearchParams(location.search);
+			const id = Number(params.get("id"));
+			const from = params.get("from") || "";
+
+			const v = TeamB.questionnaireView(id);
+			if (!v) { location.href = "./q-admin-list.html"; return; }
+			const appt = v.appointment || {};
+
+			// 戻り先・パンくず調整
+			if (from === "todayReservation") {
+				document.getElementById("bcList").textContent = "本日の予約一覧";
+				document.getElementById("bcList").href = "./rsv-today.html";
+				document.getElementById("backBtn").textContent = "本日の予約一覧へ戻る";
+				document.getElementById("backBtn").href = "./rsv-today.html";
+			}
+
+			const set = (id2, val) => document.getElementById(id2).textContent = val == null ? "" : val;
+			set("v-patientName", v.patientName);
+			set("v-cardNumber", v.cardNumber);
+			set("v-queue", appt.dailyQueueNumber);
+			set("v-visitDate", v.visitDate);
+			set("v-symptomStartDate", v.symptomStartDate);
+			set("v-symptomNames", (v.symptomList || []).map((s) => s.symptomName).join("、") || (v.symptomNames ? String(v.symptomNames).split(",").join("、") : ""));
+			set("v-symptomProgress", v.symptomProgress);
+			set("v-symptomDetail", v.symptomDetail);
+			set("v-bodyTemperature", v.bodyTemperature);
+			set("v-overseasTravelPlace", v.overseasTravelPlace);
+			set("v-infectionContactStatus", v.infectionContactStatus);
+			set("v-pregnancyStatus", v.pregnancyStatus);
+			set("v-useMynaInsurance", v.useMynaInsurance);
+			set("v-memo", v.memo);
+
+			document.getElementById("v-hasOverseasTravel").innerHTML = v.hasOverseasTravel
+				? '<span class="status-danger">あり</span>' : '<span class="status-normal">なし</span>';
+			document.getElementById("v-hasMedicineNotebook").innerHTML = v.hasMedicineNotebook
+				? '<span class="status-normal">あり</span>' : '<span class="status-danger">なし</span>';
+			document.getElementById("v-infectionFlag").innerHTML = v.infectionFlag
+				? '<span class="status-danger">あり</span>' : '<span class="status-normal">なし</span>';
+			document.getElementById("v-invalidFlag").innerHTML = v.invalidFlag === true
+				? '<span class="status-danger">無効</span>' : '<span class="status-normal">有効</span>';
+
+			const actionArea = document.getElementById("actionArea");
+			if (v.invalidFlag === true) {
+				actionArea.innerHTML = '<button type="button" class="questionnaire-valid-btn" id="openValidBtn">問診票有効化</button>';
+				document.getElementById("openValidBtn").addEventListener("click", openValidModal);
+			} else {
+				actionArea.innerHTML = '<button type="button" class="questionnaire-invalid-btn" id="goInvalidBtn">問診票無効化</button>';
+				document.getElementById("goInvalidBtn").addEventListener("click", () => {
+					location.href = "./q-admin-invalid-confirm.html?id=" + id;
+				});
+			}
+
+			document.getElementById("validConfirmBtn").addEventListener("click", () => {
+				TeamB.updateQuestionnaire(id, { invalidFlag: false });
+				location.reload();
+			});
+		});
+	</script>
+
+</body>
+
+</html>

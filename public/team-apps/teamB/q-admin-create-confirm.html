@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>紙問診票登録確認</title>
+	<link rel="stylesheet" href="./css/admin-questionnaire.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>紙問診票登録確認</h1>
+
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">管理者TOP</a>
+			<a href="javascript:void(0)" class="header-btn" onclick="TeamB.logout()">ログアウト</a>
+		</div>
+	</header>
+
+	<div class="container">
+
+		<div class="breadcrumb">
+			<a href="./admin.html">管理者TOP</a>
+			<span> ＞ </span>
+			<a id="bcList" href="./q-admin-list.html">問診票一覧</a>
+			<span> ＞ </span>
+			<a href="javascript:void(0)" id="bcBack">紙問診票登録</a>
+			<span> ＞ </span>
+			<span>登録確認</span>
+		</div>
+
+		<div class="confirm-card">
+
+			<div class="page-title">
+				<h2>問診票登録確認</h2>
+			</div>
+
+			<div class="message-box">
+				以下の内容で問診票を登録します。<br>
+				内容に誤りがないか確認してください。
+			</div>
+
+			<div class="section">
+				<h2 class="section-title">問診情報</h2>
+
+				<div class="info-grid">
+
+					<div class="info-item">
+						<div class="info-label">来院日</div>
+						<div class="info-value" id="v-visitDate"></div>
+					</div>
+
+					<div class="info-item">
+						<div class="info-label">発症日</div>
+						<div class="info-value" id="v-symptomStartDate"></div>
+					</div>
+
+					<div class="info-item">
+						<div class="info-label">現在の体温</div>
+						<div class="info-value"><span id="v-bodyTemperature"></span> ℃</div>
+					</div>
+
+					<div class="info-item">
+						<div class="info-label">現在の症状</div>
+						<div class="tag-list" id="v-symptomNames"></div>
+					</div>
+
+					<div class="info-item wide">
+						<div class="info-label">症状の経過</div>
+						<div class="info-value" id="v-symptomProgress"></div>
+					</div>
+
+					<div class="info-item wide">
+						<div class="info-label">症状詳細</div>
+						<div class="info-value" id="v-symptomDetail"></div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="section">
+				<h2 class="section-title">感染症確認</h2>
+
+				<div class="info-grid">
+
+					<div class="info-item">
+						<div class="info-label">海外渡航歴</div>
+						<div class="info-value" id="v-hasOverseasTravel"></div>
+					</div>
+
+					<div class="info-item">
+						<div class="info-label">海外渡航先</div>
+						<div class="info-value" id="v-overseasTravelPlace"></div>
+					</div>
+
+					<div class="info-item">
+						<div class="info-label">感染症接触歴</div>
+						<div class="info-value" id="v-infectionContactStatus"></div>
+					</div>
+
+					<div class="info-item">
+						<div class="info-label">妊娠の可能性</div>
+						<div class="info-value" id="v-pregnancyStatus"></div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="section">
+				<h2 class="section-title">保険証・備考</h2>
+
+				<div class="info-grid">
+
+					<div class="info-item">
+						<div class="info-label">お薬手帳</div>
+						<div class="info-value" id="v-hasMedicineNotebook"></div>
+					</div>
+
+					<div class="info-item">
+						<div class="info-label">マイナ保険証利用</div>
+						<div class="info-value" id="v-useMynaInsurance"></div>
+					</div>
+
+					<div class="info-item wide">
+						<div class="info-label">備考</div>
+						<div class="info-value" id="v-memo"></div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="button-area">
+
+				<button type="button" class="back-btn" id="backBtn">
+					入力画面へ戻る
+				</button>
+
+				<button type="button" class="register-btn" id="registerBtn">
+					登録する
+				</button>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			if (!TeamB.requireStaff()) return;
+
+			const d = TeamB.getDraft("q-admin");
+			if (!d) { location.href = "./q-admin-list.html"; return; }
+
+			const from = d.from || "questionnaireList";
+			if (from === "todayReservation") {
+				document.getElementById("bcList").textContent = "本日の予約一覧";
+				document.getElementById("bcList").href = "./rsv-today.html";
+			}
+
+			const set = (id, v) => document.getElementById(id).textContent = v == null ? "" : v;
+			set("v-visitDate", d.visitDate);
+			set("v-symptomStartDate", d.symptomStartDate);
+			set("v-bodyTemperature", d.bodyTemperature);
+			set("v-symptomProgress", d.symptomProgress);
+			set("v-symptomDetail", d.symptomDetail);
+			set("v-hasOverseasTravel", d.hasOverseasTravel ? "あり" : "なし");
+			set("v-overseasTravelPlace", d.overseasTravelPlace);
+			set("v-infectionContactStatus", d.infectionContactStatus);
+			set("v-pregnancyStatus", d.pregnancyStatus);
+			set("v-hasMedicineNotebook", d.hasMedicineNotebook ? "あり" : "なし");
+			set("v-useMynaInsurance", d.useMynaInsurance);
+			set("v-memo", d.memo);
+
+			document.getElementById("v-symptomNames").innerHTML =
+				(d.symptomNames || []).map((nm) => `<span class="tag">${TeamB.esc(nm)}</span>`).join("");
+
+			const backUrl = "./q-admin-create.html?from=" + from +
+				(d.appointmentId != null ? "&appointmentId=" + d.appointmentId : "");
+			document.getElementById("backBtn").addEventListener("click", () => { location.href = backUrl; });
+			document.getElementById("bcBack").addEventListener("click", () => { location.href = backUrl; });
+
+			document.getElementById("registerBtn").addEventListener("click", () => {
+				location.href = "./q-admin-create-complete.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

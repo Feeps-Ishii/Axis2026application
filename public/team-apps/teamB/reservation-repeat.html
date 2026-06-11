@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>再診予約入力</title>
+	<link rel="stylesheet" href="./css/rsv/user_reservation.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>再診予約入力</h1>
+
+		<nav>
+			<a href="./reservationTop.html">
+				予約・問診トップへ戻る
+			</a>
+		</nav>
+	</header>
+
+	<hr>
+
+	<main>
+
+		<section>
+
+			<h2>予約情報入力</h2>
+
+			<div id="errorBox" class="error-summary" style="display:none;">
+				<p id="errorMessage" style="color: red; font-weight: bold;"></p>
+			</div>
+
+			<form id="reservationForm" method="post">
+
+
+				<input type="hidden" name="reservationType" value="再診">
+
+				<p>
+					<label for="cardNumber">
+						診察券番号<span class="required">必須</span>
+					</label>
+				</p>
+
+				<input type="text" id="cardNumber" name="cardNumber" placeholder="例：100001" required
+					maxlength="20">
+
+				<br><br>
+
+				<p>
+					<label for="lastName">
+						姓<span class="required">必須</span>
+					</label>
+					<input type="text" id="lastName" name="lastName" required maxlength="50">
+
+					<label for="firstName">
+						名<span class="required">必須</span>
+					</label>
+					<input type="text" id="firstName" name="firstName" required maxlength="50">
+				</p>
+
+				<br><br>
+
+				<p>
+					<label for="lastNameKana">
+						セイ<span class="required">必須</span>
+					</label>
+					<input type="text" id="lastNameKana" name="lastNameKana" required maxlength="50">
+
+					<label for="firstNameKana">
+						メイ<span class="required">必須</span>
+					</label>
+					<input type="text" id="firstNameKana" name="firstNameKana" required maxlength="50">
+				</p>
+
+				<br><br>
+
+				<p>
+					<label for="birthday">
+						生年月日<span class="required">必須</span>
+					</label>
+				</p>
+
+				<input type="date" id="birthday" name="birthday" required>
+
+				<br><br>
+
+				<p>
+					性別<span class="required">必須</span>
+				</p>
+
+				<input type="radio" id="genderMale" name="gender" value="male" required>
+				<label for="genderMale">男性</label>
+
+				<input type="radio" id="genderFemale" name="gender" value="female">
+				<label for="genderFemale">女性</label>
+
+				<br><br>
+
+				<p>
+					<label for="departmentId">
+						受診科<span class="required">必須</span>
+					</label>
+				</p>
+
+				<select id="departmentId" name="departmentId" required>
+
+					<option value="">
+						選択してください
+					</option>
+
+				</select>
+
+				<br><br>
+
+				<p>
+					<label for="symptom">
+						症状<span class="required">必須</span>
+					</label>
+				</p>
+
+				<select id="symptom" name="symptom" required>
+
+					<option value="">
+						選択してください
+					</option>
+
+					<option value="発熱">
+						発熱
+					</option>
+
+					<option value="咳">
+						咳
+					</option>
+
+					<option value="頭痛">
+						頭痛
+					</option>
+
+					<option value="腹痛">
+						腹痛
+					</option>
+
+					<option value="その他">
+						その他
+					</option>
+
+				</select>
+
+				<br><br>
+
+				<p>
+					<label for="symptomDetail">
+						症状詳細
+					</label>
+				</p>
+
+				<textarea id="symptomDetail" name="symptomDetail" rows="5" cols="40" maxlength="500"></textarea>
+
+				<br><br>
+
+				<p>
+					マイナ保険証連携<span class="required">必須</span>
+				</p>
+
+				<input type="radio" id="insuranceLinked" name="insurance" value="linked" required>
+				<label for="insuranceLinked">連携済み</label>
+
+				<input type="radio" id="insuranceNotLinked" name="insurance" value="notLinked">
+				<label for="insuranceNotLinked">未連携</label>
+
+				<br><br>
+
+				<p>
+					<label for="vaccinationTime">
+						予防接種希望時間
+					</label>
+				</p>
+
+				<select id="vaccinationTime" name="vaccinationTime">
+
+					<option value="">
+						選択してください
+					</option>
+
+					<option value="09:00">09:00</option>
+					<option value="10:00">10:00</option>
+					<option value="11:00">11:00</option>
+					<option value="15:00">15:00</option>
+					<option value="16:00">16:00</option>
+					<option value="17:00">17:00</option>
+
+				</select>
+
+				<br><br>
+
+				<p>
+					<label for="remarks">
+						備考
+					</label>
+				</p>
+
+				<textarea id="remarks" name="remarks" rows="4" cols="40" maxlength="500"></textarea>
+
+				<br><br>
+
+				<input type="submit" value="予約確認へ進む">
+
+			</form>
+
+		</section>
+
+	</main>
+
+	<hr>
+	<footer>
+		<p>© 2026 さくら野診療所</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+
+			const sel = document.getElementById("departmentId");
+			TeamB.activeDepartments().forEach((d) => {
+				const o = document.createElement("option");
+				o.value = d.departmentId;
+				o.textContent = d.departmentName;
+				sel.appendChild(o);
+			});
+
+			function genderToCode(g) {
+				if (g === "男" || g === "male") return "male";
+				if (g === "女" || g === "female") return "female";
+				return "";
+			}
+
+			document.getElementById("reservationForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				const f = e.target;
+				const card = f.cardNumber.value.trim();
+
+				// 該当患者照会（cardNumber一致・invalid除外）
+				const patient = TeamB.patients().find(
+					(p) => p.invalidFlag !== true && String(p.cardNumber) === card
+				);
+
+				if (!patient) {
+					document.getElementById("errorMessage").textContent = "入力された情報が一致しません。";
+					document.getElementById("errorBox").style.display = "block";
+					return;
+				}
+
+				const gender = (f.querySelector('input[name="gender"]:checked') || {}).value || genderToCode(patient.gender);
+				const insurance = (f.querySelector('input[name="insurance"]:checked') || {}).value || "";
+
+				// 患者情報を引き継いでdraftへ
+				const draft = {
+					reservationType: "再診",
+					reservationMethod: "Web",
+					patientId: patient.patientId,
+					cardNumber: patient.cardNumber,
+					lastName: patient.lastName,
+					firstName: patient.firstName,
+					lastNameKana: patient.lastNameKana,
+					firstNameKana: patient.firstNameKana,
+					birthday: String(patient.birthday).slice(0, 10),
+					gender: gender,
+					address: patient.address,
+					phoneNumber: patient.phoneNumber,
+					departmentId: f.departmentId.value,
+					symptom: f.symptom.value,
+					symptomDetail: f.symptomDetail.value.trim(),
+					insurance: insurance,
+					vaccinationTime: f.vaccinationTime.value,
+					remarks: f.remarks.value.trim(),
+				};
+				TeamB.setDraft("reservation", draft);
+				location.href = "./reservation-confirm.html";
+			});
+
+		});
+	</script>
+
+</body>
+
+</html>

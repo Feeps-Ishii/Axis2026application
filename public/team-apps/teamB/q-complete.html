@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>問診票登録完了</title>
+	<link rel="stylesheet" href="./css/user-questionnaire.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>問診票登録完了</h1>
+		<nav>
+			<a href="./reservation-mypage.html">予約者マイページへ戻る</a>
+		</nav>
+	</header>
+
+	<main>
+
+		<section>
+			<h2>問診票の登録が完了しました</h2>
+			<p>Web問診票の登録が完了しました。</p>
+			<p>ご入力ありがとうございました。</p>
+		</section>
+
+		<section>
+			<h2>登録情報</h2>
+			<table border="1">
+				<tr><th>受付番号</th><td id="v-queue"></td></tr>
+				<tr><th>氏名</th><td id="v-name"></td></tr>
+				<tr><th>診察券番号</th><td id="v-card"></td></tr>
+				<tr><th>来院理由</th><td id="v-reason"></td></tr>
+				<tr><th>症状</th><td id="v-symptoms"></td></tr>
+				<tr><th>体温</th><td><span id="v-temp"></span>℃</td></tr>
+				<tr><th>感染症疑い</th><td id="v-infection"></td></tr>
+				<tr><th>問診票状態</th><td id="v-status"></td></tr>
+			</table>
+		</section>
+
+		<section>
+			<h2>ご案内</h2>
+			<ul>
+				<li>発熱症状のある方は来院時に受付へお声掛けください。</li>
+				<li>来院時は保険証またはマイナ保険証をご持参ください。</li>
+				<li>問診票内容はスタッフ・医師が確認いたします。</li>
+				<li>予約番号を控えたうえでご来院ください。</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>メニュー</h2>
+			<ul class="menu-list">
+				<li><a href="./reservation-mypage.html">予約者マイページへ</a></li>
+				<li><a href="./index.html">診療所トップページへ戻る</a></li>
+			</ul>
+		</section>
+
+	</main>
+
+	<footer>
+		<p>© 2026 さくら野診療所</p>
+	</footer>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			const d = TeamB.getDraft("q-user");
+			if (!d) { location.href = "./reservation-mypage.html"; return; }
+
+			const symptomNames = d.symptomNames || [];
+			// 感染症疑い判定（コントローラ準拠）
+			const infectionFlag =
+				d.hasOverseasTravel === true ||
+				d.infectionContactStatus === "あり" ||
+				symptomNames.includes("発熱");
+
+			// 症状名→症状IDへ変換
+			const symMaster = TeamB.symptoms();
+			const symptomIds = symptomNames
+				.map((nm) => { const s = symMaster.find((x) => x.symptomName === nm); return s ? s.symptomId : null; })
+				.filter((x) => x != null);
+
+			const data = {
+				appointmentId: d.appointmentId,
+				visitDate: d.visitDate,
+				symptomStartDate: d.symptomStartDate,
+				symptomNames: symptomNames.join(","),
+				symptomProgress: d.symptomProgress,
+				symptomDetail: d.symptomDetail,
+				bodyTemperature: d.bodyTemperature,
+				hasOverseasTravel: d.hasOverseasTravel,
+				overseasTravelPlace: d.overseasTravelPlace,
+				infectionContactStatus: d.infectionContactStatus,
+				pregnancyStatus: d.pregnancyStatus,
+				hasMedicineNotebook: d.hasMedicineNotebook,
+				useMynaInsurance: d.useMynaInsurance,
+				memo: d.memo,
+				infectionFlag: infectionFlag,
+				status: "入力済",
+			};
+
+			const saved = TeamB.createQuestionnaire(data, symptomIds);
+			TeamB.clearDraft("q-user");
+
+			const view = TeamB.questionnaireView(saved.questionnaireId);
+			const appt = view ? view.appointment : {};
+			const set = (id, v) => document.getElementById(id).textContent = v == null ? "" : v;
+			set("v-queue", appt.dailyQueueNumber);
+			set("v-name", view ? view.patientName : "");
+			set("v-card", view ? view.cardNumber : "");
+			set("v-reason", appt.reason);
+			set("v-symptoms", symptomNames.join("、"));
+			set("v-temp", saved.bodyTemperature);
+			set("v-infection", infectionFlag ? "あり" : "なし");
+			set("v-status", saved.status);
+		});
+	</script>
+
+</body>
+
+</html>

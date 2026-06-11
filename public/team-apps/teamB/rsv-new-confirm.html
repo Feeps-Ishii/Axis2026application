@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>予約内容確認</title>
+	<link rel="stylesheet" href="./css/rsv/reservation_insert_check.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>診療予約管理システム</h1>
+
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">
+				管理者TOP
+			</a>
+
+			<a href="javascript:void(0)" onclick="TeamB.logout()" class="header-btn">
+				ログアウト
+			</a>
+		</div>
+	</header>
+
+	<div class="container">
+
+		<div class="breadcrumb">
+			管理者TOP ＞ 予約管理 ＞ 予約内容確認
+		</div>
+
+		<div class="card">
+
+			<div class="page-title">
+				<h2>予約内容確認</h2>
+			</div>
+
+			<div class="message-box">
+				入力された予約内容をご確認ください。<br>
+				問題がなければ「予約を確定する」を押してください。
+			</div>
+
+			<table class="confirm-table">
+
+				<tr>
+					<th>患者氏名</th>
+					<td>
+						<span id="lastName"></span>
+						<span id="firstName"></span>
+					</td>
+				</tr>
+
+				<tr>
+					<th>フリガナ</th>
+					<td>
+						<span id="lastNameKana"></span>
+						<span id="firstNameKana"></span>
+					</td>
+				</tr>
+
+				<tr>
+					<th>生年月日</th>
+					<td id="birthday"></td>
+				</tr>
+
+				<tr>
+					<th>性別</th>
+					<td id="gender"></td>
+				</tr>
+
+				<tr>
+					<th>住所</th>
+					<td id="address"></td>
+				</tr>
+
+				<tr>
+					<th>電話番号</th>
+					<td id="phoneNumber"></td>
+				</tr>
+
+				<tr>
+					<th>診療科ID</th>
+					<td id="departmentId"></td>
+				</tr>
+
+				<tr>
+					<th>予約種別</th>
+					<td id="reservationType"></td>
+				</tr>
+
+				<tr>
+					<th>予約方法</th>
+					<td id="reservationMethod"></td>
+				</tr>
+
+				<tr>
+					<th>予約日</th>
+					<td id="appointmentDate"></td>
+				</tr>
+
+				<tr>
+					<th>予約時間</th>
+					<td id="appointmentTime"></td>
+				</tr>
+
+				<tr>
+					<th>症状</th>
+					<td id="symptom"></td>
+				</tr>
+
+				<tr>
+					<th>症状詳細</th>
+					<td id="symptomDetail"></td>
+				</tr>
+
+				<tr>
+					<th>保険証</th>
+					<td id="insurance"></td>
+				</tr>
+
+				<tr>
+					<th>予防接種希望時間</th>
+					<td id="vaccinationTime"></td>
+				</tr>
+
+				<tr>
+					<th>備考</th>
+					<td id="remarks"></td>
+				</tr>
+
+			</table>
+
+			<div class="button-area">
+
+				<button type="button" class="back-btn" id="backBtn">
+					修正する
+				</button>
+
+				<button type="button" class="submit-btn" id="confirmBtn">
+					予約を確定する
+				</button>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			if (!TeamB.requireStaff()) return;
+
+			const d = TeamB.getDraft("admin-rsv");
+			if (!d) {
+				location.href = "./rsv-new.html";
+				return;
+			}
+
+			const setText = (id, val) => {
+				const el = document.getElementById(id);
+				if (el) el.textContent = val == null ? "" : val;
+			};
+
+			["lastName", "firstName", "lastNameKana", "firstNameKana", "birthday",
+				"gender", "address", "phoneNumber", "departmentId", "reservationType",
+				"reservationMethod", "appointmentDate", "appointmentTime", "symptom",
+				"symptomDetail", "insurance", "vaccinationTime", "remarks"
+			].forEach((k) => setText(k, d[k]));
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./rsv-new.html";
+			});
+
+			document.getElementById("confirmBtn").addEventListener("click", () => {
+				location.href = "./rsv-new-complete.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

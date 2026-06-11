@@ -1,0 +1,544 @@
+/* ==========================================
+   さくら野診療所 トップページCSS
+========================================== */
+
+:root {
+
+    /* ==========================================
+       カラー定義（Color）
+    ========================================== */
+
+    --color-primary: #e67a84;
+    --color-primary-light: #fbebee;
+
+    --color-info-light: #eef7f9;
+    --color-info: #5caec4;
+
+    --color-success: #4caf50;
+    --color-accent: #e05353;
+
+    --color-text-main: #333333;
+
+    --color-bg-admin: #f4f6f9;
+
+    /* ==========================================
+       余白（Spacing）
+    ========================================== */
+
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+
+    /* ==========================================
+       Typography
+    ========================================== */
+
+    --font-base: 16px;
+    --font-lg: 20px;
+    --font-xl: 24px;
+
+    --weight-normal: 400;
+    --weight-medium: 500;
+    --weight-bold: 700;
+}
+
+/* ==========================================
+   全体
+========================================== */
+
+body {
+    font-family:
+        "Helvetica Neue",
+        Arial,
+        "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
+        Meiryo,
+        sans-serif;
+
+    background-color:
+        #fdf8f9;
+
+    color:
+        var(--color-text-main);
+
+    margin: 0;
+
+    padding: 0;
+
+    line-height: 1.6;
+
+    font-size:
+        var(--font-base);
+}
+
+/* ==========================================
+   ヘッダー
+========================================== */
+
+header {
+
+    background:
+        linear-gradient(to right,
+            #fdf4f5,
+            #fbeaec);
+
+    border-bottom:
+        3px solid var(--color-primary);
+
+    text-align: center;
+
+    padding:
+        var(--space-xl);
+
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+header h1 {
+    color: #e67a84;
+    font-size: 36px;
+    font-weight: 800;
+    font-family: 'Zen Maru Gothic', sans-serif;
+
+    /* 線の位置を調整するために相対位置に */
+    position: relative;
+    padding: 30px 0;
+    /* 線の分だけ上下に余裕を持たせる */
+    margin: 0;
+}
+
+/* 上下の線 */
+header h1::before,
+header h1::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 1px;
+    /* 線の色を少し優しくして、長さを広げる */
+    background: linear-gradient(to right, transparent, #e67a84 20%, #e67a84 80%, transparent);
+}
+
+/* 上の線 */
+header h1::before {
+    top: 0;
+    width: 80%;
+    /* 画面幅の80%まで広げる */
+    max-width: 600px;
+    /* ただし最大でも600pxまで */
+}
+
+/* 下の線 */
+header h1::after {
+    bottom: 0;
+    width: 80%;
+    /* 画面幅の80%まで広げる */
+    max-width: 600px;
+}
+
+header p {
+    /* 1. タイトルと同じ色（primaryカラー）にする */
+    color: #e67a84;
+
+    /* 2. 一文字一文字の間を空ける（文字間隔を広げる） */
+    letter-spacing: 0.5em;
+
+    /* フォント設定とサイズ */
+    font-size: 20px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-weight: 500;
+
+    /* レイアウトの調整 */
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* ==========================================
+   ナビゲーション
+========================================== */
+
+/* ==========================================
+   ナビゲーション（ボタン）
+========================================== */
+
+/* ==========================================
+   ナビゲーション周りの間隔調整
+========================================== */
+
+nav {
+    /* 1. ここで「診療所」の文とボタンの間の距離を広げる */
+    margin-top: 50px;
+
+    /* 2. ボタンの下にも少し余裕を持たせるとスッキリする */
+    margin-bottom: 30px;
+
+    text-align: center;
+}
+
+nav a {
+    /* ...既存の設定（padding: 20px 100px; など）... */
+    display: inline-block;
+    background-color: #ffffff;
+    color: var(--color-primary);
+    text-decoration: none;
+
+    padding: 20px 100px;
+
+    border-radius: 50px;
+    border: 3px solid var(--color-primary);
+
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 15px rgba(230, 122, 132, 0.2);
+}
+
+/* マウスを乗せた時の動き */
+nav a:hover {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(230, 122, 132, 0.4);
+}
+
+/* hover */
+
+nav a:hover {
+
+    background-color:
+        var(--color-primary);
+
+    color: #ffffff;
+
+    transform: translateY(-2px);
+}
+
+/* ==========================================
+   メイン
+========================================== */
+
+main {
+
+    width: 90%;
+
+    max-width: 1000px;
+
+    margin:
+        40px auto;
+}
+
+/* ==========================================
+   セクション
+========================================== */
+
+/* style.css の section を書き換え */
+
+/* style.css の section を書き換え */
+
+section {
+    background-color: #fffdfd;
+    border-radius: 12px;
+    padding: 40px;
+    margin-bottom: 60px;
+
+    /* 限りなく薄いピンクの枠線 */
+    /* #f4e1e3 は、少しだけ主張がありつつも、すごく淡いピンクだよ */
+    border: 2px solid #f3e3e5;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================
+   見出し
+========================================== */
+
+h2 {
+    font-size:
+        var(--font-lg);
+
+    color:
+        var(--color-text-main);
+
+    background-color:
+        var(--color-primary-light);
+
+    border-left:
+        5px solid var(--color-primary);
+
+    border-radius: 4px;
+
+    padding:
+        var(--space-sm) var(--space-md);
+
+    margin-bottom:
+        var(--space-lg);
+
+}
+
+/* ==========================================
+   お知らせ
+========================================== */
+
+ul {
+
+    padding-left: 20px;
+}
+
+li {
+
+    margin-bottom: 20px;
+
+    font-size: var(--font-base);
+}
+
+/* お知らせのスクロール枠 */
+.news-container {
+    max-height: 300px;
+    /* 💡 枠の最大の高さを指定（これを超えるとスクロール） */
+    overflow-y: auto;
+    /* 💡 縦方向に中身がはみ出したら自動でスクロールバーを表示 */
+    padding-right: 10px;
+    /* 💡 スクロールバーとお知らせ文字が重ならないための余白 */
+}
+
+/* 💡 【おすすめ】スクロールバーのデザインを優しく細めにする設定（省略可能） */
+.news-container::-webkit-scrollbar {
+    width: 6px;
+    /* バーの太さ */
+}
+
+.news-container::-webkit-scrollbar-track {
+    background: #fafafa;
+    /* バーの背景色 */
+    border-radius: 10px;
+}
+
+.news-container::-webkit-scrollbar-thumb {
+    background: #dddddd;
+    /* スクロールバー自体の色 */
+    border-radius: 10px;
+}
+
+/* ==========================================
+   テーブル
+========================================== */
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    background-color: white;
+
+    margin-top: 20px;
+
+    overflow: hidden;
+
+    border-radius: 16px;
+}
+
+th {
+
+    background-color: #8ccddd;
+
+    color:
+        white;
+
+    padding: 15px;
+
+    font-size: var(--font-base);
+
+    font-weight: var(--weight-bold);
+}
+
+td {
+
+    border:
+        1px solid #d8ebf0;
+
+    padding: 15px;
+
+    text-align: center;
+
+    font-size: var(--font-base);
+}
+
+/* ==========================================
+   区切り線
+========================================== */
+
+hr {
+
+    border: none;
+
+    height: 1px;
+
+    background-color: #dfe5ea;
+
+    margin: 40px 0;
+}
+
+/* ==========================================
+   フッター
+========================================== */
+
+footer {
+    background-color:
+        #f8f1f2;
+
+    text-align: center;
+
+    padding:
+        var(--space-md);
+
+    color: #666666;
+
+    font-size:
+        calc(var(--font-base) * 0.9);
+
+}
+
+/* ==========================================
+   スライダー
+========================================== */
+
+.slider {
+
+    width: 100%;
+
+    max-width: 1400px;
+
+    height: 420px;
+
+    margin: 40px auto;
+
+    overflow: hidden;
+
+    position: relative;
+
+    border-radius: 24px;
+
+    background-color: white;
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.slider img {
+
+    width: 70%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+    object-position: center;
+
+    position: absolute;
+
+    left: 15%;
+
+    opacity: 0;
+
+    animation:
+        slideShow 9s infinite;
+}
+
+/* ==========================================
+   画像切替
+========================================== */
+
+.slider img:nth-child(1) {
+
+    animation-delay: 0s;
+}
+
+.slider img:nth-child(2) {
+
+    animation-delay: 3s;
+}
+
+.slider img:nth-child(3) {
+
+    animation-delay: 6s;
+}
+
+/* ==========================================
+   スライドアニメーション
+========================================== */
+
+@keyframes slideShow {
+
+    0% {
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    40% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px) {
+
+    header h1 {
+
+        font-size: 28px;
+    }
+
+    main {
+
+        width: 94%;
+
+        margin: 20px auto;
+    }
+
+    /* テーブル */
+
+    .table-wrapper {
+
+        overflow-x: auto;
+    }
+
+    .table-wrapper table {
+
+        min-width: 600px;
+    }
+
+    /* ==========================================
+       スマホ時のスライダー
+    ========================================== */
+
+    .slider {
+
+        height: 240px;
+    }
+
+    .slider img {
+
+        width: 100%;
+
+        left: 0;
+
+        object-fit: contain;
+
+        background-color: #ffffff;
+    }
+}

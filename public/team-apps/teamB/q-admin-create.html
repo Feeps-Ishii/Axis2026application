@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>紙問診票登録</title>
+	<link rel="stylesheet" href="./css/admin-questionnaire.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>紙問診票登録</h1>
+
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">管理者TOP</a>
+			<a href="javascript:void(0)" class="header-btn" onclick="TeamB.logout()">ログアウト</a>
+		</div>
+	</header>
+
+	<div class="container">
+
+		<div class="breadcrumb">
+			<a href="./admin.html">管理者TOP</a>
+			<span> ＞ </span>
+			<a id="bcList" href="./q-admin-list.html">問診票一覧</a>
+			<span> ＞ </span>
+			<span>紙問診票登録</span>
+		</div>
+
+		<div class="notice-box">
+			紙で記入された問診票の内容を、受付スタッフがシステムへ転記する画面です。<br>
+			必要項目を入力し、確認画面へ進んでください。
+		</div>
+
+		<form class="form-card" id="qForm">
+
+			<input type="hidden" id="appointmentId">
+			<input type="hidden" id="from">
+
+			<div class="section">
+				<h2 class="section-title">基本情報</h2>
+
+				<div class="input-grid">
+
+					<div class="input-item">
+						<label for="visitDate">来院日<span class="required">※</span></label>
+						<input type="date" id="visitDate" disabled>
+					</div>
+
+					<div class="input-item">
+						<label for="symptomStartDate">発症日<span class="required">※</span></label>
+						<input type="date" id="symptomStartDate">
+						<div class="error-message" id="err-symptomStartDate"></div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="section">
+				<h2 class="section-title">来院理由・症状</h2>
+
+				<div class="input-grid">
+
+					<div class="input-item wide">
+						<label>現在の症状<span class="required">※</span></label>
+
+						<div class="tag-input-area" id="symptomGroup"></div>
+
+						<div class="error-message" id="err-symptomNames"></div>
+					</div>
+
+					<div class="input-item wide">
+						<label for="symptomProgress">症状の経過<span class="required">※</span></label>
+						<input type="text" id="symptomProgress" placeholder="例：2日前から発熱と咳があります">
+						<div class="error-message" id="err-symptomProgress"></div>
+					</div>
+
+					<div class="input-item wide">
+						<label for="symptomDetail">症状詳細</label>
+						<textarea id="symptomDetail" placeholder="症状詳細を入力"></textarea>
+					</div>
+
+					<div class="input-item">
+						<label for="bodyTemperature">現在の体温<span class="required">※</span></label>
+						<div class="temperature-input">
+							<input type="text" id="bodyTemperature" placeholder="例：36.5">
+							<span>℃</span>
+						</div>
+						<div class="error-message" id="err-bodyTemperature"></div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="section">
+				<h2 class="section-title">感染症確認</h2>
+
+				<div class="input-grid">
+
+					<div class="input-item">
+						<label>海外渡航歴<span class="required">※</span></label>
+						<select id="hasOverseasTravel">
+							<option value="">選択してください</option>
+							<option value="true">あり</option>
+							<option value="false">なし</option>
+						</select>
+						<div class="error-message" id="err-hasOverseasTravel"></div>
+					</div>
+
+					<div class="input-item">
+						<label for="overseasTravelPlace">海外渡航先</label>
+						<input type="text" id="overseasTravelPlace" placeholder="例：中国、韓国など">
+					</div>
+
+					<div class="input-item">
+						<label>感染症接触歴<span class="required">※</span></label>
+						<select id="infectionContactStatus">
+							<option value="">選択してください</option>
+							<option value="あり">あり</option>
+							<option value="なし">なし</option>
+							<option value="不明">不明</option>
+						</select>
+						<div class="error-message" id="err-infectionContactStatus"></div>
+					</div>
+
+					<div class="input-item">
+						<label>妊娠可能性<span class="required">※</span></label>
+						<select id="pregnancyStatus">
+							<option value="">選択してください</option>
+							<option value="なし">なし</option>
+							<option value="あり">あり</option>
+							<option value="不明">不明</option>
+						</select>
+						<div class="error-message" id="err-pregnancyStatus"></div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="section">
+				<h2 class="section-title">保険証・備考</h2>
+
+				<div class="input-grid">
+
+					<div class="input-item">
+						<label>お薬手帳<span class="required">※</span></label>
+						<select id="hasMedicineNotebook">
+							<option value="">選択してください</option>
+							<option value="true">あり</option>
+							<option value="false">なし</option>
+						</select>
+						<div class="error-message" id="err-hasMedicineNotebook"></div>
+					</div>
+
+					<div class="input-item">
+						<label>マイナ保険証利用<span class="required">※</span></label>
+						<select id="useMynaInsurance">
+							<option value="">選択してください</option>
+							<option value="利用する">利用する</option>
+							<option value="利用しない">利用しない</option>
+							<option value="不明">不明</option>
+						</select>
+						<div class="error-message" id="err-useMynaInsurance"></div>
+					</div>
+
+					<div class="input-item wide">
+						<label for="memo">備考</label>
+						<textarea id="memo" placeholder="備考を入力"></textarea>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="button-area">
+				<button type="submit" class="confirm-btn">
+					確認画面へ
+				</button>
+			</div>
+
+		</form>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			if (!TeamB.requireStaff()) return;
+
+			const params = new URLSearchParams(location.search);
+			const appointmentIdRaw = params.get("appointmentId");
+			const apptIdNum = appointmentIdRaw == null || appointmentIdRaw === "" ? null : Number(appointmentIdRaw);
+			let from = params.get("from") || "";
+			if (!from) from = "questionnaireList";
+
+			// 既に問診票が登録済みなら詳細へ
+			if (apptIdNum != null && !Number.isNaN(apptIdNum)) {
+				const existing = TeamB.medicalQuestionnaires()
+					.find((q) => Number(q.appointmentId) === apptIdNum && q.invalidFlag !== true);
+				if (existing) {
+					location.href = "./q-admin-detail.html?id=" + existing.questionnaireId + "&from=" + from;
+					return;
+				}
+			}
+
+			// パンくず調整
+			if (from === "todayReservation") {
+				document.getElementById("bcList").textContent = "本日の予約一覧";
+				document.getElementById("bcList").href = "./rsv-today.html";
+			}
+
+			document.getElementById("from").value = from;
+			document.getElementById("appointmentId").value = appointmentIdRaw == null ? "" : appointmentIdRaw;
+
+			// 来院日：予約があれば予約日、なければ本日
+			let visitDate = TeamB.today();
+			if (apptIdNum != null && !Number.isNaN(apptIdNum)) {
+				const appt = TeamB.appointment(apptIdNum);
+				if (appt) visitDate = String(appt.appointmentDate).slice(0, 10);
+			}
+			document.getElementById("visitDate").value = visitDate;
+
+			// 症状チェックボックス
+			const group = document.getElementById("symptomGroup");
+			group.innerHTML = TeamB.activeSymptoms().map((s) =>
+				`<label class="check-item"><input type="checkbox" name="symptomNames" value="${TeamB.esc(s.symptomName)}"><span>${TeamB.esc(s.symptomName)}</span></label>`
+			).join("");
+
+			// 下書き復元
+			const draft = TeamB.getDraft("q-admin");
+			if (draft && String(draft.appointmentId ?? "") === String(appointmentIdRaw ?? "")) {
+				const set = (id, val) => { if (val != null) document.getElementById(id).value = val; };
+				set("symptomStartDate", draft.symptomStartDate);
+				set("symptomProgress", draft.symptomProgress);
+				set("symptomDetail", draft.symptomDetail);
+				set("bodyTemperature", draft.bodyTemperature);
+				set("overseasTravelPlace", draft.overseasTravelPlace);
+				set("memo", draft.memo);
+				if (draft.hasOverseasTravel != null) document.getElementById("hasOverseasTravel").value = String(draft.hasOverseasTravel);
+				if (draft.infectionContactStatus != null) document.getElementById("infectionContactStatus").value = draft.infectionContactStatus;
+				if (draft.pregnancyStatus != null) document.getElementById("pregnancyStatus").value = draft.pregnancyStatus;
+				if (draft.hasMedicineNotebook != null) document.getElementById("hasMedicineNotebook").value = String(draft.hasMedicineNotebook);
+				if (draft.useMynaInsurance != null) document.getElementById("useMynaInsurance").value = draft.useMynaInsurance;
+				(draft.symptomNames || []).forEach((nm) => {
+					const el = document.querySelector(`input[name="symptomNames"][value="${nm}"]`);
+					if (el) el.checked = true;
+				});
+			}
+
+			document.getElementById("qForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				const symptomNames = Array.from(document.querySelectorAll('input[name="symptomNames"]:checked')).map((c) => c.value);
+
+				let ok = true;
+				document.querySelectorAll(".error-message").forEach((el) => el.textContent = "");
+				const symptomStartDate = document.getElementById("symptomStartDate").value;
+				const symptomProgress = document.getElementById("symptomProgress").value.trim();
+				const bodyTemperature = document.getElementById("bodyTemperature").value.trim();
+				const hasOverseasTravel = document.getElementById("hasOverseasTravel").value;
+				const infectionContactStatus = document.getElementById("infectionContactStatus").value;
+				const pregnancyStatus = document.getElementById("pregnancyStatus").value;
+				const hasMedicineNotebook = document.getElementById("hasMedicineNotebook").value;
+				const useMynaInsurance = document.getElementById("useMynaInsurance").value;
+
+				const fail = (id, msg) => { document.getElementById(id).textContent = msg; ok = false; };
+				if (!symptomStartDate) fail("err-symptomStartDate", "発症日を入力してください");
+				if (symptomNames.length === 0) fail("err-symptomNames", "症状を選択してください");
+				if (!symptomProgress) fail("err-symptomProgress", "症状の経過を入力してください");
+				if (!bodyTemperature) fail("err-bodyTemperature", "体温を入力してください");
+				if (!hasOverseasTravel) fail("err-hasOverseasTravel", "海外渡航歴を選択してください");
+				if (!infectionContactStatus) fail("err-infectionContactStatus", "感染症接触歴を選択してください");
+				if (!pregnancyStatus) fail("err-pregnancyStatus", "妊娠可能性を選択してください");
+				if (!hasMedicineNotebook) fail("err-hasMedicineNotebook", "お薬手帳を選択してください");
+				if (!useMynaInsurance) fail("err-useMynaInsurance", "マイナ保険証利用を選択してください");
+				if (!ok) return;
+
+				const data = {
+					appointmentId: appointmentIdRaw == null || appointmentIdRaw === "" ? null : apptIdNum,
+					from: from,
+					visitDate: visitDate,
+					symptomStartDate: symptomStartDate,
+					symptomNames: symptomNames,
+					symptomProgress: symptomProgress,
+					symptomDetail: document.getElementById("symptomDetail").value,
+					bodyTemperature: bodyTemperature,
+					hasOverseasTravel: hasOverseasTravel === "true",
+					overseasTravelPlace: document.getElementById("overseasTravelPlace").value,
+					infectionContactStatus: infectionContactStatus,
+					pregnancyStatus: pregnancyStatus,
+					hasMedicineNotebook: hasMedicineNotebook === "true",
+					useMynaInsurance: useMynaInsurance,
+					memo: document.getElementById("memo").value,
+				};
+				TeamB.setDraft("q-admin", data);
+				location.href = "./q-admin-create-confirm.html";
+			});
+		});
+	</script>
+
+</body>
+
+</html>

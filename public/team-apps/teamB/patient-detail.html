@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>患者詳細（ダッシュボード）</title>
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<link rel="stylesheet" href="./css/patient/patient_deap.css">
+</head>
+
+<body>
+
+<header>
+	<h1>診療所管理システム</h1>
+
+	<div class="header-right">
+		<a href="./admin.html" class="header-btn">管理者TOP</a>
+		<a href="#" class="header-btn" onclick="TeamB.logout();return false;">ログアウト</a>
+	</div>
+</header>
+
+<div class="container">
+
+	<div class="top-area">
+		<div class="breadcrumb">
+			管理者TOP ＞ 患者管理 ＞ 患者詳細（ダッシュボード）
+		</div>
+
+		<button type="button"
+		        class="back-btn"
+		        onclick="location.href='./patient-list.html'">
+			← 患者一覧へ戻る
+		</button>
+	</div>
+
+	<div class="page-title">
+		患者詳細（ダッシュボード）
+	</div>
+
+	<section class="patient-card">
+
+		<div class="patient-top">
+			<div>
+				<div class="patient-name" id="patientName">　</div>
+			</div>
+
+			<a href="#" class="edit-btn" id="editBtn">編集</a>
+		</div>
+
+		<div class="patient-info" id="patientInfo"></div>
+
+	</section>
+
+	<div class="tabs">
+		<button class="tab-btn active" onclick="showTab('summary', this)">サマリー</button>
+		<button class="tab-btn" onclick="showTab('karte', this)">カルテ一覧</button>
+		<button class="tab-btn" onclick="showTab('questionnaire', this)">問診票一覧</button>
+	</div>
+
+	<section class="tab-content">
+
+		<div id="summary">
+
+			<div class="section-title">バイタルサイン推移</div>
+
+			<div class="chart-grid">
+				<div class="chart-card">
+
+					<div class="chart-title">血圧推移</div>
+
+					<canvas id="bloodPressureChart"></canvas>
+
+					<p id="noBpMsg" style="display:none;">
+						直近半年分の血圧データはありません。
+					</p>
+
+				</div>
+			</div>
+
+		</div>
+
+		<div id="karte" style="display:none;">
+
+			<div class="list-header">
+				<a href="#" id="recordNewBtn" class="register-btn">
+					カルテ登録
+				</a>
+			</div>
+
+			<div id="recordList"></div>
+
+		</div>
+
+		<div id="questionnaire" style="display:none;">
+
+			<div id="questionnaireList"></div>
+
+		</div>
+
+	</section>
+
+</div>
+
+<script>
+	function showTab(tabId, button) {
+		document.getElementById("summary").style.display = "none";
+		document.getElementById("karte").style.display = "none";
+		document.getElementById("questionnaire").style.display = "none";
+
+		document.getElementById(tabId).style.display = "block";
+
+		const buttons = document.querySelectorAll(".tab-btn");
+		buttons.forEach(btn => btn.classList.remove("active"));
+		button.classList.add("active");
+	}
+</script>
+
+<script src="./js/db.js"></script>
+<script>
+TeamB.init().then(() => {
+	TeamB.requireStaff();
+
+	const id = new URLSearchParams(location.search).get("id");
+	const data = id ? TeamB.patientDetail(id) : null;
+
+	if (!data) {
+		document.getElementById("patientName").textContent = "患者が見つかりません。";
+		return;
+	}
+
+	const p = data.patient;
+	const E = TeamB.esc;
+
+	document.getElementById("patientName").textContent = `${p.lastName} ${p.firstName}`;
+	document.getElementById("editBtn").href = "./patient-edit.html?id=" + encodeURIComponent(p.patientId);
+
+	document.getElementById("patientInfo").innerHTML = `
+		<div class="info-row">
+			<div class="info-label">患者ID</div>
+			<div class="info-value">${E(p.patientId)}</div>
+		</div>
+		<div class="info-row">
+			<div class="info-label">患者名</div>
+			<div class="info-value">${E(p.lastName + " " + p.firstName)}</div>
+		</div>
+		<div class="info-row">
+			<div class="info-label">生年月日</div>
+			<div class="info-value">${E(p.birthday)}</div>
+		</div>
+		<div class="info-row">
+			<div class="info-label">性別</div>
+			<div class="info-value">${E(p.gender)}</div>
+		</div>
+		<div class="info-row">
+			<div class="info-label">診察券番号</div>
+			<div class="info-value">${E(p.cardNumber)}</div>
+		</div>`;
+
+	// カルテ登録（appointmentIdベース：最新の予約があればそれを使う）
+	const recordNewBtn = document.getElementById("recordNewBtn");
+	const appts = TeamB.appointments()
+		.filter((a) => Number(a.patientId) === Number(p.patientId))
+		.sort((a, b) => String(b.appointmentDate).localeCompare(String(a.appointmentDate)));
+	if (appts.length) {
+		recordNewBtn.href = "./record-form.html?appointmentId=" + encodeURIComponent(appts[0].appointmentId);
+	} else {
+		recordNewBtn.href = "./record-form.html";
+	}
+
+	// カルテ一覧
+	const recBox = document.getElementById("recordList");
+	if (!data.recordList || !data.recordList.length) {
+		recBox.innerHTML = '<div class="id-card">カルテ情報はありません。</div>';
+	} else {
+		recBox.innerHTML = data.recordList.map((r) => {
+			const visitDate = (r.appointment || {}).appointmentDate || "";
+			const updated = String(r.updatedAt || "").slice(0, 10).replace(/-/g, "/");
+			return `<a class="id-card id-card-link" href="./record-detail.html?id=${encodeURIComponent(r.recordId)}">
+				<div class="id-title">カルテID：${E(r.recordId)}</div>
+				<div class="date-info-area">
+					<span class="date-badge">来院日：<span>${E(visitDate)}</span></span>
+					<span class="date-separator">／</span>
+					<span class="date-badge">最終更新日：<span>${E(updated)}</span></span>
+				</div>
+			</a>`;
+		}).join("");
+	}
+
+	// 問診票一覧
+	const qBox = document.getElementById("questionnaireList");
+	if (!data.questionnaireList || !data.questionnaireList.length) {
+		qBox.innerHTML = '<div class="id-card">問診票情報はありません。</div>';
+	} else {
+		qBox.innerHTML = data.questionnaireList.map((q) => {
+			return `<a class="id-card id-card-link" href="./q-admin-detail.html?id=${encodeURIComponent(q.questionnaireId)}">
+				<div class="id-title">問診票ID：${E(q.questionnaireId)}</div>
+				<div class="date-info-area">
+					<span class="date-badge">記入日：<span>${E(q.createdAt)}</span></span>
+				</div>
+			</a>`;
+		}).join("");
+	}
+
+	// 血圧推移チャート（db.js: {date, systolic, diastolic, pulse}）
+	const bpList = (data.bloodPressureList || [])
+		.slice()
+		.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+	if (!bpList.length) {
+		document.getElementById("noBpMsg").style.display = "block";
+	}
+	const labels = bpList.map((d) => (d.date == null ? "" : String(d.date).substring(0, 10)));
+	const systolicData = bpList.map((d) => d.systolic);
+	const diastolicData = bpList.map((d) => d.diastolic);
+
+	new Chart(document.getElementById("bloodPressureChart"), {
+		type: "line",
+		data: {
+			labels: labels,
+			datasets: [
+				{ label: "最高血圧", data: systolicData, borderWidth: 3, pointRadius: 5, tension: 0.2 },
+				{ label: "最低血圧", data: diastolicData, borderWidth: 3, pointRadius: 5, tension: 0.2 }
+			]
+		},
+		options: {
+			responsive: true,
+			scales: {
+				y: {
+					min: 0, max: 200,
+					title: { display: true, text: "血圧(mmHg)" },
+					ticks: { stepSize: 20 }
+				},
+				x: { title: { display: true, text: "時期" } }
+			}
+		}
+	});
+});
+</script>
+
+</body>
+
+</html>

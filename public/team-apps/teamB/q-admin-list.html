@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>問診票一覧</title>
+	<link rel="stylesheet" href="./css/admin-questionnaire.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>問診票一覧</h1>
+
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">管理者TOP</a>
+			<a href="javascript:void(0)" class="header-btn" onclick="TeamB.logout()">ログアウト</a>
+		</div>
+	</header>
+
+	<div class="container">
+
+		<div class="breadcrumb">
+			<a href="./admin.html">管理者TOP</a>
+			<span> ＞ </span>
+			<span>問診票一覧</span>
+		</div>
+
+		<div class="card">
+
+			<h2 class="section-title">検索条件</h2>
+
+			<form id="searchForm">
+
+				<div class="search-grid">
+
+					<div class="form-group">
+						<label for="patientName">患者名</label>
+						<input type="text" id="patientName" name="patientName">
+					</div>
+
+					<div class="form-group">
+						<label for="cardNumber">診察券番号</label>
+						<input type="text" id="cardNumber" name="cardNumber" inputmode="numeric" pattern="[0-9]*">
+					</div>
+
+					<div class="form-group">
+						<label for="visitDate">問診日（空欄で全日）</label>
+						<input type="date" id="visitDate" name="visitDate">
+					</div>
+
+					<div class="form-group">
+						<label for="status">状態</label>
+						<select id="status" name="status">
+							<option value="">すべて</option>
+							<option value="有効">有効</option>
+							<option value="無効">無効</option>
+						</select>
+					</div>
+
+				</div>
+
+				<div class="search-btn-area">
+					<a href="./q-admin-list.html" class="clear-btn">条件クリア</a>
+					<button type="submit" class="search-btn">検索</button>
+				</div>
+
+			</form>
+
+		</div>
+
+		<div class="card">
+
+			<div class="list-title-area">
+				<h2 class="section-title">問診票一覧</h2>
+			</div>
+
+			<div class="table-wrap">
+
+				<table class="list-table">
+
+					<thead>
+						<tr>
+							<th>受付番号</th>
+							<th>患者名</th>
+							<th>診察券番号</th>
+							<th>体温</th>
+							<th>発熱</th>
+							<th>感染症疑い</th>
+							<th>来院理由</th>
+							<th>状態</th>
+							<th class="action-header">詳細</th>
+							<th class="invalid-header">無効化</th>
+						</tr>
+					</thead>
+
+					<tbody id="listBody"></tbody>
+
+				</table>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<!-- 問診票有効化確認ポップアップ -->
+	<div id="validModal" class="modal-overlay">
+
+		<div class="modal-box">
+
+			<h2>問診票有効化確認</h2>
+
+			<p>この問診票を有効化しますか？</p>
+
+			<div class="modal-button-area">
+
+				<button type="button" id="validConfirmBtn" class="modal-valid-btn">
+					有効化する
+				</button>
+
+				<button type="button" class="modal-cancel-btn" onclick="closeValidModal()">
+					キャンセル
+				</button>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		let validTargetId = null;
+
+		function openValidModal(questionnaireId) {
+			validTargetId = questionnaireId;
+			document.getElementById("validModal").classList.add("is-open");
+		}
+		function closeValidModal() {
+			document.getElementById("validModal").classList.remove("is-open");
+		}
+
+		TeamB.init().then(() => {
+			if (!TeamB.requireStaff()) return;
+
+			const params = new URLSearchParams(location.search);
+			const hasAnyParam = params.has("patientName") || params.has("cardNumber") || params.has("visitDate") || params.has("status");
+
+			const patientName = params.get("patientName") || "";
+			const cardNumber = params.get("cardNumber") || "";
+			// 初期表示は本日。検索時に問診日空欄なら全日。
+			const visitDate = hasAnyParam ? (params.get("visitDate") || "") : TeamB.today();
+			const status = params.get("status") || "";
+
+			document.getElementById("patientName").value = patientName;
+			document.getElementById("cardNumber").value = cardNumber;
+			document.getElementById("visitDate").value = visitDate;
+			document.getElementById("status").value = status;
+
+			document.getElementById("searchForm").addEventListener("submit", (e) => {
+				e.preventDefault();
+				const qs = new URLSearchParams();
+				qs.set("patientName", document.getElementById("patientName").value.trim());
+				qs.set("cardNumber", document.getElementById("cardNumber").value.trim());
+				qs.set("visitDate", document.getElementById("visitDate").value);
+				qs.set("status", document.getElementById("status").value);
+				location.href = "./q-admin-list.html?" + qs.toString();
+			});
+
+			document.getElementById("validConfirmBtn").addEventListener("click", () => {
+				if (validTargetId != null) {
+					TeamB.updateQuestionnaire(validTargetId, { invalidFlag: false });
+				}
+				closeValidModal();
+				render();
+			});
+
+			function render() {
+				const list = TeamB.questionnaireList({ patientName, cardNumber, visitDate, status });
+				const body = document.getElementById("listBody");
+				body.innerHTML = list.map((q) => {
+					const appt = q.appointment || {};
+					const names = q.symptomNames ? String(q.symptomNames).split(",") : [];
+					const hasFever = names.indexOf("発熱") >= 0 || (q.symptomList || []).some((s) => s.symptomName === "発熱");
+					const feverCell = hasFever
+						? '<span class="status-danger">あり</span>'
+						: '<span class="status-normal">なし</span>';
+					const infCell = q.infectionFlag
+						? '<span class="status-danger">あり</span>'
+						: '<span class="status-normal">なし</span>';
+					const statusCell = q.invalidFlag === true
+						? '<span class="status-danger">無効</span>'
+						: '<span class="status-normal">有効</span>';
+					const invalidCell = q.invalidFlag === true
+						? `<button type="button" class="valid-action-btn" onclick="openValidModal(${q.questionnaireId})">有効化</button>`
+						: `<a href="./q-admin-invalid-confirm.html?id=${q.questionnaireId}" class="invalid-action-btn">無効化</a>`;
+					return `<tr>
+						<td>${TeamB.esc(appt.dailyQueueNumber)}</td>
+						<td>${TeamB.esc(q.patientName)}</td>
+						<td>${TeamB.esc(q.cardNumber)}</td>
+						<td><span>${TeamB.esc(q.bodyTemperature)}</span>℃</td>
+						<td class="status-cell">${feverCell}</td>
+						<td class="status-cell">${infCell}</td>
+						<td>${TeamB.esc(appt.reason)}</td>
+						<td>${statusCell}</td>
+						<td class="action-cell action-start detail-column"><a href="./q-admin-detail.html?id=${q.questionnaireId}" class="detail-action-btn">詳細</a></td>
+						<td class="action-cell invalid-column">${invalidCell}</td>
+					</tr>`;
+				}).join("");
+			}
+
+			render();
+		});
+	</script>
+
+</body>
+
+</html>

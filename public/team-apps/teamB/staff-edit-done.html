@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>スタッフ情報編集完了</title>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Yu Gothic", "Meiryo", sans-serif; }
+		body { background: #f4f7fb; color: #333; }
+		header { background: #2f6fec; color: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+		header h1 { font-size: 26px; }
+		.header-right { display: flex; align-items: center; gap: 14px; }
+		.header-btn { background: white; color: #2f6fec; text-decoration: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; display: inline-block; }
+		.header-btn:hover { background: #e8efff; }
+		.container { width: 95%; max-width: 1200px; margin: 36px auto; }
+		.breadcrumb { font-size: 14px; color: #6b7280; margin-bottom: 22px; font-weight: bold; }
+		.card { background: white; border-radius: 18px; padding: 54px 34px; margin-bottom: 28px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06); text-align: center; }
+		.check-icon { width: 96px; height: 96px; border-radius: 50%; border: 6px solid #22c55e; color: #22c55e; display: flex; align-items: center; justify-content: center; font-size: 54px; font-weight: bold; margin: 0 auto 28px; }
+		.complete-title { font-size: 32px; font-weight: bold; margin-bottom: 18px; color: #166534; }
+		.complete-message { font-size: 18px; line-height: 1.8; color: #444; margin-bottom: 36px; }
+		.summary-box { max-width: 650px; margin: 0 auto 36px; background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; text-align: left; }
+		.summary-row { display: flex; border-bottom: 1px solid #e5e7eb; font-size: 16px; }
+		.summary-row:last-child { border-bottom: none; }
+		.summary-label { width: 240px; background: #edf3ff; color: #1e293b; font-weight: bold; padding: 18px; }
+		.summary-value { flex: 1; padding: 18px; font-weight: bold; color: #222; }
+		.button-area { display: flex; justify-content: center; gap: 16px; margin-top: 34px; flex-wrap: wrap; }
+		.detail-btn { border: none; padding: 14px 34px; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; min-width: 220px; text-decoration: none; text-align: center; background: white; color: #444; border: 1px solid #d1d5db; }
+		.detail-btn:hover { background: #dce3ec; border-color: #a0aec0; }
+		@media (max-width: 768px) {
+			header { padding: 16px; flex-direction: column; gap: 14px; align-items: flex-start; }
+			.container { width: 100%; padding: 0 12px; }
+			.card { padding: 42px 24px; }
+			.summary-row { flex-direction: column; }
+			.summary-label { width: 100%; }
+			.detail-btn { width: 100%; }
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1>スタッフ情報編集完了</h1>
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">管理者TOP</a>
+			<a href="#" class="header-btn" onclick="TeamB.logout();return false;">ログアウト</a>
+		</div>
+	</header>
+
+	<div class="container">
+		<div class="breadcrumb">管理者TOP ＞ スタッフ一覧 ＞ スタッフ詳細 ＞ スタッフ情報編集 ＞ 編集確認 ＞ 編集完了</div>
+
+		<div class="card">
+			<div class="check-icon">✓</div>
+			<div class="complete-title">スタッフ情報の更新が完了しました</div>
+			<p class="complete-message">
+				スタッフ情報を正常に更新しました。<br>
+				更新後の内容は、スタッフ詳細画面から確認できます。
+			</p>
+
+			<div class="summary-box">
+				<div class="summary-row"><div class="summary-label">スタッフID</div><div class="summary-value" id="v-id"></div></div>
+				<div class="summary-row"><div class="summary-label">氏名</div><div class="summary-value" id="v-name"></div></div>
+				<div class="summary-row"><div class="summary-label">所属部署</div><div class="summary-value" id="v-jobType"></div></div>
+			</div>
+
+			<div class="button-area">
+				<a href="#" id="detailBtn" class="detail-btn">スタッフ詳細へ戻る</a>
+			</div>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			TeamB.requireStaff();
+			const draft = TeamB.getDraft("staff-edit");
+			if (!draft) { location.href = "./staff-list.html"; return; }
+
+			const updated = TeamB.updateStaff(draft.staffId, {
+				name: draft.name,
+				jobType: draft.jobType,
+				authorityType: draft.authorityType,
+				email: draft.email,
+				memo: draft.memo || null,
+			});
+			TeamB.clearDraft("staff-edit");
+
+			const s = updated || draft;
+			document.getElementById("v-id").textContent = s.staffId;
+			document.getElementById("v-name").textContent = s.name || "";
+			document.getElementById("v-jobType").textContent = s.jobType || "";
+			document.getElementById("detailBtn").href = "./staff-detail.html?id=" + encodeURIComponent(s.staffId);
+		});
+	</script>
+</body>
+
+</html>

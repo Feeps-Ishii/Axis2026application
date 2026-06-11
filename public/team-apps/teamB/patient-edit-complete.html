@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>患者情報更新完了</title>
+    <link rel="stylesheet" href="./css/patient/patient_update_complete.css">
+</head>
+
+<body>
+
+<header>
+    <h1>患者情報更新完了</h1>
+
+    <div class="header-right">
+        <a href="./admin.html" class="header-btn">管理者TOP</a>
+        <a href="#" class="header-btn" onclick="TeamB.logout();return false;">ログアウト</a>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="breadcrumb">
+        管理者TOP ＞ 患者一覧 ＞ 患者詳細 ＞ 患者情報編集 ＞ 編集確認 ＞ 編集完了
+    </div>
+
+    <div class="card">
+
+        <div class="check-icon">✓</div>
+
+        <div class="complete-title">
+            患者情報の更新が完了しました
+        </div>
+
+        <p class="complete-message">
+            患者情報を正常に更新しました。<br>
+            更新後の内容は患者詳細画面から確認できます。
+        </p>
+
+        <div class="summary-box" id="summaryBox"></div>
+
+        <div class="button-area">
+            <a class="detail-btn" id="detailLink" href="#">
+                患者詳細へ戻る
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="./js/db.js"></script>
+<script>
+TeamB.init().then(() => {
+    TeamB.requireStaff();
+
+    const draft = TeamB.getDraft("patient-edit");
+    if (!draft) {
+        location.href = "./patient-list.html";
+        return;
+    }
+
+    const E = TeamB.esc;
+    const id = draft.patientId;
+
+    // 変更前の値を確保（更新前に取得）
+    const before = TeamB.patient(id) || {};
+    const labels = {
+        lastName: "姓",
+        firstName: "名",
+        birthday: "生年月日",
+        gender: "性別",
+        address: "住所",
+        phoneNumber: "連絡先",
+        emergencyContact: "緊急連絡先",
+        familyPharmacy: "かかりつけ薬局",
+    };
+    const beforeNorm = {
+        lastName: before.lastName,
+        firstName: before.firstName,
+        birthday: String(before.birthday || "").slice(0, 10),
+        gender: before.gender,
+        address: before.address,
+        phoneNumber: TeamB.normalizePhone(before.phoneNumber),
+        emergencyContact: before.emergencyContact,
+        familyPharmacy: before.familyPharmacy,
+    };
+    const afterNorm = {
+        lastName: draft.lastName,
+        firstName: draft.firstName,
+        birthday: String(draft.birthday || "").slice(0, 10),
+        gender: draft.gender,
+        address: draft.address,
+        phoneNumber: TeamB.normalizePhone(draft.phoneNumber),
+        emergencyContact: draft.emergencyContact,
+        familyPharmacy: draft.familyPharmacy,
+    };
+    const fields = Object.keys(labels);
+    const changedMap = TeamB.getChangedItems(beforeNorm, afterNorm, fields);
+    const changedItems = fields
+        .filter((f) => changedMap[f])
+        .map((f) => ({
+            label: labels[f],
+            beforeValue: f === "birthday" ? before.birthday : (f === "phoneNumber" ? before.phoneNumber : before[f]),
+            afterValue: f === "birthday" ? draft.birthday : draft[f],
+        }));
+
+    // 永続化（updatePatient）
+    const updated = TeamB.updatePatient(id, {
+        lastName: draft.lastName,
+        firstName: draft.firstName,
+        birthday: draft.birthday,
+        gender: draft.gender,
+        address: draft.address,
+        phoneNumber: draft.phoneNumber,
+        emergencyContact: draft.emergencyContact,
+        familyPharmacy: draft.familyPharmacy,
+    }) || before;
+
+    // サマリー表示
+    let html = `
+        <div class="summary-row">
+            <div class="summary-label">患者ID</div>
+            <div class="summary-value">${E(updated.patientId)}</div>
+        </div>`;
+    if (changedItems.length) {
+        html += changedItems.map((item) => `
+            <div class="summary-row">
+                <div class="summary-label">${E(item.label)}</div>
+                <div class="summary-value">
+                    <span>${E(item.beforeValue)}</span>
+                    <span> → </span>
+                    <span>${E(item.afterValue)}</span>
+                </div>
+            </div>`).join("");
+    } else {
+        html += `
+            <div class="summary-row">
+                <div class="summary-label">変更内容</div>
+                <div class="summary-value">変更された項目はありません。</div>
+            </div>`;
+    }
+    document.getElementById("summaryBox").innerHTML = html;
+
+    document.getElementById("detailLink").href = "./patient-detail.html?id=" + encodeURIComponent(updated.patientId);
+
+    // 下書きクリア
+    TeamB.clearDraft("patient-edit");
+});
+</script>
+
+</body>
+
+</html>

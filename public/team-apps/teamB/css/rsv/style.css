@@ -1,0 +1,367 @@
+/* ==========================================
+   予約・問診トップページ CSS
+   （HTML変更なし版）
+========================================== */
+
+@charset "UTF-8";
+
+/* ==========================================
+   CSS変数
+========================================== */
+
+:root {
+
+    /* Color */
+    --color-primary: #e67a84;
+    --color-primary-light: #fbebee;
+
+    --color-info-light: #eef7f9;
+    --color-info: #5caec4;
+
+    --color-success: #4caf50;
+    --color-accent: #e05353;
+
+    --color-text-main: #333333;
+    --color-bg-admin: #f4f6f9;
+
+    /* Space */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+
+    /* Font */
+    --font-base: 16px;
+    --font-lg: 20px;
+    --font-xl: 24px;
+
+    --weight-normal: 400;
+    --weight-medium: 500;
+    --weight-bold: 700;
+}
+
+/* ==========================================
+   全体
+========================================== */
+
+body {
+
+    font-family:
+        "Helvetica Neue",
+        Arial,
+        "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
+        Meiryo,
+        sans-serif;
+
+    font-size: var(--font-base);
+
+    color: var(--color-text-main);
+
+    background-color: #ffffff;
+
+    line-height: 1.6;
+
+    margin: 0;
+    padding: 0;
+}
+
+/* ==========================================
+   横線非表示
+========================================== */
+
+hr {
+
+    display: none;
+}
+
+/* ==========================================
+   ヘッダー
+========================================== */
+
+header {
+
+    background-color: #ffffff;
+
+    border-bottom:
+        3px solid var(--color-primary);
+
+    padding:
+        var(--space-md) var(--space-lg);
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: var(--space-sm);
+}
+
+header h1 {
+
+    font-size: var(--font-xl);
+
+    color: var(--color-primary);
+
+    margin: 0;
+
+    font-weight: var(--weight-bold);
+}
+
+/* ==========================================
+   ナビ
+========================================== */
+
+header nav a {
+
+    color: var(--color-text-main);
+
+    text-decoration: none;
+
+    font-size:
+        calc(var(--font-base) * 0.9);
+
+    border:
+        1px solid var(--color-text-main);
+
+    padding:
+        var(--space-sm) var(--space-md);
+
+    border-radius: 4px;
+
+    transition: all 0.3s ease;
+}
+
+header nav a:hover {
+
+    background-color:
+        var(--color-text-main);
+
+    color: #ffffff;
+}
+
+/* ==========================================
+   メイン
+========================================== */
+
+main {
+
+    width: 90%;
+
+    max-width: 1000px;
+
+    margin:
+        var(--space-xl) auto;
+
+    padding:
+        0 var(--space-md);
+}
+
+/* ==========================================
+   section
+========================================== */
+
+section {
+
+    margin-bottom:
+        var(--space-xl);
+}
+
+/* ==========================================
+   h2
+========================================== */
+
+section h2 {
+
+    font-size: var(--font-lg);
+
+    color: var(--color-text-main);
+
+    border-left:
+        5px solid var(--color-primary);
+
+    padding-left:
+        var(--space-sm);
+
+    margin-top:
+        var(--space-xl);
+
+    margin-bottom:
+        var(--space-lg);
+
+    font-weight:
+        var(--weight-bold);
+}
+
+section:first-of-type h2 {
+
+    margin-top: 0;
+}
+
+/* ==========================================
+   説明文
+========================================== */
+
+section p {
+
+    margin-bottom:
+        var(--space-lg);
+
+    line-height: 1.8;
+}
+
+/* ==========================================
+   リスト
+========================================== */
+
+ul {
+
+    list-style: none;
+
+    padding: 0;
+
+    margin: 0;
+}
+
+li {
+
+    margin-bottom:
+        var(--space-md);
+}
+
+/* ==========================================
+   メニューリンク
+========================================== */
+
+li a {
+
+    display: block;
+
+    text-align: center;
+
+    background-color: #ffffff;
+
+    color: var(--color-text-main);
+
+    text-decoration: none;
+
+    padding:
+        var(--space-md);
+
+    border:
+        2px solid var(--color-primary);
+
+    border-radius: 6px;
+
+    font-size: var(--font-base);
+
+    font-weight: var(--weight-bold);
+
+    transition: all 0.3s ease;
+
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* hover */
+
+li a:hover {
+
+    background-color:
+        var(--color-primary);
+
+    color: #ffffff;
+}
+
+/* ==========================================
+   ご利用案内
+========================================== */
+
+section:last-of-type ul {
+
+    padding-left:
+        var(--space-lg);
+
+    list-style: disc;
+}
+
+section:last-of-type li {
+
+    line-height: 1.7;
+
+    color: var(--color-text-main);
+}
+
+/* ==========================================
+   フッター
+========================================== */
+
+footer {
+
+    background-color:
+        var(--color-bg-admin);
+
+    text-align: center;
+
+    padding:
+        var(--space-md);
+
+    margin-top:
+        var(--space-xl);
+
+    font-size:
+        calc(var(--font-base) * 0.8);
+}
+
+footer p {
+
+    margin: 0;
+}
+
+/* ==========================================
+   スマホ対応
+========================================== */
+
+@media (max-width: 480px) {
+
+    header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        padding:
+            var(--space-md);
+    }
+
+    header nav {
+
+        margin-top:
+            var(--space-sm);
+
+        width: 100%;
+    }
+
+    header nav a {
+
+        display: block;
+
+        text-align: center;
+    }
+
+    main {
+
+        margin:
+            var(--space-lg) auto;
+    }
+
+    li a {
+
+        font-size:
+            calc(var(--font-base) * 0.95);
+    }
+}

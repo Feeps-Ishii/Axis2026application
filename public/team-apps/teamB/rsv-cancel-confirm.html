@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>予約キャンセル確認</title>
+
+	<link rel="stylesheet" href="./css/rsv/reservation_not_check.css">
+</head>
+
+<body>
+
+	<header>
+
+		<h1>予約キャンセル確認</h1>
+
+		<div class="header-right">
+
+			<a href="./admin.html" class="header-btn">
+				管理者TOP
+			</a>
+
+			<a href="javascript:void(0)" onclick="TeamB.logout()" class="header-btn">
+				ログアウト
+			</a>
+
+		</div>
+
+	</header>
+
+	<div class="container">
+
+		<div class="breadcrumb">
+			管理者TOP ＞ 予約管理 ＞ 予約キャンセル確認
+		</div>
+
+		<div class="confirm-card">
+
+			<div class="warning-icon">
+				!
+			</div>
+
+			<div class="confirm-title">
+				本当に予約をキャンセルしてよろしいですか？
+			</div>
+
+			<p class="confirm-message">
+				以下の予約をキャンセルします。<br>
+				キャンセル後は予約状態が「キャンセル」になります。
+			</p>
+
+			<div class="target-box">
+
+				<div class="target-row">
+					<div class="target-label">
+						予約ID
+					</div>
+
+					<div class="target-value" id="appointmentId"></div>
+				</div>
+
+				<div class="target-row">
+					<div class="target-label">
+						予約日
+					</div>
+
+					<div class="target-value" id="appointmentDate"></div>
+				</div>
+
+				<div class="target-row">
+					<div class="target-label">
+						予約時間
+					</div>
+
+					<div class="target-value" id="appointmentTime"></div>
+				</div>
+
+				<div class="target-row">
+					<div class="target-label">
+						予約種別
+					</div>
+
+					<div class="target-value" id="reservationType"></div>
+				</div>
+
+				<div class="target-row">
+					<div class="target-label">
+						予約方法
+					</div>
+
+					<div class="target-value" id="reservationMethod"></div>
+				</div>
+
+				<div class="target-row">
+					<div class="target-label">
+						状態
+					</div>
+
+					<div class="target-value" id="status"></div>
+				</div>
+
+			</div>
+
+			<div class="final-check">
+				※ この操作により対象予約はキャンセルになります。<br>
+				※ 元に戻せない場合がありますのでご注意ください。
+			</div>
+
+			<div class="button-area">
+
+				<button type="button" class="back-btn" onclick="location.href='./rsv-list.html'">
+					戻る
+				</button>
+
+				<button type="button" class="cancel-btn" id="cancelBtn">
+					予約をキャンセルする
+				</button>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			if (!TeamB.requireStaff()) return;
+
+			const params = new URLSearchParams(location.search);
+			const appointmentId = params.get("appointmentId");
+			const r = appointmentId ? TeamB.appointmentView(appointmentId) : null;
+
+			if (!r) {
+				alert("対象の予約情報が見つかりません。");
+				location.href = "./rsv-today.html";
+				return;
+			}
+
+			const setText = (id, val) => {
+				const el = document.getElementById(id);
+				if (el) el.textContent = val == null ? "" : val;
+			};
+			setText("appointmentId", r.appointmentId);
+			setText("appointmentDate", r.appointmentDate);
+			setText("appointmentTime", r.appointmentTime);
+			setText("reservationType", r.reservationType);
+			setText("reservationMethod", r.reservationMethod);
+			setText("status", r.status);
+
+			document.getElementById("cancelBtn").addEventListener("click", () => {
+				location.href = "./rsv-cancel-complete.html?appointmentId=" + encodeURIComponent(r.appointmentId);
+			});
+		});
+	</script>
+
+</body>
+
+</html>

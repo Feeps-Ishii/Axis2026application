@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>問診票無効化確認</title>
+	<link rel="stylesheet" href="./css/admin-questionnaire.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>問診票無効化確認</h1>
+
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">管理者TOP</a>
+			<a href="javascript:void(0)" class="header-btn" onclick="TeamB.logout()">ログアウト</a>
+		</div>
+	</header>
+
+	<div class="container">
+
+		<div class="breadcrumb">
+			<a href="./admin.html">管理者TOP</a>
+			<span> ＞ </span>
+			<a href="./q-admin-list.html">問診票一覧</a>
+			<span> ＞ </span>
+			<a id="bcDetail" href="javascript:void(0)">問診票詳細</a>
+			<span> ＞ </span>
+			<span>無効化確認</span>
+		</div>
+
+		<div class="confirm-card invalid-card">
+
+			<div class="warning-icon">
+				!
+			</div>
+
+			<div class="confirm-title">
+				本当に問診票を無効化してよろしいですか？
+			</div>
+
+			<p class="confirm-message">
+				以下の問診票を無効化します。<br>
+				無効化後、この問診票は通常の一覧・診療業務では利用できなくなります。
+			</p>
+
+			<div class="target-box">
+
+				<div class="target-row">
+					<div class="target-label">患者名</div>
+					<div class="target-value" id="v-patientName"></div>
+				</div>
+
+				<div class="target-row">
+					<div class="target-label">診察券番号</div>
+					<div class="target-value" id="v-cardNumber"></div>
+				</div>
+
+				<div class="target-row">
+					<div class="target-label">受付番号</div>
+					<div class="target-value" id="v-queue"></div>
+				</div>
+
+				<div class="target-row">
+					<div class="target-label">来院日</div>
+					<div class="target-value" id="v-visitDate"></div>
+				</div>
+
+				<div class="target-row">
+					<div class="target-label">体温</div>
+					<div class="target-value"><span id="v-bodyTemperature"></span> ℃</div>
+				</div>
+
+				<div class="target-row">
+					<div class="target-label">感染症疑い</div>
+					<div class="target-value" id="v-infectionFlag"></div>
+				</div>
+
+				<div class="target-row">
+					<div class="target-label">現在ステータス</div>
+					<div class="target-value" id="v-invalidFlag"></div>
+				</div>
+
+			</div>
+
+			<div class="reason-box">
+				<label class="reason-label" for="invalidReason">
+					無効化理由
+				</label>
+
+				<textarea id="invalidReason" name="invalidReason" placeholder="無効化する理由を入力してください"></textarea>
+			</div>
+
+			<div class="final-check">
+				※ 無効化後も監査・履歴確認のためデータ自体は削除されません。<br>
+				※ 必要に応じて後から復旧できる運用を想定しています。
+			</div>
+
+			<div class="button-area">
+
+				<button class="back-btn" type="button" id="backBtn">
+					詳細画面へ戻る
+				</button>
+
+				<button type="button" class="disable-btn" id="disableBtn">
+					問診票を無効化する
+				</button>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			if (!TeamB.requireStaff()) return;
+
+			const params = new URLSearchParams(location.search);
+			const id = Number(params.get("id"));
+			const v = TeamB.questionnaireView(id);
+			if (!v) { location.href = "./q-admin-list.html"; return; }
+			const appt = v.appointment || {};
+
+			document.getElementById("bcDetail").href = "./q-admin-detail.html?id=" + id;
+
+			const set = (eid, val) => document.getElementById(eid).textContent = val == null ? "" : val;
+			set("v-patientName", v.patientName);
+			set("v-cardNumber", v.cardNumber);
+			set("v-queue", appt.dailyQueueNumber);
+			set("v-visitDate", v.visitDate);
+			set("v-bodyTemperature", v.bodyTemperature);
+			document.getElementById("v-infectionFlag").innerHTML = v.infectionFlag
+				? '<span class="status-danger">あり</span>' : '<span class="status-normal">なし</span>';
+			document.getElementById("v-invalidFlag").innerHTML = v.invalidFlag === true
+				? '<span class="status-danger">無効</span>' : '<span class="status-normal">有効</span>';
+
+			document.getElementById("backBtn").addEventListener("click", () => {
+				location.href = "./q-admin-detail.html?id=" + id;
+			});
+
+			document.getElementById("disableBtn").addEventListener("click", () => {
+				const reason = document.getElementById("invalidReason").value;
+				TeamB.setDraft("q-admin-invalid", { questionnaireId: id, invalidReason: reason });
+				location.href = "./q-admin-invalid-complete.html?id=" + id;
+			});
+		});
+	</script>
+
+</body>
+
+</html>

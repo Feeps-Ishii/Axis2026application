@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>予約登録完了</title>
+	<link rel="stylesheet" href="./css/rsv/reservation_insert_complete.css">
+</head>
+
+<body>
+
+	<header>
+		<h1>予約登録完了</h1>
+
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">
+				管理者TOP
+			</a>
+
+			<a href="javascript:void(0)" onclick="TeamB.logout()" class="header-btn">
+				ログアウト
+			</a>
+		</div>
+	</header>
+
+	<div class="container">
+
+		<div class="breadcrumb">
+			管理者TOP ＞ 予約管理 ＞ 予約登録 ＞ 登録確認 ＞ 登録完了
+		</div>
+
+		<div class="card">
+
+			<div class="check-icon">
+				✓
+			</div>
+
+			<div class="complete-title">
+				予約登録が完了しました
+			</div>
+
+			<p class="complete-message">
+				予約情報の登録が完了しました。<br>
+				患者様へ予約内容をご案内してください。
+			</p>
+
+			<div class="info-box">
+
+				<div class="info-row">
+					<div class="info-label">
+						予約ID
+					</div>
+
+					<div class="info-value" id="appointmentId"></div>
+				</div>
+
+				<div class="info-row">
+					<div class="info-label">
+						予約種別
+					</div>
+
+					<div class="info-value" id="reservationType"></div>
+				</div>
+
+				<div class="info-row">
+					<div class="info-label">
+						予約方法
+					</div>
+
+					<div class="info-value" id="reservationMethod"></div>
+				</div>
+
+				<div class="info-row">
+					<div class="info-label">
+						予約日
+					</div>
+
+					<div class="info-value" id="appointmentDate"></div>
+				</div>
+
+				<div class="info-row">
+					<div class="info-label">
+						予約時間
+					</div>
+
+					<div class="info-value" id="appointmentTime"></div>
+				</div>
+
+				<div class="info-row">
+					<div class="info-label">
+						状態
+					</div>
+
+					<div class="info-value" id="status"></div>
+				</div>
+
+			</div>
+
+			<div class="button-area">
+
+				<button class="list-btn" type="button" onclick="location.href='./rsv-today.html'">
+					予約一覧へ
+				</button>
+
+				<button class="top-btn" type="button" onclick="location.href='./admin.html'">
+					管理者TOPへ
+				</button>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			if (!TeamB.requireStaff()) return;
+
+			const d = TeamB.getDraft("admin-rsv");
+			if (!d) {
+				location.href = "./rsv-new.html";
+				return;
+			}
+
+			// 患者を新規登録
+			const patient = TeamB.createPatient({
+				lastName: d.lastName,
+				firstName: d.firstName,
+				lastNameKana: d.lastNameKana,
+				firstNameKana: d.firstNameKana,
+				birthday: d.birthday,
+				gender: d.gender,
+				address: d.address,
+				phoneNumber: d.phoneNumber,
+			});
+
+			// 予約を登録
+			const created = TeamB.createAppointment({
+				patientId: patient.patientId,
+				departmentId: Number(d.departmentId),
+				appointmentDate: d.appointmentDate || TeamB.today(),
+				appointmentTime: d.appointmentTime || (d.vaccinationTime || ""),
+				reservationType: d.reservationType,
+				reservationMethod: d.reservationMethod,
+				reason: d.symptomDetail || d.symptom || "",
+			});
+
+			TeamB.clearDraft("admin-rsv");
+
+			const setText = (id, val) => {
+				const el = document.getElementById(id);
+				if (el) el.textContent = val == null ? "" : val;
+			};
+			setText("appointmentId", created.appointmentId);
+			setText("reservationType", created.reservationType);
+			setText("reservationMethod", created.reservationMethod);
+			setText("appointmentDate", created.appointmentDate);
+			setText("appointmentTime", created.appointmentTime);
+			setText("status", created.status);
+		});
+	</script>
+
+</body>
+
+</html>

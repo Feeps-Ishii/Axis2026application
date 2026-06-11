@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>スタッフ登録</title>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Yu Gothic", "Meiryo", sans-serif; }
+		body { background: #f4f7fb; color: #333; }
+		header { background: #2f6fec; color: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+		header h1 { font-size: 26px; color: white; }
+		.header-right { display: flex; align-items: center; gap: 14px; }
+		.header-btn { background: white; color: #2f6fec; text-decoration: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; }
+		.header-btn:hover { background: #e8efff; }
+		.container { width: 95%; max-width: 1200px; margin: 36px auto; }
+		.breadcrumb { font-size: 14px; color: #6b7280; margin-bottom: 22px; font-weight: bold; }
+		.card { background: white; border-radius: 18px; padding: 30px; margin-bottom: 28px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06); }
+		.section-title { font-size: 26px; color: #1f2937; margin-bottom: 24px; }
+		.form-grid { display: grid; grid-template-columns: 1fr; gap: 22px; }
+		.form-group { display: flex; flex-direction: column; gap: 10px; }
+		.label-row { display: flex; align-items: center; gap: 10px; }
+		.form-group label { font-size: 16px; font-weight: bold; color: #374151; }
+		.required { color: #dc2626; margin-left: 4px; }
+		.error-msg { color: #dc2626; font-size: 14px; font-weight: bold; }
+		.form-group input, .form-group select { width: 100%; height: 54px; border: 1px solid #d1d5db; border-radius: 10px; padding: 0 14px; font-size: 15px; background: white; outline: none; }
+		.form-group input:hover, .form-group select:hover { border-color: #2f6fec; }
+		.form-group input:focus, .form-group select:focus { border-color: #2f6fec; box-shadow: 0 0 0 3px rgba(47, 111, 236, 0.1); }
+		.button-area { display: flex; justify-content: center; gap: 16px; margin-top: 34px; flex-wrap: wrap; }
+		.back-btn, .confirm-btn { border: none; padding: 14px 34px; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; min-width: 220px; text-decoration: none; text-align: center; }
+		.back-btn { background: white; color: #444; border: 1px solid #d1d5db; }
+		.back-btn:hover { background: #dce3ec; border-color: #a0aec0; }
+		.confirm-btn { background: #2f6fec; color: white; }
+		.confirm-btn:hover { background: #1e5ad3; }
+		@media (max-width: 768px) {
+			header { padding: 16px; flex-direction: column; gap: 14px; align-items: flex-start; }
+			.header-right { width: 100%; }
+			.header-btn { flex: 1; text-align: center; }
+			.container { width: 100%; padding: 0 12px; }
+			.card { padding: 24px; }
+			.button-area { flex-direction: column; }
+			.back-btn, .confirm-btn { width: 100%; }
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1>スタッフ登録</h1>
+		<div class="header-right">
+			<a href="./admin.html" class="header-btn">管理者TOP</a>
+			<a href="#" class="header-btn" onclick="TeamB.logout();return false;">ログアウト</a>
+		</div>
+	</header>
+
+	<div class="container">
+		<div class="breadcrumb">管理者TOP ＞ スタッフ一覧 ＞ スタッフ登録</div>
+
+		<div class="card">
+			<h2 class="section-title">スタッフ情報入力</h2>
+
+			<form id="staffForm" novalidate>
+				<div class="form-grid">
+					<div class="form-group">
+						<div class="label-row">
+							<label>氏名<span class="required">*</span></label>
+							<div class="error-msg" id="err-name"></div>
+						</div>
+						<input type="text" id="name" name="name" placeholder="例：山田 太郎">
+					</div>
+
+					<div class="form-group">
+						<div class="label-row">
+							<label>所属部署<span class="required">*</span></label>
+							<div class="error-msg" id="err-jobType"></div>
+						</div>
+						<select id="jobType" name="jobType">
+							<option value="">選択してください</option>
+							<option value="受付">受付</option>
+							<option value="内科">内科</option>
+							<option value="小児科">小児科</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<div class="label-row">
+							<label>権限<span class="required">*</span></label>
+							<div class="error-msg" id="err-authorityType"></div>
+						</div>
+						<select id="authorityType" name="authorityType">
+							<option value="管理者">管理者</option>
+							<option value="一般">一般</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<div class="label-row">
+							<label>メールアドレス<span class="required">*</span></label>
+							<div class="error-msg" id="err-email"></div>
+						</div>
+						<input type="email" id="email" name="email" placeholder="sample@example.com">
+					</div>
+
+					<div class="form-group">
+						<div class="label-row">
+							<label>パスワード<span class="required">*</span></label>
+							<div class="error-msg" id="err-password"></div>
+						</div>
+						<input type="password" id="password" name="password" placeholder="********">
+					</div>
+
+					<div class="form-group">
+						<div class="label-row">
+							<label>備考</label>
+							<div class="error-msg" id="err-memo"></div>
+						</div>
+						<input type="text" id="memo" name="memo" placeholder="特記事項があれば入力">
+					</div>
+				</div>
+
+				<div class="button-area">
+					<button type="button" class="back-btn" onclick="location.href='./staff-list.html'">一覧へ戻る</button>
+					<button type="submit" class="confirm-btn">確認画面へ</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="./js/db.js"></script>
+	<script>
+		TeamB.init().then(() => {
+			TeamB.requireStaff();
+
+			// 下書きがあれば復元
+			const draft = TeamB.getDraft("staff-new");
+			if (draft) {
+				document.getElementById("name").value = draft.name || "";
+				document.getElementById("jobType").value = draft.jobType || "";
+				document.getElementById("authorityType").value = draft.authorityType || "管理者";
+				document.getElementById("email").value = draft.email || "";
+				document.getElementById("password").value = draft.password || "";
+				document.getElementById("memo").value = draft.memo || "";
+			}
+
+			const form = document.getElementById("staffForm");
+			form.addEventListener("submit", (e) => {
+				e.preventDefault();
+				["name", "jobType", "authorityType", "email", "password", "memo"].forEach((f) => {
+					document.getElementById("err-" + f).textContent = "";
+				});
+
+				const data = {
+					name: document.getElementById("name").value.trim(),
+					jobType: document.getElementById("jobType").value,
+					authorityType: document.getElementById("authorityType").value,
+					email: document.getElementById("email").value.trim(),
+					password: document.getElementById("password").value,
+					memo: document.getElementById("memo").value.trim(),
+				};
+
+				let ok = true;
+				if (!data.name) { document.getElementById("err-name").textContent = "氏名を入力してください"; ok = false; }
+				if (!data.jobType) { document.getElementById("err-jobType").textContent = "所属部署を選択してください"; ok = false; }
+				if (!data.authorityType) { document.getElementById("err-authorityType").textContent = "権限を選択してください"; ok = false; }
+				if (!data.email) {
+					document.getElementById("err-email").textContent = "メールアドレスを入力してください"; ok = false;
+				} else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) {
+					document.getElementById("err-email").textContent = "メールアドレスの形式が正しくありません"; ok = false;
+				} else if (TeamB.staffs().some((s) => s.email === data.email)) {
+					document.getElementById("err-email").textContent = "そのメールアドレスは既に登録されています"; ok = false;
+				}
+				if (!data.password) { document.getElementById("err-password").textContent = "パスワードを入力してください"; ok = false; }
+
+				if (!ok) return;
+
+				TeamB.setDraft("staff-new", data);
+				location.href = "./staff-new-confirm.html";
+			});
+		});
+	</script>
+</body>
+
+</html>

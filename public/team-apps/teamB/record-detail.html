@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カルテ詳細</title>
+    <link rel="stylesheet" href="./css/admin/records/detail.css">
+</head>
+<body>
+    <header>
+        <h1>カルテ・患者管理システム</h1>
+        <div class="header-right">
+            <a href="./admin.html" class="header-btn">管理者TOP</a>
+            <a href="javascript:void(0)" class="header-btn" onclick="TeamB.logout()">ログアウト</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <nav class="breadcrumb" aria-label="パンくずリスト">管理者TOP ＞ 患者管理 ＞ カルテ詳細</nav>
+
+        <section class="card" aria-labelledby="recordDetailTitle">
+            <div class="card-header">
+                <div class="card-title-area">
+                    <h2 id="recordDetailTitle">カルテ詳細</h2>
+                    <div class="visit-date">
+                        最終更新日：<span id="updatedAt"></span>
+                    </div>
+                </div>
+                <div class="top-buttons">
+                    <a class="back-btn" id="backBtn" href="./patient-detail.html">患者詳細へ戻る</a>
+                    <a class="edit-btn" id="editBtn" href="#">編集</a>
+                    <a class="disable-btn" id="disableBtn" href="#">無効化</a>
+                    <a class="edit-btn" id="printBtn" href="#" target="_blank">印刷</a>
+                </div>
+            </div>
+
+            <section aria-labelledby="basicTitle">
+                <h3 id="basicTitle" class="section-title">基本情報</h3>
+                <table class="detail-table">
+                    <tr><th>予約ID</th><td id="v_appointmentId"></td></tr>
+                    <tr><th>医師スタッフID</th><td id="v_doctorStaffId"></td></tr>
+                    <tr><th>主訴</th><td id="v_chiefComplaint"></td></tr>
+                    <tr><th>現病歴</th><td id="v_presentIllness"></td></tr>
+                    <tr><th>誘因</th><td id="v_triggerFactor"></td></tr>
+                </table>
+            </section>
+
+            <section aria-labelledby="vitalTitle">
+                <h3 id="vitalTitle" class="section-title">診察所見</h3>
+                <table class="detail-table">
+                    <tr><th>体温</th><td><span id="v_bodyTemperature"></span> ℃</td></tr>
+                    <tr><th>血圧</th><td><span id="v_systolicBp"></span> / <span id="v_diastolicBp"></span> mmHg</td></tr>
+                    <tr><th>脈拍</th><td><span id="v_pulse"></span> 回/分</td></tr>
+                    <tr><th>SpO2</th><td><span id="v_spo2"></span> %</td></tr>
+                    <tr><th>身体所見</th><td id="v_physicalExam"></td></tr>
+                    <tr><th>神経学的所見</th><td id="v_neurologicalExam"></td></tr>
+                </table>
+            </section>
+
+            <section aria-labelledby="testTitle">
+                <h3 id="testTitle" class="section-title">検査・診断・処方</h3>
+                <table class="detail-table">
+                    <tr><th>血液検査</th><td id="v_bloodTest"></td></tr>
+                    <tr><th>尿検査</th><td id="v_urineTest"></td></tr>
+                    <tr><th>心電図</th><td id="v_ecg"></td></tr>
+                    <tr><th>レントゲン</th><td id="v_xray"></td></tr>
+                    <tr><th>診断名</th><td id="v_diagnosis"></td></tr>
+                    <tr><th>ICD-10</th><td id="v_icd10Code"></td></tr>
+                    <tr><th>処方薬</th><td id="v_prescription"></td></tr>
+                    <tr><th>処置</th><td id="v_treatment"></td></tr>
+                    <tr><th>次回来院予定日</th><td id="v_nextVisitDate"></td></tr>
+                    <tr><th>医師メモ</th><td id="v_doctorMemo"></td></tr>
+                    <tr><th>備考</th><td id="v_memo"></td></tr>
+                    <tr><th>状態</th><td id="v_invalidFlag"></td></tr>
+                </table>
+            </section>
+        </section>
+    </main>
+
+    <script src="./js/db.js"></script>
+    <script>
+        TeamB.init().then(() => {
+            const s = TeamB.requireStaff();
+            if (!s) return;
+
+            const id = new URLSearchParams(location.search).get("id");
+            const r = TeamB.recordView(id);
+            if (!r) { alert("対象のカルテが見つかりません。"); location.href = "./admin.html"; return; }
+
+            document.getElementById("updatedAt").textContent = TeamB.fmtDateTime(r.updatedAt);
+
+            const patientId = (r.appointment && r.appointment.patientId) || "";
+            document.getElementById("backBtn").href = "./patient-detail.html?id=" + encodeURIComponent(patientId);
+            document.getElementById("editBtn").href = "./record-form.html?recordId=" + encodeURIComponent(id);
+            document.getElementById("disableBtn").href = "./record-disable-confirm.html?id=" + encodeURIComponent(id);
+            document.getElementById("printBtn").href = "./record-preview.html?id=" + encodeURIComponent(id);
+
+            const textFields = ["appointmentId", "doctorStaffId", "chiefComplaint", "presentIllness",
+                "triggerFactor", "bodyTemperature", "systolicBp", "diastolicBp", "pulse", "spo2",
+                "physicalExam", "neurologicalExam", "bloodTest", "urineTest", "ecg", "xray",
+                "diagnosis", "icd10Code", "prescription", "treatment", "nextVisitDate", "doctorMemo", "memo"];
+            textFields.forEach((f) => {
+                document.getElementById("v_" + f).textContent = r[f] == null ? "" : r[f];
+            });
+
+            document.getElementById("v_invalidFlag").textContent = r.invalidFlag === true ? "無効" : "有効";
+        });
+    </script>
+</body>
+</html>
