@@ -70,7 +70,7 @@
 		function render(page) {
 			const tbody = document.getElementById("tbody");
 			if (results.length === 0) {
-				tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:#64748b; padding:20px;">該当する在庫情報が見つかりませんでした。</td></tr>`;
+				tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:#64748b; padding:20px;">表示可能な在庫情報がありません。</td></tr>`;
 				document.getElementById("pager").innerHTML = ""; return;
 			}
 			const SIZE = TeamIUI.PAGE_SIZE;

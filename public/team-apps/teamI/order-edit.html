@@ -33,7 +33,7 @@
 						<div class="form-group"><label>注文者名</label><input type="text" id="customerName" disabled></div>
 						<div class="form-group"><label>電話番号</label><input type="text" id="customerPhone" disabled></div>
 						<div class="form-group full-width"><label>メールアドレス</label><input type="text" id="customerEmail" disabled></div>
-						<div class="form-group full-width"><label>出荷元 → 受取先</label><input type="text" id="route" disabled></div>
+						<div class="form-group full-width"><label>発送元 → 受取先</label><input type="text" id="route" disabled></div>
 					</div>
 				</div>
 
@@ -43,6 +43,7 @@
 						<div class="form-group">
 							<label>予約冊数 <span class="required">*</span></label>
 							<input type="number" id="quantity" min="1" required>
+							<span class="error-message" id="quantityLockMsg" style="color:#6b7280;display:none;">冊数の変更は「要求中」のステータスのみ可能です</span>
 						</div>
 						<div class="form-group">
 							<label>ステータス</label>
@@ -134,6 +135,12 @@
 			document.getElementById("route").value = TeamI.storeName(ORDER.shippingStoreId) + " → " + TeamI.storeName(ORDER.pickupStoreId);
 			document.getElementById("quantity").value = ORDER.quantity;
 			document.getElementById("note").value = ORDER.note || "";
+
+			// 冊数の変更は「要求中」(status==1)のみ可能。それ以外は非活性＋案内表示
+			if (ORDER.status !== 1) {
+				document.getElementById("quantity").disabled = true;
+				document.getElementById("quantityLockMsg").style.display = "block";
+			}
 
 			buildStatusControl();
 

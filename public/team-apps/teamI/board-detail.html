@@ -11,6 +11,7 @@
 	<style>
 		.stock-none { color:#b91c1c; font-weight:bold; font-size:1.2rem; }
 		.stock-warn { color:#b45309; font-weight:bold; font-size:1.2rem; }
+		.stock-disabled { color:#999999; font-weight:bold; font-size:1.1rem; }
 	</style>
 </head>
 
@@ -66,9 +67,15 @@
 			POP_ID = id;
 			const b = TeamI.book(pop.bookId) || {};
 			const stocks = TeamI.bookStocks(pop.bookId);
+			const allStores = TeamI.stores();
 
-			const stockHtml = stocks.length
-				? stocks.map(s => `<li><span>${TeamI.esc(TeamI.storeName(s.storeId))}</span><span class="stock-status" style="margin-left:20px;">${stockStatus(s)}</span></li>`).join("")
+			// 全店舗を表示し、在庫レコードがない店舗は「取扱なし」とする
+			const stockHtml = allStores.length
+				? allStores.map(store => {
+					const s = stocks.find(st => st.storeId === store.id);
+					const status = s ? stockStatus(s) : '<span class="stock-disabled">取扱なし－</span>';
+					return `<li><span>${TeamI.esc(store.storeName)}</span><span class="stock-status" style="margin-left:20px;">${status}</span></li>`;
+				}).join("")
 				: `<li style="color:#888;">現在、表示できる店舗情報がありません</li>`;
 
 			root.innerHTML = `

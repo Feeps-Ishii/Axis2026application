@@ -395,8 +395,8 @@
 					<label class="form-label serif">📌 POPの画像<span class="required-mark pop-font">必須</span></label>
 
 					<div class="form-note pop-font">
-						<span>※10MB以上のファイルはアップロードできません。</span>
-						<span>※画像ファイル（.jpg, .png等）のみ対応しています。</span>
+						<span>※ファイルサイズの上限は10MBまでです。これを超えるデータは通信の仕組み上エラーとなる場合があります。</span>
+						<span>※画像ファイル（.jpg, .png 等）のみ対応しています。</span>
 					</div>
 
 					<div class="upload-area" id="dropZone">
@@ -417,6 +417,10 @@
 							</div>
 
 							<span class="guide-text-outside pop-font">チラ見せ範囲</span>
+						</div>
+
+						<div id="fileNameDisplay" class="pop-font"
+							style="margin-top: 15px; color: var(--primary-color); font-size: 0.95rem; font-weight: bold; display: none;">
 						</div>
 
 					</div>
@@ -466,6 +470,7 @@
 		const uploadPrompt = document.getElementById('uploadPrompt');
 		const imagePreview = document.getElementById('imagePreview');
 		const previewOuterWrapper = document.getElementById('previewOuterWrapper');
+		const fileNameDisplay = document.getElementById('fileNameDisplay');
 		const MAX_BYTES = 10 * 1024 * 1024;
 		let BOOK_ID = null;
 		let uploadedDataUrl = "";
@@ -521,6 +526,9 @@
 				imagePreview.src = uploadedDataUrl;
 				previewOuterWrapper.style.display = 'flex';
 				uploadPrompt.style.display = 'none';
+				// 選択されたファイル名を表示する
+				fileNameDisplay.textContent = '📎 ' + file.name;
+				fileNameDisplay.style.display = 'block';
 			};
 			reader.readAsDataURL(file);
 		}

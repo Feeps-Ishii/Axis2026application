@@ -32,7 +32,7 @@
 							<input type="text" id="bookTitle" disabled placeholder="書籍情報が選択されていません">
 						</div>
 						<div class="form-group">
-							<label>要求先店舗（出荷元）</label>
+							<label>要求先店舗（発送元）</label>
 							<input type="text" id="shippingStoreName" disabled placeholder="店舗情報が選択されていません">
 						</div>
 						<div class="form-group">
@@ -114,7 +114,7 @@
 				const note = document.getElementById("note").value;
 
 				if (!BOOK) { showError("対象の書籍が選択されていません。"); return; }
-				if (!SHIPPING) { showError("要求先店舗（出荷元）が選択されていません。"); return; }
+				if (!SHIPPING) { showError("要求先店舗（発送元）が選択されていません。"); return; }
 				if (!(quantity >= 1)) { showError("予約冊数は1以上で入力してください。"); return; }
 				if (!customerName) { showError("顧客氏名を入力してください。"); return; }
 				if (!customerPhone) { showError("電話番号を入力してください。"); return; }

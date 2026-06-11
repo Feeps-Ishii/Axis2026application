@@ -57,11 +57,11 @@
 				<div class="form-group" style="display: flex; gap: 15px;">
 					<div style="flex: 1;">
 						<label id="stockCountLabel">在庫数</label>
-						<input type="number" id="stockCount" name="stockCount" required>
+						<input type="number" id="stockCount" name="stockCount" min="0" max="99999" required>
 					</div>
 					<div style="flex: 1;">
 						<label>発注閾値</label>
-						<input type="number" id="alertThreshold" name="alertThreshold" required>
+						<input type="number" id="alertThreshold" name="alertThreshold" min="0" max="50000" required>
 					</div>
 					<div style="flex: 1;">
 						<label>棚位置</label>
@@ -178,6 +178,15 @@
 					document.getElementById('releaseDate').value = (b.releaseDate || "").substring(0, 10);
 					if (b.editionType) document.getElementById('editionType').value = b.editionType;
 					if (b.genreId) document.getElementById('genreId').value = b.genreId;
+				} else {
+					// ISBN検索で何も見つからなかった時
+					const errorDiv = document.getElementById('isbn-error');
+					errorDiv.innerText = "書籍情報が見つかりませんでした。各項目を手入力してください。";
+					errorDiv.style.display = "block";
+					document.getElementById('isbn').style.borderColor = "#dc3545";
+					document.getElementById('title').value = '';
+					document.getElementById('publisher').value = '';
+					document.getElementById('author').value = '';
 				}
 			}
 		}
@@ -252,6 +261,19 @@
 				if (isArrivalMode && (!data.arrivalCount || data.arrivalCount < 1)) {
 					alert('入荷数を入力してください。');
 					return;
+				}
+				// 入荷モード時、現在庫数と入荷数の合計が上限(99,999)を超えないかチェック
+				if (isArrivalMode) {
+					const totalStock = data.stockCount + data.arrivalCount;
+					if (totalStock > 99999) {
+						const errorDiv = document.getElementById('isbn-error');
+						errorDiv.innerText = `現在庫数と入荷数の合計（${totalStock.toLocaleString()}）が上限の99,999値を超過しています。`;
+						errorDiv.style.display = "block";
+						const arrivalInput = document.getElementById('arrivalCount');
+						arrivalInput.style.borderColor = "#dc3545";
+						arrivalInput.focus();
+						return;
+					}
 				}
 				TeamI.setDraft('stock', data);
 				location.href = "./stock-confirm.html";
