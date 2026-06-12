@@ -53,7 +53,10 @@ export default async function TeamDetailPage({
           {company?.name ?? "（モデル企業 準備中）"}
         </h1>
         {company?.tagline && (
-          <p className="mt-2 text-lg font-medium" style={{ color: team.accent }}>
+          <p
+            className="mt-2 text-lg font-medium"
+            style={{ color: team.accent }}
+          >
             {company.tagline}
           </p>
         )}
@@ -126,7 +129,8 @@ export default async function TeamDetailPage({
             <code className="mx-1 rounded bg-black/5 px-1.5 py-0.5 font-mono text-xs dark:bg-white/10">
               src/data/teams.json
             </code>
-            の該当チームに <code className="font-mono">company</code> を追記してください。
+            の該当チームに <code className="font-mono">company</code>{" "}
+            を追記してください。
           </p>
         </Section>
       )}
@@ -142,9 +146,6 @@ export default async function TeamDetailPage({
             >
               アプリを起動する
             </Link>
-            <p className="text-xs text-black/45 dark:text-white/45">
-              擬似アプリ（JSON + localStorage モック）を開きます
-            </p>
           </>
         ) : (
           <span className="inline-flex w-full max-w-sm items-center justify-center rounded-full border border-dashed border-black/20 px-6 py-3.5 text-base font-medium text-black/40 dark:border-white/20 dark:text-white/40">

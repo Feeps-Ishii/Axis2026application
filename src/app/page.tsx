@@ -15,10 +15,13 @@ export default function Home() {
           Axis 2026 チーム成果物
         </h1>
         <p className="mt-3 max-w-2xl text-black/70 dark:text-white/70">
-          全{teams.length}チームの成果物を講師側でまとめた起動ポータルです。
+          全{teams.length}チームの成果物をまとめた起動ポータルです。
+          <br />
           各カードからモデル企業の詳細を開き、その画面の「起動」ボタンで
-          擬似アプリ（JSON + localStorage モック）を開きます。
-          現在 {readyCount} / {teams.length} チーム配置済み。
+          擬似アプリ
+          <br />
+          （JSON + localStorage モック）を開きます。 現在 {readyCount} /{" "}
+          {teams.length} チーム配置済み。
         </p>
       </header>
 
@@ -35,7 +38,10 @@ export default function Home() {
                 </span>
                 <span
                   className="rounded-full px-2.5 py-0.5 text-xs font-medium"
-                  style={{ backgroundColor: `${team.accent}1a`, color: team.accent }}
+                  style={{
+                    backgroundColor: `${team.accent}1a`,
+                    color: team.accent,
+                  }}
                 >
                   {team.category}
                 </span>
